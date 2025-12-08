@@ -1,20 +1,59 @@
 package com.colourswift.cssecurity
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import android.content.ComponentName
-import android.content.pm.PackageManager
-import android.os.Bundle
+import java.util.concurrent.Executors
+
+class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
+    private val channel = MethodChannel(messenger, "cs.fastapps")
+    private val io = Executors.newSingleThreadExecutor()
+
+    init { channel.setMethodCallHandler(this) }
+
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        when (call.method) {
+            "listUserApps" -> {
+                io.execute {
+                    try {
+                        val pm = context.packageManager
+                        val apps = pm.getInstalledApplications(0)
+                            .filter { (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 }
+                            .map {
+                                val label = pm.getApplicationLabel(it).toString()
+                                mapOf(
+                                    "name" to label,
+                                    "package" to it.packageName,
+                                    "path" to it.sourceDir
+                                )
+                            }
+                        Handler(Looper.getMainLooper()).post { result.success(apps) }
+                    } catch (t: Throwable) {
+                        Handler(Looper.getMainLooper()).post { result.error("ERR", t.message, null) }
+                    }
+                }
+            }
+            else -> result.notImplemented()
+        }
+    }
+}
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "colourswift/foreground_service"
@@ -23,13 +62,11 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Battery optimization prompt removed
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // ===== Foreground service control =====
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -40,12 +77,10 @@ class MainActivity : FlutterActivity() {
                         startForegroundServiceCompat(title, text)
                         result.success(true)
                     }
-
                     "stopService" -> {
                         stopForegroundService()
                         result.success(true)
                     }
-
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
                         val title = args?.get("title") as? String ?: "CS Security"
@@ -53,21 +88,17 @@ class MainActivity : FlutterActivity() {
                         showNotification(title, text)
                         result.success(true)
                     }
-
                     else -> result.notImplemented()
                 }
             }
 
-        // ===== Storage permission channel =====
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "colourswift/storage_permission")
             .setMethodCallHandler { call, result ->
                 if (call.method == "openManageStorage") {
                     try {
-                        val intent =
-                            Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = android.net.Uri.parse("package:$packageName")
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        Log.i("CSMain", "Launching Manage Storage settings…")
                         startActivity(intent)
                         result.success(true)
                     } catch (e: Exception) {
@@ -77,7 +108,6 @@ class MainActivity : FlutterActivity() {
                 } else result.notImplemented()
             }
 
-        // ===== Icon switcher (Pro feature) =====
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "colourswift/icon_switch")
             .setMethodCallHandler { call, _ ->
                 if (call.method == "setIcon") {
@@ -86,7 +116,8 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
-        // ===== Realtime file detection stream =====
+        FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
             .setStreamHandler(object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -114,10 +145,6 @@ class MainActivity : FlutterActivity() {
             })
     }
 
-    // ------------------------
-    // Class-level helper functions
-    // ------------------------
-
     private fun startForegroundServiceCompat(title: String, text: String) {
         try {
             val intent = Intent(this, CSForegroundService::class.java)
@@ -144,8 +171,7 @@ class MainActivity : FlutterActivity() {
 
     private fun showNotification(title: String, text: String) {
         val channelId = "cssecurity_realtime_notify"
-        val manager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = android.app.NotificationChannel(
                 channelId, "Realtime Alerts",
@@ -166,10 +192,8 @@ class MainActivity : FlutterActivity() {
     private fun switchLauncherIcon(icon: String) {
         val pm = applicationContext.packageManager
         val main = ComponentName(applicationContext, "com.colourswift.cssecurity.MainActivity")
-        val defAlias =
-            ComponentName(applicationContext, "com.colourswift.cssecurity.IconDefaultAlias")
-        val birdAlias =
-            ComponentName(applicationContext, "com.colourswift.cssecurity.IconBirdAlias")
+        val defAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconDefaultAlias")
+        val birdAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconBirdAlias")
 
         val target = if (icon == "bird") birdAlias else defAlias
 
@@ -190,7 +214,7 @@ class MainActivity : FlutterActivity() {
 
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        intent.setComponent(target)
+        intent.component = target
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
 

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/realtime_protection_service.dart';
 import '../services/update_service.dart';
 import '../utils/animated_route.dart';
+import 'exclusions/exclusion_manager_screen.dart';
 import 'scan_screen.dart';
 import '../services/service_manager.dart';
 import 'dart:async';
@@ -27,6 +28,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   Timer? _periodicScanTimer;
   bool isPro = false;
   bool hasUpdate = false;
+  bool useCloudScan = false;
   String? remoteVersion;
   String version = '';
 
@@ -54,6 +56,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     );
   }
 
+  Future<void> _loadCloudToggle() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      useCloudScan = prefs.getBool('useCloudScan') ?? false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +70,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     _loadProtectionState();
     _loadVersion();
     _loadProStatus();
+    _loadCloudToggle();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForDatabaseUpdate();
     });
@@ -215,7 +225,111 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   void _startBackgroundScan() => RealtimeProtectionService.start();
   void _stopBackgroundScan() => RealtimeProtectionService.stop();
 
-  void _openScan() => Navigator.push(context, animatedRoute(const ScanScreen()));
+  void _openScanDrawer() {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      backgroundColor: theme.cardColor,
+      builder: (context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.55,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(height: 14),
+                Text(
+                  'ENGINE READY • VX-TITANIUM-v6',
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: text.bodyLarge?.color?.withOpacity(0.75),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Divider(height: 1),
+
+                ListTile(
+                  leading: const Icon(Icons.shield_rounded),
+                  title: const Text('Smart Scan'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      animatedRoute(const ScanScreen(startMode: ScanMode.smart)),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bolt_rounded),
+                  title: const Text('Rapid Scan'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      animatedRoute(const ScanScreen(startMode: ScanMode.rapid)),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.apps_rounded),
+                  title: const Text('Installed Apps'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      animatedRoute(const ScanScreen(startMode: ScanMode.installed)),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.insert_drive_file_rounded),
+                  title: const Text('File / App Scan'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      animatedRoute(const ScanScreen(startMode: ScanMode.single)),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 10),
+                const Divider(height: 1),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Use cloud-assisted scan', style: text.bodyMedium),
+                      Switch(
+                        value: useCloudScan,
+                        onChanged: (v) async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('useCloudScan', v);
+                          setState(() => useCloudScan = v);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   void dispose() {
@@ -253,30 +367,46 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           SliverAppBar(
             pinned: true,
             elevation: 0,
-            expandedHeight: isPro ? 80 : 110,
+            expandedHeight: isPro ? 80 : 80,
             backgroundColor: theme.appBarTheme.backgroundColor,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              titlePadding: const EdgeInsets.only(left: 16, bottom: 12),
               title: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('CS Security',
+                  Image.asset(
+                    'assets/icons/logo3.png',
+                    width: 30,
+                    height: 30,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'CS Security',
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
                       style: text.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 20,
                         color: text.bodyLarge?.color,
                         letterSpacing: 0.5,
-                      )),
-                  if (isPro)
+                      ),
+                    ),
+                  ),
+                  if (isPro) ...[
+                    const SizedBox(width: 6),
                     Container(
-                      margin: const EdgeInsets.only(left: 6),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.amber.shade700,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('PRO',
-                          style: TextStyle(color: Colors.white, fontSize: 10)),
+                      child: const Text(
+                        'PRO',
+                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
                     ),
+                  ],
                 ],
               ),
               background: Container(decoration: BoxDecoration(gradient: backgroundGradient)),
@@ -285,164 +415,181 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: _toggleProtection,
-                    child: Column(
-                      children: [
-                        CircularPercentIndicator(
-                          radius: 130.0,
-                          lineWidth: 14.0,
-                          animation: true,
-                          animateFromLastPercent: true,
-                          percent: protectionPercent,
-                          circularStrokeCap: CircularStrokeCap.round,
-                          progressColor:
-                          protectionEnabled ? Colors.greenAccent : Colors.redAccent,
-                          backgroundColor: theme.dividerColor.withOpacity(0.1),
-                          center: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: _toggleProtection,
+                      child: Column(
+                        children: [
+                          CircularPercentIndicator(
+                            radius: 130.0,
+                            lineWidth: 14.0,
+                            animation: true,
+                            animateFromLastPercent: true,
+                            percent: protectionPercent,
+                            circularStrokeCap: CircularStrokeCap.round,
+                            progressColor:
+                            protectionEnabled ? Colors.greenAccent : Colors.redAccent,
+                            backgroundColor: theme.dividerColor.withOpacity(0.1),
+                            center: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
                                   protectionEnabled
                                       ? Icons.verified_user
                                       : Icons.warning_amber_rounded,
                                   color: protectionEnabled
                                       ? Colors.greenAccent
                                       : Colors.redAccent,
-                                  size: 60),
-                              const SizedBox(height: 10),
-                              Text(
-                                protectionEnabled
-                                    ? 'Device Protected'
-                                    : 'Protection Disabled',
-                                style: text.titleMedium?.copyWith(
-                                  color: protectionEnabled
-                                      ? text.bodyLarge?.color
-                                      : Colors.redAccent,
-                                  fontWeight: FontWeight.w600,
+                                  size: 60,
                                 ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  protectionEnabled ? 'Device Protected' : 'Protection Disabled',
+                                  style: text.titleMedium?.copyWith(
+                                    color: protectionEnabled
+                                        ? text.bodyLarge?.color
+                                        : Colors.redAccent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'Tap to ${protectionEnabled ? "disable" : "enable"} protection',
+                                  style: text.bodySmall?.copyWith(
+                                    color: text.bodySmall?.color?.withOpacity(0.7),
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          GestureDetector(
+                            onTap: _openScanDrawer,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              curve: Curves.easeOut,
+                              width: double.infinity,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    theme.colorScheme.primary.withOpacity(0.9),
+                                    theme.colorScheme.primary.withOpacity(0.7),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.colorScheme.primary.withOpacity(0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 5),
-                              Text(
-                                'Tap to ${protectionEnabled ? "disable" : "enable"} protection',
-                                style: text.bodySmall?.copyWith(
-                                  color:
-                                  text.bodySmall?.color?.withOpacity(0.7),
-                                  fontStyle: FontStyle.italic,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.search_rounded,
+                                      color: Colors.white, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Scan Now',
+                                    style: text.titleMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            'ColourSwift Antivirus v$version',
+                            style: text.bodySmall?.copyWith(
+                              color: text.bodySmall?.color?.withOpacity(0.6),
+                            ),
+                          ),
+
+                          if (hasUpdate && remoteVersion != null && remoteVersion!.isNotEmpty)
+                            ...[
+                              const SizedBox(height: 10),
+                              ElevatedButton.icon(
+                                onPressed: () => _startUpdate(remoteVersion!),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  textStyle: const TextStyle(
+                                      fontSize: 13, fontWeight: FontWeight.w600),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
+                                icon: const Icon(Icons.system_update_rounded, size: 18),
+                                label: Text('Update to v${remoteVersion ?? ""}'),
                               ),
                             ],
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        GestureDetector(
-                          onTap: _openScan,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            curve: Curves.easeOut,
-                            width: double.infinity,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              gradient: LinearGradient(
-                                colors: [
-                                  theme.colorScheme.primary.withOpacity(0.9),
-                                  theme.colorScheme.primary.withOpacity(0.7),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.colorScheme.primary.withOpacity(0.25),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.search_rounded,
-                                    color: Colors.white, size: 20),
-                                const SizedBox(width: 8),
-                                Text('Scan Now',
-                                    style: text.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.3)),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Text('ColourSwift Antivirus v$version',
-                            style: text.bodySmall?.copyWith(
-                                color: text.bodySmall?.color?.withOpacity(0.6))),
-                        if (hasUpdate &&
-                            remoteVersion != null &&
-                            remoteVersion!.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          ElevatedButton.icon(
-                            onPressed: () => _startUpdate(remoteVersion!),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              textStyle: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w600),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                            ),
-                            icon: const Icon(Icons.system_update_rounded, size: 18),
-                            label: Text('Update to v${remoteVersion ?? ""}'),
-                          ),
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Features',
+
+                    const SizedBox(height: 40),
+
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Features',
                         style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: text.bodyLarge?.color)),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    title: 'MetaPass',
-                    description:
-                    'Generate secure offline passwords.',
-                    icon: Icons.key_rounded,
-                    color: Colors.amberAccent,
-                    onTap: () =>
-                        Navigator.push(context, animatedRoute(const PasswordTestScreen())),
-                  ),
-                  const SizedBox(height: 15),                  const SizedBox(height: 15),
-                  _buildFeatureCard(
-                    context,
-                    title: 'Cleaner Pro',
-                    description:
-                    'Find duplicates, old media, and unused apps to reclaim storage automatically.',
-                    icon: Icons.cleaning_services_rounded,
-                    color: Colors.blueAccent,
-                    onTap: () =>
-                        Navigator.push(context, animatedRoute(const CleanerScreen())),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildFeatureCard(
-                    context,
-                    title: 'Wi-Fi Protection',
-                    description:
-                    'Coming soon: real-time blocking of malicious connections and trackers, using a private on-device VPN. No external servers, and no data collection',
-                    icon: Icons.wifi_lock_rounded,
-                    color: Colors.tealAccent,
-                  ),
-                ],
+                          fontWeight: FontWeight.bold,
+                          color: text.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+
+                    // Features
+                    _buildFeatureCard(
+                      context,
+                      title: 'MetaPass',
+                      description: 'Generate secure offline passwords.',
+                      icon: Icons.key_rounded,
+                      color: Colors.amberAccent,
+                      onTap: () => Navigator.push(context,
+                          animatedRoute(const PasswordTestScreen())),
+                    ),
+                    const SizedBox(height: 15),
+
+                    _buildFeatureCard(
+                      context,
+                      title: 'Cleaner Pro',
+                      description:
+                      'Find duplicates, old media, and unused apps to reclaim storage automatically.',
+                      icon: Icons.cleaning_services_rounded,
+                      color: Colors.blueAccent,
+                      onTap: () =>
+                          Navigator.push(context, animatedRoute(const CleanerScreen())),
+                    ),
+                    const SizedBox(height: 15),
+
+                    _buildFeatureCard(
+                      context,
+                      title: 'Wi-Fi Protection',
+                      description:
+                      'Coming soon: real-time blocking of malicious connections and trackers, using a private on-device VPN. No external servers.',
+                      icon: Icons.wifi_lock_rounded,
+                      color: Colors.tealAccent,
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),

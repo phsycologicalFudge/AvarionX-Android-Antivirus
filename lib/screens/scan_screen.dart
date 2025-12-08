@@ -36,11 +36,13 @@ class LogBuffer {
   }
 }
 
-enum ScanMode { none, smart, single, rapid }
+enum ScanMode { none, smart, single, rapid, installed }
 enum ScanState { idle, scanning, result, empty }
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  final ScanMode? startMode;
+  const ScanScreen({super.key, this.startMode});
+
   @override
   State<ScanScreen> createState() => _ScanScreenState();
 }
@@ -124,6 +126,13 @@ class ScanWorker {
   }
 }
 
+class _AppTarget {
+  final String name;
+  final String package;
+  final String path;
+  _AppTarget({required this.name, required this.package, required this.path});
+}
+
 class _ScanScreenState extends State<ScanScreen>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
@@ -162,64 +171,18 @@ class _ScanScreenState extends State<ScanScreen>
     return await compute(_hashFileIsolate, path);
   }
 
-  void _openExclusionPopup() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-      ),
-      builder: (_) {
-        return SizedBox(
-          height: 240,
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.folder_open),
-                title: const Text('Exclude a Folder'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final r = await FilePicker.platform.getDirectoryPath();
-                  if (r != null) {
-                    final x = ExclusionService();
-                    await x.load();
-                    await x.addFolder(r);
-                  }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_copy),
-                title: const Text('Exclude a File'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final r = await FilePicker.platform.pickFiles();
-                  if (r != null && r.files.isNotEmpty) {
-                    final p = r.files.single.path!;
-                    final bytes = File(p).readAsBytesSync();
-                    final sha = sha256.convert(bytes).toString();
-                    final x = ExclusionService();
-                    await x.load();
-                    await x.addSha(sha);
-                  }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.list_alt),
-                title: const Text('See Exclusion List'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ExclusionManagerScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  static const MethodChannel _apkFast = MethodChannel("apk_fast");
+
+  Future<Uint8List?> _loadApkBytesFast(String packageName) async {
+    try {
+      final bytes = await _apkFast.invokeMethod("readApkBytes", {
+        "package": packageName,
+      });
+      if (bytes == null) return null;
+      return bytes as Uint8List;
+    } catch (_) {
+      return null;
+    }
   }
 
   void _safeScrollToEnd() {
@@ -229,7 +192,7 @@ class _ScanScreenState extends State<ScanScreen>
     _logScroll.jumpTo(position.maxScrollExtent);
   }
 
-  Future<void> _loadCloudToggle() async {
+  Future<void> _loadCloud() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       useCloudScan = prefs.getBool('useCloudScan') ?? false;
@@ -243,13 +206,11 @@ class _ScanScreenState extends State<ScanScreen>
         return AlertDialog(
           title: const Text('Cloud Scan Info'),
           content: const Text(
-            'When cloud-assisted scanning is enabled, only two cryptographic '
-                'hashes are sent per file:\n\n'
+            'When cloud-assisted scanning is enabled, only two cryptographic hashes are sent per file:\n\n'
                 ' • MD5\n'
                 ' • SHA-256\n\n'
                 'No filenames, file contents, or personal data are uploaded.\n'
-                'These hashes are compared against known threats '
-                'in the ColourSwift database.',
+                'These hashes are compared against known threats in the ColourSwift database.',
           ),
           actions: [
             TextButton(
@@ -265,6 +226,7 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   void initState() {
     super.initState();
+
     _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))
       ..repeat(reverse: true);
 
@@ -273,7 +235,14 @@ class _ScanScreenState extends State<ScanScreen>
       apiKey: '23JVO3ojo23oO3O423rrTR',
     );
 
-    _loadCloudToggle();
+    _loadCloud();
+
+    if (widget.startMode != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        mode = widget.startMode!;
+        _checkAndStart(mode);
+      });
+    }
   }
 
   @override
@@ -285,41 +254,18 @@ class _ScanScreenState extends State<ScanScreen>
 
   double get progress => total == 0 ? 0 : scanned / total;
 
-  Future<void> _startScan(ScanMode m) async {
-    if (state == ScanState.scanning) return;
+  void _cancelScan() {
+    cancelled = true;
+    LogBuffer.add('[USER] Cancelled');
+    if (mounted) Navigator.pop(context);
+  }
 
-    setState(() {
-      mode = m;
-      state = ScanState.scanning;
-      cancelled = false;
-      scanned = 0;
-      total = 0;
-      currentFile = '';
-      clean.clear();
-      infected.clear();
-      singleResult = null;
-    });
-
-    LogBuffer.clear();
-    LogBuffer.add('[SCAN INIT] ${m.name} started...');
-
-    switch (m) {
-      case ScanMode.smart:
-        await _runSmartScan();
-        break;
-      case ScanMode.rapid:
-        await _runRapidScan();
-        break;
-      case ScanMode.single:
-        await _runSingleScan();
-        break;
-      default:
-        break;
-    }
+  void _finishToHome() {
+    if (mounted) Navigator.pop(context);
   }
 
   Future<void> _checkAndStart(ScanMode m) async {
-    if (m == ScanMode.single) {
+    if (m == ScanMode.single || m == ScanMode.installed) {
       await _startScan(m);
       return;
     }
@@ -340,17 +286,12 @@ class _ScanScreenState extends State<ScanScreen>
             status = await Permission.manageExternalStorage.status;
           }
           granted = status.isGranted;
-        } catch (e) {
-          debugPrint('manageExternalStorage check failed: $e');
+        } catch (_) {
           await openAppSettings();
         }
       } else {
         final status = await Permission.storage.status;
-        if (!status.isGranted) {
-          granted = await Permission.storage.request().isGranted;
-        } else {
-          granted = true;
-        }
+        granted = status.isGranted || await Permission.storage.request().isGranted;
       }
     } else {
       granted = true;
@@ -359,11 +300,49 @@ class _ScanScreenState extends State<ScanScreen>
     if (granted) {
       await _startScan(m);
     } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage permission required to scan files.')),
-        );
-      }
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _startScan(ScanMode m) async {
+    if (state == ScanState.scanning) return;
+
+    if (m == ScanMode.single) {
+      mode = m;
+      LogBuffer.clear();
+      LogBuffer.add('[SCAN INIT] ${m.name}');
+      await _runSingleScan();
+      return;
+    }
+
+    setState(() {
+      mode = m;
+      state = ScanState.scanning;
+      cancelled = false;
+      scanned = 0;
+      total = 0;
+      currentFile = '';
+      rustStatus = '';
+      clean.clear();
+      infected.clear();
+      singleResult = null;
+    });
+
+    LogBuffer.clear();
+    LogBuffer.add('[SCAN INIT] ${m.name}');
+
+    switch (m) {
+      case ScanMode.smart:
+        await _runSmartScan();
+        break;
+      case ScanMode.rapid:
+        await _runRapidScan();
+        break;
+      case ScanMode.installed:
+        await _runInstalledScan();
+        break;
+      default:
+        break;
     }
   }
 
@@ -378,39 +357,62 @@ class _ScanScreenState extends State<ScanScreen>
     return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic'].contains(ext);
   }
 
+  static const MethodChannel _fastApps = MethodChannel("cs.fastapps");
 
-  void logCloud(String msg) {
-    LogBuffer.add('[CLOUD] $msg');
+  Future<List<_AppTarget>> _getUserInstalledApps() async {
+    try {
+      final List<dynamic> raw = await _fastApps.invokeMethod("listUserApps");
+      return raw.map((item) {
+        final m = Map<String, dynamic>.from(item);
+        return _AppTarget(
+          name: m["name"] ?? "Unknown",
+          package: m["package"] ?? "",
+          path: m["path"] ?? "",
+        );
+      }).toList();
+    } catch (_) {
+      return [];
+    }
   }
 
   Future<void> _runSmartScan() async {
-    final folders = [
-      '/storage/emulated/0/Download',
-      '/storage/emulated/0/DCIM',
-      '/storage/emulated/0/Documents',
-    ];
-    final files = <String>[];
+    final root = Directory('/storage/emulated/0/');
+    final folders = <String>[];
 
-    for (final path in folders) {
-      try {
-        final dir = Directory(path);
-        if (await dir.exists()) {
-          await for (final e in dir.list(recursive: true, followLinks: false)) {
-            if (e is File) {
-              final x = ExclusionService();
-              await x.load();
-              if (x.skipFolder(e.path)) continue;
-              final ext = _ext(e.path);
-              if (!_isImage(ext)) files.add(e.path);
-            }
-          }
-        }
-      } catch (e) {
-        LogBuffer.add('[ERROR] Skipped restricted: $path ($e)');
+    await for (final e in root.list(followLinks: false)) {
+      if (e is Directory) {
+        final name = e.path.split('/').last.toLowerCase();
+        if (name == 'android' ||
+            name == 'music' ||
+            name == 'movies' ||
+            name == 'podcasts' ||
+            name == 'ringtones' ||
+            name == 'alarms' ||
+            name == 'notifications') continue;
+        folders.add(e.path);
       }
     }
 
-    LogBuffer.add('[SCAN READY] ${files.length} files found.');
+    final files = <String>[];
+
+    for (final dirPath in folders) {
+      final dir = Directory(dirPath);
+      if (!await dir.exists()) continue;
+
+      await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        if (entity is File) {
+          final x = ExclusionService();
+          await x.load();
+          if (x.skipFolder(entity.path)) continue;
+
+          final ext = _ext(entity.path);
+          if (_isImage(ext)) continue;
+
+          files.add(entity.path);
+        }
+      }
+    }
+
     files.sort((a, b) {
       try {
         return File(a).lengthSync().compareTo(File(b).lengthSync());
@@ -419,7 +421,63 @@ class _ScanScreenState extends State<ScanScreen>
       }
     });
 
+    if (files.isEmpty) {
+      LogBuffer.add('[ENGINE] No files found.');
+      if (mounted) setState(() => state = ScanState.empty);
+      return;
+    }
+
+    LogBuffer.add('[ENGINE] Smart Scan: ${files.length} files.');
     await _scanFiles(files);
+  }
+
+  Future<void> _runSingleFileScan() async {
+    final res = await FilePicker.platform.pickFiles();
+    if (res == null || res.files.isEmpty) {
+      _finishToHome();
+      return;
+    }
+
+    final file = res.files.single;
+    setState(() {
+      state = ScanState.scanning;
+      currentFile = file.name;
+      scanned = 0;
+      total = 1;
+      clean.clear();
+      infected.clear();
+      singleResult = null;
+    });
+
+    LogBuffer.add('[SCAN INIT] Single-file → ${file.path}');
+    await Future.delayed(const Duration(milliseconds: 60));
+
+    bool infectedFlag = false;
+
+    final md5h = computeFileMd5(file.path!);
+    final sha = computeFileSha256(file.path!);
+
+    if (useCloudScan) {
+      LogBuffer.add('[CLOUD] Sending MD5=$md5h and SHA256=$sha to cloud');
+      final hits = await cloudScanner.checkBatch([md5h, sha]);
+
+      if (hits.isNotEmpty) {
+        infectedFlag = true;
+      } else {
+        infectedFlag = await compute(_scanFileIsolate, file.path!);
+      }
+    } else {
+      infectedFlag = await compute(_scanFileIsolate, file.path!);
+    }
+
+    if (infectedFlag) {
+      await QuarantineService.quarantineFile(file.path!);
+    }
+
+    setState(() {
+      singleResult = infectedFlag;
+      state = ScanState.result;
+    });
   }
 
   Future<void> _runRapidScan() async {
@@ -457,53 +515,196 @@ class _ScanScreenState extends State<ScanScreen>
     await _scanFiles(allPaths);
   }
 
-  Future<void> _runSingleScan() async {
-    final res = await FilePicker.platform.pickFiles();
-    if (res == null || res.files.isEmpty) {
-      setState(() => state = ScanState.idle);
+  Future<void> _runInstalledScan() async {
+    final apps = await _getUserInstalledApps();
+    if (!mounted) return;
+
+    if (apps.isEmpty) {
+      LogBuffer.add('[ENGINE] No user-installed apps found.');
+      setState(() => state = ScanState.empty);
       return;
     }
 
-    final file = res.files.single;
-    setState(() => currentFile = file.name);
-    LogBuffer.add('[SCAN INIT] Single-file → ${file.path}');
-    await Future.delayed(const Duration(milliseconds: 60));
+    LogBuffer.add('[ENGINE] Installed apps found: ${apps.length}');
+    LogBuffer.add('[ENGINE] Offline scanning only');
 
-    bool infectedFlag = false;
+    setState(() {
+      state = ScanState.scanning;
+      scanned = 0;
+      total = apps.length;
+    });
 
-    final md5h = computeFileMd5(file.path!);
-    final sha = computeFileSha256(file.path!);
-
-    if (useCloudScan) {
-      logCloud('Sending MD5=$md5h and SHA256=$sha to cloud');
-      final hits = await cloudScanner.checkBatch([md5h, sha]);
-
-      if (hits.isNotEmpty) {
-        logCloud('Cloud detected this file');
-        infectedFlag = true;
-      } else {
-        logCloud('Cloud returned safe, switching to offline engine');
-        infectedFlag = await compute(_scanFileIsolate, file.path!);
-      }
-    } else {
-      infectedFlag = await compute(_scanFileIsolate, file.path!);
-    }
-
-    if (infectedFlag) {
-      await QuarantineService.quarantineFile(file.path!);
-      LogBuffer.add('[THREAT] Malicious file quarantined');
-    } else {
-      LogBuffer.add('[CLEAN] File safe');
-    }
-
-    LogBuffer.add('[SUMMARY] Single-file scan complete');
-    await CacheManager.clearAll();
+    await _scanAppTargets(apps, cloud: false);
 
     if (!mounted || cancelled) return;
+
+    await CacheManager.clearAll();
+    setState(() => state = ScanState.result);
+  }
+
+  Future<void> _runSingleScan() async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file_rounded),
+                title: const Text('Scan a file'),
+                onTap: () => Navigator.pop(context, 'file'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.apps_rounded),
+                title: const Text('Scan an installed app'),
+                onTap: () => Navigator.pop(context, 'app'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.rule_folder_rounded),
+                title: const Text('Manage exclusions'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ExclusionManagerScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (choice == null) {
+      _finishToHome();
+      return;
+    }
+
+    if (choice == 'file') {
+      await _runSingleFileScan();
+    } else if (choice == 'app') {
+      await _runSingleAppScan();
+    } else {
+      _finishToHome();
+    }
+  }
+
+  Future<void> _runSingleAppScan() async {
+    final apps = await _getUserInstalledApps();
+    if (apps.isEmpty) {
+      LogBuffer.add('[ENGINE] No installed apps available.');
+      _finishToHome();
+      return;
+    }
+
+    final app = await showModalBottomSheet<_AppTarget>(
+      context: context,
+      builder: (_) {
+        return ListView(
+          children: apps.map((a) {
+            return ListTile(
+              leading: const Icon(Icons.apps_rounded),
+              title: Text(a.name),
+              onTap: () => Navigator.pop(context, a),
+            );
+          }).toList(),
+        );
+      },
+    );
+
+    if (app == null) {
+      _finishToHome();
+      return;
+    }
+
     setState(() {
-      singleResult = infectedFlag;
+      state = ScanState.scanning;
+      currentFile = app.name;
+      scanned = 0;
+      total = 1;
+      clean.clear();
+      infected.clear();
+      singleResult = null;
+    });
+
+    final bad = await compute(_scanFileIsolate, app.path);
+
+    if (bad) {
+      infected.add(app.name);
+    } else {
+      clean.add(app.name);
+    }
+
+    setState(() {
+      singleResult = bad;
       state = ScanState.result;
     });
+  }
+
+  Future<void> _scanAppTargets(List<_AppTarget> apps, {bool cloud = false}) async {
+    if (apps.isEmpty) return;
+
+    final ex = ExclusionService();
+    await ex.load();
+
+    final scanWorker = await ScanWorker.spawn();
+
+    scanned = 0;
+    clean.clear();
+    infected.clear();
+
+    final paths = <String>[];
+    final names = <String, String>{};
+    for (final a in apps) {
+      if (ex.skipFolder(a.path)) continue;
+      paths.add(a.path);
+      names[a.path] = a.name;
+    }
+
+    if (paths.isEmpty) {
+      LogBuffer.add('[ENGINE] No apps to scan after exclusions.');
+      if (mounted) {
+        setState(() {
+          state = ScanState.empty;
+          total = 0;
+          scanned = 0;
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      total = paths.length;
+      scanned = 0;
+    });
+
+    LogBuffer.add('[STAGE 1] Offline scanning apps...');
+
+    int done = 0;
+    for (final p in paths) {
+      if (!mounted || cancelled) return;
+
+      final name = names[p] ?? p;
+
+      setState(() {
+        currentFile = name;
+        scanned = ++done;
+      });
+
+      final bad = await scanWorker.scan(p);
+
+      if (bad) {
+        infected.add(name);
+      } else {
+        clean.add(name);
+      }
+    }
+
+    LogBuffer.add('[SUMMARY] ${infected.length} suspicious apps • ${clean.length} clean');
   }
 
   Future<void> _scanFiles(List<String> files) async {
@@ -629,96 +830,291 @@ class _ScanScreenState extends State<ScanScreen>
     return allowed.contains(ext) && !skip.contains(ext) && size < 100 * 1024 * 1024;
   }
 
-  void _cancelScan() {
-    cancelled = true;
-    LogBuffer.add('[USER] Scan cancelled');
-    setState(() {
-      state = ScanState.idle;
-      String rustStatus = '';
-      currentFile = '';
-      scanned = 0;
-      total = 0;
-    });
-  }
-
-  void _reset() {
-    setState(() {
-      mode = ScanMode.none;
-      state = ScanState.idle;
-      clean.clear();
-      infected.clear();
-      scanned = 0;
-      total = 0;
-      currentFile = '';
-      cancelled = false;
-    });
-  }
-
-  Widget _buildEmpty(ThemeData theme, TextTheme text) => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.folder_off_rounded, size: 70, color: Colors.grey),
-        const SizedBox(height: 20),
-        Text(
-          'No files found to scan',
-          style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Try adding files to your Downloads folder.',
-          style: text.bodySmall?.copyWith(color: Colors.grey),
-        ),
-        const SizedBox(height: 25),
-        ElevatedButton.icon(
-          onPressed: _reset,
-          icon: const Icon(Icons.arrow_back_rounded),
-          label: const Text('Return'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blueGrey.shade800,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     final theme = Theme.of(context);
     final text = theme.textTheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'File scanner',
-          style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: theme.appBarTheme.backgroundColor,
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openExclusionPopup,
-        child: const Icon(Icons.rule_folder_rounded),
-      ),
-
+      appBar: null,
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: switch (state) {
-            ScanState.idle => _buildIdle(theme, text),
             ScanState.scanning => _buildScanning(theme, text),
             ScanState.result => _buildResult(theme, text),
             ScanState.empty => _buildEmpty(theme, text),
+            ScanState.idle => const SizedBox.shrink(),
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScanning(ThemeData theme, TextTheme text) {
+    final color = switch (mode) {
+      ScanMode.smart => Colors.greenAccent,
+      ScanMode.single => Colors.blueAccent,
+      ScanMode.rapid => Colors.amberAccent,
+      ScanMode.installed => Colors.purpleAccent,
+      _ => theme.colorScheme.primary,
+    };
+
+    final icon = switch (mode) {
+      ScanMode.smart => Icons.shield_rounded,
+      ScanMode.single => Icons.insert_drive_file_rounded,
+      ScanMode.rapid => Icons.bolt_rounded,
+      ScanMode.installed => Icons.apps_rounded,
+      _ => Icons.shield_rounded,
+    };
+
+    final percent = (progress * 100).toStringAsFixed(1);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 20),
+        _glowIcon(icon, color),
+        const SizedBox(height: 24),
+        Text(
+          'Scanning... $percent%',
+          style: text.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          currentFile,
+          textAlign: TextAlign.center,
+          style: text.bodySmall?.copyWith(color: Colors.white70),
+        ),
+        const SizedBox(height: 20),
+        LinearProgressIndicator(
+          value: progress,
+          color: color,
+          backgroundColor: color.withOpacity(0.1),
+          minHeight: 6,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        const SizedBox(height: 20),
+        Expanded(child: _logBox()),
+        const SizedBox(height: 20),
+        TextButton.icon(
+          onPressed: _cancelScan,
+          icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
+          label: const Text(
+            'Cancel Scan',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResult(ThemeData theme, TextTheme text) {
+    final accent = switch (mode) {
+      ScanMode.smart => Colors.greenAccent,
+      ScanMode.single => Colors.blueAccent,
+      ScanMode.rapid => Colors.amberAccent,
+      ScanMode.installed => Colors.purpleAccent,
+      _ => theme.colorScheme.primary,
+    };
+
+    final hasThreats = infected.isNotEmpty;
+
+    if (mode == ScanMode.single && singleResult != null) {
+      final safe = !singleResult!;
+      final icon = safe ? Icons.verified_rounded : Icons.warning_amber_rounded;
+      final color = safe ? Colors.greenAccent : Colors.orangeAccent;
+
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            _glowIcon(icon, color),
+            const SizedBox(height: 20),
+            Text(
+              safe ? 'No threats found' : 'Suspicious item detected',
+              style: text.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              currentFile,
+              textAlign: TextAlign.center,
+              style: text.bodySmall?.copyWith(color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
+            if (!safe)
+              Text(
+                'Item moved to quarantine.',
+                style: text.bodySmall?.copyWith(color: Colors.orangeAccent),
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _finishToHome,
+              child: const Text('Return Home'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          _glowIcon(
+            hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded,
+            hasThreats ? Colors.orangeAccent : accent,
+          ),
+          const SizedBox(height: 25),
+          Text(
+            'Scan Complete',
+            style: text.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: accent,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            hasThreats
+                ? 'Suspicious: ${infected.length}'
+                : 'Clean: ${clean.length}',
+            style: text.bodyMedium?.copyWith(
+              color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: hasThreats
+                    ? Colors.orangeAccent.withOpacity(0.4)
+                    : Colors.greenAccent.withOpacity(0.4),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hasThreats
+                      ? (mode == ScanMode.installed ? 'Suspicious apps' : 'Suspicious files')
+                      : 'Your device looks safe',
+                  style: text.titleSmall?.copyWith(
+                    color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (hasThreats)
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: infected.length,
+                    itemBuilder: (context, i) {
+                      final item = infected[i];
+                      final name = mode == ScanMode.installed
+                          ? item
+                          : item.split('/').last;
+                      return ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(
+                          Icons.error_outline,
+                          size: 18,
+                          color: Colors.orangeAccent,
+                        ),
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                if (!hasThreats)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      'No threats detected in scanned items.',
+                      style: text.bodySmall?.copyWith(color: Colors.grey),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _finishToHome,
+            child: const Text('Return Home'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmpty(ThemeData theme, TextTheme text) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.info_outline_rounded,
+                size: 60,
+                color: Colors.blueAccent,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'No vulnerable files to scan',
+                style: text.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Your device did not contain any files matching the scan criteria.',
+                style: text.bodySmall?.copyWith(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _finishToHome,
+                child: const Text('Return Home'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -737,6 +1133,7 @@ class _ScanScreenState extends State<ScanScreen>
         valueListenable: LogBuffer.notifier,
         builder: (context, _, __) {
           return ListView.builder(
+            controller: _logScroll,
             itemCount: LogBuffer.all.length,
             itemBuilder: (context, i) {
               return Text(
@@ -751,485 +1148,6 @@ class _ScanScreenState extends State<ScanScreen>
           );
         },
       ),
-    );
-  }
-
-  Widget _buildIdle(ThemeData theme, TextTheme text) => Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      const SizedBox(height: 10),
-      Center(
-        child: Text(
-          'Engine Ready • VX-TITANIUM-v6',
-          style: text.bodySmall?.copyWith(color: Colors.grey.shade600),
-        ),
-      ),
-      const SizedBox(height: 40),
-      _scanButton(
-        color: Colors.greenAccent,
-        icon: Icons.shield_rounded,
-        title: 'Smart Scan',
-        desc: 'Scans your device for threats.',
-        onTap: () => _checkAndStart(ScanMode.smart),
-      ),
-      _scanButton(
-        color: Colors.blueAccent,
-        icon: Icons.insert_drive_file_rounded,
-        title: 'Single File Scan',
-        desc: 'Pick and scan a file securely.',
-        onTap: () => _checkAndStart(ScanMode.single),
-      ),
-      _scanButton(
-        color: Colors.amberAccent,
-        icon: Icons.bolt_rounded,
-        title: 'Rapid Scan',
-        desc: 'Scans downloads for small files quickly.',
-        onTap: () => _checkAndStart(ScanMode.rapid),
-      ),
-      Column(
-        children: [
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Use cloud-assisted Scan'),
-              const SizedBox(width: 6),
-              GestureDetector(
-                onTap: _showCloudInfo,
-                child: const Icon(
-                  Icons.info_outline,
-                  size: 18,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Switch(
-                value: useCloudScan,
-                onChanged: (v) async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('useCloudScan', v);
-                  setState(() => useCloudScan = v);
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    ],
-  );
-
-  Widget _buildScanning(ThemeData theme, TextTheme text) {
-    final color = switch (mode) {
-      ScanMode.smart => Colors.greenAccent,
-      ScanMode.single => Colors.blueAccent,
-      ScanMode.rapid => Colors.amberAccent,
-      _ => theme.colorScheme.primary,
-    };
-
-    final icon = switch (mode) {
-      ScanMode.smart => Icons.shield_rounded,
-      ScanMode.single => Icons.insert_drive_file_rounded,
-      ScanMode.rapid => Icons.bolt_rounded,
-      _ => Icons.shield_rounded,
-    };
-
-    final percent = (progress * 100).toStringAsFixed(0);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 20),
-        Center(child: _glowIcon(icon, color)),
-        const SizedBox(height: 25),
-        Text(
-          'Scanning... $percent%',
-          style: text.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Column(
-          children: [
-            const SizedBox(height: 8),
-            Text(
-              'Scanning:',
-              style: text.bodySmall?.copyWith(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              currentFile,
-              style: text.bodyMedium?.copyWith(
-                color: Colors.white70,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        if (mode != ScanMode.single)
-          LinearProgressIndicator(
-            value: progress,
-            color: color,
-            backgroundColor: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-            minHeight: 6,
-          ),
-        const SizedBox(height: 20),
-        _logBox(),
-        const SizedBox(height: 20),
-        TextButton.icon(
-          onPressed: _cancelScan,
-          icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
-          label: const Text(
-            'Cancel Scan',
-            style: TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-
-      ],
-    );
-  }
-
-  Widget _buildResult(ThemeData theme, TextTheme text) {
-    final color = switch (mode) {
-      ScanMode.smart => Colors.greenAccent,
-      ScanMode.single => Colors.blueAccent,
-      ScanMode.rapid => Colors.amberAccent,
-      _ => theme.colorScheme.primary,
-    };
-
-
-    if (mode == ScanMode.single && singleResult != null) {
-      final safe = !singleResult!;
-
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            if (safe) ...[
-              Icon(Icons.verified_rounded, size: 60, color: Colors.greenAccent),
-              const SizedBox(height: 20),
-              Text(
-                'No threats found',
-                style: text.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.greenAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                currentFile,
-                style: text.bodySmall?.copyWith(color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              _returnButtons(),
-            ],
-
-            if (!safe) ...[
-              Icon(Icons.warning_amber_rounded, size: 60, color: Colors.orangeAccent),
-              const SizedBox(height: 20),
-              Text(
-                'Suspicious file quarantined',
-                style: text.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orangeAccent,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                currentFile,
-                style: text.bodySmall?.copyWith(color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              _returnButtons(),
-            ],
-
-          ],
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 20),
-          _glowIcon(Icons.verified_user_rounded, color),
-          const SizedBox(height: 25),
-          Text(
-            'Scan Complete',
-            style: text.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Counts only shown if needed
-          if (infected.isNotEmpty) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Suspicious: ${infected.length}',
-                  style: text.bodyMedium?.copyWith(color: Colors.orangeAccent),
-                ),
-              ],
-            ),
-          ],
-
-          if (infected.isEmpty) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Clean: ${clean.length}',
-                  style: text.bodyMedium?.copyWith(color: Colors.greenAccent),
-                ),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 20),
-
-          if (infected.isEmpty) ...[
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.greenAccent.withOpacity(0.4),
-                  width: 1,
-                ),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Icon(Icons.verified_rounded, size: 40, color: Colors.greenAccent),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Your files look safe',
-                    style: text.titleMedium?.copyWith(color: Colors.greenAccent),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${clean.length} files scanned with no threats found.',
-                    style: text.bodySmall?.copyWith(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.orangeAccent.withOpacity(0.4),
-                  width: 1,
-                ),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.warning_amber_rounded,
-                          size: 40, color: Colors.orangeAccent),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${infected.length} suspicious file(s)',
-                        style: text.titleMedium?.copyWith(
-                          color: Colors.orangeAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'These files have been moved to quarantine.',
-                    style: text.bodySmall?.copyWith(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 20),
-
-                  SizedBox(
-                    height: 240,
-                    child: ListView.builder(
-                      itemCount: infected.length,
-                      itemBuilder: (context, i) {
-                        final name = infected[i].split('/').last;
-                        return ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.shield_rounded,
-                            size: 20,
-                            color: Colors.orangeAccent,
-                          ),
-                          title: Text(
-                            name,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 20),
-          _returnButtons(),
-        ],
-      ),
-    );
-  }
-
-  Widget _fileColumn(String title, Color color, List<String> files) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4), width: 1),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-            ),
-            width: double.infinity,
-            child: Center(
-              child: Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.bold, color: color),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              itemCount: files.length,
-              itemBuilder: (context, i) {
-                final name = files[i].split('/').last;
-                return ListTile(
-                  dense: true,
-                  leading: Icon(
-                    Icons.warning_amber_rounded,
-                    color: color,
-                    size: 18,
-                  ),
-                  title: Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _scanButton({
-    required Color color,
-    required IconData icon,
-    required String title,
-    required String desc,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.4), width: 1.2),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 26, color: color),
-              ),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: text.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      desc,
-                      style: text.bodySmall?.copyWith(
-                        color: text.bodySmall?.color?.withOpacity(0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _returnButtons() {
-    return Column(
-      children: [
-        ElevatedButton.icon(
-          onPressed: _reset,
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Return to Main'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blueGrey.shade800,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        _buildIdle(Theme.of(context), Theme.of(context).textTheme),
-      ],
     );
   }
 
@@ -1288,5 +1206,58 @@ bool _scanFileIsolate(String path) {
     return hits != null && hits.isNotEmpty;
   } catch (_) {
     return false;
+  }
+}
+
+class BatchScanWorker {
+  final ReceivePort _receive;
+  final SendPort sendPort;
+
+  BatchScanWorker._(this._receive, this.sendPort);
+
+  static Future<BatchScanWorker> spawn() async {
+    final receive = ReceivePort();
+    await Isolate.spawn(_entry, receive.sendPort);
+    final send = await receive.first as SendPort;
+    return BatchScanWorker._(receive, send);
+  }
+
+  static void _entry(SendPort root) {
+    final port = ReceivePort();
+    root.send(port.sendPort);
+
+    final bridge = AntivirusBridge();
+
+    port.listen((msg) {
+      final send = msg[0] as SendPort;
+      final paths = (msg[1] as List).cast<String>();
+
+      final out = <String, bool>{};
+      for (final p in paths) {
+        try {
+          final raw = bridge.scanFile(p);
+          final decoded = jsonDecode(raw);
+          final hits = decoded['hits'] as Map?;
+          out[p] = hits != null && hits.isNotEmpty;
+        } catch (_) {
+          out[p] = false;
+        }
+      }
+
+      send.send(out);
+    });
+  }
+
+  Future<Map<String, bool>> scanBatch(List<String> paths) async {
+    final port = ReceivePort();
+    sendPort.send([port.sendPort, paths]);
+    return await port.first as Map<String, bool>;
+  }
+}
+
+Iterable<List<T>> _chunks<T>(List<T> items, int size) sync* {
+  for (var i = 0; i < items.length; i += size) {
+    final end = (i + size < items.length) ? i + size : items.length;
+    yield items.sublist(i, end);
   }
 }

@@ -1,7 +1,7 @@
 name: colourswift_av
 description: CS Security - antivirus suite
 publish_to: "none"
-version: 2.0.4+11496
+version: 2.0.5+11496
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
@@ -53,6 +53,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/logo.png
+    - assets/icons/logo3.png
     - assets/images/logo.png
     - assets/defs/defs.vxpack
     - assets/defs/defs_key.bin
@@ -61,7 +62,7 @@ flutter:
 
 flutter_launcher_icons:
   android: true
-  ios: true
-  image_path: "assets/images/logo.png"
+  ios: false
+  image_path: "assets/icons/logo.png"
   remove_alpha_ios: true
 

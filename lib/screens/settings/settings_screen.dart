@@ -1,13 +1,18 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../services/exclusion_service.dart';
 import '../../services/meta_password_service.dart';
 import '../../services/theme_manager.dart';
 import '../about/how_this_app_works.dart';
 import 'package:flutter/services.dart';
 import '../../services/purchase_service.dart';
+import '../exclusions/exclusion_manager_screen.dart';
 
 
 
@@ -249,6 +254,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showExclusionsSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+
+              ListTile(
+                leading: const Icon(Icons.folder_open_rounded),
+                title: const Text('Exclude a Folder'),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final result = await FilePicker.platform.getDirectoryPath();
+                  if (result != null) {
+                    final ex = ExclusionService();
+                    await ex.load();
+                    await ex.addFolder(result);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Folder excluded')),
+                      );
+                    }
+                  }
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file_rounded),
+                title: const Text('Exclude a File'),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final r = await FilePicker.platform.pickFiles();
+                  if (r != null && r.files.isNotEmpty) {
+                    final path = r.files.single.path!;
+                    final bytes = File(path).readAsBytesSync();
+                    final sha = sha256.convert(bytes).toString();
+
+                    final ex = ExclusionService();
+                    await ex.load();
+                    await ex.addSha(sha);
+
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('File excluded')),
+                      );
+                    }
+                  }
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.rule_folder_rounded),
+                title: const Text('Manage Existing Exclusions'),
+                subtitle: const Text('View or remove exclusions'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ExclusionManagerScreen()),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 10),
+            ],
           ),
         );
       },
@@ -649,6 +734,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
 
+              ),
+              _buildSettingTile(
+                context,
+                icon: Icons.rule_folder_rounded,
+                title: 'Exclusions',
+                subtitle: 'Manage and add exclusions',
+                onTap: _showExclusionsSheet,
               ),
 
             ],

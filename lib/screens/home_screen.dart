@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -29,6 +30,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   bool isPro = false;
   bool hasUpdate = false;
   bool useCloudScan = false;
+  bool vpnActive = false;
+  bool vpnConflict = false;
   String? remoteVersion;
   String version = '';
 
@@ -61,6 +64,21 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     setState(() {
       useCloudScan = prefs.getBool('useCloudScan') ?? false;
     });
+  }
+
+  Future<bool> _isAnotherVpnActive() async {
+    final chan = MethodChannel("cs_vpn_state");
+    try {
+      return await chan.invokeMethod<bool>("isAnotherVpnActive") ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestVpnPermission() async {
+    const chan = MethodChannel("cs_vpn_permission");
+    final ok = await chan.invokeMethod<bool>("prepareVpn");
+    return ok == true;
   }
 
   @override
@@ -197,29 +215,58 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
     if (protectionEnabled) {
       await AvServiceManager.stopProtection();
+      await AvServiceManager.stopVpn();
       _stopBackgroundScan();
-    } else {
-      if (await Permission.notification.isDenied ||
-          await Permission.notification.isRestricted) {
-        final status = await Permission.notification.request();
-        if (!status.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notification permission is required for realtime protection.')),
-          );
-          return;
-        }
-      }
 
-      await AvServiceManager.startProtection();
-      _startBackgroundScan();
+      setState(() {
+        protectionEnabled = false;
+        vpnActive = false;
+        vpnConflict = false;
+        protectionPercent = 0.0;
+      });
+
+      prefs.setBool('protectionEnabled', false);
+      return;
     }
 
+    final status = await Permission.notification.request();
+    if (!status.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Notification permission required.')),
+      );
+      return;
+    }
+
+    final vpnOk = await requestVpnPermission();
+    if (!vpnOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('VPN permission required for network protection.')),
+      );
+    }
+
+    final conflict = await _isAnotherVpnActive();
+
+
+    await AvServiceManager.startProtection();
+    _startBackgroundScan();
+
+    if (!conflict) {
+      await AvServiceManager.startVpn();
+    }
     setState(() {
-      protectionEnabled = !protectionEnabled;
-      protectionPercent = protectionEnabled ? 1.0 : 0.0;
+      protectionEnabled = true;
+      vpnActive = !conflict;
+      vpnConflict = conflict;
+      protectionPercent = 1.0;
     });
 
-    prefs.setBool('protectionEnabled', protectionEnabled);
+    prefs.setBool('protectionEnabled', true);
+
+    if (conflict) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Another VPN is active. Network protection disabled.')),
+      );
+    }
   }
 
   void _startBackgroundScan() => RealtimeProtectionService.start();
@@ -338,6 +385,93 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     super.dispose();
   }
 
+  Widget _buildProtectionCenter(TextTheme text) {
+    if (!protectionEnabled) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.redAccent,
+            size: 60,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Protection Disabled',
+            style: text.titleMedium?.copyWith(
+              color: Colors.redAccent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'Tap to enable protection',
+            style: text.bodySmall?.copyWith(
+              color: text.bodySmall?.color?.withOpacity(0.7),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (vpnConflict) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.shield_moon_rounded,
+            color: Colors.orangeAccent,
+            size: 60,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Partial Protection',
+            style: text.titleMedium?.copyWith(
+              color: Colors.orangeAccent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'Another VPN is active',
+            style: text.bodySmall?.copyWith(
+              color: text.bodySmall?.color?.withOpacity(0.7),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.verified_user,
+          color: Colors.greenAccent,
+          size: 60,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Device Protected',
+          style: text.titleMedium?.copyWith(
+            color: text.bodyLarge?.color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'Tap to disable protection',
+          style: text.bodySmall?.copyWith(
+            color: text.bodySmall?.color?.withOpacity(0.7),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -374,11 +508,11 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    'assets/icons/logo3.png',
-                    width: 30,
-                    height: 30,
-                  ),
+                  //Image.asset(
+                    //'assets/icons/logo3.png',
+                   // width: 30,
+                   // height: 30,
+                 // ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
@@ -433,38 +567,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                             progressColor:
                             protectionEnabled ? Colors.greenAccent : Colors.redAccent,
                             backgroundColor: theme.dividerColor.withOpacity(0.1),
-                            center: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  protectionEnabled
-                                      ? Icons.verified_user
-                                      : Icons.warning_amber_rounded,
-                                  color: protectionEnabled
-                                      ? Colors.greenAccent
-                                      : Colors.redAccent,
-                                  size: 60,
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  protectionEnabled ? 'Device Protected' : 'Protection Disabled',
-                                  style: text.titleMedium?.copyWith(
-                                    color: protectionEnabled
-                                        ? text.bodyLarge?.color
-                                        : Colors.redAccent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Tap to ${protectionEnabled ? "disable" : "enable"} protection',
-                                  style: text.bodySmall?.copyWith(
-                                    color: text.bodySmall?.color?.withOpacity(0.7),
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            center: _buildProtectionCenter(text),
                           ),
                           const SizedBox(height: 25),
                           GestureDetector(
@@ -546,7 +649,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Features',
+                        'Terminal',
                         style: text.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: text.bodyLarge?.color,

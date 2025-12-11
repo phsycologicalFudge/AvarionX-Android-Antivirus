@@ -10,6 +10,15 @@ typedef AvInitDart = int Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanDart = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef AvFreeDart = int Function();
 
+typedef NetIocInitNative = Int32 Function(Pointer<Utf8>);
+typedef NetIocInitDart = int Function(Pointer<Utf8>);
+
+typedef NetCheckNative = Int32 Function(
+    Pointer<Utf8>, Pointer<Utf8>, Uint16
+    );
+typedef NetCheckDart = int Function(
+    Pointer<Utf8>, Pointer<Utf8>, int
+    );
 typedef PwGenNative = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>, Uint32, IntPtr);
 typedef PwFreeNative = Void Function(Pointer<Utf8>);
@@ -24,6 +33,8 @@ class AntivirusBridge {
   late final AvFreeDart _free;
   late final PwGenDart _pwGen;
   late final PwFreeDart _pwFree;
+  late final NetIocInitDart _netInit;
+  late final NetCheckDart _netCheck;
 
   AntivirusBridge() {
     if (Platform.isAndroid) {
@@ -39,6 +50,8 @@ class AntivirusBridge {
     _free = _lib.lookupFunction<AvFreeNative, AvFreeDart>('av_free');
     _pwGen = _lib.lookupFunction<PwGenNative, PwGenDart>('generate_password');
     _pwFree = _lib.lookupFunction<PwFreeNative, PwFreeDart>('free_password');
+    _netInit = _lib.lookupFunction<NetIocInitNative, NetIocInitDart>('cs_net_ioc_init');
+    _netCheck = _lib.lookupFunction<NetCheckNative, NetCheckDart>('cs_net_check');
   }
 
   int init(String defsPath, String keyPath) {
@@ -47,6 +60,22 @@ class AntivirusBridge {
     final res = _init(defs, key);
     malloc.free(defs);
     malloc.free(key);
+    return res;
+  }
+
+  int initNetIoc(String defsPath) {
+    final p = defsPath.toNativeUtf8();
+    final res = _netInit(p);
+    malloc.free(p);
+    return res;
+  }
+
+  int checkNetwork(String ip, String sni, int port) {
+    final ipPtr = ip.toNativeUtf8();
+    final sniPtr = sni.toNativeUtf8();
+    final res = _netCheck(ipPtr, sniPtr, port);
+    malloc.free(ipPtr);
+    malloc.free(sniPtr);
     return res;
   }
 

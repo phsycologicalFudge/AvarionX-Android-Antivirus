@@ -41,7 +41,7 @@ class FooterNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildItem(context, Icons.home_rounded, 'Home', 'home'),
-            _buildItem(context, Icons.star_outline_rounded, 'Features', 'features'),
+            _buildItem(context, Icons.terminal_rounded, 'Terminal', 'terminal'),
             _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
             _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
           ],

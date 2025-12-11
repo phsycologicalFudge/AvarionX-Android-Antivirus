@@ -1,3 +1,4 @@
+import 'package:colourswift_av/widgets/antivirus_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -65,3 +66,24 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+@pragma('vm:entry-point')
+void vpnMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+  const MethodChannel channel = MethodChannel('cs_vpn_channel');
+  channel.setMethodCallHandler((call) async {
+    if (call.method == 'checkConnection') {
+      final ip = call.arguments['ip'] as String? ?? "";
+      final sni = call.arguments['sni'] as String? ?? "";
+      final port = call.arguments['port'] as int? ?? 0;
+
+      final bridge = AntivirusBridge();
+      return bridge.checkNetwork(ip, sni, port);
+    }
+    return 0;
+  });
+}
+
+
+
+

@@ -35,8 +35,6 @@ class RealtimeReceiver(private var events: EventChannel.EventSink? = null) : Bro
             }
         }
     }
-
-    // Optional: helper to set Flutter EventSink dynamically
     fun setEventSink(sink: EventChannel.EventSink?) {
         this.events = sink
     }

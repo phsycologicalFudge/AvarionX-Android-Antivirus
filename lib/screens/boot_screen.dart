@@ -52,7 +52,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
 
 
   Future<void> _initEngine() async {
-    await Future.delayed(const Duration(seconds: 2)); // show boot sequence
+    await Future.delayed(const Duration(seconds: 2));
     await AvEngine.ensureInitialized();
 
     if (!mounted) return;
@@ -100,7 +100,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo pulse
               AnimatedBuilder(
                 animation: _pulseController,
                 builder: (context, child) {
@@ -129,7 +128,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 35),
 
-              // App name
               Text(
                 'ColourSwift Security',
                 style: text.headlineSmall?.copyWith(
@@ -140,7 +138,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 20),
 
-              // Cycling text
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 transitionBuilder: (child, animation) =>

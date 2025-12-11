@@ -18,6 +18,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
   int _page = 0;
   bool storageGranted = false;
   bool notifGranted = false;
+  bool vpnGranted = false;
 
   Future<void> _requestStorage() async {
     bool granted = false;
@@ -76,6 +77,12 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     }
   }
 
+  Future<bool> requestVpnPermission() async {
+    const chan = MethodChannel("cs_vpn_permission");
+    final ok = await chan.invokeMethod<bool>("prepareVpn");
+    return ok == true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -126,6 +133,20 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                     granted: notifGranted,
                     buttonLabel: 'Allow Notifications',
                     onPressed: _requestNotifications,
+                  ),
+                  _buildSlide(
+                    context,
+                    icon: Icons.network_check_rounded,
+                    title: 'Network Protection',
+                    desc:
+                    'To enable Wi-Fi Protection, CS Security needs VPN permission. '
+                        'This does NOT create a real VPN or send traffic anywhere.',
+                    granted: vpnGranted,
+                    buttonLabel: 'Allow VPN Access',
+                    onPressed: () async {
+                      final ok = await requestVpnPermission();
+                      setState(() => vpnGranted = ok);
+                    },
                   ),
                   _buildSlide(
                     context,

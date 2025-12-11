@@ -9,28 +9,31 @@ import android.os.Looper
 import android.util.Log
 
 class BootReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
 
-            Log.i("CSRealtime", "Boot completed, scheduling service start")
-
-            // Delay avoids Android 12+ FGS crash
             Handler(Looper.getMainLooper()).postDelayed({
                 try {
-                    val serviceIntent = Intent(context, CSForegroundService::class.java)
-
+                    val realtime = Intent(context, CSForegroundService::class.java)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(serviceIntent)
+                        context.startForegroundService(realtime)
                     } else {
-                        context.startService(serviceIntent)
+                        context.startService(realtime)
                     }
-
-                    Log.i("CSRealtime", "CSForegroundService started after delay")
                 } catch (e: Exception) {
-                    Log.e("CSRealtime", "Failed to start service after boot: ${e.message}")
                 }
-            }, 7000) // 7 seconds is safe across all OEMs
+
+                try {
+                    val vpn = Intent(context, CSVpnService::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(vpn)
+                    } else {
+                        context.startService(vpn)
+                    }
+                } catch (e: Exception) {
+                }
+            }, 7000)
         }
     }
 }
+

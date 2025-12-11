@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/footer_nav.dart';
-import 'features_screen.dart';
+import 'terminal_screen.dart';
 import 'home_screen.dart';
 import 'scan_screen.dart';
 import 'settings/settings_screen.dart';
@@ -18,8 +18,8 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildActivePage() {
     switch (_active) {
-      case 'features':
-        return const FeaturesScreen();
+      case 'terminal':
+        return const ConsoleScreen();
       case 'scan':
         return const ScanScreen();
       case 'quarantine':

@@ -21,6 +21,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
+import android.net.VpnService
 
 class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     private val channel = MethodChannel(messenger, "cs.fastapps")
@@ -59,6 +60,10 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "colourswift/foreground_service"
     private val EVENT_CHANNEL = "colourswift/realtime_stream"
     private var receiver: RealtimeReceiver? = null
+
+    private var pendingVpnResult: MethodChannel.Result? = null
+
+    private var pendingVpnDomain: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +121,63 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_channel")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "checkDomain" -> {
+                        val domain = call.argument<String>("domain") ?: ""
+                        pendingVpnResult = result
+                        pendingVpnDomain = domain
+                        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_callback")
+                            .invokeMethod("checkDomain", mapOf("domain" to domain))
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_control")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "startVpn" -> {
+                        val intent = android.content.Intent(applicationContext, CSVpnService::class.java)
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            applicationContext.startForegroundService(intent)
+                        } else {
+                            applicationContext.startService(intent)
+                        }
+                        result.success(true)
+                    }
+
+                    "stopVpn" -> {
+                        val intent = android.content.Intent(applicationContext, CSVpnService::class.java)
+                        applicationContext.stopService(intent)
+                        result.success(true)
+                    }
+
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "prepareVpn") {
+                    val intent = VpnService.prepare(this)
+                    if (intent != null) {
+                        startActivityForResult(intent, 777)
+                        result.success(false)
+                    } else {
+                        result.success(true)
+                    }
+                } else result.notImplemented()
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_state")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "isAnotherVpnActive") {
+                    val active = VpnService.prepare(applicationContext) != null
+                    result.success(active)
+                } else result.notImplemented()
+            }
+
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
@@ -144,7 +206,6 @@ class MainActivity : FlutterActivity() {
                 }
             })
     }
-
     private fun startForegroundServiceCompat(title: String, text: String) {
         try {
             val intent = Intent(this, CSForegroundService::class.java)

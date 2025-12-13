@@ -17,7 +17,8 @@ ColourSwift Security is an ad-free antivirus app for Android, offering all the p
     <img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png"
          height="80"
          alt="Get it on Google Play">
-  </a>
+  </a><br>
+  Available on Google Play (10,000+ installs)
 </p>
 
 ---

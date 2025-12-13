@@ -87,7 +87,6 @@ This is permitted under the following conditions:
 - Malware database updates must follow the official update format
 - The engine must be credited by name in the app
 - The app must clearly state that it is not affiliated with ColourSwift
-- The app’s client-side source code must be publicly visible
 - The engine may not be claimed as original work
 - Developers are responsible for integrating and updating the engine in their own app
 

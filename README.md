@@ -2,7 +2,7 @@
 
 <img src="https://github.com/user-attachments/assets/65938060-807c-4630-ba5a-ea7d35d51ed8" width="140" alt="ColourSwift logo">
 
-**ColourSwift Security** is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
+ColourSwift Security is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
 
 ---
 

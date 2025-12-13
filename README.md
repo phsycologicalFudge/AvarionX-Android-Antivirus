@@ -4,6 +4,22 @@
 
 ColourSwift Security is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
 
+<p>
+  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/ColourSwift_AV/total?label=App%20downloads">
+  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/ColourSwift_AV?label=App%20release">
+  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?label=VXPack">
+  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?label=VXPack%20downloads">
+  <img src="https://img.shields.io/github/license/phsycologicalFudge/ColourSwift_AV">
+</p>
+
+<p>
+  <a href="https://play.google.com/store/apps/details?id=com.colourswift.cssecurity">
+    <img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png"
+         height="80"
+         alt="Get it on Google Play">
+  </a>
+</p>
+
 ---
 
 ## Overview

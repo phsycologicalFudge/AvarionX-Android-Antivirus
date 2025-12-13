@@ -18,8 +18,11 @@ import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.DatagramPacket
@@ -70,8 +73,15 @@ object CsvpnBridge {
 
 class CSVpnService : VpnService() {
 
+    companion object {
+        const val ACTION_START = "com.colourswift.cssecurity.VPN_START"
+        const val ACTION_STOP = "com.colourswift.cssecurity.VPN_STOP"
+        const val NOTIF_ID = 200
+    }
+
     private var tun: ParcelFileDescriptor? = null
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var tunnelJob: kotlinx.coroutines.Job? = null
 
     private val fakeDnsIp = "10.0.0.1"
     private val tunIp = "10.0.0.2"
@@ -80,10 +90,18 @@ class CSVpnService : VpnService() {
     @Volatile
     private var shouldStop = false
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action = intent?.action
+        if (action == ACTION_STOP) {
+            Log.i("CSVpn", "STOP action received")
+            stopTunnel()
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         startForegroundNotif()
         startTunnel()
+        return START_STICKY
     }
 
     private fun startForegroundNotif() {
@@ -109,10 +127,12 @@ class CSVpnService : VpnService() {
             .setOngoing(true)
             .build()
 
-        startForeground(200, n)
+        startForeground(NOTIF_ID, n)
     }
 
     private fun startTunnel() {
+        if (tun != null) return
+
         shouldStop = false
 
         val builder = Builder()
@@ -124,16 +144,40 @@ class CSVpnService : VpnService() {
         tun = builder.establish()
 
         if (tun == null) {
+            Log.e("CSVpn", "Failed to establish TUN")
             stopSelf()
             return
         }
 
-        scope.launch {
+        tunnelJob?.cancel()
+        tunnelJob = scope.launch {
             runTunnelLoop()
         }
+
+        Log.i("CSVpn", "Tunnel started")
     }
 
-    private suspend fun CoroutineScope.runTunnelLoop() {
+    private fun stopTunnel() {
+        shouldStop = true
+        try {
+            tun?.close()
+        } catch (_: Exception) {
+        }
+        tun = null
+
+        tunnelJob?.cancel()
+        tunnelJob = null
+
+        try {
+            stopForeground(true)
+        } catch (_: Exception) {
+        }
+
+        scope.cancel()
+        Log.i("CSVpn", "Tunnel stopped")
+    }
+
+    private suspend fun runTunnelLoop() {
         val fd = tun?.fileDescriptor ?: return
         val input = FileInputStream(fd).channel
         val output = FileOutputStream(fd).channel
@@ -143,48 +187,48 @@ class CSVpnService : VpnService() {
         dnsSocket.soTimeout = 3000
         protect(dnsSocket)
 
-        while (!shouldStop && isActive) {
+        while (!shouldStop && scope.isActive) {
             buf.clear()
-            val n = input.read(buf)
-            if (n <= 0) continue
-            buf.flip()
+            val n = try {
+                input.read(buf)
+            } catch (_: Exception) {
+                break
+            }
 
-            val packet = ByteArray(n)
-            buf.get(packet)
-
-            if (!isIpv4Udp(packet)) {
-                output.write(ByteBuffer.wrap(packet))
+            if (n <= 0) {
+                delay(5)
                 continue
             }
 
-            if (!isDnsToFakeServer(packet)) {
-                output.write(ByteBuffer.wrap(packet))
+            buf.flip()
+            val packet = ByteArray(n)
+            buf.get(packet)
+
+            if (!isIpv4Udp(packet) || !isDnsToFakeServer(packet)) {
+                try {
+                    output.write(ByteBuffer.wrap(packet))
+                } catch (_: Exception) {
+                }
                 continue
             }
 
             try {
                 val domain = extractDomain(packet)
+                val dnsQuery = extractDnsPayload(packet)
 
-                val dnsQuery1 = extractDnsPayload(packet)
-                if (dnsQuery1 == null) {
+                if (dnsQuery == null) {
                     output.write(ByteBuffer.wrap(packet))
                     continue
                 }
 
                 if (domain != null && shouldBlockDomain(domain)) {
-                    val nx = buildNxDomainPayload(dnsQuery1)
+                    val nx = buildNxDomainPayload(dnsQuery)
                     val nxReply = rebuildDnsReply(packet, nx)
                     output.write(ByteBuffer.wrap(nxReply))
                     continue
                 }
 
-                val dnsQuery2 = extractDnsPayload(packet)
-                if (dnsQuery2 == null) {
-                    output.write(ByteBuffer.wrap(packet))
-                    continue
-                }
-
-                val upstreamPacket = DatagramPacket(dnsQuery2, dnsQuery2.size, upstreamDns)
+                val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstreamDns)
                 dnsSocket.send(upstreamPacket)
 
                 val recv = ByteArray(4096)
@@ -192,7 +236,7 @@ class CSVpnService : VpnService() {
 
                 try {
                     dnsSocket.receive(replyPacket)
-                } catch (toe: SocketTimeoutException) {
+                } catch (_: SocketTimeoutException) {
                     output.write(ByteBuffer.wrap(packet))
                     continue
                 }
@@ -200,14 +244,31 @@ class CSVpnService : VpnService() {
                 val dnsReply = replyPacket.data.copyOf(replyPacket.length)
                 val rebuilt = rebuildDnsReply(packet, dnsReply)
                 output.write(ByteBuffer.wrap(rebuilt))
-            }
-            catch (e: Exception) {
-                Log.e("CSVPN", "DNS error: ${e.message}", e)
-                output.write(ByteBuffer.wrap(packet))
+            } catch (e: Exception) {
+                Log.e("CSVpn", "DNS error: ${e.message}", e)
+                try {
+                    output.write(ByteBuffer.wrap(packet))
+                } catch (_: Exception) {
+                }
             }
         }
 
-        dnsSocket.close()
+        try {
+            dnsSocket.close()
+        } catch (_: Exception) {
+        }
+    }
+
+    override fun onRevoke() {
+        Log.i("CSVpn", "onRevoke called")
+        stopTunnel()
+        super.onRevoke()
+    }
+
+    override fun onDestroy() {
+        Log.i("CSVpn", "onDestroy called")
+        stopTunnel()
+        super.onDestroy()
     }
 
     private fun isIpv4Udp(d: ByteArray): Boolean {
@@ -408,13 +469,5 @@ class CSVpnService : VpnService() {
         while (sum shr 16 != 0L) sum = (sum and 0xFFFF) + (sum shr 16)
         val out = (sum.inv() and 0xFFFF).toInt()
         return if (out == 0) 0xFFFF else out
-    }
-
-    override fun onDestroy() {
-        shouldStop = true
-        try { tun?.close() } catch (_: Exception) {}
-        tun = null
-        stopForeground(true)
-        super.onDestroy()
     }
 }

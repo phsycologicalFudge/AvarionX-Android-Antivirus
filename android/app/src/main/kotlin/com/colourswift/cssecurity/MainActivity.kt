@@ -139,7 +139,8 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "startVpn" -> {
-                        val intent = android.content.Intent(applicationContext, CSVpnService::class.java)
+                        val intent =
+                            android.content.Intent(applicationContext, CSVpnService::class.java)
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                             applicationContext.startForegroundService(intent)
                         } else {
@@ -149,12 +150,11 @@ class MainActivity : FlutterActivity() {
                     }
 
                     "stopVpn" -> {
-                        val intent = android.content.Intent(applicationContext, CSVpnService::class.java)
-                        applicationContext.stopService(intent)
+                        val intent = Intent(applicationContext, CSVpnService::class.java)
+                        intent.action = CSVpnService.ACTION_STOP
+                        applicationContext.startService(intent)
                         result.success(true)
                     }
-
-                    else -> result.notImplemented()
                 }
             }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")

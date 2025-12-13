@@ -112,6 +112,60 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     );
   }
 
+  void _showRtpInfo() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+
+        return Dialog(
+          backgroundColor: theme.cardColor.withOpacity(0.92),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Realtime Protection',
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Along with blocking suspicious files downloaded intentionally (or by malware), RTP uses a local VPN to block malicious domains system-wide.\n\n'
+                      'When enabled, network filtering remains active unless:\n'
+                      '• Disabled manually via Terminal\n'
+                      '• Replaced by another VPN\n\n'
+                      'File protection continues regardless as long as RTP is enabled.',
+                  style: text.bodySmall?.copyWith(
+                    height: 1.4,
+                    color: text.bodySmall?.color?.withOpacity(0.85),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _startUpdate(String newRemoteVersion) {
     double progress = 0;
     bool dialogMounted = true;
@@ -121,38 +175,43 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (context, setStateDialog) {
             Future.microtask(() async {
               try {
                 double lastShown = 0;
                 await UpdateService.downloadDatabase(
                   onProgress: (p) {
-                    if ((p - lastShown).abs() >= 0.01) {
+                    if ((p - lastShown).abs() >= 0.01 && dialogMounted) {
                       lastShown = p;
-                      if (dialogMounted && mounted) {
-                        setState(() => progress = p);
-                      }
+                      setStateDialog(() => progress = p);
                     }
                   },
                 );
+
                 if (!mounted || !dialogMounted) return;
+
                 Navigator.of(context, rootNavigator: true).pop();
+
                 await UpdateService.setLocalVersion(newRemoteVersion);
+
+                if (!mounted) return;
                 setState(() {
                   hasUpdate = false;
                   remoteVersion = null;
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
                   const SnackBar(content: Text('Database updated successfully')),
                 );
-              } catch (e) {
+              } catch (_) {
                 if (!mounted || !dialogMounted) return;
                 Navigator.of(context, rootNavigator: true).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(this.context).showSnackBar(
                   const SnackBar(content: Text('Database update failed')),
                 );
               }
             });
+
             return WillPopScope(
               onWillPop: () async => false,
               child: AlertDialog(
@@ -557,17 +616,35 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       onTap: _toggleProtection,
                       child: Column(
                         children: [
-                          CircularPercentIndicator(
-                            radius: 130.0,
-                            lineWidth: 14.0,
-                            animation: true,
-                            animateFromLastPercent: true,
-                            percent: protectionPercent,
-                            circularStrokeCap: CircularStrokeCap.round,
-                            progressColor:
-                            protectionEnabled ? Colors.greenAccent : Colors.redAccent,
-                            backgroundColor: theme.dividerColor.withOpacity(0.1),
-                            center: _buildProtectionCenter(text),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CircularPercentIndicator(
+                                radius: 130.0,
+                                lineWidth: 14.0,
+                                animation: true,
+                                animateFromLastPercent: true,
+                                percent: protectionPercent,
+                                circularStrokeCap: CircularStrokeCap.round,
+                                progressColor:
+                                protectionEnabled ? Colors.greenAccent : Colors.redAccent,
+                                backgroundColor: theme.dividerColor.withOpacity(0.1),
+                                center: _buildProtectionCenter(text),
+                              ),
+                              Positioned(
+                                top: 35,
+                                right: 35,
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.info_outline_rounded,
+                                    size: 20,
+                                    color: theme.iconTheme.color?.withOpacity(0.7),
+                                  ),
+                                  onPressed: _showRtpInfo,
+                                  splashRadius: 18,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 25),
                           GestureDetector(
@@ -611,13 +688,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Text(
-                            'ColourSwift Antivirus v$version',
-                            style: text.bodySmall?.copyWith(
-                              color: text.bodySmall?.color?.withOpacity(0.6),
                             ),
                           ),
 
@@ -685,7 +755,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       context,
                       title: 'Wi-Fi Protection',
                       description:
-                      'Coming soon: real-time blocking of malicious connections and trackers, using a private on-device VPN. No external servers.',
+                      '50% complete. RTP or "vpn on" command protects you against suspicious domain systemwide.',
                       icon: Icons.wifi_lock_rounded,
                       color: Colors.tealAccent,
                     ),

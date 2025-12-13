@@ -1,182 +1,77 @@
-# ColourSwift Security
-<img src="https://github.com/user-attachments/assets/65938060-807c-4630-ba5a-ea7d35d51ed8" width="150" alt="logo">
+## ColourSwift Security
 
-ColourSwift Security is an open source antivirus client for Android. The client is written in Flutter and provides a complete UI for scanning files, managing results, and interacting with the ColourSwift ecosystem.
+<img src="https://github.com/user-attachments/assets/65938060-807c-4630-ba5a-ea7d35d51ed8" width="140" alt="ColourSwift logo">
 
-The scanning engine (VX-Titanium) is not open source. It is a native Rust library that is shipped only in compiled form, and the client loads it at runtime through FFI. The engine is responsible for signature matching, bloom filter checks, ML scoring and file analysis. This repository contains the complete client source code, which can be built and inspected by anyone, while the engine and cloud backend remain private and separate.
-HOWEVER, I have taken the liberty of making some of its code visible here: [trimmed_Engine.rs](https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/main/jniLibs/trimmed_Engine.rs)
+**ColourSwift Security** is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
 
-The app periodically recieves updates for hashes and signitures via the vxpack: https://github.com/phsycologicalFudge/AVDatabase
+---
 
-## Features
+## Overview
 
-• Full device scan
+ColourSwift Security helps you scan files and apps on your device for known malware.
 
-• APK analysis
+- Scans files stored on your phone
+- Real-Time Protection for the downloads folder
+- Offline DNS filter for known bad domains
+- Analyzes installed APKs  
+- Uses local detection first  
+- Optional cloud assistance using file hashes  
+- No accounts required  
 
-• Basic file analysis
+The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
 
-• Cloud assisted scanning
+---
 
-• Real time protection support in the private build
+## Download
 
-• Custom UI
+Get the latest APK from GitHub Releases:
 
-• Local plugin integrations
+https://github.com/phsycologicalFudge/ColourSwift_AV/releases
 
-• ColourSwift ecosystem compatibility
+---
 
-## Supported File Types (VX-Titanium engine)
+## Screenshots
 
-The engine supports deep scanning of the following file types:
+<p float="left">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/1.jpg" width="240">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/2.jpg" width="240">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/3.jpg" width="240">
+</p>
 
-Binary formats
+---
 
-• APK
+## Privacy
 
-• EXE, DLL, MSI
+- No personal data collection  
+- Files are never uploaded as cloud checks use hashes only  
+- No user accounts  
+- No tracking or analytics  
 
-• DEX, JAR, COM, BIN
+---
 
-• Shared libraries: SO (Android), ELF (Linux)
+## Open source status
 
-Archives
+This repository contains the full source code for the Android client and user interface.
 
-• ZIP
+The malware scanning engine however, is distributed as a prebuilt native library and is not open source.  
+A trimmed reference file is provided for transparency:
 
-• APK (treated as ZIP)
+https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/main/jniLibs/trimmed_Engine.rs
 
-• Nested ZIP/APK (up to 2 levels deep)
+---
 
-Documents & Scripting
+## Engine usage by other developers
 
-• TXT, LOG, CFG, INI
+Developers are allowed to use VX-Titanium (the engine) in their own Android apps.
 
-• JSON, XML, HTML, CSS, JS
+This is permitted under the following conditions:
 
-• MD, CSV, TSV, RTF, YAML
+- The engine must be accessed through the provided bridge interface
+- Malware database updates must follow the official update format
+- The engine must be credited by name in the app
+- The app must clearly state that it is not affiliated with ColourSwift
+- The app’s client-side source code must be publicly visible
+- The engine may not be claimed as original work
+- Developers are responsible for integrating and updating the engine in their own app
 
-• DOC, DOCX (scanned as binary)
-
-• BAT, PS1, VBS
-
-APK internals
-
-• classes.dex
-
-• lib/*.so
-
-• assets/*
-
-• res/raw/*
-
-• Other embedded resources
-
-Skipped File Types
-
-Some formats are skipped to avoid false positives and unnecessary I/O:
-
-• RAR (not supported yet)
-
-• PNG, JPG, JPEG, GIF, WEBP
-
-• MP4, MKV, AVI, MP3, OGG
-
-• TTF, OTF, WOFF, WOFF2
-
-• PDF
-
-
-## What is open source
-
-- Flutter UI
-
-• Android project files
-
-• Settings pages
-
-• Scan pages
-
-• Quarantine UI
-
-• All Dart code under lib
-
-
-## What is not open source
-
-• The Rust scanning engine
-
-• VXPack signature data
-
-
-The engine is provided as prebuilt `.so` files inside the jniLibs folder.
-
-## Building the client
-
-Requirements
-
-• Flutter SDK
-
-• Android Studio or command line build tools
-
-• Java 11
-
-• Git
-
-Steps
-
-1. Clone the repository
-2. Run `flutter pub get`
-3. Run `flutter build apk --release` or `flutter build apk --split-per-abi`
-4. The output APK will be created under `build/app/outputs/bundle/release` or `build/app/outputs/bundle/apk`
-
-The app will build and run without cloud features.
-Cloud features work only with the private backend.
-
-## Repo structure
-
-```
-lib/                 Dart source code
-android/             Android project wrapper
-assets/              Static assets
-plugins/             Local plugin sources
-pubspec.yaml         Project definition
-pubspec.lock         Version lock file
-README.md            This file .-.
-LICENSE              MPL 2.0
-
-```
-
-Folders not used for the public repo have been removed.
-
-## Contributing
-
-Contributions are welcome.
-Please keep changes focused on the client interface.
-Do not refactor or reorganize the project structure.
-Do not submit changes to the engine loader or native bindings.
-Do not submit requests related to the private backend.
-
-Bug reports, minor fixes and documentation improvements are accepted.
-
-## License
-
-MPL 2.0
-
-## Privacy and security
-
-The client does not collect personal data.
-Cloud assisted scanning sends only file hashes.
-No IP addresses or identifiers are stored as Cloudflare tunnels hide incoming IPs from the server by design.
-
-No user information is logged or retained.
-
-
-## Community
-
-You can join the official Discord for updates and support.
-https://discord.gg/VYubQJfcYM
-
-Reddit:
-https://www.reddit.com/r/AndroidMalwareLabs/s/gv85ss1P5S
-
+Detailed terms are available in `ENGINE_LICENSE.md`.

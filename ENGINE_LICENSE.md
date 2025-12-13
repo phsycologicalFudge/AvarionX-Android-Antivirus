@@ -13,7 +13,9 @@ The ColourSwift malware scanning engine (VX-Titanium) is proprietary software. H
 
 ## Open client requirement
 
-- Applications using the engine do not need to open their client code.
+- Applications using the engine must make their client-side source code publically accessible
+- The client code does not need to be licenced for reuse, but it must be viewable
+- Closed source clients are not permitted to use the engine
   
 ## Attribution and disclosure
 

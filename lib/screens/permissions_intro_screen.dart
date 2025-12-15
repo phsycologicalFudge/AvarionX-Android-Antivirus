@@ -204,7 +204,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                         _finishSetup();
                       }
                     },
-                    child: Text(_page == 2 ? 'Finish' : 'Next'),
+                    child: Text(_page == 2 ? 'Finish' : 'Next/skip'),
                   ),
                 ],
               ),

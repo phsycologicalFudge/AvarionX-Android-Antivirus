@@ -935,41 +935,48 @@ class _ScanScreenState extends State<ScanScreen>
       final icon = safe ? Icons.verified_rounded : Icons.warning_amber_rounded;
       final color = safe ? Colors.greenAccent : Colors.orangeAccent;
 
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            _glowIcon(icon, color),
-            const SizedBox(height: 20),
-            Text(
-              safe ? 'No threats found' : 'Suspicious item detected',
-              style: text.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
+      return Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 32,
             ),
-            const SizedBox(height: 10),
-            Text(
-              currentFile,
-              textAlign: TextAlign.center,
-              style: text.bodySmall?.copyWith(color: Colors.grey),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _glowIcon(icon, color),
+                const SizedBox(height: 20),
+                Text(
+                  safe ? 'No threats found' : 'Suspicious item detected',
+                  style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  currentFile,
+                  textAlign: TextAlign.center,
+                  style: text.bodySmall?.copyWith(color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                if (!safe)
+                  Text(
+                    'Item moved to quarantine.',
+                    style: text.bodySmall?.copyWith(color: Colors.orangeAccent),
+                    textAlign: TextAlign.center,
+                  ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _finishToHome,
+                  child: const Text('Return Home'),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            if (!safe)
-              Text(
-                'Item moved to quarantine.',
-                style: text.bodySmall?.copyWith(color: Colors.orangeAccent),
-                textAlign: TextAlign.center,
-              ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _finishToHome,
-              child: const Text('Return Home'),
-            ),
-          ],
+          ),
         ),
       );
     }
@@ -1023,10 +1030,13 @@ class _ScanScreenState extends State<ScanScreen>
               children: [
                 Text(
                   hasThreats
-                      ? (mode == ScanMode.installed ? 'Suspicious apps' : 'Suspicious files')
+                      ? (mode == ScanMode.installed
+                      ? 'Suspicious apps'
+                      : 'Suspicious files')
                       : 'Your device looks safe',
                   style: text.titleSmall?.copyWith(
-                    color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
+                    color:
+                    hasThreats ? Colors.orangeAccent : Colors.greenAccent,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

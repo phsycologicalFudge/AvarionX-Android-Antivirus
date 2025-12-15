@@ -343,99 +343,115 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       ),
       backgroundColor: theme.cardColor,
       builder: (context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.55,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                const SizedBox(height: 14),
-                Text(
-                  'ENGINE READY • VX-TITANIUM-v6',
-                  style: text.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: text.bodyLarge?.color?.withOpacity(0.75),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Divider(height: 1),
+        bool localCloudScan = useCloudScan;
 
-                ListTile(
-                  leading: const Icon(Icons.shield_rounded),
-                  title: const Text('Smart Scan'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      animatedRoute(const ScanScreen(startMode: ScanMode.smart)),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.bolt_rounded),
-                  title: const Text('Rapid Scan'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      animatedRoute(const ScanScreen(startMode: ScanMode.rapid)),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.apps_rounded),
-                  title: const Text('Installed Apps'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      animatedRoute(const ScanScreen(startMode: ScanMode.installed)),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.insert_drive_file_rounded),
-                  title: const Text('File / App Scan'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      animatedRoute(const ScanScreen(startMode: ScanMode.single)),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 10),
-                const Divider(height: 1),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Use cloud-assisted scan', style: text.bodyMedium),
-                      Switch(
-                        value: useCloudScan,
-                        onChanged: (v) async {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('useCloudScan', v);
-                          setState(() => useCloudScan = v);
-                        },
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SizedBox(
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.55,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 14),
+                    Text(
+                      'ENGINE READY • VX-TITANIUM-v6',
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: text.bodyLarge?.color?.withOpacity(0.75),
+                        letterSpacing: 0.5,
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Divider(height: 1),
 
-                const SizedBox(height: 14),
-              ],
-            ),
-          ),
+                    ListTile(
+                      leading: const Icon(Icons.shield_rounded),
+                      title: const Text('Smart Scan'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.smart)),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.bolt_rounded),
+                      title: const Text('Rapid Scan'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.rapid)),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.apps_rounded),
+                      title: const Text('Installed Apps'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.installed)),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.insert_drive_file_rounded),
+                      title: const Text('File / App Scan'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.single)),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+                    const Divider(height: 1),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Use cloud-assisted scan',
+                              style: text.bodyMedium),
+                          Switch(
+                            value: localCloudScan,
+                            onChanged: (v) async {
+                              final prefs = await SharedPreferences
+                                  .getInstance();
+                              await prefs.setBool('useCloudScan', v);
+                              setSheetState(() => localCloudScan = v);
+                              setState(() => useCloudScan = v);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
-
 
   @override
   void dispose() {

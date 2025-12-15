@@ -1,8 +1,8 @@
 # ColourSwift Engine Usage License
 
-The ColourSwift malware scanning engine (VX-Titanium) is proprietary software.
+13/12/2025
 
-Permission is granted to third-party developers to use the engine in their own Android applications, subject to the terms below.
+The ColourSwift malware scanning engine (VX-Titanium) is proprietary software. However it is designed to be integrated with third-party clients. Thus, permission is granted to third-party developers to use the engine in their own Android applications, subject to the terms below.
 
 ## Permitted use
 
@@ -13,10 +13,10 @@ Permission is granted to third-party developers to use the engine in their own A
 
 ## Open client requirement
 
-- Applications using the engine must make their client-side source code publicly accessible
-- The client code does not need to be licensed for reuse, but it must be viewable
-- Closed-source clients are not permitted to use the engine
-
+- Applications using the engine must make their client-side source code publically accessible
+- The client code does not need to be licenced for reuse, but it must be viewable
+- Closed source clients are not permitted to use the engine
+  
 ## Attribution and disclosure
 
 - The engine must be identified as "VX-Titanium by ColourSwift" or "Powered by VX-Titanium"

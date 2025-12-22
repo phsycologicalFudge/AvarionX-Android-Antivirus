@@ -39,7 +39,7 @@ class CSForegroundService : Service() {
             val channel = NotificationChannel(
                 channelId,
                 "Realtime Protection",
-                NotificationManager.IMPORTANCE_DEFAULT // Hypatia-style
+                NotificationManager.IMPORTANCE_DEFAULT
             )
             channel.setShowBadge(false)
             manager.createNotificationChannel(channel)
@@ -94,7 +94,6 @@ class CSForegroundService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        // Let Android handle restart via START_STICKY; minimal manual restart
         Log.i("CSRealtime", "Task removed, relying on START_STICKY for restart")
     }
 

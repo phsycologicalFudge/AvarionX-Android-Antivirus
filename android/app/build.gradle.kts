@@ -37,6 +37,7 @@ android {
         versionName = flutter.versionName
     }
 
+
     signingConfigs {
         create("release") {
             if (hasLocalSigning) {
@@ -49,6 +50,9 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+        }
+
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false
@@ -59,6 +63,7 @@ android {
         }
     }
 }
+
 
 flutter {
     source = "../.."

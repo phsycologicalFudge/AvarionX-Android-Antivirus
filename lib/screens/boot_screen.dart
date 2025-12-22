@@ -6,6 +6,8 @@ import '../services/av_engine.dart';
 import 'main_shell.dart';
 import '../utils/defs_manager.dart';
 import '../services/update_service.dart';
+import 'package:provider/provider.dart';
+import '../services/theme_manager.dart';
 
 class BootScreen extends StatefulWidget {
   const BootScreen({super.key});
@@ -63,6 +65,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
 
     final prefs = await SharedPreferences.getInstance();
     final firstLaunch = prefs.getBool('firstLaunch') ?? true;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (mounted) {
       Navigator.pushReplacement(
@@ -106,20 +109,16 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                   final scale = 1.0 + (_pulseController.value * 0.05);
                   return Transform.scale(
                     scale: scale,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.primary.withOpacity(0.1),
-                      ),
-                      child: ClipOval(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.cover,
-                          ),
+                    child: ClipOval(
+                      child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Image.asset(
+                          (context.watch<ThemeManager>().themeName == 'white' ||
+                              context.watch<ThemeManager>().themeName == 'emerald')
+                              ? 'assets/images/logo_light.png'
+                              : 'assets/images/logo_dark.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),

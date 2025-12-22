@@ -1,5 +1,6 @@
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
+import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,9 +36,60 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   String? remoteVersion;
   String version = '';
 
+
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
   late Animation<double> _popupOpacity;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  bool _pressed = false;
+
+  Future<void> _restartApp() async {
+    try {
+      await AvServiceManager.stopProtection();
+      await AvServiceManager.stopVpn();
+      RealtimeProtectionService.stop();
+    } catch (_) {}
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    SystemNavigator.pop();
+  }
+
+  Future<void> _showRestartRequiredDialog() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+
+        return AlertDialog(
+          title: const Text('Restart Required'),
+          content: Text(
+            'Database was updated successfully.\n\nA restart is required to activate the new engine.',
+            style: text.bodyMedium,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Restart Later'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _restartApp();
+              },
+              child: const Text('Restart Now'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
@@ -189,20 +241,21 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                 );
 
                 if (!mounted || !dialogMounted) return;
-
                 Navigator.of(context, rootNavigator: true).pop();
 
                 await UpdateService.setLocalVersion(newRemoteVersion);
+                if (!mounted) return;
+                setState(() {
+                  hasUpdate = false;
+                  remoteVersion = null;
+                });
+                await _showRestartRequiredDialog();
 
                 if (!mounted) return;
                 setState(() {
                   hasUpdate = false;
                   remoteVersion = null;
                 });
-
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(content: Text('Database updated successfully')),
-                );
               } catch (_) {
                 if (!mounted || !dialogMounted) return;
                 Navigator.of(context, rootNavigator: true).pop();
@@ -305,7 +358,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
     final conflict = await _isAnotherVpnActive();
 
-
     await AvServiceManager.startProtection();
     _startBackgroundScan();
 
@@ -348,26 +400,22 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         return StatefulBuilder(
           builder: (context, setSheetState) {
             return SizedBox(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.55,
+              height: MediaQuery.of(context).size.height * 0.55,
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
                     const SizedBox(height: 14),
                     Text(
-                      'ENGINE READY • VX-TITANIUM-v6',
+                      'ENGINE READY • VX-TITANIUM-v7',
                       style: text.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: text.bodyLarge?.color?.withOpacity(0.75),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                         letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(height: 14),
                     const Divider(height: 1),
-
                     ListTile(
                       leading: const Icon(Icons.shield_rounded),
                       title: const Text('Smart Scan'),
@@ -375,8 +423,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.smart)),
+                          animatedRoute(const ScanScreen(startMode: ScanMode.smart)),
                         );
                       },
                     ),
@@ -387,8 +434,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.rapid)),
+                          animatedRoute(const ScanScreen(startMode: ScanMode.rapid)),
                         );
                       },
                     ),
@@ -399,8 +445,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.installed)),
+                          animatedRoute(const ScanScreen(startMode: ScanMode.installed)),
                         );
                       },
                     ),
@@ -411,28 +456,22 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.single)),
+                          animatedRoute(const ScanScreen(startMode: ScanMode.single)),
                         );
                       },
                     ),
-
                     const SizedBox(height: 10),
                     const Divider(height: 1),
-
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Use cloud-assisted scan',
-                              style: text.bodyMedium),
+                          Text('Use cloud-assisted scan', style: text.bodyMedium),
                           Switch(
                             value: localCloudScan,
                             onChanged: (v) async {
-                              final prefs = await SharedPreferences
-                                  .getInstance();
+                              final prefs = await SharedPreferences.getInstance();
                               await prefs.setBool('useCloudScan', v);
                               setSheetState(() => localCloudScan = v);
                               setState(() => useCloudScan = v);
@@ -441,7 +480,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 14),
                   ],
                 ),
@@ -460,97 +498,407 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     super.dispose();
   }
 
-  Widget _buildProtectionCenter(TextTheme text) {
-    if (!protectionEnabled) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.redAccent,
-            size: 60,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Protection Disabled',
-            style: text.titleMedium?.copyWith(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Tap to enable protection',
-            style: text.bodySmall?.copyWith(
-              color: text.bodySmall?.color?.withOpacity(0.7),
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      );
-    }
+  double _ringValue() {
+    if (!protectionEnabled) return 0.0;
+    if (vpnConflict) return 0.6;
+    return 1.0;
+  }
 
-    if (vpnConflict) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Color _stateAccent(ThemeData theme) {
+    if (!protectionEnabled) return Colors.redAccent;
+    if (vpnConflict) return Colors.orangeAccent;
+    return Colors.greenAccent;
+  }
+
+  IconData _stateIcon() {
+    if (!protectionEnabled) return Icons.shield_outlined;
+    if (vpnConflict) return Icons.shield_moon_rounded;
+    return Icons.verified_user;
+  }
+
+  String _stateTitle() {
+    if (!protectionEnabled) return 'Protection';
+    if (vpnConflict) return 'Protection';
+    return 'Protection';
+  }
+
+  String _stateLine1() {
+    if (!protectionEnabled) return 'Device protection is off';
+    if (vpnConflict) return 'File protection is on';
+    return 'Your device is fully protected';
+  }
+
+  String _stateLine2() {
+    if (!protectionEnabled) return 'Tap to turn on';
+    if (vpnConflict) return 'Another VPN is active';
+    return 'Tap to turn off';
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+      child: Row(
         children: [
-          Icon(
-            Icons.shield_moon_rounded,
-            color: Colors.orangeAccent,
-            size: 60,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Partial Protection',
-            style: text.titleMedium?.copyWith(
-              color: Colors.orangeAccent,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  'CS Security',
+                  overflow: TextOverflow.ellipsis,
+                  style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                    color: theme.colorScheme.onSurface.withOpacity(0.88),
+                  ),
+                ),
+                if (isPro) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade700,
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Text(
+                      'SPONSOR',
+                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(height: 5),
-          Text(
-            'Another VPN is active',
-            style: text.bodySmall?.copyWith(
-              color: text.bodySmall?.color?.withOpacity(0.7),
-              fontStyle: FontStyle.italic,
-            ),
+          IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
           ),
         ],
-      );
-    }
+      ),
+    );
+  }
+
+  Widget _buildSideDrawer(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Drawer(
+        backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.92),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Text(
+                  'Features',
+                  style: text.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Divider(
+                height: 1,
+                color: theme.colorScheme.onSurface.withOpacity(0.18),
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.wifi_lock_rounded,
+                label: 'Network Protection',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    animatedRoute(const NetworkProtectionScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.key_rounded,
+                label: 'MetaPass',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    animatedRoute(const PasswordTestScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.cleaning_services_rounded,
+                label: 'Cleaner Pro',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    animatedRoute(const CleanerScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerItem(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required VoidCallback onTap,
+      }) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    return ListTile(
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(
+        label,
+        style: text.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildPrimaryControl(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final accent = _stateAccent(theme);
+    final ring = _ringValue();
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.verified_user,
-          color: Colors.greenAccent,
-          size: 60,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Device Protected',
-          style: text.titleMedium?.copyWith(
-            color: text.bodyLarge?.color,
-            fontWeight: FontWeight.w600,
+        GestureDetector(
+          onTapDown: (_) => setState(() => _pressed = true),
+          onTapCancel: () => setState(() => _pressed = false),
+          onTapUp: (_) => setState(() => _pressed = false),
+          onTap: _toggleProtection,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOut,
+            scale: _pressed ? 0.97 : 1.0,
+            child: CircularPercentIndicator(
+              radius: 86,
+              lineWidth: 12,
+              percent: ring.clamp(0.0, 1.0),
+              animation: true,
+              animateFromLastPercent: true,
+              circularStrokeCap: CircularStrokeCap.round,
+              backgroundColor:
+              theme.colorScheme.onSurface.withOpacity(isDark ? 0.14 : 0.10),
+              progressColor: accent,
+              center: AnimatedScale(
+                duration: const Duration(milliseconds: 120),
+                scale: _pressed ? 0.94 : 1.0,
+                child: Icon(
+                  _stateIcon(),
+                  size: 46,
+                  color: accent,
+                ),
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 18),
         Text(
-          'Tap to disable protection',
+          _stateLine1(),
+          style: text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface.withOpacity(0.9),
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _stateLine2(),
           style: text.bodySmall?.copyWith(
             color: text.bodySmall?.color?.withOpacity(0.7),
-            fontStyle: FontStyle.italic,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          child: GestureDetector(
+            onTapDown: (_) {
+              HapticFeedback.lightImpact();
+              setState(() => _pressed = true);
+            },
+            onTapUp: (_) {
+              setState(() => _pressed = false);
+            },
+            onTapCancel: () {
+              setState(() => _pressed = false);
+            },
+            child: OutlinedButton.icon(
+              onPressed: _openScanDrawer,
+              icon: const Icon(Icons.search_rounded, size: 18),
+              label: const Text('Scan'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
         ),
+
+        const SizedBox(height: 10),
+        IconButton(
+          onPressed: _showRtpInfo,
+          icon: Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: theme.iconTheme.color?.withOpacity(0.65),
+          ),
+          splashRadius: 18,
+        ),
+        if (hasUpdate && remoteVersion != null && remoteVersion!.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: () => _startUpdate(remoteVersion!),
+            icon: const Icon(Icons.system_update_rounded, size: 18),
+            label: Text('Update to v${remoteVersion!}'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: Colors.white,
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              textStyle:
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 10, 2, 10),
+      child: Text(
+        title,
+        style: text.titleMedium?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: theme.colorScheme.onSurface.withOpacity(0.86),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(
+      BuildContext context, {
+        required String title,
+        required String description,
+        required IconData icon,
+        required Color color,
+        VoidCallback? onTap,
+      }) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bg = theme.scaffoldBackgroundColor.withOpacity(isDark ? 0.35 : 0.6);
+    final border = theme.colorScheme.onSurface.withOpacity(isDark ? 0.10 : 0.08);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.28 : 0.06),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.16),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: text.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: theme.colorScheme.onSurface.withOpacity(0.88),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        style: text.bodySmall?.copyWith(
+                          height: 1.35,
+                          color: text.bodySmall?.color?.withOpacity(0.72),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    size: 22,
+                    color: theme.iconTheme.color?.withOpacity(0.55),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final text = theme.textTheme;
     final isDark = theme.brightness == Brightness.dark;
 
     final backgroundGradient = (isPro && isDark && !hideGoldHeader)
@@ -561,7 +909,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     )
         : LinearGradient(
       colors: [
-        theme.colorScheme.primary.withOpacity(0.25),
+        theme.colorScheme.primary.withOpacity(0.18),
         isDark ? Colors.black : theme.scaffoldBackgroundColor,
       ],
       begin: Alignment.topCenter,
@@ -569,285 +917,69 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     );
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            elevation: 0,
-            expandedHeight: isPro ? 80 : 80,
-            backgroundColor: theme.appBarTheme.backgroundColor,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 12),
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
+      key: _scaffoldKey,
+      endDrawer: _buildSideDrawer(context),
+    backgroundColor: theme.scaffoldBackgroundColor,
+      body: Container(
+        decoration: BoxDecoration(gradient: backgroundGradient),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
+              child: Column(
                 children: [
-                  //Image.asset(
-                    //'assets/icons/logo3.png',
-                   // width: 30,
-                   // height: 30,
-                 // ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      'CS Security',
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      style: text.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                        color: text.bodyLarge?.color,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                  _buildTopBar(context),
+                  const SizedBox(height: 10),
+                  _buildPrimaryControl(context),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: _buildSectionTitle(context, 'Quick Features'),
                   ),
-                  if (isPro) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade700,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'PRO',
-                        style: TextStyle(color: Colors.white, fontSize: 10),
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 6),
+                  _buildFeatureRow(
+                    context,
+                    title: 'MetaPass',
+                    description: 'Generate secure offline passwords.',
+                    icon: Icons.key_rounded,
+                    color: Colors.amberAccent,
+                    onTap: () => Navigator.push(context, animatedRoute(const PasswordTestScreen())),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFeatureRow(
+                    context,
+                    title: 'Cleaner Pro',
+                    description: 'Find duplicates, old media, and unused apps to reclaim storage automatically.',
+                    icon: Icons.cleaning_services_rounded,
+                    color: Colors.blueAccent,
+                    onTap: () => Navigator.push(context, animatedRoute(const CleanerScreen())),
+                  ),
+                  const SizedBox(height: 12),
                 ],
               ),
-              background: Container(decoration: BoxDecoration(gradient: backgroundGradient)),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: _toggleProtection,
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              CircularPercentIndicator(
-                                radius: 130.0,
-                                lineWidth: 14.0,
-                                animation: true,
-                                animateFromLastPercent: true,
-                                percent: protectionPercent,
-                                circularStrokeCap: CircularStrokeCap.round,
-                                progressColor:
-                                protectionEnabled ? Colors.greenAccent : Colors.redAccent,
-                                backgroundColor: theme.dividerColor.withOpacity(0.1),
-                                center: _buildProtectionCenter(text),
-                              ),
-                              Positioned(
-                                top: 35,
-                                right: 35,
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.info_outline_rounded,
-                                    size: 20,
-                                    color: theme.iconTheme.color?.withOpacity(0.7),
-                                  ),
-                                  onPressed: _showRtpInfo,
-                                  splashRadius: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
-                          GestureDetector(
-                            onTap: _openScanDrawer,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              curve: Curves.easeOut,
-                              width: double.infinity,
-                              height: 46,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    theme.colorScheme.primary.withOpacity(0.9),
-                                    theme.colorScheme.primary.withOpacity(0.7),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: theme.colorScheme.primary.withOpacity(0.25),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.search_rounded,
-                                      color: Colors.white, size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Scan Now',
-                                    style: text.titleMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.3,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          if (hasUpdate && remoteVersion != null && remoteVersion!.isNotEmpty)
-                            ...[
-                              const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                onPressed: () => _startUpdate(remoteVersion!),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
-                                  textStyle: const TextStyle(
-                                      fontSize: 13, fontWeight: FontWeight.w600),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.system_update_rounded, size: 18),
-                                label: Text('Update to v${remoteVersion ?? ""}'),
-                              ),
-                            ],
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Terminal',
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: text.bodyLarge?.color,
-                        ),
-                      ),
-                    ),
-
-                    // Features
-                    _buildFeatureCard(
-                      context,
-                      title: 'MetaPass',
-                      description: 'Generate secure offline passwords.',
-                      icon: Icons.key_rounded,
-                      color: Colors.amberAccent,
-                      onTap: () => Navigator.push(context,
-                          animatedRoute(const PasswordTestScreen())),
-                    ),
-                    const SizedBox(height: 15),
-
-                    _buildFeatureCard(
-                      context,
-                      title: 'Cleaner Pro',
-                      description:
-                      'Find duplicates, old media, and unused apps to reclaim storage automatically.',
-                      icon: Icons.cleaning_services_rounded,
-                      color: Colors.blueAccent,
-                      onTap: () =>
-                          Navigator.push(context, animatedRoute(const CleanerScreen())),
-                    ),
-                    const SizedBox(height: 15),
-
-                    _buildFeatureCard(
-                      context,
-                      title: 'Wi-Fi Protection',
-                      description:
-                      '50% complete. RTP or "vpn on" command protects you against suspicious domain systemwide.',
-                      icon: Icons.wifi_lock_rounded,
-                      color: Colors.tealAccent,
-                    ),
-
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildFeatureCard(BuildContext context,
-      {required String title,
+  Widget _buildFeatureCard(
+      BuildContext context, {
+        required String title,
         required String description,
         required IconData icon,
         required Color color,
-        VoidCallback? onTap}) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    return GestureDetector(
+        VoidCallback? onTap,
+      }) {
+    return _buildFeatureRow(
+      context,
+      title: title,
+      description: description,
+      icon: icon,
+      color: color,
       onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: isDark
-              ? theme.cardColor
-              : theme.colorScheme.surfaceVariant.withOpacity(0.8),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  color: color.withOpacity(0.15), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: text.bodyLarge?.color)),
-                  const SizedBox(height: 6),
-                  Text(description,
-                      style: text.bodySmall?.copyWith(
-                          color:
-                          text.bodySmall?.color?.withOpacity(0.7),
-                          height: 1.4)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Icon(Icons.arrow_forward_ios_rounded,
-                color: text.bodySmall?.color?.withOpacity(0.6), size: 18),
-          ],
-        ),
-      ),
     );
   }
 }

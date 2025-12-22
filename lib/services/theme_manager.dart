@@ -10,7 +10,6 @@ class ThemeManager extends ChangeNotifier {
   ThemeData _themeData = _buildBlackTheme();
 
   String get themeName => _themeName;
-
   ThemeData get themeData => _themeData;
 
   ThemeMode get themeMode {
@@ -50,75 +49,124 @@ class ThemeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  // THEMES
-
-  static ThemeData _buildBlackTheme() {
-    return ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: Colors.black,
-      colorScheme: const ColorScheme.dark(
-        primary: Colors.blueAccent,
-        secondary: Colors.tealAccent,
-      ),
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
-      cardColor: const Color(0xFF1A1A1A),
+  static PageTransitionsTheme _pageTransitions() {
+    return const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
     );
   }
 
+  static ThemeData _buildBlackTheme() {
+    const surface = Color(0xFF121212);
+    const card = Color(0xFF1C1C1C);
 
-  static ThemeData _buildWhiteTheme() {
-    return ThemeData.light().copyWith(
-      scaffoldBackgroundColor: Colors.white,
-      colorScheme: const ColorScheme.light(
-        primary: Colors.blueAccent,
-        secondary: Colors.blueAccent,
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: surface,
+      cardColor: card,
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF4EA3FF),
+        secondary: Color(0xFF3DD6C6),
+        surface: card,
+        onSurface: Colors.white,
       ),
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      textTheme: ThemeData.dark().textTheme.apply(
+        bodyColor: Colors.white.withOpacity(0.88),
+        displayColor: Colors.white.withOpacity(0.88),
+      ),
+      pageTransitionsTheme: _pageTransitions(),
+      useMaterial3: true,
     );
   }
 
   static ThemeData _buildGreyTheme() {
+    const surface = Color(0xFF232323);
+    const card = Color(0xFF2F2F2F);
+
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xFF2B2B2B),
-      cardColor: const Color(0xFF3A3A3A),
+      scaffoldBackgroundColor: surface,
+      cardColor: card,
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF9E9E9E),
-        secondary: Color(0xFFBDBDBD),
+        primary: Color(0xFF9FA4AA),
+        secondary: Color(0xFFB0B5BB),
+        surface: card,
+        onSurface: Colors.white,
       ),
-      appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF2B2B2B)),
-      textTheme: ThemeData
-          .dark()
-          .textTheme
-          .apply(
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      textTheme: ThemeData.dark().textTheme.apply(
         bodyColor: Colors.white70,
         displayColor: Colors.white70,
       ),
+      pageTransitionsTheme: _pageTransitions(),
+      useMaterial3: true,
+    );
+  }
+
+  static ThemeData _buildWhiteTheme() {
+    const surface = Color(0xFFF6F7F8);
+    const card = Color(0xFFFFFFFF);
+
+    return ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: surface,
+      cardColor: card,
+      colorScheme: const ColorScheme.light(
+        primary: Color(0xFF3B82F6),
+        secondary: Color(0xFF3B82F6),
+        surface: card,
+        onSurface: Colors.black,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      textTheme: ThemeData.light().textTheme.apply(
+        bodyColor: Colors.black87,
+        displayColor: Colors.black87,
+      ),
+      pageTransitionsTheme: _pageTransitions(),
+      useMaterial3: true,
     );
   }
 
   static ThemeData _buildEmeraldTheme() {
+    const surface = Color(0xFFF1F6F4);
+    const card = Color(0xFFE6F0EC);
+
     return ThemeData(
       brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFF4F7F5),
-      // softer white
-      cardColor: const Color(0xFFE7EFEB),
-      // pale mint surface
+      scaffoldBackgroundColor: surface,
+      cardColor: card,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF009E73),
-        secondary: Color(0xFF00A982),
+        primary: Color(0xFF00A97A),
+        secondary: Color(0xFF00B989),
+        surface: card,
+        onSurface: Colors.black,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFFF4F7F5),
+        backgroundColor: surface,
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      textTheme: ThemeData
-          .light()
-          .textTheme
-          .apply(
+      textTheme: ThemeData.light().textTheme.apply(
         bodyColor: Colors.black87,
         displayColor: Colors.black87,
       ),
+      pageTransitionsTheme: _pageTransitions(),
+      useMaterial3: true,
     );
   }
 }

@@ -16,26 +16,35 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   String _active = 'home';
 
-  Widget _buildActivePage() {
+  int get _index {
     switch (_active) {
-      case 'terminal':
-        return const ConsoleScreen();
       case 'scan':
-        return const ScanScreen();
+        return 1;
+      case 'terminal':
+        return 2;
       case 'quarantine':
-        return const QuarantineScreen();
+        return 3;
       case 'settings':
-        return const SettingsScreen();
+        return 4;
       case 'home':
       default:
-        return const AvHomeScreen();
+        return 0;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildActivePage(),
+      body: IndexedStack(
+        index: _index,
+        children: [
+          AvHomeScreen(key: ValueKey(DateTime.now().millisecondsSinceEpoch)),
+          const ScanScreen(),
+          const ConsoleScreen(),
+          const QuarantineScreen(),
+          const SettingsScreen(),
+        ],
+      ),
       bottomNavigationBar: FooterNav(
         active: _active,
         onTabChange: (tab) => setState(() => _active = tab),
@@ -43,3 +52,4 @@ class _MainShellState extends State<MainShell> {
     );
   }
 }
+

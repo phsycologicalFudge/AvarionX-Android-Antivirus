@@ -10,12 +10,11 @@
         <activity-alias
             android:name=".IconDefaultAlias"
             tools:node="merge" />
-
     </application>
 
 </manifest>
 
-    <!-- insert this after line 40 of main manifest:
+    <!-- insert this after line 44 of main manifest:
     <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

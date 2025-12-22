@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -7,12 +8,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/cache_manager.dart';
 import '../services/cloud_helper_service.dart';
 import '../services/exclusion_service.dart';
 import '../services/quarantine_service.dart';
+import '../utils/hash_cache_worker.dart';
+import '../utils/worker_hash_isolate.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'exclusions/exclusion_manager_screen.dart';
 
@@ -47,45 +51,6 @@ class ScanScreen extends StatefulWidget {
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
-class HashWorker {
-  final ReceivePort _receive;
-  final SendPort sendPort;
-
-  HashWorker._(this._receive, this.sendPort);
-
-  static Future<HashWorker> spawn() async {
-    final receive = ReceivePort();
-    await Isolate.spawn(_entry, receive.sendPort);
-    final send = await receive.first as SendPort;
-    return HashWorker._(receive, send);
-  }
-
-  static void _entry(SendPort root) {
-    final port = ReceivePort();
-    root.send(port.sendPort);
-
-    port.listen((msg) {
-      final send = msg[0] as SendPort;
-      final path = msg[1] as String;
-
-      try {
-        final bytes = File(path).readAsBytesSync();
-        final md5h = md5.convert(bytes).toString();
-        final sha = sha256.convert(bytes).toString();
-        send.send({'md5': md5h, 'sha': sha});
-      } catch (_) {
-        send.send({'md5': '', 'sha': ''});
-      }
-    });
-  }
-
-  Future<Map<String, String>> hash(String path) async {
-    final port = ReceivePort();
-    sendPort.send([port.sendPort, path]);
-    return await port.first as Map<String, String>;
-  }
-}
-
 class ScanWorker {
   final ReceivePort _receive;
   final SendPort sendPort;
@@ -112,17 +77,33 @@ class ScanWorker {
         final raw = bridge.scanFile(path);
         final decoded = jsonDecode(raw);
         final hits = decoded['hits'] as Map?;
-        send.send(hits != null && hits.isNotEmpty);
+        if (hits == null || hits.isEmpty) {
+          send.send(null);
+        } else {
+          final labels = <String>{};
+
+          for (final v in hits.values) {
+            if (v is List) {
+              for (final s in v) {
+                if (s is String && s.startsWith('YARA_')) {
+                  labels.add(s.replaceFirst('YARA_', ''));
+                }
+              }
+            }
+          }
+
+          send.send(labels.isEmpty ? true : labels.toList());
+        }
       } catch (_) {
         send.send(false);
       }
     });
   }
 
-  Future<bool> scan(String path) async {
+  Future<dynamic> scan(String path) async {
     final port = ReceivePort();
     sendPort.send([port.sendPort, path]);
-    return await port.first as bool;
+    return await port.first;
   }
 }
 
@@ -156,20 +137,6 @@ class _ScanScreenState extends State<ScanScreen>
   bool? singleResult;
 
   late AnimationController _pulse;
-
-  String computeFileSha256(String path) {
-    final bytes = File(path).readAsBytesSync();
-    return sha256.convert(bytes).toString();
-  }
-
-  String computeFileMd5(String path) {
-    final bytes = File(path).readAsBytesSync();
-    return md5.convert(bytes).toString();
-  }
-
-  Future<Map<String, String>> _hashFile(String path) async {
-    return await compute(_hashFileIsolate, path);
-  }
 
   static const MethodChannel _apkFast = MethodChannel("apk_fast");
 
@@ -226,6 +193,8 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   void initState() {
     super.initState();
+
+    scanLogSink = LogBuffer.add;
 
     _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))
       ..repeat(reverse: true);
@@ -406,8 +375,8 @@ class _ScanScreenState extends State<ScanScreen>
           if (x.skipFolder(entity.path)) continue;
 
           final ext = _ext(entity.path);
-          if (_isImage(ext)) continue;
-
+          final size = await entity.length();
+          if (!_isAllowedFile(ext, size)) continue;
           files.add(entity.path);
         }
       }
@@ -454,8 +423,17 @@ class _ScanScreenState extends State<ScanScreen>
 
     bool infectedFlag = false;
 
-    final md5h = computeFileMd5(file.path!);
-    final sha = computeFileSha256(file.path!);
+    final dir = await getApplicationDocumentsDirectory();
+    final hashWorker = await HashCacheWorker.spawn(
+      '${dir.path}/hashcache.bin',
+    );
+
+    final hashesByPath = await hashWorker.hashBatch([file.path!]);
+    final hashes = hashesByPath[file.path!] ?? {'md5': '', 'sha': ''};
+    final md5h = hashes['md5'] ?? '';
+    final sha = hashes['sha'] ?? '';
+
+    await hashWorker.flush();
 
     if (useCloudScan) {
       LogBuffer.add('[CLOUD] Sending MD5=$md5h and SHA256=$sha to cloud');
@@ -471,7 +449,9 @@ class _ScanScreenState extends State<ScanScreen>
     }
 
     if (infectedFlag) {
-      await QuarantineService.quarantineFile(file.path!);
+      unawaited(
+        QuarantineService.quarantineFile(file.path!),
+      );
     }
 
     setState(() {
@@ -494,7 +474,9 @@ class _ScanScreenState extends State<ScanScreen>
               if (x.skipFolder(entity.path)) continue;
               final ext = _ext(entity.path);
               final size = await entity.length();
-              if (_isAllowedFile(ext, size)) allPaths.add(entity.path);
+              if (ext != 'apk') continue;
+              if (size > 200 * 1024 * 1024) continue;
+              allPaths.add(entity.path);
             } catch (_) {}
           }
         }
@@ -695,76 +677,86 @@ class _ScanScreenState extends State<ScanScreen>
         scanned = ++done;
       });
 
-      final bad = await scanWorker.scan(p);
+      final res = await scanWorker.scan(p);
 
-      if (bad) {
+      if (res is List<String>) {
+        infected.add('${name} (${res.join(', ')})');
+      } else if (res == true) {
         infected.add(name);
       } else {
         clean.add(name);
       }
     }
-
-    LogBuffer.add('[SUMMARY] ${infected.length} suspicious apps • ${clean.length} clean');
   }
-
   Future<void> _scanFiles(List<String> files) async {
     total = files.length;
     if (total == 0) {
       LogBuffer.add('[ENGINE] No readable files found.');
       if (mounted) setState(() => state = ScanState.empty);
+      LogBuffer.add('[SUMMARY] ${infected.length} suspicious apps • ${clean
+          .length} clean');
       return;
     }
 
     final scanWorker = await ScanWorker.spawn();
-    HashWorker? hashWorker;
-
     final fileHashes = <String, Map<String, String>>{};
     final cloudDetected = <String>{};
 
     final useCloud = useCloudScan;
 
+    final List<String> pendingLogs = [];
+
+    HashCacheWorker? hashWorker;
+
     if (useCloud) {
-      hashWorker = await HashWorker.spawn();
-      LogBuffer.add('[STAGE 1] Computing file hashes...');
+      final dir = await getApplicationDocumentsDirectory();
+      hashWorker = await HashCacheWorker.spawn(
+        '${dir.path}/hashcache.bin',
+      );
 
-      for (int i = 0; i < files.length; i++) {
-        if (!mounted || cancelled) return;
+      LogBuffer.add('[STAGE 1] Resolving file hashes (cached)...');
 
-        final path = files[i];
+      final hashesByPath = await hashWorker.hashBatch(files);
+
+      for (final entry in hashesByPath.entries) {
+        final path = entry.key;
+        final hashes = entry.value;
+
         final ex = ExclusionService();
         await ex.load();
-        if (ex.skipFolder(path)) continue;
-        final name = path.split('/').last;
-        final sha = sha256.convert(File(path).readAsBytesSync()).toString();
+
+        final sha = hashes['sha'] ?? '';
         if (ex.skipSha(sha)) continue;
 
-        setState(() {
-          currentFile = name;
-          scanned = i + 1;
-        });
-
-        final hashes = await hashWorker.hash(path);
         fileHashes[path] = hashes;
-        LogBuffer.add('[HASH] $name');
-        _safeScrollToEnd();
       }
 
-      LogBuffer.add('[STAGE 2] Sending batch hash list to cloud...');
+      await hashWorker.flush();
+    }
 
-      final hashList = <String>[];
-      for (final entry in fileHashes.values) {
-        final m = entry['md5'] ?? '';
-        final s = entry['sha'] ?? '';
-        if (m.isNotEmpty) hashList.add(m);
-        if (s.isNotEmpty) hashList.add(s);
+    if (useCloud && fileHashes.isNotEmpty) {
+      LogBuffer.add('[STAGE 2] Cloud hash lookup...');
+
+      final toSend = <String>[];
+
+      for (final hashes in fileHashes.values) {
+        final md5h = hashes['md5'];
+        final sha = hashes['sha'];
+        if (md5h != null && md5h.isNotEmpty) toSend.add(md5h);
+        if (sha != null && sha.isNotEmpty) toSend.add(sha);
       }
 
-      final cloudResp = await cloudScanner.checkBatch(hashList);
-      for (final match in cloudResp) {
-        cloudDetected.add(match);
-      }
+      if (toSend.isNotEmpty) {
+        final hits = await cloudScanner.checkBatch(toSend);
 
-      LogBuffer.add('[CLOUD] Cloud flagged ${cloudDetected.length} hash matches.');
+        for (final h in hits) {
+          cloudDetected.add(h);
+        }
+
+        if (hits.isNotEmpty) {
+          LogBuffer.add('[CLOUD] ${hits.length} hash hits');
+        }
+      }
     }
 
     LogBuffer.add('[STAGE ${useCloud ? '3' : '1'}] Local scanning files...');
@@ -777,12 +769,16 @@ class _ScanScreenState extends State<ScanScreen>
       if (!mounted || cancelled) return;
 
       final path = files[i];
-      final name = path.split('/').last;
+      final name = path
+          .split('/')
+          .last;
 
-      setState(() {
-        currentFile = name;
-        scanned = i + 1;
-      });
+      if (i % 5 == 0 || i == files.length - 1) {
+        setState(() {
+          currentFile = name;
+          scanned = i + 1;
+        });
+      }
 
       bool infectedFlag = false;
 
@@ -798,36 +794,67 @@ class _ScanScreenState extends State<ScanScreen>
         }
       }
 
-      if (!infectedFlag) {
-        infectedFlag = await scanWorker.scan(path);
+      final res = await scanWorker.scan(path);
+
+      String? infectedEntry;
+
+      if (res is List<String>) {
+        infectedFlag = true;
+        infectedEntry = '$path (${res.join(', ')})';
+      } else if (res == true) {
+        infectedFlag = true;
+        infectedEntry = path;
+      } else {
+        infectedFlag = false;
       }
 
       if (infectedFlag) {
-        infected.add(path);
+        infected.add(infectedEntry ?? path);
+        pendingLogs.add('[THREAT] Quarantined $name');
         try {
-          await QuarantineService.quarantineFile(path);
-          LogBuffer.add('[THREAT] Quarantined $name');
+          unawaited(
+            QuarantineService.quarantineFile(path),
+          );
         } catch (_) {}
       } else {
         clean.add(path);
-        LogBuffer.add('[CLEAN] $name');
+        pendingLogs.add('[CLEAN] $name');
       }
-
-      _safeScrollToEnd();
+      if (pendingLogs.length >= 5 || i == files.length - 1) {
+        for (final l in pendingLogs) {
+          LogBuffer.add(l);
+        }
+        pendingLogs.clear();
+        _safeScrollToEnd();
+      }
     }
-
-    LogBuffer.add('[SUMMARY] ${infected.length} suspicious • ${clean.length} clean');
+    LogBuffer.add(
+        '[SUMMARY] ${infected.length} suspicious • ${clean.length} clean'
+    );
 
     if (!mounted || cancelled) return;
 
     await CacheManager.clearAll();
     setState(() => state = ScanState.result);
+
   }
 
   static bool _isAllowedFile(String ext, int size) {
-    const allowed = ['apk', 'zip', 'pdf', 'txt', 'md', 'pdf', 'exe'];
-    const skip = ['mp3', 'rar', 'mp4', 'm4a', 'mov', 'jpg', 'jpeg', 'png', '7z'];
-    return allowed.contains(ext) && !skip.contains(ext) && size < 100 * 1024 * 1024;
+    const allowed = {
+      'apk',
+      'xapk',
+      'apkm',
+      'zip',
+      'pdf',
+      'txt',
+      'md',
+      'exe',
+    };
+
+    if (!allowed.contains(ext)) return false;
+    if (size > 100 * 1024 * 1024) return false;
+
+    return true;
   }
 
   @override
@@ -902,16 +929,24 @@ class _ScanScreenState extends State<ScanScreen>
           borderRadius: BorderRadius.circular(10),
         ),
         const SizedBox(height: 20),
-        Expanded(child: _logBox()),
+        SizedBox(
+          height: 180,
+          child: _logBox(),
+        ),
         const SizedBox(height: 20),
-        TextButton.icon(
-          onPressed: _cancelScan,
-          icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
-          label: const Text(
-            'Cancel Scan',
-            style: TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.w600,
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom + 8,
+          ),
+          child: TextButton.icon(
+            onPressed: _cancelScan,
+            icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
+            label: const Text(
+              'Cancel Scan',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
@@ -1192,18 +1227,6 @@ class _ScanScreenState extends State<ScanScreen>
         );
       },
     );
-  }
-}
-
-Map<String, String> _hashFileIsolate(String path) {
-  try {
-    final bytes = File(path).readAsBytesSync();
-    return {
-      'md5': md5.convert(bytes).toString(),
-      'sha': sha256.convert(bytes).toString(),
-    };
-  } catch (_) {
-    return {'md5': '', 'sha': ''};
   }
 }
 

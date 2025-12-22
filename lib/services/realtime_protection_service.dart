@@ -8,8 +8,10 @@ import 'package:path_provider/path_provider.dart';
 import '../utils/exclusions_store.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
+import 'cloud_helper_service.dart';
 import 'foreground_service.dart';
 import 'quarantine_service.dart';
+import 'package:crypto/crypto.dart';
 
 bool scanFileIsolate(String path) {
   try {
@@ -27,11 +29,15 @@ class RealtimeProtectionService {
   static bool _running = false;
   static Map<String, int> _seen = {};
   static StreamSubscription? _eventSub;
+  static final CloudScanner _cloud = CloudScanner(
+    endpoint: 'https://efkou1u21ooih2hko.colourswift.com',
+    apiKey: '23JVO3ojo23oO3O423rrTR',
+  );
 
   static const _eventChannel = EventChannel('colourswift/realtime_stream');
 
   static const _allowed = {
-    'com', 'apk', 'zip', 'rar', '7z', 'pdf', 'txt', 'md', 'json'
+    'com', 'apk', 'zip', 'rar', '7z', 'pdf', 'txt', 'md', 'json', 'exe'
   };
   static const _skip = {
     'mp3', 'mp4', 'm4a', 'mov', 'jpg', 'png', 'jpeg', 'heic', 'webp'
@@ -44,7 +50,7 @@ class RealtimeProtectionService {
     await _loadIndex();
     await ExclusionsStore.instance.init();
     await AvEngine.ensureInitialized();
-    await ForegroundService.start(title: 'CS Security+', text: 'Realtime protection active');
+    await ForegroundService.start(title: 'CS Security', text: 'Realtime protection active');
     _eventSub = _eventChannel.receiveBroadcastStream().listen((dynamic event) async {
       if (event is! String) return;
       final name = p.basename(event);
@@ -99,6 +105,19 @@ class RealtimeProtectionService {
       if (seenMtime != null && mtime <= seenMtime) return;
 
       await Future.delayed(const Duration(milliseconds: 180));
+
+      final bytes = await f.readAsBytes();
+      final sha = sha256.convert(bytes).toString();
+
+      final cloudHit = await _cloud.checkBatch([sha]);
+      if (cloudHit.contains(sha)) {
+        if (!ExclusionsStore.instance.isExcluded(path)) {
+          await _handleDetection(path);
+        }
+        _seen[path] = mtime;
+        await _saveIndex();
+        return;
+      }
 
       final infected = await compute(scanFileIsolate, path);
       if (infected) {

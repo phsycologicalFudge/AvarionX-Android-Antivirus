@@ -35,36 +35,30 @@ class HowThisAppWorksScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'CS Security is a privacy-first antivirus engine that scans your files locally without tracking or sending data anywhere. '
-                  'It uses a custom Rust-based engine and an encrypted malware database, ensuring security and speed while staying completely offline.',
+              'CS Security is powered by VX-Titanium, a custom antivirus engine designed to provide strong core protection while keeping your data private. '
+                  'All file scanning happens locally on your device, without tracking, profiling, or exporting your files.',
               style: text.bodyMedium,
             ),
             const SizedBox(height: 20),
             Text(
-              'Main Features',
+              'Core Principles',
               style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            const Text('• Real-time protection for new downloads'),
-            const Text('• On-device scanning with zero telemetry'),
-            const Text('• Smart cleaning and duplicate detection'),
-            const Text('• Lightweight, battery-friendly performance'),
+            const Text('• On-device scanning with no telemetry'),
+            const Text('• Real-time protection for files and network'),
+            const Text('• Lightweight and battery-conscious design'),
             const SizedBox(height: 20),
             Text(
-              'The engine operates through a 3-layer security model: SHA-256 hashing, signature-based detection rules, and a lightweight machine learning layer for intelligent threat analysis.',
-              style: text.bodyMedium,
-            ),
-            const SizedBox(height: 30),
-            Text(
-              'Why is it free?',
+              'Why is CS Security free?',
               style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              'I know a lot of people are sceptic as to why the app is free, with no ads. '
-                  'How can I make money with an ad free app some ask. '
-                  'The answer is simple, I do not want to. I made this app primarily for my customers, but anyone can use it. '
-                  'It is a free world you know, you could walk out of your house naked, who can stop you?\n\nPlease dont do that...',
+              'CS Security is free so that everyone can access essential protection without barriers. '
+                  'To support ongoing development as a single developer, the app includes a small, non-intrusive banner ad. '
+                  'No ads are shown during scans.\n\n'
+                  'Users who want a completely ad-free experience can unlock Pro, which also supports continued engine improvements.',
               style: text.bodyMedium,
             ),
           ],

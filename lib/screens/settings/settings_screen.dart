@@ -56,9 +56,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Become a sponsor? (Pro)'),
+          title: const Text('Become a sponsor?'),
           content: const Text(
-            'Pro is cosmetic only. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
+            'Sponsors mode disables ads and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
           ),
           actions: [
             TextButton(
@@ -90,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Pro unlocked')),
+            const SnackBar(content: Text('Sponsors mode unlocked')),
           );
         }
       } else {
@@ -111,21 +111,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadPro() async {
     final prefs = await SharedPreferences.getInstance();
-    bool localPro = prefs.getBool('isPro') ?? false;
-    bool playPro = await PurchaseService.hasPro();
-    final status = localPro || playPro;
-    await prefs.setBool('isPro', status);
-    setState(() => isPro = status);
-  }
-
-  Future<void> _toggleProFeatures() async {
-    final prefs = await SharedPreferences.getInstance();
-    final newStatus = !isPro;
-    await prefs.setBool('isPro', newStatus);
-    setState(() => isPro = newStatus);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(newStatus ? 'Pro features enabled' : 'Pro features disabled')),
-    );
+    bool playPro = false;
+    try {
+      playPro = await PurchaseService.hasPro();
+    } catch (_) {
+      playPro = false;
+    }
+    if (playPro) {
+      await prefs.setBool('isPro', true);
+      setState(() => isPro = true);
+      return;
+    }
+    final cached = prefs.getBool('isPro') ?? false;
+    setState(() => isPro = cached);
   }
 
   void _showProInfo() {
@@ -133,15 +131,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('About Pro'),
+          title: const Text('About Sponsor'),
           content: const Text(
-            'Pro unlocks purely cosmetic features:\n\n'
+            'Sponsor mode does not give stronger protection, but it does grant:\n\n'
                 '• Emerald and Grey themes\n'
                 '• Custom app icons\n'
-                '• Gold header toggle\n\n'
+                '• No Ads\n\n'
                 'Scanning and protection strength remain identical for all users. '
-                'This upgrade supports future updates and development.'
-                ' Pro also lasts for all future cosmetic addons.',
+                'This upgrade supports future updates and development.',
           ),
           actions: [
             TextButton(
@@ -194,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Pro Customization',
+                        'Sponsors Customization',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -426,7 +423,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Navigator.pop(context);
         if ((value == 'emerald' || value == 'grey') && !isPro) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('That theme requires Pro access')),
+            const SnackBar(content: Text('That theme requires Sponsors mode')),
           );
         } else {
           themeManager.setTheme(value);
@@ -517,7 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 25),
               Text(
-                'Pro Features',
+                'Sponsors Features',
                 style: text.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: text.bodyLarge?.color?.withOpacity(0.9),
@@ -632,7 +629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
                 icon: Icons.info_outline_rounded,
                 title: 'About ColourSwift Security',
-                subtitle: 'Version 2.0.0',
+                subtitle: 'Version 2.0.5',
               ),
               _buildSettingTile(
                 context,
@@ -742,7 +739,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: 'Manage and add exclusions',
                 onTap: _showExclusionsSheet,
               ),
-
+              const SizedBox(height: 20),
             ],
           ),
         ),

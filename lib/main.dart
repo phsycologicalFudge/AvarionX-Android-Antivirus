@@ -22,6 +22,8 @@ void main() async {
 
   // Initialize theme and purchases
   final themeManager = ThemeManager();
+  final isPro = await PurchaseService.hasPro();
+
   await themeManager.init();
   await PurchaseService.init();
 

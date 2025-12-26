@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
+import 'Password_Settings_Screen.dart';
 
 class PasswordTestScreen extends StatefulWidget {
   const PasswordTestScreen({super.key});
@@ -500,6 +501,17 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     }
   }
 
+  Future<void> _openSettings() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const PasswordSettingsScreen(),
+      ),
+    );
+
+    await _loadVault();
+  }
+
   void _upsertEntry({
     required String label,
     String? package,
@@ -586,7 +598,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     final meta = await _ensureMetaPassword();
     if (meta == null || meta.isEmpty) return;
 
-    final label = entry['label'] as String;
+    final label = (entry['label'] as String?) ?? '';
     final versions = (entry['versions'] as List)
         .map<Map<String, dynamic>>((v) => Map<String, dynamic>.from(v))
         .toList();
@@ -728,14 +740,17 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
         title: const Text('MetaPass'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded),
-            onPressed: _showInfo,
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: _openSettings,
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddPressed,
-        child: const Icon(Icons.add_rounded),
+      floatingActionButton: Opacity(
+        opacity: Theme.of(context).brightness == Brightness.dark ? 0.85 : 0.9,
+        child: FloatingActionButton(
+          onPressed: _onAddPressed,
+          child: const Icon(Icons.add_rounded),
+        ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -765,15 +780,21 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
 
             // Normal list items
             final entry = _entries[index];
-            final label = entry['label'] as String;
+            final label = (entry['label'] as String?) ?? '';
+            if (label.isEmpty) {
+              return const SizedBox.shrink();
+            }
             final versions = (entry['versions'] as List)
                 .map<Map<String, dynamic>>(
                     (v) => Map<String, dynamic>.from(v))
                 .toList();
             versions.sort((a, b) =>
                 (a['version'] as int).compareTo(b['version'] as int));
-            final selected = entry['selectedVersion'] as int? ??
-                versions.last['version'] as int;
+            final selected = entry['selectedVersion'] is int
+                ? entry['selectedVersion'] as int
+                : versions.isNotEmpty
+                ? versions.last['version'] as int
+                : 1;
             final length = (versions.firstWhere(
                   (v) => v['version'] == selected,
               orElse: () => versions.last,

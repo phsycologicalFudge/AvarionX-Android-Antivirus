@@ -13,7 +13,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
 
-// ===== If your _fmtBytes(bytes) helper lives elsewhere, keep using that one. =====
 String _fmtBytes(int bytes) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   double v = bytes.toDouble();
@@ -25,7 +24,7 @@ String _fmtBytes(int bytes) {
   return '${v.toStringAsFixed(v >= 10 || i == 0 ? 0 : 1)} ${units[i]}';
 }
 
-// ===== MAIN SCREEN =====
+//MAIN SCREEN
 class CleanerScreen extends StatefulWidget {
   const CleanerScreen({super.key});
 
@@ -36,12 +35,12 @@ class CleanerScreen extends StatefulWidget {
 class _CleanerScreenState extends State<CleanerScreen> {
   // UI state
   bool scanning = false;
-  double progress = 0.0; // 0..1
+  double progress = 0.0;
   String status = 'Ready';
 
   // Results (files)
-  List<File> dupFiles = [];        // flattened duplicates (all files that are part of duplicate groups)
-  int dupReclaimBytes = 0;         // potential reclaimable bytes (sum of sizes except 1 per group)
+  List<File> dupFiles = [];
+  int dupReclaimBytes = 0;
 
   List<File> oldPhotos = [];
   int oldPhotosBytes = 0;
@@ -56,8 +55,6 @@ class _CleanerScreenState extends State<CleanerScreen> {
   bool appsLoading = false;
   List<Application> unusedApps = [];
 
-
-  // Start: isolate for files, then apps on UI isolate
   Future<void> _runCleaner() async {
     if (scanning) return;
     final hasUsagePerm = await UsageStats.checkUsagePermission() ?? false;
@@ -85,7 +82,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
 
       if (go == true) {
         await UsageStats.grantUsagePermission();
-        return; // stop scanning, user will try again after granting
+        return;
       }
     }
     setState(() {
@@ -135,7 +132,6 @@ class _CleanerScreenState extends State<CleanerScreen> {
             final int stage = msg['stage'] as int? ?? 0;
             final String label = msg['label'] as String? ?? 'Scanning…';
 
-            // Map 4 stages across 0..1 (25% each)
             setState(() {
               final stageBase = (stage - 1).clamp(0, 3) * 0.25;
               progress = (stageBase + (pct * 0.25)).clamp(0.0, 0.99);
@@ -179,10 +175,9 @@ class _CleanerScreenState extends State<CleanerScreen> {
         largeFiles = (result['largeFiles'] as List).cast<String>().map((e) => File(e)).toList();
         largeFilesBytes = (result['largeFilesBytes'] as num).toInt();
 
-        // Mark file scanning complete visually
         progress = 1.0;
         status = 'Files scanned';
-        scanning = false; // cards can activate now (for the 4 file categories)
+        scanning = false;
       });
 
       setState(() {
@@ -224,7 +219,6 @@ class _CleanerScreenState extends State<CleanerScreen> {
             const channel = MethodChannel('colourswift/permissions');
             await channel.invokeMethod('openManageAllFilesSettings');
           } catch (_) {
-            // Fallback if device lacks the activity (rare)
             await openAppSettings();
           }
         }
@@ -247,12 +241,10 @@ class _CleanerScreenState extends State<CleanerScreen> {
   }
 
 
-  // Unused apps (UI isolate)
   Future<List<Application>> _scanUnusedApps() async {
     try {
       final has = await UsageStats.checkUsagePermission() ?? false;
       if (!has) {
-        // Don’t interrupt flow — just return empty; user can grant later in info dialog
         return [];
       }
       final stats = await UsageStats.queryUsageStats(
@@ -567,12 +559,10 @@ void _scanWorkerEntry(_WorkerArgs args) async {
   final largeFiles = <String>[];
   int largeFilesBytes = 0;
 
-  // Helper: quick size
   int _size(File f) {
     try { return f.lengthSync(); } catch (_) { return 0; }
   }
 
-  // Helper: walk directories with cap, skipping /Android and trash folders
   Future<void> _walk(
       Directory dir, {
         required void Function(File f) onFile,
@@ -580,7 +570,7 @@ void _scanWorkerEntry(_WorkerArgs args) async {
         required void Function(int processed, int totalGuess)? onProgress,
       }) async {
     int processed = 0;
-    const totalGuess = 4000; // fuzzy for progress maths
+    const totalGuess = 4000;
     final q = <Directory>[];
 
     const trashMarkers = [
@@ -643,7 +633,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
     send.send({'type': 'progress', 'stage': stageNum, 'percent': 1.0, 'label': '$labelStart Done'});
   }
 
-  // Stage 1: Duplicates (size + first 32 KB fingerprint)
   await _stage(1, 'Scanning duplicates…', () async {
     final root = Directory(args.rootPath);
 
@@ -654,7 +643,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
         final toRead = len < 32768 ? len : 32768;
         final bytes = raf.readSync(toRead);
         raf.closeSync();
-        // Lightweight fingerprint: size + first chunk hash
         final h = bytes.fold<int>(0, (a, b) => (a * 131 + b) & 0x7fffffff);
         return '${len}_$h';
       } catch (_) {
@@ -666,7 +654,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
       root,
       onFile: (f) {
         final ext = p.extension(f.path).toLowerCase();
-        // target common media/docs to keep it fast
         const ok = {
           '.jpg', '.jpeg', '.png', '.gif',
           '.mp4', '.mov', '.mkv',
@@ -677,12 +664,10 @@ void _scanWorkerEntry(_WorkerArgs args) async {
       },
       cap: args.maxFiles,
       onProgress: (processed, total) async {
-        // Use processed to pseudo-progress; real grouping happens after
         send.send({'type': 'progress', 'stage': 1, 'percent': (processed / total).clamp(0.05, 0.98), 'label': 'Scanning duplicates…'});
       },
     );
 
-    // Second pass: actual grouping (iterate root again but do minimal I/O)
     int processed = 0;
     await _walk(
       Directory(args.rootPath),
@@ -709,7 +694,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
       onProgress: null,
     );
 
-    // Compute reclaimable bytes & flatten list
     final dupFiles = <String>[];
     dupReclaimBytes = 0;
     dupGroups.forEach((_, paths) {
@@ -719,10 +703,8 @@ void _scanWorkerEntry(_WorkerArgs args) async {
           pairs.add(MapEntry(_size(File(pth)), pth));
         }
 
-        // Sort by size ascending
         pairs.sort((a, b) => a.key.compareTo(b.key));
 
-        // Keep the last (largest), mark others as duplicates
         for (var i = 0; i < pairs.length - 1; i++) {
           dupFiles.add(pairs[i].value);
         }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/service_manager.dart';
 
 class NetworkProtectionScreen extends StatefulWidget {
@@ -10,8 +11,10 @@ class NetworkProtectionScreen extends StatefulWidget {
       _NetworkProtectionScreenState();
 }
 
+
 class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
-  bool vpnEnabled = false;
+  bool rtpEnabled = false;
+  bool networkEnabled = false;
   bool vpnConflict = false;
   bool _pressed = false;
 
@@ -30,11 +33,62 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     return ok == true;
   }
 
-  Future<void> _toggleVpn() async {
-    if (vpnEnabled) {
-      await AvServiceManager.stopVpn();
+  @override
+  void initState() {
+    super.initState();
+    _loadState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadState();
+  }
+
+  Future<void> _loadState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rtp = prefs.getBool('protectionEnabled') ?? false;
+    final net = prefs.getBool('networkProtectionEnabled') ?? false;
+
+    bool conflict = false;
+    if (rtp && net) {
+      conflict = await _isAnotherVpnActive();
+      if (conflict) {
+        await AvServiceManager.stopVpn();
+      }
+    }
+
+    setState(() {
+      rtpEnabled = rtp;
+      networkEnabled = rtp && net && !conflict;
+      vpnConflict = conflict;
+    });
+  }
+
+  Future<void> _toggleNetwork() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!rtpEnabled) {
+      await AvServiceManager.startProtection();
+      await prefs.setBool('protectionEnabled', true);
+      rtpEnabled = true;
+    }
+
+    final conflict = await _isAnotherVpnActive();
+    if (conflict) {
       setState(() {
-        vpnEnabled = false;
+        vpnConflict = true;
+        networkEnabled = false;
+      });
+      return;
+    }
+
+    if (networkEnabled) {
+      await AvServiceManager.stopVpn();
+      await prefs.setBool('networkProtectionEnabled', false);
+
+      setState(() {
+        networkEnabled = false;
         vpnConflict = false;
       });
       return;
@@ -43,46 +97,78 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     final ok = await _requestVpnPermission();
     if (!ok) return;
 
-    final conflict = await _isAnotherVpnActive();
-
-    if (!conflict) {
-      await AvServiceManager.startVpn();
-    }
+    await AvServiceManager.startVpn();
+    await prefs.setBool('networkProtectionEnabled', true);
 
     setState(() {
-      vpnEnabled = true;
-      vpnConflict = conflict;
+      networkEnabled = true;
+      vpnConflict = false;
     });
   }
 
   double _ringValue() {
-    if (!vpnEnabled) return 0.0;
-    if (vpnConflict) return 0.6;
+    if (!rtpEnabled || !networkEnabled) return 0.0;
     return 1.0;
   }
 
   Color _accent() {
-    if (!vpnEnabled) return Colors.redAccent;
-    if (vpnConflict) return Colors.orangeAccent;
+    if (!rtpEnabled || !networkEnabled) return Colors.redAccent;
     return Colors.greenAccent;
   }
 
   IconData _icon() {
-    if (!vpnEnabled) return Icons.wifi_off_rounded;
-    if (vpnConflict) return Icons.wifi_lock_rounded;
+    if (!rtpEnabled || !networkEnabled) return Icons.wifi_off_rounded;
     return Icons.wifi_rounded;
   }
 
   String _line1() {
-    if (!vpnEnabled) return 'Network protection is off';
-    if (vpnConflict) return 'Partial protection';
+    if (!rtpEnabled) return 'Protection is off';
+    if (vpnConflict) return 'Network protection unavailable';
+    if (!networkEnabled) return 'Network protection is off';
     return 'Network is protected';
   }
 
   String _line2() {
-    if (!vpnEnabled) return 'Tap to turn on';
     if (vpnConflict) return 'Another VPN is active';
-    return 'Tap to turn off';
+    if (!networkEnabled) return 'Tap to enable';
+    return 'Tap to disable';
+  }
+
+  Widget _infoBox(ThemeData theme, TextTheme text) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withOpacity(0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'What is Network Protection?',
+            style: text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Some threats work by connecting to '
+                'malicious servers or redirecting internet traffic.\n'
+                'Network Protection blocks known dangerous domains & common ads by using '
+                'a local VPN.\n\n'
+                'CS Security does not collect any data..',
+            style: text.bodySmall?.copyWith(
+              color: text.bodySmall?.color?.withOpacity(0.8),
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -107,7 +193,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                   onTapDown: (_) => setState(() => _pressed = true),
                   onTapUp: (_) => setState(() => _pressed = false),
                   onTapCancel: () => setState(() => _pressed = false),
-                  onTap: _toggleVpn,
+                  onTap: _toggleNetwork,
                   child: AnimatedScale(
                     scale: _pressed ? 0.97 : 1.0,
                     duration: const Duration(milliseconds: 120),
@@ -120,8 +206,9 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                           CircularProgressIndicator(
                             value: _ringValue(),
                             strokeWidth: 12,
-                            backgroundColor: theme.colorScheme.onSurface
-                                .withOpacity(isDark ? 0.14 : 0.10),
+                            backgroundColor:
+                            theme.colorScheme.onSurface.withOpacity(
+                                isDark ? 0.14 : 0.10),
                             valueColor:
                             AlwaysStoppedAnimation(_accent()),
                           ),
@@ -151,26 +238,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 28),
-
-                _infoCard(
-                  context,
-                  title: 'What is Network Protection?',
-                  description:
-                  'CS Security protects your device from network threats by blocking '
-                      'suspicious domains and IP addresses system-wide before they can '
-                      'communicate with malicious servers.',
-                ),
-
-                const SizedBox(height: 14),
-
-                _infoCard(
-                  context,
-                  title: 'Does this affect my privacy?',
-                  description:
-                  'No. All filtering happens locally on your device. CS Security does '
-                      'not log, inspect, or transmit your network traffic.',
-                ),
+                _infoBox(theme, text),
               ],
             ),
           ),
@@ -178,48 +246,4 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
       ),
     );
   }
-  Widget _infoCard(
-      BuildContext context, {
-        required String title,
-        required String description,
-      }) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor.withOpacity(
-          isDark ? 0.35 : 0.6,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.onSurface.withOpacity(0.08),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: text.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: theme.colorScheme.onSurface.withOpacity(0.9),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: text.bodySmall?.copyWith(
-              height: 1.4,
-              color: text.bodySmall?.color?.withOpacity(0.75),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
 }

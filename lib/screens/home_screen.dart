@@ -31,6 +31,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   bool isPro = false;
   bool hasUpdate = false;
   bool useCloudScan = false;
+  bool networkEnabled = false;
   bool vpnActive = false;
   bool vpnConflict = false;
   String? remoteVersion;
@@ -131,6 +132,12 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     const chan = MethodChannel("cs_vpn_permission");
     final ok = await chan.invokeMethod<bool>("prepareVpn");
     return ok == true;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadProtectionState();
   }
 
   @override
@@ -314,12 +321,31 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   Future<void> _loadProtectionState() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedState = prefs.getBool('protectionEnabled') ?? false;
+
+    final rtp = prefs.getBool('protectionEnabled') ?? false;
+    final net = prefs.getBool('networkProtectionEnabled') ?? false;
+    final conflict = rtp && net ? await _isAnotherVpnActive() : false;
+
     setState(() {
-      protectionEnabled = savedState;
-      protectionPercent = savedState ? 1.0 : 0.0;
+      protectionEnabled = rtp;
+      networkEnabled = rtp && net && !conflict;
+      vpnConflict = conflict;
+      vpnActive = networkEnabled;
+
+      if (!rtp) {
+        protectionPercent = 0.0;
+      } else if (!networkEnabled || conflict) {
+        protectionPercent = 0.6;
+      } else {
+        protectionPercent = 1.0;
+      }
     });
-    if (protectionEnabled) _startBackgroundScan();
+
+    if (rtp) {
+      _startBackgroundScan();
+    } else {
+      _stopBackgroundScan();
+    }
   }
 
   Future<void> _toggleProtection() async {
@@ -330,30 +356,28 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       await AvServiceManager.stopVpn();
       _stopBackgroundScan();
 
+      await prefs.setBool('protectionEnabled', false);
+      await prefs.setBool('networkProtectionEnabled', false);
+
       setState(() {
         protectionEnabled = false;
+        networkEnabled = false;
         vpnActive = false;
         vpnConflict = false;
         protectionPercent = 0.0;
       });
 
-      prefs.setBool('protectionEnabled', false);
       return;
     }
 
     final status = await Permission.notification.request();
     if (!status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Notification permission required.')),
-      );
       return;
     }
 
     final vpnOk = await requestVpnPermission();
     if (!vpnOk) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('VPN permission required for network protection.')),
-      );
+      return;
     }
 
     final conflict = await _isAnotherVpnActive();
@@ -361,23 +385,23 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     await AvServiceManager.startProtection();
     _startBackgroundScan();
 
+    bool netEnabled = false;
+
     if (!conflict) {
       await AvServiceManager.startVpn();
+      netEnabled = true;
     }
+
+    await prefs.setBool('protectionEnabled', true);
+    await prefs.setBool('networkProtectionEnabled', netEnabled);
+
     setState(() {
       protectionEnabled = true;
-      vpnActive = !conflict;
+      networkEnabled = netEnabled;
+      vpnActive = netEnabled;
       vpnConflict = conflict;
-      protectionPercent = 1.0;
+      protectionPercent = netEnabled ? 1.0 : 0.6;
     });
-
-    prefs.setBool('protectionEnabled', true);
-
-    if (conflict) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Another VPN is active. Network protection disabled.')),
-      );
-    }
   }
 
   void _startBackgroundScan() => RealtimeProtectionService.start();
@@ -500,19 +524,19 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   double _ringValue() {
     if (!protectionEnabled) return 0.0;
-    if (vpnConflict) return 0.6;
+    if (!networkEnabled || vpnConflict) return 0.6;
     return 1.0;
   }
 
   Color _stateAccent(ThemeData theme) {
     if (!protectionEnabled) return Colors.redAccent;
-    if (vpnConflict) return Colors.orangeAccent;
+    if (!networkEnabled || vpnConflict) return Colors.orangeAccent;
     return Colors.greenAccent;
   }
 
   IconData _stateIcon() {
     if (!protectionEnabled) return Icons.shield_outlined;
-    if (vpnConflict) return Icons.shield_moon_rounded;
+    if (!networkEnabled || vpnConflict) return Icons.shield_moon_rounded;
     return Icons.verified_user;
   }
 
@@ -524,12 +548,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   String _stateLine1() {
     if (!protectionEnabled) return 'Device protection is off';
-    if (vpnConflict) return 'File protection is on';
+    if (!networkEnabled || vpnConflict) return 'Partial protection enabled';
     return 'Your device is fully protected';
   }
 
   String _stateLine2() {
     if (!protectionEnabled) return 'Tap to turn on';
+    if (!networkEnabled) return 'Network protection disabled';
     if (vpnConflict) return 'Another VPN is active';
     return 'Tap to turn off';
   }

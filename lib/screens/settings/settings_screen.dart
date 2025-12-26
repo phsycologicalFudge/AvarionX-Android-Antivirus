@@ -58,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return AlertDialog(
           title: const Text('Become a sponsor?'),
           content: const Text(
-            'Sponsors mode disables ads and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
+            'Sponsors mode supports developement and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
           ),
           actions: [
             TextButton(
@@ -133,10 +133,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return AlertDialog(
           title: const Text('About Sponsor'),
           content: const Text(
-            'Sponsor mode does not give stronger protection, but it does grant:\n\n'
+            'Sponsor mode does not give stronger protection, but it does give:\n\n'
                 '• Emerald and Grey themes\n'
                 '• Custom app icons\n'
-                '• No Ads\n\n'
+                '• Future features\n\n'
                 'Scanning and protection strength remain identical for all users. '
                 'This upgrade supports future updates and development.',
           ),

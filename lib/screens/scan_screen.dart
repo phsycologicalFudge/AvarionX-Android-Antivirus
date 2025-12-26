@@ -517,11 +517,11 @@ class _ScanScreenState extends State<ScanScreen>
     });
 
     await _scanAppTargets(apps, cloud: false);
-
     if (!mounted || cancelled) return;
-
+    await Future.delayed(const Duration(milliseconds: 200));
     await CacheManager.clearAll();
     setState(() => state = ScanState.result);
+
   }
 
   Future<void> _runSingleScan() async {
@@ -804,8 +804,6 @@ class _ScanScreenState extends State<ScanScreen>
       } else if (res == true) {
         infectedFlag = true;
         infectedEntry = path;
-      } else {
-        infectedFlag = false;
       }
 
       if (infectedFlag) {

@@ -15,6 +15,8 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   String _active = 'home';
+  Key _homeKey = UniqueKey();
+  Key _quarantineKey = UniqueKey();
 
   int get _index {
     switch (_active) {
@@ -38,16 +40,26 @@ class _MainShellState extends State<MainShell> {
       body: IndexedStack(
         index: _index,
         children: [
-          AvHomeScreen(key: ValueKey(DateTime.now().millisecondsSinceEpoch)),
+          AvHomeScreen(key: _homeKey),
           const ScanScreen(),
           const ConsoleScreen(),
-          const QuarantineScreen(),
+          QuarantineScreen(key: _quarantineKey),
           const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: FooterNav(
         active: _active,
-        onTabChange: (tab) => setState(() => _active = tab),
+        onTabChange: (tab) {
+          setState(() {
+            _active = tab;
+            if (tab == 'home') {
+              _homeKey = UniqueKey();
+            }
+            if (tab == 'quarantine') {
+              _quarantineKey = UniqueKey();
+            }
+          });
+        },
       ),
     );
   }

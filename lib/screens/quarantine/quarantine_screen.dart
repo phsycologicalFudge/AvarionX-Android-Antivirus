@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import '../../services/quarantine_service.dart';
 import '../../services/exclusion_service.dart';
+import '../../utils/exclusions_store.dart';
 
 class QuarantineScreen extends StatefulWidget {
   const QuarantineScreen({super.key});
@@ -153,8 +154,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
                       IconButton(
                         icon: const Icon(Icons.block, color: Colors.orange),
                         onPressed: () async {
-                          final bytes = File(orig).readAsBytesSync();
-                          final sha = sha256.convert(bytes).toString();
+                          final sha = m['sha256'] as String;
                           final x = ExclusionService();
                           await x.load();
                           await x.addSha(sha);

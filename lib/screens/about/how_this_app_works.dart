@@ -55,10 +55,7 @@ class HowThisAppWorksScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'CS Security is free so that everyone can access essential protection without barriers. '
-                  'To support ongoing development as a single developer, the app includes a small, non-intrusive banner ad. '
-                  'No ads are shown during scans.\n\n'
-                  'Users who want a completely ad-free experience can unlock Pro, which also supports continued engine improvements.',
+              'CS Security is free so that everyone can access essential protection without barriers. ',
               style: text.bodyMedium,
             ),
           ],

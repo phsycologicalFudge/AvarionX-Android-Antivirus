@@ -42,6 +42,26 @@ typedef PwGenDart = Pointer<Utf8> Function(
     );
 typedef PwFreeDart = void Function(Pointer<Utf8>);
 
+typedef RestoreEncodeNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, // meta
+    Pointer<Utf8>, // vault json
+    );
+
+typedef RestoreEncodeDart = Pointer<Utf8> Function(
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    );
+
+typedef RestoreDecodeNative = Pointer<Utf8> Function(
+    Pointer<Utf8>, // meta
+    Pointer<Utf8>, // restore string
+    );
+
+typedef RestoreDecodeDart = Pointer<Utf8> Function(
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    );
+
 typedef ScanCbNative = Void Function(Pointer<Utf8>);
 typedef SetScanCbNative = Void Function(
     Pointer<NativeFunction<ScanCbNative>>,
@@ -69,6 +89,8 @@ class AntivirusBridge {
   late final NetIocInitDart _netInit;
   late final NetCheckDart _netCheck;
   late final SetScanCbDart _setScanCallback;
+  late final RestoreEncodeDart _restoreEncode;
+  late final RestoreDecodeDart _restoreDecode;
 
   AntivirusBridge() {
     if (Platform.isAndroid) {
@@ -86,6 +108,13 @@ class AntivirusBridge {
         _lib.lookupFunction<PwGenNative, PwGenDart>('generate_password');
     _pwFree =
         _lib.lookupFunction<PwFreeNative, PwFreeDart>('free_password');
+    _restoreEncode = _lib.lookupFunction<
+        RestoreEncodeNative,
+        RestoreEncodeDart>('generate_restore_code_ffi');
+
+    _restoreDecode = _lib.lookupFunction<
+        RestoreDecodeNative,
+        RestoreDecodeDart>('decode_restore_code_ffi');
     _netInit =
         _lib.lookupFunction<NetIocInitNative, NetIocInitDart>('cs_net_ioc_init');
     _netCheck =
@@ -150,6 +179,34 @@ class AntivirusBridge {
     _pwFree(resultPtr);
     malloc.free(metaPtr);
     malloc.free(labelPtr);
+    return s;
+  }
+
+  String generateRestoreCode(String meta, String vaultJson) {
+    final metaPtr = meta.toNativeUtf8();
+    final vaultPtr = vaultJson.toNativeUtf8();
+
+    final outPtr = _restoreEncode(metaPtr, vaultPtr);
+    final s = outPtr.toDartString();
+
+    _pwFree(outPtr);
+    malloc.free(metaPtr);
+    malloc.free(vaultPtr);
+
+    return s;
+  }
+
+  String restoreFromCode(String meta, String restoreCode) {
+    final metaPtr = meta.toNativeUtf8();
+    final codePtr = restoreCode.toNativeUtf8();
+
+    final outPtr = _restoreDecode(metaPtr, codePtr);
+    final s = outPtr.toDartString();
+
+    _pwFree(outPtr);
+    malloc.free(metaPtr);
+    malloc.free(codePtr);
+
     return s;
   }
 

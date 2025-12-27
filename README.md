@@ -92,3 +92,16 @@ This is permitted under the following conditions:
 - Developers are responsible for integrating and updating the engine in their own app
 
 Detailed terms are available in `ENGINE_LICENSE.md`.
+
+## Commercial licensing
+
+VX-Titanium will be available under alternative commercial licensing terms for
+organisations that require closed-source integration, custom distribution,
+or enterprise support.
+
+Commercial licensing is not covered by this repository or by
+ENGINE_LICENSE.md.
+
+For commercial enquiries, contact:
+support@colourswift.com
+

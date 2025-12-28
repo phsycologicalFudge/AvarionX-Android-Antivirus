@@ -10,7 +10,39 @@ class NetworkProtectionScreen extends StatefulWidget {
   State<NetworkProtectionScreen> createState() =>
       _NetworkProtectionScreenState();
 }
+class RingPainter extends CustomPainter {
+  final Color color;
+  final double thickness;
+  final double backgroundOpacity;
 
+  RingPainter({
+    required this.color,
+    required this.thickness,
+    required this.backgroundOpacity,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.width / 2 - thickness / 2;
+
+    final bgPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = thickness
+      ..color = color.withOpacity(backgroundOpacity);
+
+    final fgPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = thickness
+      ..color = color;
+
+    canvas.drawCircle(center, radius, bgPaint);
+    canvas.drawCircle(center, radius, fgPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 
 class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
   bool rtpEnabled = false;
@@ -108,7 +140,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
 
   double _ringValue() {
     if (!rtpEnabled || !networkEnabled) return 0.0;
-    return 1.0;
+    return 0.999;
   }
 
   Color _accent() {
@@ -117,8 +149,8 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
   }
 
   IconData _icon() {
-    if (!rtpEnabled || !networkEnabled) return Icons.wifi_off_rounded;
-    return Icons.wifi_rounded;
+    if (!rtpEnabled || !networkEnabled) return Icons.wifi_off;
+    return Icons.wifi;
   }
 
   String _line1() {
@@ -203,20 +235,22 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          CircularProgressIndicator(
-                            value: _ringValue(),
-                            strokeWidth: 12,
-                            backgroundColor:
-                            theme.colorScheme.onSurface.withOpacity(
-                                isDark ? 0.14 : 0.10),
-                            valueColor:
-                            AlwaysStoppedAnimation(_accent()),
+                          CustomPaint(
+                            size: const Size(180, 180),
+                            painter: RingPainter(
+                              color: _accent(),
+                              thickness: 12,
+                              backgroundOpacity: isDark ? 0.14 : 0.10,
+                            ),
                           ),
-                          Icon(
-                            _icon(),
-                            size: 46,
-                            color: _accent(),
-                          ),
+                          Theme(
+                            data: Theme.of(context).copyWith(useMaterial3: false),
+                            child: Icon(
+                              _icon(),
+                              size: 46,
+                              color: _accent(),
+                            ),
+                          )
                         ],
                       ),
                     ),

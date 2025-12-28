@@ -43,6 +43,20 @@ class LogBuffer {
 enum ScanMode { none, smart, single, rapid, installed }
 enum ScanState { idle, scanning, result, empty }
 
+class DetectionResult {
+  final String name;
+  final String label;
+  final double confidence;
+  final List<String> signals;
+
+  DetectionResult({
+    required this.name,
+    required this.label,
+    required this.confidence,
+    required this.signals,
+  });
+}
+
 class ScanScreen extends StatefulWidget {
   final ScanMode? startMode;
   const ScanScreen({super.key, this.startMode});
@@ -64,6 +78,15 @@ class ScanWorker {
     return ScanWorker._(receive, send);
   }
 
+  static String _normalizeFamily(String raw) {
+    final r = raw.toLowerCase();
+    if (r.contains('banker')) return 'Android.Banker';
+    if (r.contains('spyware')) return 'Android.Spyware';
+    if (r.contains('adware')) return 'Android.Adware';
+    if (r.contains('sms')) return 'Android.SMS.Fraud';
+    return 'Generic.Suspicious';
+  }
+
   static void _entry(SendPort root) {
     final port = ReceivePort();
     root.send(port.sendPort);
@@ -80,19 +103,55 @@ class ScanWorker {
         if (hits == null || hits.isEmpty) {
           send.send(null);
         } else {
-          final labels = <String>{};
+          final signals = <String>[];
 
           for (final v in hits.values) {
             if (v is List) {
               for (final s in v) {
-                if (s is String && s.startsWith('YARA_')) {
-                  labels.add(s.replaceFirst('YARA_', ''));
+                if (s is String) {
+                  signals.add(s);
                 }
               }
             }
           }
 
-          send.send(labels.isEmpty ? true : labels.toList());
+          String label = 'Suspicious.Item';
+          double confidence = 0.0;
+
+          if (signals.contains('HashMatch') ||
+              signals.any((s) => s.startsWith('SignerMatch('))) {
+            label = 'Found in malware database';
+            confidence = 1.0;
+          } else {
+            final yara = signals.firstWhere(
+                  (s) =>
+              !s.startsWith('ML_Detection(') &&
+                  s != 'HashMatch' &&
+                  !s.startsWith('SignerMatch('),
+              orElse: () => '',
+            );
+
+            if (yara.isNotEmpty) {
+              label = _normalizeFamily(yara);
+              confidence = 0.9;
+            } else {
+              final ml = signals.firstWhere(
+                    (s) => s.startsWith('ML_Detection('),
+                orElse: () => '',
+              );
+
+              if (ml.isNotEmpty) {
+                label = 'Generic.Suspicious';
+                confidence = 0.75;
+              }
+            }
+          }
+
+          send.send({
+            'label': label,
+            'confidence': confidence,
+            'signals': signals,
+          });
         }
       } catch (_) {
         send.send(false);
@@ -133,7 +192,7 @@ class _ScanScreenState extends State<ScanScreen>
   String currentFile = '';
   String rustStatus = '';
   List<String> clean = [];
-  List<String> infected = [];
+  List<DetectionResult> infected = [];
   bool? singleResult;
 
   late AnimationController _pulse;
@@ -442,10 +501,36 @@ class _ScanScreenState extends State<ScanScreen>
       if (hits.isNotEmpty) {
         infectedFlag = true;
       } else {
-        infectedFlag = await compute(_scanFileIsolate, file.path!);
+        final scanWorker = await ScanWorker.spawn();
+        final res = await scanWorker.scan(file.path!);
+
+        if (res is Map) {
+          infectedFlag = true;
+          infected.add(
+            DetectionResult(
+              name: file.name,
+              label: res['label'],
+              confidence: res['confidence'],
+              signals: List<String>.from(res['signals'] ?? []),
+            ),
+          );
+        }
       }
     } else {
-      infectedFlag = await compute(_scanFileIsolate, file.path!);
+      final scanWorker = await ScanWorker.spawn();
+      final res = await scanWorker.scan(file.path!);
+
+      if (res is Map) {
+        infectedFlag = true;
+        infected.add(
+          DetectionResult(
+            name: file.name,
+            label: res['label'],
+            confidence: res['confidence'],
+            signals: List<String>.from(res['signals'] ?? []),
+          ),
+        );
+      }
     }
 
     if (infectedFlag) {
@@ -613,19 +698,28 @@ class _ScanScreenState extends State<ScanScreen>
       singleResult = null;
     });
 
-    final bad = await compute(_scanFileIsolate, app.path);
+    final scanWorker = await ScanWorker.spawn();
+    final res = await scanWorker.scan(app.path);
 
-    if (bad) {
-      infected.add(app.name);
+    if (res is Map) {
+      infected.add(
+        DetectionResult(
+          name: app.name,
+          label: res['label'],
+          confidence: res['confidence'],
+          signals: List<String>.from(res['signals'] ?? []),
+        ),
+      );
+      singleResult = true;
     } else {
       clean.add(app.name);
+      singleResult = false;
     }
 
     setState(() {
-      singleResult = bad;
       state = ScanState.result;
     });
-  }
+    }
 
   Future<void> _scanAppTargets(List<_AppTarget> apps, {bool cloud = false}) async {
     if (apps.isEmpty) return;
@@ -679,10 +773,18 @@ class _ScanScreenState extends State<ScanScreen>
 
       final res = await scanWorker.scan(p);
 
-      if (res is List<String>) {
-        infected.add('${name} (${res.join(', ')})');
-      } else if (res == true) {
-        infected.add(name);
+      if (res is Map) {
+        final label = res['label'];
+        final conf = res['confidence'];
+
+        infected.add(
+          DetectionResult(
+            name: name,
+            label: label,
+            confidence: conf,
+            signals: List<String>.from(res['signals'] ?? []),
+          ),
+        );
       } else {
         clean.add(name);
       }
@@ -786,28 +888,38 @@ class _ScanScreenState extends State<ScanScreen>
         final hashes = fileHashes[path];
         if (hashes != null) {
           final md5h = hashes['md5'] ?? '';
-          final sha = hashes['sha'] ?? '';
-          if (cloudDetected.contains(md5h) || cloudDetected.contains(sha)) {
+          final sha = hashes['sha'] ?? '';if (cloudDetected.contains(md5h) || cloudDetected.contains(sha)) {
             infectedFlag = true;
+
+            infected.add(
+              DetectionResult(
+                name: name,
+                label: 'Found in cloud database',
+                confidence: 1.0,
+                signals: const [],
+              ),
+            );
             LogBuffer.add('[CLOUD HIT] $name');
+            continue;
           }
         }
       }
 
       final res = await scanWorker.scan(path);
 
-      String? infectedEntry;
-
-      if (res is List<String>) {
+      if (res is Map) {
         infectedFlag = true;
-        infectedEntry = '$path (${res.join(', ')})';
-      } else if (res == true) {
-        infectedFlag = true;
-        infectedEntry = path;
+        infected.add(
+          DetectionResult(
+            name: name,
+            label: res['label'],
+            confidence: res['confidence'],
+            signals: List<String>.from(res['signals'] ?? []),
+          ),
+        );
       }
 
       if (infectedFlag) {
-        infected.add(infectedEntry ?? path);
         pendingLogs.add('[THREAT] Quarantined $name');
         try {
           unawaited(
@@ -952,6 +1064,32 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
+  String _explainLabel(String label) {
+    switch (label) {
+      case 'Found in cloud database':
+        return 'This file exists within the ColourSwift cloud threat database.';
+
+      case 'Android.Banker':
+        return 'Designed to steal banking or financial credentials, often by overlaying fake login screens or intercepting sensitive data.';
+
+      case 'Android.Spyware':
+        return 'Silently monitors activity or collects personal data such as messages, location, or device identifiers.';
+
+      case 'Android.Adware':
+        return 'Displays intrusive advertisements, performs hidden redirects, or generates fraudulent ad traffic.';
+
+      case 'Android.SMS.Fraud':
+        return 'Attempts to send SMS commands without user consent, potentially causing unexpected charges.';
+
+      case 'Found in malware database':
+        return 'This file exists inside the malware database.';
+
+      case 'Generic.Suspicious':
+      default:
+        return 'Has behavior commonly associated with malware, but does not match a known malware family.';
+    }
+  }
+
   Widget _buildResult(ThemeData theme, TextTheme text) {
     final accent = switch (mode) {
       ScanMode.smart => Colors.greenAccent,
@@ -962,57 +1100,6 @@ class _ScanScreenState extends State<ScanScreen>
     };
 
     final hasThreats = infected.isNotEmpty;
-
-    if (mode == ScanMode.single && singleResult != null) {
-      final safe = !singleResult!;
-      final icon = safe ? Icons.verified_rounded : Icons.warning_amber_rounded;
-      final color = safe ? Colors.greenAccent : Colors.orangeAccent;
-
-      return Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 32,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _glowIcon(icon, color),
-                const SizedBox(height: 20),
-                Text(
-                  safe ? 'No threats found' : 'Suspicious item detected',
-                  style: text.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  currentFile,
-                  textAlign: TextAlign.center,
-                  style: text.bodySmall?.copyWith(color: Colors.grey),
-                ),
-                const SizedBox(height: 20),
-                if (!safe)
-                  Text(
-                    'Item moved to quarantine.',
-                    style: text.bodySmall?.copyWith(color: Colors.orangeAccent),
-                    textAlign: TextAlign.center,
-                  ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _finishToHome,
-                  child: const Text('Return Home'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -1080,25 +1167,55 @@ class _ScanScreenState extends State<ScanScreen>
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: infected.length,
                     itemBuilder: (context, i) {
-                      final item = infected[i];
-                      final name = mode == ScanMode.installed
-                          ? item
-                          : item.split('/').last;
-                      return ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
+                      final d = infected[i];
+                      final pct = (d.confidence * 100).round();
+
+                      return ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
                         leading: const Icon(
-                          Icons.error_outline,
+                          Icons.warning_amber_rounded,
                           size: 18,
                           color: Colors.orangeAccent,
                         ),
                         title: Text(
-                          name,
+                          d.name,
                           style: const TextStyle(
                             fontSize: 13,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        subtitle: Text(
+                          d.label,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.orangeAccent,
+                          ),
+                        ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 36, bottom: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Confidence: $pct%',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orangeAccent,
+                                  ),
+                                ),
+                                Text(
+                                  _explainLabel(d.label),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),

@@ -5,8 +5,10 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
@@ -50,6 +52,43 @@ class _ConsoleScreenState extends State<ConsoleScreen>
       endpoint: 'https://efkou1u21ooih2hko.colourswift.com',
       apiKey: '23JVO3ojo23oO3O423rrTR',
     );
+  }
+
+  Future<void> _runInfoCommand() async {
+    _append("[INFO] CS Security Terminal");
+
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final defsPath = p.join(appDir.path, 'defs.vxpack');
+      final keyPath = p.join(appDir.path, 'defs_key.bin');
+
+      final defsPresent =
+          await File(defsPath).exists() && await File(keyPath).exists();
+
+      final prefs = await SharedPreferences.getInstance();
+      final cloudEnabled = prefs.getBool('useCloudScan') ?? false;
+
+      final android = await DeviceInfoPlugin().androidInfo;
+
+      final ram = await _getTotalRam();
+      final cores = Platform.numberOfProcessors;
+      final abi = android.supportedAbis.isNotEmpty
+          ? android.supportedAbis.first
+          : 'unknown';
+
+      _append("[INFO] Engine version : VX-Titanium-v7");
+      _append("[INFO] Definitions   : ${defsPresent ? "loaded" : "missing"}");
+      _append("[INFO] Cloud scan    : ${cloudEnabled ? "enabled" : "disabled"}");
+      _append("[INFO] Platform      : Android ${android.version.release} (SDK ${android.version.sdkInt})");
+      _append("[INFO] Device        : ${android.manufacturer} ${android.model}");
+      _append("[INFO] CPU arch      : $abi");
+      _append("[INFO] CPU cores     : $cores");
+      _append("[INFO] RAM           : $ram");
+      _append("[INFO] Build mode    : ${kReleaseMode ? "release" : "debug"}");
+    } catch (e) {
+      _append("[INFO] Failed to read system info");
+      _append("[INFO] Error: $e");
+    }
   }
 
   Future<void> _openTerminalDocs() async {
@@ -117,6 +156,18 @@ class _ConsoleScreenState extends State<ConsoleScreen>
     }
   }
 
+  Future<String> _getTotalRam() async {
+    try {
+      final meminfo = await File('/proc/meminfo').readAsLines();
+      final line = meminfo.firstWhere((l) => l.startsWith('MemTotal'));
+      final kb = int.parse(line.replaceAll(RegExp(r'[^0-9]'), ''));
+      final gb = kb / 1024 / 1024;
+      return '${gb.toStringAsFixed(1)} GB';
+    } catch (_) {
+      return 'unknown';
+    }
+  }
+
   Future<void> _runCommand(String cmd) async {
     final raw = cmd.trim();
     if (raw.isEmpty) return;
@@ -129,6 +180,30 @@ class _ConsoleScreenState extends State<ConsoleScreen>
     if (lower.contains('/c')) {
       forceCloud = true;
       lower = lower.replaceAll('/c', '').trim();
+    }
+
+    Future<void> _runHashCommand(String path) async {
+      final file = File(path);
+
+      if (!await file.exists()) {
+        _append("[HASH] File not found");
+        return;
+      }
+
+      _append("[HASH] Reading file…");
+
+      try {
+        final bytes = await file.readAsBytes();
+
+        final md5h = md5.convert(bytes).toString();
+        final sha = sha256.convert(bytes).toString();
+
+        _append("[HASH] File: ${path.split('/').last}");
+        _append("[HASH] MD5     : $md5h");
+        _append("[HASH] SHA256  : $sha");
+      } catch (e) {
+        _append("[HASH] Failed: $e");
+      }
     }
 
     if (lower == "help") {
@@ -224,8 +299,69 @@ class _ConsoleScreenState extends State<ConsoleScreen>
       }
     }
 
+    if (lower == "hash pick") {
+      await _runHashPick();
+      return;
+    }
+
+    if (lower.startsWith("hash ")) {
+      final path = raw.substring(5).trim();
+      if (path.isEmpty) {
+        _append("[HASH] No file path provided");
+        return;
+      }
+      await _runHashCommand(path);
+      return;
+    }
+
+
+    if (lower == "info") {
+      await _runInfoCommand();
+      return;
+    }
+
     _append("Unknown command. Type 'help'.");
   }
+
+  Future<void> _runHashCommand(String path) async {
+    final file = File(path);
+
+    if (!await file.exists()) {
+      _append("[HASH] File not found");
+      return;
+    }
+
+    _append("[HASH] Reading file…");
+
+    try {
+      final bytes = await file.readAsBytes();
+      final md5h = md5.convert(bytes).toString();
+      final sha = sha256.convert(bytes).toString();
+
+      _append("[HASH] File   : ${path.split('/').last}");
+      _append("[HASH] MD5    : $md5h");
+      _append("[HASH] SHA256 : $sha");
+    } catch (e) {
+      _append("[HASH] Failed: $e");
+    }
+  }
+
+  Future<void> _runHashPick() async {
+    final res = await FilePicker.platform.pickFiles();
+    if (res == null || res.files.isEmpty) {
+      _append("[HASH] File selection cancelled");
+      return;
+    }
+
+    final path = res.files.single.path;
+    if (path == null) {
+      _append("[HASH] Invalid file");
+      return;
+    }
+
+    await _runHashCommand(path);
+  }
+
 
   Future<void> _runUrlCheck(String input) async {
     var target = input
@@ -712,7 +848,7 @@ class _ConsoleScreenState extends State<ConsoleScreen>
                 controller: _scroll,
                 itemCount: _log.length,
                 itemBuilder: (context, index) {
-                  return Text(
+                  return SelectableText(
                     _log[index],
                     style: text.bodySmall?.copyWith(
                       fontFamily: "monospace",

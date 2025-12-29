@@ -25,7 +25,7 @@ ColourSwift Security is an ad-free antivirus app for Android, offering all the p
 
 ## Overview
 
-ColourSwift Security helps you scan files and apps on your device for known malware.
+ColourSwift Security helps you scan files and apps on your device for known malware using a local scanning engine and optional cloud-assisted threat intelligence.
 
 - Scans files stored on your phone
 - Real-Time Protection for the downloads folder
@@ -36,6 +36,19 @@ ColourSwift Security helps you scan files and apps on your device for known malw
 - No accounts required  
 
 The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
+
+---
+
+### Detection stack
+
+ColourSwift Security uses a layered detection model:
+
+- **VX-Titanium**  
+  The local, on-device scanning engine used for offline detection and analysis.
+
+- **VX-Titanium Threat Intelligence (VTTI)**  
+  A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.
+  No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 
 ---
 

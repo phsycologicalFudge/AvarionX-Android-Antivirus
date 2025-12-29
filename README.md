@@ -31,15 +31,15 @@ ColourSwift Security helps you scan files and apps on your device for known malw
 - Real-Time Protection for the downloads folder
 - Offline DNS filter for known bad domains
 - Analyzes installed APKs  
-- Uses local detection first  
-- Optional cloud assistance using file hashes  
+- Uses local detection via VX-Titanium  
+- Optional cloud assistance via VX-Titanium Threat Intelligence (VTTI) using file hashes   
 - No accounts required  
 
 The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
 
 ---
 
-### Detection stack
+### Detection model
 
 ColourSwift Security uses a layered detection model:
 

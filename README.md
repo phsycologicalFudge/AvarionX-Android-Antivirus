@@ -41,7 +41,7 @@ The app works fully offline, except when downloading malware definition updates 
 
 ### Detection model
 
-ColourSwift Security uses a layered detection model:
+ColourSwift Security uses a dual detection model:
 
 - **VX-Titanium**  
   The local, on-device scanning engine used for offline detection and analysis.

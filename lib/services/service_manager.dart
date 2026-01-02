@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 class AvServiceManager {
   static bool _isRunning = true;
 
-  // Channel for controlling the VPN service
   static const MethodChannel _vpnChannel = MethodChannel("cs_vpn_control");
 
   static Future<void> startProtection() async {
@@ -21,10 +20,15 @@ class AvServiceManager {
     dev.log('AV services stopped.');
   }
 
-  static Future<void> startVpn() async {
+  static Future<void> startVpn({String dnsMode = 'malware'}) async {
     try {
-      await _vpnChannel.invokeMethod("startVpn");
-      dev.log("VPN start requested.");
+      await _vpnChannel.invokeMethod(
+        "startVpn",
+        {
+          "dns_mode": dnsMode,
+        },
+      );
+      dev.log("VPN start requested (dns=$dnsMode).");
     } catch (e) {
       dev.log("VPN start failed: $e");
     }

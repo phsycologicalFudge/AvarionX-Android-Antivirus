@@ -139,13 +139,20 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "startVpn" -> {
-                        val intent =
-                            android.content.Intent(applicationContext, CSVpnService::class.java)
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        val dnsMode = call.argument<String>("dns_mode") ?: "malware"
+
+                        val intent = Intent(applicationContext, CSVpnService::class.java).apply {
+                            action = CSVpnService.ACTION_START
+                            putExtra("dns_mode", dnsMode)
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             applicationContext.startForegroundService(intent)
                         } else {
                             applicationContext.startService(intent)
                         }
+
+                        Log.i("CSMain", "Starting VPN with dns_mode=$dnsMode")
                         result.success(true)
                     }
 
@@ -252,37 +259,29 @@ class MainActivity : FlutterActivity() {
 
     private fun switchLauncherIcon(icon: String) {
         val pm = applicationContext.packageManager
-        val main = ComponentName(applicationContext, "com.colourswift.cssecurity.MainActivity")
+
         val defAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconDefaultAlias")
         val birdAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconBirdAlias")
+        val neonAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconNeonAlias")
 
-        val target = if (icon == "bird") birdAlias else defAlias
+        val enable = when (icon) {
+            "bird" -> birdAlias
+            "neon" -> neonAlias
+            else -> defAlias
+        }
 
-        pm.setComponentEnabledSetting(
-            target,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
+        val allAliases = listOf(defAlias, birdAlias, neonAlias)
 
-        val toDisable = listOf(main, if (icon == "bird") defAlias else birdAlias)
-        for (comp in toDisable) {
+        for (alias in allAliases) {
             pm.setComponentEnabledSetting(
-                comp,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                alias,
+                if (alias == enable)
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
             )
         }
-
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        intent.component = target
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-
-        Thread {
-            Thread.sleep(500)
-            Runtime.getRuntime().exit(0)
-        }.start()
     }
 
     fun requestIgnoreBatteryOptimizations(context: Context) {

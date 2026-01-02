@@ -85,18 +85,38 @@ class CSVpnService : VpnService() {
 
     private val fakeDnsIp = "10.0.0.1"
     private val tunIp = "10.0.0.2"
-    private val upstreamDns = InetSocketAddress("1.1.1.1", 53)
+
+    private enum class DnsMode {
+        MALWARE_ONLY,
+        MALWARE_ADULT
+    }
+
+    @Volatile
+    private var dnsMode = DnsMode.MALWARE_ONLY
+
+    private fun resolveUpstream(): InetSocketAddress {
+        return when (dnsMode) {
+            DnsMode.MALWARE_ONLY -> InetSocketAddress("1.1.1.2", 53)
+            DnsMode.MALWARE_ADULT -> InetSocketAddress("1.1.1.3", 53)
+        }
+    }
 
     @Volatile
     private var shouldStop = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
+
         if (action == ACTION_STOP) {
-            Log.i("CSVpn", "STOP action received")
             stopTunnel()
             stopSelf()
             return START_NOT_STICKY
+        }
+
+        val mode = intent?.getStringExtra("dns_mode")
+        dnsMode = when (mode) {
+            "adult" -> DnsMode.MALWARE_ADULT
+            else -> DnsMode.MALWARE_ONLY
         }
 
         startForegroundNotif()
@@ -228,8 +248,12 @@ class CSVpnService : VpnService() {
                     continue
                 }
 
-                val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstreamDns)
+                val upstream = resolveUpstream()
+                Log.i("CSVpn", "Forwarding DNS to ${upstream.address.hostAddress}")
+
+                val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstream)
                 dnsSocket.send(upstreamPacket)
+
 
                 val recv = ByteArray(4096)
                 val replyPacket = DatagramPacket(recv, recv.size)

@@ -37,6 +37,8 @@ class ThemeManager extends ChangeNotifier {
         return _buildGreyTheme();
       case 'emerald':
         return _buildEmeraldTheme();
+      case 'purple':
+        return _buildPurpleTheme();
       default:
         return _buildBlackTheme();
     }
@@ -164,6 +166,34 @@ class ThemeManager extends ChangeNotifier {
       textTheme: ThemeData.light().textTheme.apply(
         bodyColor: Colors.black87,
         displayColor: Colors.black87,
+      ),
+      pageTransitionsTheme: _pageTransitions(),
+      useMaterial3: true,
+    );
+  }
+
+  static ThemeData _buildPurpleTheme() {
+    const surface = Color(0xFF120F1A);
+    const card = Color(0xFF1A1626);
+
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: surface,
+      cardColor: card,
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF8B5CF6),
+        secondary: Color(0xFFA78BFA),
+        surface: card,
+        onSurface: Colors.white,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      textTheme: ThemeData.dark().textTheme.apply(
+        bodyColor: Colors.white.withOpacity(0.88),
+        displayColor: Colors.white.withOpacity(0.88),
       ),
       pageTransitionsTheme: _pageTransitions(),
       useMaterial3: true,

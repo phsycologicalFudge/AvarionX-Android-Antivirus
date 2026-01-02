@@ -181,7 +181,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await prefs.setString('selectedIcon', icon);
                   setModalState(() => selectedIcon = icon);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Icon changed to ${icon == 'bird' ? 'Bird' : 'Default'}')),
+                    SnackBar(
+                      content: Text('Icon changed to ${icon[0].toUpperCase()}${icon.substring(1)}'),
+                    ),
                   );
                 }
 
@@ -230,6 +232,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             selectedIcon,
                             'Bird',
                                 () => _changeIcon('bird'),
+                          ),
+                          const SizedBox(width: 16),
+                          _iconPreview(
+                            context,
+                            'neon',
+                            selectedIcon,
+                            'Neon',
+                                () => _changeIcon('neon'),
                           ),
                         ],
                       ),
@@ -355,7 +365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             padding: const EdgeInsets.all(6),
             child: Image.asset(
-              'assets/icons/ic_launcher${name == 'bird' ? '_bird' : '_default'}.png',
+              'assets/icons/ic_launcher_$name.png',
               fit: BoxFit.contain,
             ),
           ),
@@ -405,6 +415,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _themeOption(context, 'White', 'white', Colors.white, current),
                 _themeOption(context, 'Grey', 'grey', Colors.grey.shade700, current),
                 _themeOption(context, 'Emerald', 'emerald', const Color(0xFF009E73), current),
+                _themeOption(context, 'Purple', 'purple', const Color(0xFF8B5CF6), current),
                 const SizedBox(height: 10),
               ],
             ),
@@ -421,7 +432,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       onTap: () {
         Navigator.pop(context);
-        if ((value == 'emerald' || value == 'grey') && !isPro) {
+        if ((value == 'emerald' || value == 'grey' || value == 'purple') && !isPro) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('That theme requires Sponsors mode')),
           );
@@ -431,10 +442,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       leading: CircleAvatar(backgroundColor: color, radius: 14),
       title: Text(
-        (value == 'emerald' || value == 'grey') ? '$label  (Pro)' : label,
+        (value == 'emerald' || value == 'grey' || value == 'purple') ? '$label  (Pro)' : label,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: (value == 'emerald' || value == 'grey')
+          color: (value == 'emerald' || value == 'grey' || value == 'purple')
               ? (isPro ? null : Colors.grey)
               : null,
         ),
@@ -629,7 +640,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
                 icon: Icons.info_outline_rounded,
                 title: 'About ColourSwift Security',
-                subtitle: 'Version 2.0.5',
+                subtitle: 'Version 2.0.6',
               ),
               _buildSettingTile(
                 context,

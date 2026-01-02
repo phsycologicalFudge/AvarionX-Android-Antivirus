@@ -926,67 +926,111 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundGradient = (isPro && isDark && !hideGoldHeader)
-        ? const LinearGradient(
-      colors: [Color(0xFFB8860B), Color(0xFF4B3B08)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    )
-        : LinearGradient(
-      colors: [
-        theme.colorScheme.primary.withOpacity(0.18),
-        isDark ? Colors.black : theme.scaffoldBackgroundColor,
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    );
-
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: _buildSideDrawer(context),
     backgroundColor: theme.scaffoldBackgroundColor,
-      body: Container(
-        decoration: BoxDecoration(gradient: backgroundGradient),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 22),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary.withOpacity(0.18),
+                    isDark ? Colors.black : theme.scaffoldBackgroundColor,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
-                  _buildTopBar(context),
-                  const SizedBox(height: 10),
-                  _buildPrimaryControl(context),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: _buildSectionTitle(context, 'Quick Features'),
+                  if (isPro && isDark && !hideGoldHeader)
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: _proHeaderGradient(theme),
+                      ),
+                      child: _buildTopBar(context),
+                    )
+                  else
+                    _buildTopBar(context),
+
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
+                    child: Column(
+                      children: [
+                        _buildPrimaryControl(context),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildSectionTitle(context, 'Quick Features'),
+                        ),
+                        const SizedBox(height: 6),
+                        _buildFeatureRow(
+                          context,
+                          title: 'MetaPass',
+                          description: 'Generate secure offline passwords.',
+                          icon: Icons.key_rounded,
+                          color: Colors.amberAccent,
+                          onTap: () => Navigator.push(
+                            context,
+                            animatedRoute(const PasswordTestScreen()),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFeatureRow(
+                          context,
+                          title: 'Cleaner Pro',
+                          description:
+                          'Find duplicates, old media, and unused apps to reclaim storage automatically.',
+                          icon: Icons.cleaning_services_rounded,
+                          color: Colors.blueAccent,
+                          onTap: () => Navigator.push(
+                            context,
+                            animatedRoute(const CleanerScreen()),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  _buildFeatureRow(
-                    context,
-                    title: 'MetaPass',
-                    description: 'Generate secure offline passwords.',
-                    icon: Icons.key_rounded,
-                    color: Colors.amberAccent,
-                    onTap: () => Navigator.push(context, animatedRoute(const PasswordTestScreen())),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildFeatureRow(
-                    context,
-                    title: 'Cleaner Pro',
-                    description: 'Find duplicates, old media, and unused apps to reclaim storage automatically.',
-                    icon: Icons.cleaning_services_rounded,
-                    color: Colors.blueAccent,
-                    onTap: () => Navigator.push(context, animatedRoute(const CleanerScreen())),
-                  ),
-                  const SizedBox(height: 12),
                 ],
               ),
             ),
-          ),
+          ],
         ),
       ),
+    );
+  }
+
+  LinearGradient _proHeaderGradient(ThemeData theme) {
+    final isPurple =
+        theme.colorScheme.primary.value == const Color(0xFF7C5CFF).value;
+
+    if (isPurple) {
+      return const LinearGradient(
+        colors: [
+          Color(0xFF4A3A6A),
+          Color(0xFF2E2447),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+
+    return const LinearGradient(
+      colors: [
+        Color(0xFF8A6A1F),
+        Color(0xFF5A4616),
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
     );
   }
 

@@ -133,7 +133,7 @@ class ScanWorker {
 
             if (yara.isNotEmpty) {
               label = _normalizeFamily(yara);
-              confidence = 0.9;
+              confidence = 0.95;
             } else {
               final ml = signals.firstWhere(
                     (s) => s.startsWith('ML_Detection('),
@@ -142,7 +142,7 @@ class ScanWorker {
 
               if (ml.isNotEmpty) {
                 label = 'Generic.Suspicious';
-                confidence = 0.75;
+                confidence = 0.80;
               }
             }
           }
@@ -500,9 +500,28 @@ class _ScanScreenState extends State<ScanScreen>
 
       if (hits.isNotEmpty) {
         infectedFlag = true;
+        infected.add(
+          DetectionResult(
+            name: file.name,
+            label: 'Found in cloud database',
+            confidence: 1.0,
+            signals: const [],
+          ),
+        );
       } else {
         final scanWorker = await ScanWorker.spawn();
-        final res = await scanWorker.scan(file.path!);
+        final tempDir = await getTemporaryDirectory();
+        final tempPath = '${tempDir.path}/${file.name}';
+
+        if (file.bytes != null) {
+          await File(tempPath).writeAsBytes(file.bytes!, flush: true);
+        } else if (file.path != null) {
+          await File(file.path!).copy(tempPath);
+        } else {
+          throw Exception('No readable file data');
+        }
+
+        final res = await scanWorker.scan(tempPath);
 
         if (res is Map) {
           infectedFlag = true;

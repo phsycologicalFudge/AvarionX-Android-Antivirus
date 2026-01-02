@@ -10,6 +10,7 @@ class NetworkProtectionScreen extends StatefulWidget {
   State<NetworkProtectionScreen> createState() =>
       _NetworkProtectionScreenState();
 }
+
 class RingPainter extends CustomPainter {
   final Color color;
   final double thickness;
@@ -50,6 +51,8 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
   bool vpnConflict = false;
   bool _pressed = false;
 
+  String dnsMode = 'malware';
+
   Future<bool> _isAnotherVpnActive() async {
     const chan = MethodChannel("cs_vpn_state");
     try {
@@ -71,16 +74,11 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     _loadState();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadState();
-  }
-
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
     final rtp = prefs.getBool('protectionEnabled') ?? false;
     final net = prefs.getBool('networkProtectionEnabled') ?? false;
+    final mode = prefs.getString('networkDnsMode') ?? 'malware';
 
     bool conflict = false;
     if (rtp && net) {
@@ -94,6 +92,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
       rtpEnabled = rtp;
       networkEnabled = rtp && net && !conflict;
       vpnConflict = conflict;
+      dnsMode = mode;
     });
   }
 
@@ -129,7 +128,10 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     final ok = await _requestVpnPermission();
     if (!ok) return;
 
-    await AvServiceManager.startVpn();
+    await AvServiceManager.startVpn(
+      dnsMode: dnsMode,
+    );
+
     await prefs.setBool('networkProtectionEnabled', true);
 
     setState(() {
@@ -138,32 +140,67 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     });
   }
 
-  double _ringValue() {
-    if (!rtpEnabled || !networkEnabled) return 0.0;
-    return 0.999;
+  Future<void> _setDnsMode(String mode) async {
+    if (!networkEnabled) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('networkDnsMode', mode);
+
+    await AvServiceManager.stopVpn();
+    await AvServiceManager.startVpn(dnsMode: mode);
+
+    setState(() {
+      dnsMode = mode;
+    });
   }
 
   Color _accent() {
-    if (!rtpEnabled || !networkEnabled) return Colors.redAccent;
+    if (!networkEnabled) return Colors.redAccent;
     return Colors.greenAccent;
   }
 
   IconData _icon() {
-    if (!rtpEnabled || !networkEnabled) return Icons.wifi_off;
+    if (!networkEnabled) return Icons.wifi_off;
     return Icons.wifi;
   }
 
-  String _line1() {
-    if (!rtpEnabled) return 'Protection is off';
-    if (vpnConflict) return 'Network protection unavailable';
-    if (!networkEnabled) return 'Network protection is off';
-    return 'Network is protected';
-  }
-
-  String _line2() {
-    if (vpnConflict) return 'Another VPN is active';
-    if (!networkEnabled) return 'Tap to enable';
-    return 'Tap to disable';
+  Widget _dnsToggle({
+    required String title,
+    required String subtitle,
+    required String description,
+    required bool selected,
+    required VoidCallback onTap,
+    required bool enabled,
+  }) {
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.45,
+      child: ListTile(
+        onTap: enabled ? onTap : null,
+        title: Text(title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(subtitle),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 11,
+                color: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.color
+                    ?.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+        trailing: Switch(
+          value: selected,
+          onChanged: enabled ? (_) => onTap() : null,
+        ),
+      ),
+    );
   }
 
   Widget _infoBox(ThemeData theme, TextTheme text) {
@@ -192,7 +229,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                 'malicious servers or redirecting internet traffic.\n'
                 'Network Protection blocks known dangerous domains & common ads by using '
                 'a local VPN.\n\n'
-                'CS Security does not collect any data..',
+                'CS Security does not collect any data.',
             style: text.bodySmall?.copyWith(
               color: text.bodySmall?.color?.withOpacity(0.8),
               height: 1.35,
@@ -210,71 +247,81 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Network Protection'),
       ),
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTapDown: (_) => setState(() => _pressed = true),
-                  onTapUp: (_) => setState(() => _pressed = false),
-                  onTapCancel: () => setState(() => _pressed = false),
-                  onTap: _toggleNetwork,
-                  child: AnimatedScale(
-                    scale: _pressed ? 0.97 : 1.0,
-                    duration: const Duration(milliseconds: 120),
-                    child: SizedBox(
-                      width: 180,
-                      height: 180,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CustomPaint(
-                            size: const Size(180, 180),
-                            painter: RingPainter(
-                              color: _accent(),
-                              thickness: 12,
-                              backgroundOpacity: isDark ? 0.14 : 0.10,
-                            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTapDown: (_) => setState(() => _pressed = true),
+                onTapUp: (_) => setState(() => _pressed = false),
+                onTapCancel: () => setState(() => _pressed = false),
+                onTap: _toggleNetwork,
+                child: AnimatedScale(
+                  scale: _pressed ? 0.97 : 1.0,
+                  duration: const Duration(milliseconds: 120),
+                  child: SizedBox(
+                    width: 140,
+                    height: 140,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: const Size(140, 140),
+                          painter: RingPainter(
+                            color: _accent(),
+                            thickness: 10,
+                            backgroundOpacity: isDark ? 0.14 : 0.10,
                           ),
-                          Theme(
-                            data: Theme.of(context).copyWith(useMaterial3: false),
-                            child: Icon(
-                              _icon(),
-                              size: 46,
-                              color: _accent(),
-                            ),
-                          )
-                        ],
-                      ),
+                        ),
+                        Icon(
+                          _icon(),
+                          size: 38,
+                          color: _accent(),
+                        )
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                Text(
-                  _line1(),
-                  style: text.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                  textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                networkEnabled
+                    ? 'Connected to ${dnsMode == 'malware' ? '1.1.1.2' : '1.1.1.3'}'
+                    : vpnConflict
+                    ? 'Another VPN is active'
+                    : 'Network protection is off',
+                style: text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  _line2(),
-                  style: text.bodySmall?.copyWith(
-                    color: text.bodySmall?.color?.withOpacity(0.7),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                _infoBox(theme, text),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              _dnsToggle(
+                title: 'Malware Blocking Only',
+                subtitle: 'Uses 1.1.1.2',
+                description:
+                'Combines CS Security’s local malware database with Cloudflare’s online threat intelligence '
+                    'for maximum malware protection.',
+                selected: dnsMode == 'malware',
+                enabled: networkEnabled,
+                onTap: () => _setDnsMode('malware'),
+              ),
+              _dnsToggle(
+                title: 'Malware & Adult Content',
+                subtitle: 'Uses 1.1.1.3',
+                description:
+                'Uses CS Security’s offline malware database and adds adult content filtering. '
+                    'Cloud-based malware intelligence is disabled in this mode.',
+                selected: dnsMode == 'adult',
+                enabled: networkEnabled,
+                onTap: () => _setDnsMode('adult'),
+              ),
+              _infoBox(theme, text),
+            ],
           ),
         ),
       ),

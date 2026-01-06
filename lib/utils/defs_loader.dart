@@ -84,9 +84,9 @@ Future<void> ensureAntivirusFiles() async {
       throw Exception('Missing antivirus files after copy.');
     }
 
-    debugPrint('✅ ensureAntivirusFiles() finished successfully');
+    debugPrint('ensureAntivirusFiles() finished successfully');
   } catch (e, st) {
-    debugPrint('❌ Error in ensureAntivirusFiles: $e');
+    debugPrint('Error in ensureAntivirusFiles: $e');
     debugPrint('Stack trace: $st');
   }
 }

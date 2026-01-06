@@ -84,7 +84,7 @@ class ScanWorker {
     if (r.contains('spyware')) return 'Android.Spyware';
     if (r.contains('adware')) return 'Android.Adware';
     if (r.contains('sms')) return 'Android.SMS.Fraud';
-    return 'Generic.Suspicious';
+    return 'Generic.Trojan';
   }
 
   static void _entry(SendPort root) {
@@ -918,6 +918,14 @@ class _ScanScreenState extends State<ScanScreen>
                 signals: const [],
               ),
             );
+
+            pendingLogs.add('[THREAT] Quarantined $name');
+            try {
+              unawaited(
+                QuarantineService.quarantineFile(path),
+              );
+            } catch (_) {}
+
             LogBuffer.add('[CLOUD HIT] $name');
             continue;
           }
@@ -1103,7 +1111,7 @@ class _ScanScreenState extends State<ScanScreen>
       case 'Found in malware database':
         return 'This file exists inside the malware database.';
 
-      case 'Generic.Suspicious':
+      case 'Generic.Trojan':
       default:
         return 'Has behavior commonly associated with malware, but does not match a known malware family.';
     }

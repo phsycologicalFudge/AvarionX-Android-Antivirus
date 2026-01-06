@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../services/defs_update_scheduler.dart';
 import '../../services/exclusion_service.dart';
 import '../../services/meta_password_service.dart';
 import '../../services/theme_manager.dart';
@@ -25,12 +26,15 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isPro = false;
+  bool autoUpdateDefs = false;
+
 
   @override
   void initState() {
     super.initState();
     _loadPro();
     _loadMetaPassword();
+    _loadAutoUpdate();
   }
 
   final _secure = const FlutterSecureStorage();
@@ -49,6 +53,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _clearMetaPassword() async {
     await MetaPasswordService.clearMeta();
     setState(() => _metaPassword = null);
+  }
+
+  Future<void> _loadAutoUpdate() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      autoUpdateDefs = prefs.getBool('defs_auto_update_enabled') ?? false;
+    });
   }
 
   Future<void> _showUpgradeDialog() async {
@@ -620,40 +631,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              _buildSettingTile(
-                context,
-                icon: Icons.security_rounded,
-                title: 'Privacy Policy',
-                subtitle: 'View how your data is handled',
-                onTap: () async {
-                  final uri = Uri.parse('https://colourswift.com/Policies/Private-Policy');
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Unable to open link')),
-                    );
-                  }
-                },
-              ),
-              _buildSettingTile(
-                context,
-                icon: Icons.info_outline_rounded,
-                title: 'About ColourSwift Security',
-                subtitle: 'Version 2.0.6',
-              ),
-              _buildSettingTile(
-                context,
-                icon: Icons.help_outline_rounded,
-                title: 'How This App Works',
-                subtitle: 'Learn about how ColourSwift Antivirus protects your device',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HowThisAppWorksScreen()),
-                  );
-                },
-              ),
+
               _buildSettingTile(
                 context,
                 icon: Icons.lock_outline_rounded,
@@ -687,26 +665,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       prefixIcon: const Icon(Icons.key_rounded),
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          obscure ? Icons.visibility_off : Icons.visibility,
+                                          obscure
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
                                         ),
-                                        onPressed: () => setState(() => obscure = !obscure),
+                                        onPressed: () =>
+                                            setState(() => obscure = !obscure),
                                       ),
                                       border: const OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Text(
-                                      '⚠️ Changing this will alter every generated password.\n\n'
-                                          'However, entering the same meta password again will restore them, '
-                                          'due to the apps algorithms.\n\n'
-                                          'PLEASE REMEMBER OR WRITE DOWN YOUR META PASSWORD.',
-                                      style: TextStyle(fontSize: 12),
                                     ),
                                   ),
                                 ],
@@ -721,16 +687,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: () async {
                                   final value = controller.text.trim();
                                   if (value.isEmpty) return;
-                                  await _secure.write(key: 'meta_password', value: value);
+                                  await _secure.write(
+                                    key: 'meta_password',
+                                    value: value,
+                                  );
                                   setState(() => _metaPassword = value);
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Meta password updated securely'),
-                                      ),
-                                    );
-                                  }
+                                  Navigator.pop(context);
                                 },
                                 child: const Text('Save'),
                               ),
@@ -741,8 +703,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                   );
                 },
-
               ),
+
               _buildSettingTile(
                 context,
                 icon: Icons.rule_folder_rounded,
@@ -750,7 +712,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: 'Manage and add exclusions',
                 onTap: _showExclusionsSheet,
               ),
-              const SizedBox(height: 20),
+
+              _buildSettingTile(
+                context,
+                icon: Icons.security_rounded,
+                title: 'Privacy Policy',
+                subtitle: 'View how your data is handled',
+                onTap: () async {
+                  final uri = Uri.parse(
+                    'https://colourswift.com/Policies/Private-Policy',
+                  );
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+
+              _buildSettingTile(
+                context,
+                icon: Icons.info_outline_rounded,
+                title: 'About ColourSwift Security',
+                subtitle: 'Version 3.0.0',
+              ),
+
+              _buildSettingTile(
+                context,
+                icon: Icons.help_outline_rounded,
+                title: 'How This App Works',
+                subtitle: 'Learn about protection',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HowThisAppWorksScreen(),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),

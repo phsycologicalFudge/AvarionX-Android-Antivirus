@@ -2,11 +2,14 @@ import 'package:colourswift_av/screens/password%20manager/password_manager_scree
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/defs_auto_update_service.dart';
 import '../services/realtime_protection_service.dart';
 import '../services/update_service.dart';
 import '../utils/animated_route.dart';
+import '../widgets/antivirus_bridge.dart';
 import 'exclusions/exclusion_manager_screen.dart';
 import 'scan_screen.dart';
 import '../services/service_manager.dart';
@@ -34,67 +37,30 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   bool networkEnabled = false;
   bool vpnActive = false;
   bool vpnConflict = false;
+  bool autoUpdateDefs = false;
   String? remoteVersion;
   String version = '';
-
+  String defsVersion = '';
 
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
   late Animation<double> _popupOpacity;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static const String _autoUpdateKey = 'defs_auto_update_enabled';
 
   bool _pressed = false;
-
-  Future<void> _restartApp() async {
-    try {
-      await AvServiceManager.stopProtection();
-      await AvServiceManager.stopVpn();
-      RealtimeProtectionService.stop();
-    } catch (_) {}
-
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    SystemNavigator.pop();
-  }
-
-  Future<void> _showRestartRequiredDialog() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        final theme = Theme.of(context);
-        final text = theme.textTheme;
-
-        return AlertDialog(
-          title: const Text('Restart Required'),
-          content: Text(
-            'Database was updated successfully.\n\nA restart is required to activate the new engine.',
-            style: text.bodyMedium,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Restart Later'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _restartApp();
-              },
-              child: const Text('Restart Now'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
     setState(() => version = info.version);
+  }
+
+  Future<void> _loadDefsVersion() async {
+    final v = await UpdateService.getLocalVersion();
+    if (mounted) {
+      setState(() => defsVersion = v);
+    }
   }
 
   Future<void> _loadProStatus() async {
@@ -110,6 +76,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(newStatus ? 'Pro activated' : 'Pro deactivated')),
     );
+  }
+
+  Future<void> _loadAutoUpdatePref() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      autoUpdateDefs = prefs.getBool('defs_auto_update_enabled') ?? false;
+    });
   }
 
   Future<void> _loadCloudToggle() async {
@@ -143,13 +116,25 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      if (!(prefs.getBool('defs_auto_update_enabled') ?? false)) {
+        prefs.setBool('defs_auto_update_enabled', true);
+      }
+    });
+
     _loadHeaderPref();
     _loadProtectionState();
     _loadVersion();
     _loadProStatus();
     _loadCloudToggle();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForDatabaseUpdate();
+    _loadAutoUpdatePref();
+    _loadDefsVersion();
+
+    DefsAutoUpdateService.maybeRun().then((_) async {
+      if (!mounted) return;
+      await _loadDefsVersion();
+      await _refreshUpdateState();
     });
 
     _popupController = AnimationController(
@@ -226,63 +211,174 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   void _startUpdate(String newRemoteVersion) {
-    double progress = 0;
-    bool dialogMounted = true;
+    double progress = 0.0;
+    bool autoUpdate = false;
+    bool mountedSheet = true;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
+      isScrollControlled: false,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.35),
       builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+        final isDark = theme.brightness == Brightness.dark;
+
         return StatefulBuilder(
-          builder: (context, setStateDialog) {
+          builder: (context, setSheetState) {
             Future.microtask(() async {
               try {
                 double lastShown = 0;
-                await UpdateService.downloadDatabase(
+
+                final ok = await UpdateService.downloadDatabase(
                   onProgress: (p) {
-                    if ((p - lastShown).abs() >= 0.01 && dialogMounted) {
+                    if (!mountedSheet) return;
+                    if ((p - lastShown).abs() >= 0.01) {
                       lastShown = p;
-                      setStateDialog(() => progress = p);
+                      setSheetState(() => progress = p);
                     }
                   },
                 );
 
-                if (!mounted || !dialogMounted) return;
-                Navigator.of(context, rootNavigator: true).pop();
+                if (!ok || !mounted || !mountedSheet) return;
 
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool(_autoUpdateKey, autoUpdate);
                 await UpdateService.setLocalVersion(newRemoteVersion);
-                if (!mounted) return;
-                setState(() {
-                  hasUpdate = false;
-                  remoteVersion = null;
-                });
-                await _showRestartRequiredDialog();
 
-                if (!mounted) return;
+                final dir = await getApplicationDocumentsDirectory();
+                final defsPath = '${dir.path}/defs.vxpack';
+                final keyPath = '${dir.path}/defs_key.bin';
+
+                try {
+                  AntivirusBridge().reload(defsPath, keyPath);
+                } catch (e) {
+                  debugPrint('[DefsUpdate] Engine reload failed: $e');
+                }
+
+                Navigator.pop(context);
+
                 setState(() {
                   hasUpdate = false;
                   remoteVersion = null;
                 });
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      autoUpdate
+                          ? 'Database updated • Auto updates enabled'
+                          : 'Database updated successfully',
+                    ),
+                  ),
+                );
               } catch (_) {
-                if (!mounted || !dialogMounted) return;
-                Navigator.of(context, rootNavigator: true).pop();
+                if (!mounted || !mountedSheet) return;
+                Navigator.pop(context);
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   const SnackBar(content: Text('Database update failed')),
                 );
               }
             });
 
-            return WillPopScope(
-              onWillPop: () async => false,
-              child: AlertDialog(
-                title: const Text('Updating Database'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    LinearProgressIndicator(value: progress),
-                    const SizedBox(height: 10),
-                    Text('${(progress * 100).toStringAsFixed(0)}%'),
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.cardColor.withOpacity(isDark ? 0.92 : 0.96),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.45 : 0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
+                    ),
                   ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.system_update_rounded,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Updating Database',
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Version $newRemoteVersion',
+                          style: text.bodySmall?.copyWith(
+                            color: text.bodySmall?.color?.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          backgroundColor:
+                          theme.colorScheme.onSurface.withOpacity(0.12),
+                          valueColor: AlwaysStoppedAnimation(
+                            theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        '${(progress * 100).toStringAsFixed(0)}%',
+                        style: text.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Switch(
+                            value: autoUpdate,
+                            onChanged: (v) {
+                              setSheetState(() => autoUpdate = v);
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Automatically download future updates',
+                              style: text.bodySmall?.copyWith(
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -290,7 +386,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         );
       },
     ).then((_) {
-      dialogMounted = false;
+      mountedSheet = false;
     });
   }
 
@@ -317,6 +413,30 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         remoteVersion = null;
       });
     }
+  }
+
+  Future<void> _refreshUpdateState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final auto = prefs.getBool('defs_auto_update_enabled') ?? false;
+
+    if (auto) {
+      setState(() {
+        hasUpdate = false;
+        remoteVersion = null;
+      });
+      return;
+    }
+
+    final remote = await UpdateService.checkServerVersion();
+    if (remote == null) return;
+
+    final remoteVer = remote['version'] ?? '0.0.0';
+    final localVer = await UpdateService.getLocalVersion();
+
+    setState(() {
+      hasUpdate = remoteVer != localVer;
+      remoteVersion = hasUpdate ? remoteVer : null;
+    });
   }
 
   Future<void> _loadProtectionState() async {
@@ -754,6 +874,17 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           ),
           textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 8),
+        Text(
+          defsVersion.isEmpty
+              ? 'Database updating'
+              : 'Database v$defsVersion • Auto updated',
+          style: text.bodySmall?.copyWith(
+            fontSize: 12,
+            color: text.bodySmall?.color?.withOpacity(0.55),
+          ),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 14),
         SizedBox(
           width: double.infinity,
@@ -796,24 +927,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           ),
           splashRadius: 18,
         ),
-        if (hasUpdate && remoteVersion != null && remoteVersion!.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            onPressed: () => _startUpdate(remoteVersion!),
-            icon: const Icon(Icons.system_update_rounded, size: 18),
-            label: Text('Update to v${remoteVersion!}'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: Colors.white,
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              textStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:colourswift_av/services/defs_update_scheduler.dart';
 import 'package:colourswift_av/widgets/antivirus_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:colourswift_av/services/purchase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DefsUpdateScheduler.init();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

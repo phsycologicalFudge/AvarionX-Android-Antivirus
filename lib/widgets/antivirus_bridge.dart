@@ -8,10 +8,12 @@ ScanLogFn? scanLogSink;
 typedef AvInitNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanNative = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef AvFreeNative = Int32 Function();
+typedef AvReloadNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 
 typedef AvInitDart = int Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanDart = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef AvFreeDart = int Function();
+typedef AvReloadDart = int Function(Pointer<Utf8>, Pointer<Utf8>);
 
 typedef NetIocInitNative = Int32 Function(Pointer<Utf8>);
 typedef NetIocInitDart = int Function(Pointer<Utf8>);
@@ -43,8 +45,8 @@ typedef PwGenDart = Pointer<Utf8> Function(
 typedef PwFreeDart = void Function(Pointer<Utf8>);
 
 typedef RestoreEncodeNative = Pointer<Utf8> Function(
-    Pointer<Utf8>, // meta
-    Pointer<Utf8>, // vault json
+    Pointer<Utf8>,
+    Pointer<Utf8>,
     );
 
 typedef RestoreEncodeDart = Pointer<Utf8> Function(
@@ -53,8 +55,8 @@ typedef RestoreEncodeDart = Pointer<Utf8> Function(
     );
 
 typedef RestoreDecodeNative = Pointer<Utf8> Function(
-    Pointer<Utf8>, // meta
-    Pointer<Utf8>, // restore string
+    Pointer<Utf8>,
+    Pointer<Utf8>,
     );
 
 typedef RestoreDecodeDart = Pointer<Utf8> Function(
@@ -82,6 +84,7 @@ Pointer.fromFunction<ScanCbNative>(_scanLogCallback);
 class AntivirusBridge {
   late DynamicLibrary _lib;
   late final AvInitDart _init;
+  late final AvReloadDart _reload;
   late final AvScanDart _scan;
   late final AvFreeDart _free;
   late final PwGenDart _pwGen;
@@ -102,37 +105,39 @@ class AntivirusBridge {
     }
 
     _init = _lib.lookupFunction<AvInitNative, AvInitDart>('av_init');
+    _reload = _lib.lookupFunction<AvReloadNative, AvReloadDart>('av_reload');
     _scan = _lib.lookupFunction<AvScanNative, AvScanDart>('av_scan');
     _free = _lib.lookupFunction<AvFreeNative, AvFreeDart>('av_free');
-    _pwGen =
-        _lib.lookupFunction<PwGenNative, PwGenDart>('generate_password');
-    _pwFree =
-        _lib.lookupFunction<PwFreeNative, PwFreeDart>('free_password');
-    _restoreEncode = _lib.lookupFunction<
-        RestoreEncodeNative,
-        RestoreEncodeDart>('generate_restore_code_ffi');
-
-    _restoreDecode = _lib.lookupFunction<
-        RestoreDecodeNative,
-        RestoreDecodeDart>('decode_restore_code_ffi');
+    _pwGen = _lib.lookupFunction<PwGenNative, PwGenDart>('generate_password');
+    _pwFree = _lib.lookupFunction<PwFreeNative, PwFreeDart>('free_password');
+    _restoreEncode = _lib.lookupFunction<RestoreEncodeNative, RestoreEncodeDart>(
+        'generate_restore_code_ffi');
+    _restoreDecode = _lib.lookupFunction<RestoreDecodeNative, RestoreDecodeDart>(
+        'decode_restore_code_ffi');
     _netInit =
         _lib.lookupFunction<NetIocInitNative, NetIocInitDart>('cs_net_ioc_init');
     _netCheck =
         _lib.lookupFunction<NetCheckNative, NetCheckDart>('cs_net_check');
-    _setScanCallback = _lib.lookupFunction<
-        SetScanCbNative,
-        SetScanCbDart>('set_scan_callback');
+    _setScanCallback =
+        _lib.lookupFunction<SetScanCbNative, SetScanCbDart>('set_scan_callback');
     try {
       _setScanCallback(_scanLogPtr);
-    } catch (_) {
-    }
-
+    } catch (_) {}
   }
 
   int init(String defsPath, String keyPath) {
     final defs = defsPath.toNativeUtf8();
     final key = keyPath.toNativeUtf8();
     final res = _init(defs, key);
+    malloc.free(defs);
+    malloc.free(key);
+    return res;
+  }
+
+  int reload(String defsPath, String keyPath) {
+    final defs = defsPath.toNativeUtf8();
+    final key = keyPath.toNativeUtf8();
+    final res = _reload(defs, key);
     malloc.free(defs);
     malloc.free(key);
     return res;

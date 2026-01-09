@@ -118,3 +118,5 @@ ENGINE_LICENSE.md.
 For commercial enquiries, contact:
 support@colourswift.com
 
+Join the discord!
+https://discord.gg/VYubQJfcYM

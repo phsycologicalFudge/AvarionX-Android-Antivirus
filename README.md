@@ -1,8 +1,8 @@
 ## AvarionX Security
 
-<img src="https://github.com/user-attachments/assets/65938060-807c-4630-ba5a-ea7d35d51ed8" width="140" alt="ColourSwift logo">
+<img src="https://github.com/user-attachments/assets/1b8aca6b-1605-49d6-b542-76b99fb3438a" width="140" alt="ColourSwift logo">
 
-ColourSwift Security is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
+AvarionX Security is an ad-free antivirus app for Android, offering all the paid features mainstream AVs offer without paid tiers. It is available on both Google Play and GitHub.
 
 <p>
   <img src="https://img.shields.io/github/downloads/phsycologicalFudge/ColourSwift_AV/total?label=App%20downloads">

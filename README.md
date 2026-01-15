@@ -25,7 +25,7 @@ AvarionX Security is an ad-free antivirus app for Android, offering all the paid
 
 ## Overview
 
-ColourSwift Security helps you scan files and apps on your device for known malware using a local scanning engine and optional cloud-assisted threat intelligence.
+AvarionX helps you scan files and apps on your device for known malware using a local scanning engine and optional cloud-assisted threat intelligence.
 
 - Scans files stored on your phone
 - Real-Time Protection for the downloads folder
@@ -41,7 +41,7 @@ The app works fully offline, except when downloading malware definition updates 
 
 ### Detection model
 
-ColourSwift Security uses a dual detection model:
+AvarionX uses a dual detection model:
 
 - **VX-Titanium**  
   The local, on-device scanning engine used for offline detection and analysis.
@@ -90,7 +90,7 @@ https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/m
 
 ---
 
-## Engine usage by other developers
+## Engine usage by other developers [INACTIVE]
 
 Developers are allowed to use VX-Titanium (the engine) in their own Android apps.
 
@@ -106,7 +106,7 @@ This is permitted under the following conditions:
 
 Detailed terms are available in `ENGINE_LICENSE.md`.
 
-## Commercial licensing
+## Commercial licensing [INACTIVE]
 
 VX-Titanium will be available under alternative commercial licensing terms for
 organisations that require closed-source integration, custom distribution,

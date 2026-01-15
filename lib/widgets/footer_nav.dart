@@ -13,11 +13,15 @@ class FooterNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
-    Color bgColor = theme.colorScheme.surfaceVariant.withOpacity(0.95);
-    if (theme.brightness == Brightness.dark) {
-      bgColor = theme.colorScheme.surface.withOpacity(0.95);
-    }
+    final bool isTerminal = active == 'terminal';
+
+    final Color bgColor = isTerminal
+        ? theme.cardColor
+        : (theme.brightness == Brightness.dark
+        ? scheme.surface.withOpacity(0.96)
+        : scheme.surfaceVariant.withOpacity(0.96));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
@@ -29,23 +33,22 @@ class FooterNav extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withOpacity(
+              theme.brightness == Brightness.dark ? 0.25 : 0.12,
+            ),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildItem(context, Icons.home_rounded, 'Home', 'home'),
-            _buildItem(context, Icons.terminal_rounded, 'Terminal', 'terminal'),
-            _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
-            _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
-          ],
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildItem(context, Icons.home_rounded, 'Home', 'home'),
+          _buildItem(context, Icons.terminal_rounded, 'Terminal', 'terminal'),
+          _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
+          _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
+        ],
       ),
     );
   }
@@ -57,21 +60,29 @@ class FooterNav extends StatelessWidget {
       String tag,
       ) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final text = theme.textTheme;
 
-    final bool isActive = (active == tag);
-    final color = isActive ? theme.colorScheme.primary : Colors.grey;
-    final bg = isActive
-        ? theme.colorScheme.primary.withOpacity(0.12)
+    final bool isActive = active == tag;
+    final bool isTerminal = active == 'terminal';
+
+    final Color activeColor = scheme.primary;
+    final Color inactiveColor = scheme.onSurface.withOpacity(0.55);
+
+    final Color color = isActive ? activeColor : inactiveColor;
+
+    final Color bg = isActive
+        ? activeColor.withOpacity(isTerminal ? 0.20 : 0.14)
         : Colors.transparent;
 
     return GestureDetector(
       onTap: () => onTabChange(tag),
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: bg,

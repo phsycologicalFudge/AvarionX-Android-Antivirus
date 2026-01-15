@@ -98,10 +98,8 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.security_rounded,
-                    size: 32, color: theme.colorScheme.primary),
                 const SizedBox(width: 10),
-                Text('CS Security',
+                Text('AVarionX Security',
                     style: text.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: text.bodyLarge?.color)),

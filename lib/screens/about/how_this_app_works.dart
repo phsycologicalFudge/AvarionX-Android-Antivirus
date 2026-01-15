@@ -27,7 +27,7 @@ class HowThisAppWorksScreen extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           children: [
             Text(
-              'How CS Security Works',
+              'How AVarionX Works',
               style: text.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
@@ -35,7 +35,7 @@ class HowThisAppWorksScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'CS Security is powered by VX-Titanium, a custom antivirus engine designed to provide strong core protection while keeping your data private. '
+              'AVarionX is powered by VX-Titanium, an antivirus engine designed to provide strong core protection while keeping your data private. '
                   'All file scanning happens locally on your device, without tracking, profiling, or exporting your files.',
               style: text.bodyMedium,
             ),
@@ -49,15 +49,6 @@ class HowThisAppWorksScreen extends StatelessWidget {
             const Text('• Real-time protection for files and network'),
             const Text('• Lightweight and battery-conscious design'),
             const SizedBox(height: 20),
-            Text(
-              'Why is CS Security free?',
-              style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'CS Security is free so that everyone can access essential protection without barriers. ',
-              style: text.bodyMedium,
-            ),
           ],
         ),
       ),

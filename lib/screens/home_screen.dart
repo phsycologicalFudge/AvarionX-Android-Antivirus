@@ -18,6 +18,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -38,6 +39,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   bool vpnActive = false;
   bool vpnConflict = false;
   bool autoUpdateDefs = false;
+  bool shizukuRtpEnabled = false;
   String? remoteVersion;
   String version = '';
   String defsVersion = '';
@@ -45,11 +47,20 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
   late Animation<double> _popupOpacity;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnim;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static const String _autoUpdateKey = 'defs_auto_update_enabled';
 
   bool _pressed = false;
+
+  Future<void> _loadShizukuRtpState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      shizukuRtpEnabled = prefs.getBool('shizuku_enabled') ?? false;
+    });
+  }
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
@@ -111,6 +122,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadProtectionState();
+    _loadShizukuRtpState();
   }
 
   @override
@@ -130,6 +142,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     _loadCloudToggle();
     _loadAutoUpdatePref();
     _loadDefsVersion();
+    _loadShizukuRtpState();
 
     DefsAutoUpdateService.maybeRun().then((_) async {
       if (!mounted) return;
@@ -141,6 +154,20 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
+    _pulseAnim = Tween(begin: 1.0, end: 1.06).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _pulseController.repeat();
 
     _popupAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
@@ -639,6 +666,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   void dispose() {
     _periodicScanTimer?.cancel();
     _popupController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -656,9 +684,11 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   IconData _stateIcon() {
     if (!protectionEnabled) return Icons.shield_outlined;
+    if (shizukuRtpEnabled) return Icons.gavel_rounded;
     if (!networkEnabled || vpnConflict) return Icons.shield_moon_rounded;
     return Icons.verified_user;
   }
+
 
   String _stateTitle() {
     if (!protectionEnabled) return 'Protection';
@@ -668,6 +698,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   String _stateLine1() {
     if (!protectionEnabled) return 'Device protection is off';
+    if (shizukuRtpEnabled && protectionEnabled) {
+      return 'Advanced protection is active';
+    }
     if (!networkEnabled || vpnConflict) return 'Partial protection enabled';
     return 'Your device is fully protected';
   }
@@ -691,7 +724,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
             child: Row(
               children: [
                 Text(
-                  'CS Security',
+                  'AVarionX Security',
                   overflow: TextOverflow.ellipsis,
                   style: text.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
@@ -828,33 +861,56 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       children: [
         GestureDetector(
           onTapDown: (_) => setState(() => _pressed = true),
-          onTapCancel: () => setState(() => _pressed = false),
           onTapUp: (_) => setState(() => _pressed = false),
+          onTapCancel: () => setState(() => _pressed = false),
           onTap: _toggleProtection,
-          child: AnimatedScale(
-            duration: const Duration(milliseconds: 120),
-            curve: Curves.easeOut,
-            scale: _pressed ? 0.97 : 1.0,
-            child: CircularPercentIndicator(
-              radius: 86,
-              lineWidth: 12,
-              percent: ring.clamp(0.0, 1.0),
-              animation: true,
-              animateFromLastPercent: true,
-              circularStrokeCap: CircularStrokeCap.round,
-              backgroundColor:
-              theme.colorScheme.onSurface.withOpacity(isDark ? 0.14 : 0.10),
-              progressColor: accent,
-              center: AnimatedScale(
-                duration: const Duration(milliseconds: 120),
-                scale: _pressed ? 0.94 : 1.0,
-                child: Icon(
-                  _stateIcon(),
-                  size: 46,
-                  color: accent,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularPercentIndicator(
+                radius: 86,
+                lineWidth: 12,
+                percent: ring.clamp(0.0, 1.0),
+                animation: true,
+                animateFromLastPercent: true,
+                circularStrokeCap: CircularStrokeCap.round,
+                backgroundColor:
+                theme.colorScheme.onSurface.withOpacity(isDark ? 0.14 : 0.10),
+                progressColor: accent.withOpacity(0.85),
+                center: AnimatedScale(
+                  duration: const Duration(milliseconds: 120),
+                  scale: _pressed ? 0.94 : 1.0,
+                  child: Icon(
+                    _stateIcon(),
+                    size: 46,
+                    color: accent,
+                  ),
                 ),
               ),
-            ),
+
+              if (shizukuRtpEnabled && protectionEnabled)
+                IgnorePointer(
+                  child: SizedBox(
+                    width: 172,
+                    height: 172,
+                    child: AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (_, __) {
+                        final t = _pulseController.value;
+                        final opacity =
+                            0.35 + math.sin(t * math.pi * 2) * 0.25;
+
+                        return CustomPaint(
+                          painter: _RingPulsePainter(
+                            color: accent.withOpacity(opacity.clamp(0.15, 0.6)),
+                            strokeWidth: 12,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 18),
@@ -1059,6 +1115,21 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               ),
             ),
 
+            if (shizukuRtpEnabled && protectionEnabled)
+              IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(0.0, -0.18),
+                      radius: 0.85,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(isDark ? 0.55 : 0.40),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -1163,5 +1234,38 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       color: color,
       onTap: onTap,
     );
+  }
+}
+
+class _RingPulsePainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+
+  _RingPulsePainter({
+    required this.color,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+
+    final radius = (size.width / 2) - (strokeWidth / 2);
+
+    canvas.drawCircle(
+      size.center(Offset.zero),
+      radius,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPulsePainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/exclusions_store.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
@@ -29,12 +30,19 @@ class RealtimeProtectionService {
   static bool _running = false;
   static Map<String, int> _seen = {};
   static StreamSubscription? _eventSub;
+  static Timer? _shizukuLoop;
+  static bool _watcherRunning = false;
   static final CloudScanner _cloud = CloudScanner(
     endpoint: 'https://efkou1u21ooih2hko.colourswift.com',
     apiKey: '23JVO3ojo23oO3O423rrTR',
   );
 
   static const _eventChannel = EventChannel('colourswift/realtime_stream');
+  static const EventChannel _watcherStateChannel = EventChannel('colourswift/watcher_state');
+  static StreamSubscription? _watcherStateSub;
+
+  static const MethodChannel _watcherChannel =
+  MethodChannel('colourswift/system_watcher');
 
   static const _allowed = {
     'com', 'apk', 'zip', 'rar', '7z', 'pdf', 'txt', 'md', 'json', 'exe'
@@ -44,25 +52,85 @@ class RealtimeProtectionService {
   };
   static const _maxSize = 100 * 1024 * 1024;
 
+  static Future<void> _reconcileShizuku() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final enabled = prefs.getBool('shizuku_enabled') ?? false;
+
+      if (!enabled) {
+        if (_watcherRunning) {
+          await _watcherChannel.invokeMethod('stop');
+          _watcherRunning = false;
+        }
+        return;
+      }
+
+      if (!_watcherRunning) {
+        await _watcherChannel.invokeMethod('start');
+        _watcherRunning = true;
+      }
+    } catch (_) {
+      if (_watcherRunning) {
+        try {
+          await _watcherChannel.invokeMethod('stop');
+        } catch (_) {}
+        _watcherRunning = false;
+      }
+    }
+  }
+
+  static void _attachWatcherStateStream() {
+    if (_watcherStateSub != null) return;
+
+    _watcherStateSub = _watcherStateChannel.receiveBroadcastStream().listen((event) async {
+      final alive = event == true;
+      if (!alive) {
+        _watcherRunning = false;
+        await _reconcileShizuku();
+      }
+    }, onError: (_) {});
+  }
+
   static Future<void> start() async {
     if (_running) return;
     _running = true;
+
     await _loadIndex();
     await ExclusionsStore.instance.init();
     await AvEngine.ensureInitialized();
-    await ForegroundService.start(title: 'CS Security', text: 'Realtime protection active');
-    _eventSub = _eventChannel.receiveBroadcastStream().listen((dynamic event) async {
-      if (event is! String) return;
-      final name = p.basename(event);
-      if (name.startsWith('.pending-')) return;
-      await _scanSingleFile(event);
-    }, onError: (e) {});
+    await ForegroundService.start(title: 'AVarionX', text: 'Protection active');
+
+    await _reconcileShizuku();
+    _attachWatcherStateStream();
+
+    _shizukuLoop = Timer.periodic(
+      const Duration(seconds: 2),
+          (_) => _reconcileShizuku(),
+    );
+
+    _eventSub = _eventChannel.receiveBroadcastStream().listen(
+          (dynamic event) async {
+        if (event is! String) return;
+        final name = p.basename(event);
+        if (name.startsWith('.pending-')) return;
+        await _scanSingleFile(event);
+      },
+      onError: (_) {},
+    );
   }
 
   static Future<void> stop() async {
+    try {
+      await _watcherChannel.invokeMethod('stop');
+    } catch (_) {}
+
     await _eventSub?.cancel();
+    await _watcherStateSub?.cancel();
+    _watcherStateSub = null;
     _eventSub = null;
     _running = false;
+    _shizukuLoop?.cancel();
+    _shizukuLoop = null;
     await _saveIndex();
     await ForegroundService.stop();
   }

@@ -15,11 +15,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
 
     <application
         android:name=".App"
-        android:label="CS Security"
+        android:label="AVarionX"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"
@@ -55,13 +56,12 @@
             </intent-filter>
         </receiver>
 
-        <!-- default visible icon -->
         <activity-alias
             android:name=".IconDefaultAlias"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="CS Security"
+            android:label="AvarionX"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,13 +69,12 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- alternate icon -->
         <activity-alias
             android:name=".IconBirdAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_bird"
-            android:label="CS Security"
+            android:label="AvarionX"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -83,13 +82,12 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- alternate icon -->
         <activity-alias
             android:name=".IconNeonAlias"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_neon"
-            android:label="CS Security"
+            android:label="AvarionX"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -116,6 +114,15 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
     </application>
 
     <queries>

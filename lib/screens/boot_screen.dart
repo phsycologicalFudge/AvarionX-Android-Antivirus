@@ -128,7 +128,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
               const SizedBox(height: 35),
 
               Text(
-                'ColourSwift Security',
+                'AVarionX Security',
                 style: text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.primary,

@@ -24,7 +24,6 @@ String _fmtBytes(int bytes) {
   return '${v.toStringAsFixed(v >= 10 || i == 0 ? 0 : 1)} ${units[i]}';
 }
 
-//MAIN SCREEN
 class CleanerScreen extends StatefulWidget {
   const CleanerScreen({super.key});
 
@@ -33,12 +32,10 @@ class CleanerScreen extends StatefulWidget {
 }
 
 class _CleanerScreenState extends State<CleanerScreen> {
-  // UI state
   bool scanning = false;
   double progress = 0.0;
   String status = 'Ready';
 
-  // Results (files)
   List<File> dupFiles = [];
   int dupReclaimBytes = 0;
 
@@ -51,7 +48,6 @@ class _CleanerScreenState extends State<CleanerScreen> {
   List<File> largeFiles = [];
   int largeFilesBytes = 0;
 
-  // Results (apps)
   bool appsLoading = false;
   List<Application> unusedApps = [];
 
@@ -108,7 +104,6 @@ class _CleanerScreenState extends State<CleanerScreen> {
     Isolate? iso;
 
     try {
-      // Spawn the worker isolate for the 4 file categories
       iso = await Isolate.spawn<_WorkerArgs>(
         _scanWorkerEntry,
         _WorkerArgs(
@@ -616,7 +611,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
           }
         }
       } catch (_) {
-        // unreadable—skip
       }
       if (processed >= cap) break;
     }
@@ -717,12 +711,10 @@ void _scanWorkerEntry(_WorkerArgs args) async {
       }
     });
 
-    // Stash dup files into the sendable result store — we’ll attach in final payload
     _stageStore['dupFiles'] = dupFiles;
     _stageStore['dupReclaimBytes'] = dupReclaimBytes;
   });
 
-  // Stage 2: Old Photos
   await _stage(2, 'Scanning old photos…', () async {
     final root = Directory(args.rootPath);
     final photosExt = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic'};
@@ -754,7 +746,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
     );
   });
 
-  // Stage 3: Old Videos
   await _stage(3, 'Scanning old videos…', () async {
     final root = Directory(args.rootPath);
     final videoExt = {'.mp4', '.mov', '.mkv', '.avi', '.webm'};
@@ -786,7 +777,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
     );
   });
 
-  // Stage 4: Large Files (≥ 5 MB, excluding photos/videos)
   await _stage(4, 'Scanning large files…', () async {
     final root = Directory(args.rootPath);
     final photosExt = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic'};
@@ -818,7 +808,6 @@ void _scanWorkerEntry(_WorkerArgs args) async {
     );
   });
 
-  // Final payload
   send.send({
     'type': 'done',
     'result': {
@@ -834,10 +823,8 @@ void _scanWorkerEntry(_WorkerArgs args) async {
   });
 }
 
-// Stage store for duplicates between closures in the worker
 final Map<String, Object> _stageStore = {};
 
-// ===== Minimal Unused Apps viewer (keeps you independent of other files) =====
 class UnusedAppsScreen extends StatelessWidget {
   final List<Application> apps;
   const UnusedAppsScreen({super.key, required this.apps});

@@ -10,26 +10,21 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:colourswift_av/services/purchase_service.dart';
 
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await DefsUpdateScheduler.init();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-    ),
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
   );
 
-  // Initialize theme and purchases
-  final themeManager = ThemeManager();
-  final isPro = await PurchaseService.hasPro();
 
+  final themeManager = ThemeManager();
   await themeManager.init();
+
   await PurchaseService.init();
 
-  // Check if app was opened from a notification
   const channel = MethodChannel('colourswift/foreground_service');
   bool openQuarantine = false;
   try {

@@ -80,11 +80,15 @@ class ScanWorker {
 
   static String _normalizeFamily(String raw) {
     final r = raw.toLowerCase();
+
+    if (r.contains('miner')) return 'Android.Miner';
+    if (r.contains('dropper')) return 'Android.Dropper';
     if (r.contains('banker')) return 'Android.Banker';
     if (r.contains('spyware')) return 'Android.Spyware';
     if (r.contains('adware')) return 'Android.Adware';
     if (r.contains('sms')) return 'Android.SMS.Fraud';
-    return 'Generic.Trojan';
+
+    return 'Generic.Malware';
   }
 
   static void _entry(SendPort root) {
@@ -887,7 +891,7 @@ class _ScanScreenState extends State<ScanScreen>
     infected.clear();
 
     for (int i = 0; i < files.length; i++) {
-      if (!mounted || cancelled) return;
+      if (!mounted || cancelled) break;
 
       final path = files[i];
       final name = path

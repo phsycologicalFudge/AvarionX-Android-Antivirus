@@ -14,7 +14,7 @@ import '../about/how_this_app_works.dart';
 import 'package:flutter/services.dart';
 import '../../services/purchase_service.dart';
 import '../exclusions/exclusion_manager_screen.dart';
-
+import 'package:flutter/foundation.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -27,7 +27,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isPro = false;
   bool autoUpdateDefs = false;
+  bool shizukuWanted = false;
+  bool shizukuCertPresent = false;
+  bool shizukuBinderAlive = false;
+  bool shizukuPermissionGranted = false;
 
+  final _shizukuChannel = const MethodChannel('cs.shizuku');
+  final _managerChannel = const MethodChannel('cs.manager');
 
   @override
   void initState() {
@@ -35,6 +41,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadPro();
     _loadMetaPassword();
     _loadAutoUpdate();
+    _loadShizukuState();
+    _loadShizukuRuntimeState();
   }
 
   final _secure = const FlutterSecureStorage();
@@ -276,6 +284,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     );
+  }
+
+  void _showShizukuInfo() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('About Shizuku'),
+          content: const Text(
+            'AVarionX can integrate with Shizuku to access app processes at the system level.\n\n'
+                'This allows the app to:\n'
+                '• Detect malware that hides from standard scanners\n'
+                '• Inspect running app processes\n'
+                '• Disable or contain most active malware\n\n'
+                'Shizuku however, does not grant root access\n\n'
+                'This feature is intended for advanced users and is not required for normal protection.\n\n'
+                'Documentation:\nhttps://shizuku.rikka.app',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _hasShizukuCert() async {
+    if (kDebugMode) {
+      return true;
+    }
+
+    final file = File(
+      '/storage/emulated/0/Android/data/com.colourswift.cssecurity/files/cs_shizuku.cert',
+    );
+    return file.exists();
+  }
+
+  Future<void> _loadShizukuState() async {
+    final prefs = await SharedPreferences.getInstance();
+    shizukuWanted = prefs.getBool('shizuku_enabled') ?? false;
+    shizukuCertPresent = await _hasShizukuCert();
+    setState(() {});
+  }
+
+  Future<void> _setShizukuWanted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('shizuku_enabled', value);
+    shizukuWanted = value;
+    setState(() {});
+  }
+
+  Future<void> _loadShizukuRuntimeState() async {
+    try {
+      shizukuBinderAlive =
+          await _shizukuChannel.invokeMethod<bool>('isBinderAlive') ?? false;
+
+      shizukuPermissionGranted =
+          await _shizukuChannel.invokeMethod<bool>('hasPermission') ?? false;
+    } catch (_) {
+      shizukuBinderAlive = false;
+      shizukuPermissionGranted = false;
+    }
+
+    setState(() {});
   }
 
   void _showExclusionsSheet() {
@@ -623,6 +698,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               const SizedBox(height: 25),
+
+              const SizedBox(height: 25),
+              Text(
+                'Advanced Protection (Shizuku)',
+                style: text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: text.bodyLarge?.color?.withOpacity(0.9),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: SwitchListTile(
+                  secondary: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.developer_mode_rounded,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  title: const Text(
+                    'Enable Shizuku',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    !shizukuCertPresent
+                        ? 'Requires external manager'
+                        : !shizukuBinderAlive
+                        ? 'Shizuku service not running'
+                        : !shizukuPermissionGranted
+                        ? 'Permission required'
+                        : 'Advanced system access available',
+                    style: text.bodySmall?.copyWith(
+                      color: text.bodySmall?.color?.withOpacity(0.7),
+                    ),
+                  ),
+                  value: shizukuWanted,
+
+                  onChanged: (value) async {
+                    if (!value) {
+                      await _setShizukuWanted(false);
+                      return;
+                    }
+
+                    await _setShizukuWanted(false);
+
+                    final hasCert = await _hasShizukuCert();
+                    if (!hasCert) {
+                      setState(() => shizukuCertPresent = false);
+
+                      if (!mounted) return;
+
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('Advanced system Protection'),
+                            content: const Text(
+                              'Shizuku access requires an external manager intended for advanced users.\n\n'
+                                  'This feature is optional and not recommended for casual protection.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return;
+                    }
+
+                    await _loadShizukuRuntimeState();
+
+                    if (!shizukuBinderAlive) {
+                      return;
+                    }
+
+                    if (!shizukuPermissionGranted) {
+                      await _shizukuChannel.invokeMethod('requestPermission');
+                    }
+
+                    await Future.delayed(const Duration(milliseconds: 250));
+                    await _loadShizukuRuntimeState();
+
+                    if (shizukuBinderAlive && shizukuPermissionGranted) {
+                      await _setShizukuWanted(true);
+                    }
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              _buildSettingTile(
+                context,
+                icon: Icons.info_outline_rounded,
+                title: 'About Advanced Protection',
+                subtitle: 'Learn how advanced Protection works',
+                onTap: _showShizukuInfo,
+              ),
+
               Text(
                 'General',
                 style: text.titleMedium?.copyWith(
@@ -731,8 +924,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSettingTile(
                 context,
                 icon: Icons.info_outline_rounded,
-                title: 'About ColourSwift Security',
-                subtitle: 'Version 3.0.0',
+                title: 'About AVarionX',
+                subtitle: 'Version 3.0.2',
               ),
 
               _buildSettingTile(

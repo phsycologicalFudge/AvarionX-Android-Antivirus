@@ -1,4 +1,4 @@
-//this makes up about 15% of the engine. Iv placed this here for transparency purposes, hopefully people understand how the engine works a little without exposing it. (VX-Titanium v5)
+//this makes up about 15% of the engine. Iv placed this here for transparency purposes, hopefully people understand how the engine works a little without exposing it. (Engine v2.0.4)
 
 use libc::{c_char, c_int};
 use memchr::memmem;

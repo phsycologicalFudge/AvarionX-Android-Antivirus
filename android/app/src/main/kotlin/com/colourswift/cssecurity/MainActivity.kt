@@ -60,10 +60,11 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "colourswift/foreground_service"
     private val EVENT_CHANNEL = "colourswift/realtime_stream"
     private var receiver: RealtimeReceiver? = null
-
     private var pendingVpnResult: MethodChannel.Result? = null
-
     private var pendingVpnDomain: String? = null
+    private var heuristicEvents: EventChannel.EventSink? = null
+    private var watcherStateEvents: EventChannel.EventSink? = null
+    private var processEvents: EventChannel.EventSink? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +78,7 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "startService" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "CS Security"
+                        val title = args?.get("title") as? String ?: "AVarionX"
                         val text = args?.get("text") as? String ?: "Realtime protection active"
                         startForegroundServiceCompat(title, text)
                         result.success(true)
@@ -88,7 +89,7 @@ class MainActivity : FlutterActivity() {
                     }
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "CS Security"
+                        val title = args?.get("title") as? String ?: "AVarionX"
                         val text = args?.get("text") as? String ?: ""
                         showNotification(title, text)
                         result.success(true)
@@ -120,6 +121,54 @@ class MainActivity : FlutterActivity() {
                     switchLauncherIcon(iconName)
                 }
             }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "cs.manager"
+        ).setMethodCallHandler(
+            ManagerBridge(applicationContext)
+        )
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "cs.shizuku"
+        ).setMethodCallHandler(
+            ShizukuBridge(applicationContext)
+        )
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "colourswift/system_watcher"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+
+                "start" -> {
+                    SystemWatcher.start(applicationContext)
+                    result.success(null)
+                }
+
+                "stop" -> {
+                    SystemWatcher.stop()
+                    result.success(null)
+                }
+
+                "startLogs" -> {
+                    SystemWatcher.enableHeuristicLogs { line ->
+                        Handler(Looper.getMainLooper()).post {
+                            heuristicEvents?.success(line)
+                        }
+                    }
+                    result.success(null)
+                }
+
+                "stopLogs" -> {
+                    SystemWatcher.disableHeuristicLogs()
+                    result.success(null)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_channel")
             .setMethodCallHandler { call, result ->
@@ -176,6 +225,63 @@ class MainActivity : FlutterActivity() {
                     }
                 } else result.notImplemented()
             }
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "colourswift/heuristic_logs"
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                heuristicEvents = events
+            }
+
+            override fun onCancel(arguments: Any?) {
+                heuristicEvents = null
+            }
+        })
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "colourswift/process_logs"
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                processEvents = events
+
+                SystemWatcher.start(applicationContext)
+
+                SystemWatcher.enableProcessLogs { line ->
+                    Handler(Looper.getMainLooper()).post {
+                        processEvents?.success(line)
+                    }
+                }
+            }
+
+            override fun onCancel(arguments: Any?) {
+                processEvents = null
+                SystemWatcher.disableProcessLogs()
+            }
+        })
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "colourswift/watcher_state"
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                watcherStateEvents = events
+                SystemWatcher.setStateSink { alive ->
+                    Handler(Looper.getMainLooper()).post {
+                        watcherStateEvents?.success(alive)
+                    }
+                }
+            }
+
+            override fun onCancel(arguments: Any?) {
+                watcherStateEvents = null
+                SystemWatcher.clearStateSink()
+            }
+        })
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_state")
             .setMethodCallHandler { call, result ->

@@ -42,7 +42,7 @@ class _MainShellState extends State<MainShell> {
         children: [
           AvHomeScreen(key: _homeKey),
           const ScanScreen(),
-          const ConsoleScreen(),
+          ConsoleScreen(isActive: _active == 'terminal'),
           QuarantineScreen(key: _quarantineKey),
           const SettingsScreen(),
         ],
@@ -52,16 +52,11 @@ class _MainShellState extends State<MainShell> {
         onTabChange: (tab) {
           setState(() {
             _active = tab;
-            if (tab == 'home') {
-              _homeKey = UniqueKey();
-            }
-            if (tab == 'quarantine') {
-              _quarantineKey = UniqueKey();
-            }
+            if (tab == 'home') _homeKey = UniqueKey();
+            if (tab == 'quarantine') _quarantineKey = UniqueKey();
           });
         },
       ),
     );
   }
 }
-

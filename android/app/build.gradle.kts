@@ -37,6 +37,10 @@ android {
         versionName = flutter.versionName
     }
 
+    buildFeatures {
+        aidl = true
+        buildConfig = true
+    }
 
     signingConfigs {
         create("release") {
@@ -71,4 +75,8 @@ flutter {
 
 dependencies {
     implementation("com.android.billingclient:billing-ktx:6.2.0")
+
+    implementation(files("libs/aidl-release.aar"))
+    implementation(files("libs/api-release.aar"))
+    implementation(files("libs/provider-release.aar"))
 }

@@ -46,6 +46,8 @@ class RingPainter extends CustomPainter {
 }
 
 class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
+  static const _vpnGrantedKey = 'vpn_permission_granted';
+
   bool rtpEnabled = false;
   bool networkEnabled = false;
   bool vpnConflict = false;
@@ -63,9 +65,19 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
   }
 
   Future<bool> _requestVpnPermission() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_vpnGrantedKey) == true) {
+      return true;
+    }
+
     const chan = MethodChannel("cs_vpn_permission");
-    final ok = await chan.invokeMethod<bool>("prepareVpn");
-    return ok == true;
+    final ok = await chan.invokeMethod<bool>("prepareVpn") == true;
+
+    if (ok) {
+      await prefs.setBool(_vpnGrantedKey, true);
+    }
+
+    return ok;
   }
 
   @override

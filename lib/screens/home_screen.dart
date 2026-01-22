@@ -11,7 +11,7 @@ import '../services/update_service.dart';
 import '../utils/animated_route.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'exclusions/exclusion_manager_screen.dart';
-import 'scan_screen.dart';
+import 'scan_ui_screen.dart';
 import '../services/service_manager.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
@@ -588,7 +588,18 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     const SizedBox(height: 14),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(Icons.shield_rounded),
+                      leading: const Icon(Icons.storage_rounded),
+                      title: const Text('Full Device Scan'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          animatedRoute(const ScanScreen(startMode: ScanMode.full)),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.manage_search_rounded),
                       title: const Text('Smart Scan'),
                       onTap: () {
                         Navigator.pop(context);

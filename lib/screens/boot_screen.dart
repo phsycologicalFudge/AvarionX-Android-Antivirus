@@ -109,16 +109,17 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                   final scale = 1.0 + (_pulseController.value * 0.05);
                   return Transform.scale(
                     scale: scale,
-                    child: ClipOval(
-                      child: SizedBox(
-                        width: 80,
-                        height: 80,
+                    child: SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: ClipOval(
+                        clipBehavior: Clip.antiAlias,
                         child: Image.asset(
                           (context.watch<ThemeManager>().themeName == 'white' ||
                               context.watch<ThemeManager>().themeName == 'emerald')
                               ? 'assets/images/logo_light.png'
                               : 'assets/images/logo_dark.png',
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),

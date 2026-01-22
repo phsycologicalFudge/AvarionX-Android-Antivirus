@@ -2,6 +2,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 
+bool enableScanLogs = true;
+
 typedef ScanLogFn = void Function(String msg);
 ScanLogFn? scanLogSink;
 
@@ -121,7 +123,9 @@ class AntivirusBridge {
     _setScanCallback =
         _lib.lookupFunction<SetScanCbNative, SetScanCbDart>('set_scan_callback');
     try {
-      _setScanCallback(_scanLogPtr);
+      if (enableScanLogs) {
+        _setScanCallback(_scanLogPtr);
+      }
     } catch (_) {}
   }
 

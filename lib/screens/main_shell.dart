@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/footer_nav.dart';
 import 'terminal_screen.dart';
 import 'home_screen.dart';
-import 'scan_screen.dart';
+import 'scan_ui_screen.dart';
 import 'settings/settings_screen.dart';
 import 'quarantine/quarantine_screen.dart';
 

@@ -21,8 +21,6 @@ AvarionX Security is an ad-free antivirus app for Android, offering all the paid
   Available on Google Play (10,000+ installs)
 </p>
 
----
-
 ## Overview
 
 AvarionX helps you scan files and apps on your device for known malware using a local scanning engine and optional cloud-assisted threat intelligence.
@@ -37,8 +35,6 @@ AvarionX helps you scan files and apps on your device for known malware using a 
 
 The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
 
----
-
 ### Detection model
 
 AvarionX uses a dual detection model:
@@ -50,25 +46,24 @@ AvarionX uses a dual detection model:
   A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.
   No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 
----
-
 ## Download
 
 Get the latest APK from GitHub Releases:
 
 https://github.com/phsycologicalFudge/ColourSwift_AV/releases
 
----
-
 ## Screenshots
 
-<p float="left">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/1.jpg" width="240">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/2.jpg" width="240">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/3.jpg" width="240">
-</p>
+<div align="center">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/1.jpg" width="220">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/2.jpg" width="220">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/3.jpg" width="220">
+  <br><br>
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/4.jpg" width="220">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/5.jpg" width="220">
+  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/6.jpg" width="220">
+</div>
 
----
 
 ## Privacy
 
@@ -76,8 +71,6 @@ https://github.com/phsycologicalFudge/ColourSwift_AV/releases
 - Files are never uploaded as cloud checks use hashes only  
 - No user accounts  
 - No tracking or analytics  
-
----
 
 ## Open source status
 
@@ -88,35 +81,5 @@ A trimmed reference file is provided for transparency:
 
 https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/main/jniLibs/trimmed_Engine.rs
 
----
-
-## Engine usage by other developers [INACTIVE]
-
-Developers are allowed to use VX-Titanium (the engine) in their own Android apps.
-
-This is permitted under the following conditions:
-
-- The engine must be accessed through the provided bridge interface
-- Malware database updates must follow the official update format
-- The engine must be credited by name in the app
-- The app must clearly state that it is not affiliated with ColourSwift
-- The client side code must be publically visible. 
-- The engine may not be claimed as original work
-- Developers are responsible for integrating and updating the engine in their own app
-
-Detailed terms are available in `ENGINE_LICENSE.md`.
-
-## Commercial licensing [INACTIVE]
-
-VX-Titanium will be available under alternative commercial licensing terms for
-organisations that require closed-source integration, custom distribution,
-or enterprise support.
-
-Commercial licensing is not covered by this repository or by
-ENGINE_LICENSE.md.
-
-For commercial enquiries, contact:
-support@colourswift.com
-
-Join the discord!
+## Join the discord!
 https://discord.gg/VYubQJfcYM

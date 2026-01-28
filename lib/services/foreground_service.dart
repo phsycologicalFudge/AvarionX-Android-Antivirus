@@ -6,7 +6,7 @@ class ForegroundService {
   static const _channel = MethodChannel('colourswift/foreground_service');
 
   static Future<void> start({
-    String title = 'CS Security',
+    String title = 'AvarionX Security',
     String text = 'Realtime protection active',
   }) async {
     try {

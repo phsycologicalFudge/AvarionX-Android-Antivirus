@@ -19,6 +19,7 @@ import '../utils/hash_cache_worker.dart';
 import '../utils/worker_hash_isolate.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'exclusions/exclusion_manager_screen.dart';
+import 'main_shell.dart';
 
 @pragma('vm:entry-point')
 void fullDeviceScanEntry(List<dynamic> args) {
@@ -152,7 +153,7 @@ class LogBuffer {
 
   static void add(String msg) {
     final now = DateTime.now();
-    final time = "${now.hour}:${now.minute}:${now.second}";
+    final time = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
     _messages.add('[$time] $msg');
     if (_messages.length > 300) _messages.removeAt(0);
 
@@ -386,8 +387,10 @@ class _ScanScreenState extends State<ScanScreen>
   final ScrollController _logScroll = ScrollController();
 
   bool cancelled = false;
+  bool cancellingUi = false;
   int scanned = 0;
   int total = 0;
+  int fullCleanCount = 0;
   String currentFile = '';
   List<String> clean = [];
   List<DetectionResult> infected = [];
@@ -455,30 +458,6 @@ class _ScanScreenState extends State<ScanScreen>
     });
   }
 
-  void _showCloudInfo() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Cloud Scan Info'),
-          content: const Text(
-            'When cloud-assisted scanning is enabled, only two cryptographic hashes are sent per file:\n\n'
-                ' • MD5\n'
-                ' • SHA-256\n\n'
-                'No filenames, file contents, or personal data are uploaded.\n'
-                'These hashes are compared against known threats in the ColourSwift database.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -526,8 +505,18 @@ class _ScanScreenState extends State<ScanScreen>
 
   double get progress => total == 0 ? 0 : scanned / total;
 
-  void _cancelScan() {
+  void _cancelScan() async {
+    if (cancelled || cancellingUi) return;
+
     cancelled = true;
+
+    if (mounted) {
+      setState(() {
+        cancellingUi = true;
+      });
+    }
+
+    await Future.delayed(const Duration(seconds: 2));
 
     _killWorker();
 
@@ -547,7 +536,16 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _finishToHome() {
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MainShell()),
+    );
   }
 
   Future<void> _checkAndStart(ScanMode m) async {
@@ -608,6 +606,7 @@ class _ScanScreenState extends State<ScanScreen>
       state = ScanState.scanning;
       scanned = 0;
       total = 0;
+      fullCleanCount = 0;
       currentFile = '';
       clean.clear();
       infected.clear();
@@ -686,6 +685,7 @@ class _ScanScreenState extends State<ScanScreen>
     worker.send([uiPort.sendPort, '/storage/emulated/0']);
 
     int localScanned = 0;
+    int doneCount = -1;
     final sw = Stopwatch()..start();
     String lastName = 'Scanning...';
 
@@ -738,6 +738,8 @@ class _ScanScreenState extends State<ScanScreen>
           break;
 
         case 'done':
+          final c = msg['count'];
+          if (c is int) doneCount = c;
           try {
             uiPort.close();
           } catch (_) {}
@@ -757,12 +759,14 @@ class _ScanScreenState extends State<ScanScreen>
 
     if (!mounted || cancelled) return;
 
-    if (mounted) {
-      setState(() {
-        scanned = localScanned;
-        currentFile = lastName;
-      });
-    }
+    final finalScanned = doneCount >= 0 ? doneCount : localScanned;
+
+    setState(() {
+      scanned = finalScanned;
+      total = finalScanned;
+      fullCleanCount = (finalScanned - infected.length).clamp(0, finalScanned);
+      currentFile = lastName;
+    });
 
     await CacheManager.clearAll();
 
@@ -888,7 +892,10 @@ class _ScanScreenState extends State<ScanScreen>
 
     if (useCloudScan) {
       LogBuffer.add('[CLOUD] Sending MD5=$md5h and SHA256=$sha to cloud');
-      final hits = await cloudScanner.checkBatch([if (md5h.isNotEmpty) md5h, if (sha.isNotEmpty) sha]);
+      final hits = await cloudScanner.checkBatch([
+        if (md5h.isNotEmpty) md5h,
+        if (sha.isNotEmpty) sha,
+      ]);
 
       if (hits.isNotEmpty) {
         infectedFlag = true;
@@ -1039,14 +1046,6 @@ class _ScanScreenState extends State<ScanScreen>
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.cloud_rounded),
-                title: const Text('Cloud scan info'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showCloudInfo();
-                },
-              ),
             ],
           ),
         );
@@ -1123,7 +1122,10 @@ class _ScanScreenState extends State<ScanScreen>
       } catch (_) {}
 
       if (md5h.isNotEmpty || sha.isNotEmpty) {
-        final hits = await cloudScanner.checkBatch([if (md5h.isNotEmpty) md5h, if (sha.isNotEmpty) sha]);
+        final hits = await cloudScanner.checkBatch([
+          if (md5h.isNotEmpty) md5h,
+          if (sha.isNotEmpty) sha,
+        ]);
         if (hits.isNotEmpty) {
           infectedFlag = true;
           infected.add(
@@ -1221,7 +1223,10 @@ class _ScanScreenState extends State<ScanScreen>
             final sha = hashes['sha'] ?? '';
 
             if (md5h.isNotEmpty || sha.isNotEmpty) {
-              final hits = await cloudScanner.checkBatch([if (md5h.isNotEmpty) md5h, if (sha.isNotEmpty) sha]);
+              final hits = await cloudScanner.checkBatch([
+                if (md5h.isNotEmpty) md5h,
+                if (sha.isNotEmpty) sha,
+              ]);
               if (hits.isNotEmpty) {
                 infectedFlag = true;
                 infected.add(
@@ -1350,6 +1355,7 @@ class _ScanScreenState extends State<ScanScreen>
     final worker = await _ensureWorker();
 
     final sw = Stopwatch()..start();
+    final int flushEvery = mode == ScanMode.rapid ? 1 : 6;
     final List<String> pendingLogs = [];
     String lastName = '';
 
@@ -1371,6 +1377,8 @@ class _ScanScreenState extends State<ScanScreen>
           });
         }
       }
+
+      pendingLogs.add('[SCAN] $name');
 
       bool infectedFlag = false;
 
@@ -1426,7 +1434,7 @@ class _ScanScreenState extends State<ScanScreen>
         pendingLogs.add('[CLEAN] $name');
       }
 
-      if (pendingLogs.length >= 6 || i == files.length - 1) {
+      if (pendingLogs.length >= flushEvery || i == files.length - 1) {
         for (final l in pendingLogs) {
           LogBuffer.add(l);
         }
@@ -1473,115 +1481,213 @@ class _ScanScreenState extends State<ScanScreen>
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: null,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            ScanState.scanning => _buildScanning(theme, text),
-            ScanState.result => _buildResult(theme, text),
-            ScanState.empty => _buildEmpty(theme, text),
-            ScanState.idle => const SizedBox.shrink(),
-          },
-        ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: switch (state) {
+                ScanState.scanning => _buildScanning(context),
+                ScanState.result => _buildResult(context),
+                ScanState.empty => _buildEmpty(context),
+                ScanState.idle => const SizedBox.shrink(),
+              },
+            ),
+          ),
+          if (cancellingUi)
+            Positioned.fill(
+              child: AbsorbPointer(
+                child: ColoredBox(
+                  color: theme.colorScheme.scrim.withOpacity(0.55),
+                  child: Center(
+                    child: Card(
+                      elevation: 0,
+                      color: theme.colorScheme.surfaceContainerHigh,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 3),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Cancelling scan…',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: theme.colorScheme.onSurface.withOpacity(0.9),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildScanning(ThemeData theme, TextTheme text) {
-    final color = switch (mode) {
-      ScanMode.smart => Colors.greenAccent,
-      ScanMode.rapid => Colors.amberAccent,
-      ScanMode.installed => Colors.purpleAccent,
-      ScanMode.full => Colors.redAccent,
-      _ => theme.colorScheme.primary,
+  Color _modeAccent(ColorScheme scheme) {
+    return switch (mode) {
+      ScanMode.smart => scheme.tertiary,
+      ScanMode.rapid => scheme.secondary,
+      ScanMode.installed => scheme.primary,
+      ScanMode.full => scheme.error,
+      ScanMode.single => scheme.primary,
+      _ => scheme.primary,
     };
+  }
 
-    final icon = switch (mode) {
+  IconData _modeIcon() {
+    return switch (mode) {
       ScanMode.smart => Icons.shield_rounded,
       ScanMode.rapid => Icons.bolt_rounded,
       ScanMode.installed => Icons.apps_rounded,
       ScanMode.full => Icons.storage_rounded,
+      ScanMode.single => Icons.insert_drive_file_rounded,
       _ => Icons.shield_rounded,
     };
+  }
+
+  String _modeTitle() {
+    return switch (mode) {
+      ScanMode.smart => 'Smart Scan',
+      ScanMode.rapid => 'Rapid Scan',
+      ScanMode.installed => 'Scan Installed Apps',
+      ScanMode.full => 'Full Device Scan',
+      ScanMode.single => 'Single Scan',
+      _ => 'Scan',
+    };
+  }
+
+  Widget _buildScanning(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    final accent = _modeAccent(scheme);
+    final icon = _modeIcon();
+
+    final pct = mode == ScanMode.full
+        ? ''
+        : '${(progress * 100).clamp(0.0, 100.0).toStringAsFixed(0)}%';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
-        _glowIcon(icon, color),
-        const SizedBox(height: 24),
+        const SizedBox(height: 10),
+        _glowIcon(icon, accent),
+        const SizedBox(height: 18),
+        Text(
+          _modeTitle(),
+          style: text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: scheme.onSurface.withOpacity(0.92),
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
         if (mode == ScanMode.full)
           Text(
             'Scanned: $scanned items',
-            style: text.bodySmall?.copyWith(color: Colors.white70),
+            style: text.bodySmall?.copyWith(
+              color: scheme.onSurface.withOpacity(0.72),
+            ),
+          )
+        else
+          Text(
+            total <= 0 ? 'Progress: 0%' : 'Progress: $pct ($scanned / $total)',
+            style: text.bodySmall?.copyWith(
+              color: scheme.onSurface.withOpacity(0.72),
+            ),
           ),
         const SizedBox(height: 8),
         Text(
           currentFile,
           textAlign: TextAlign.center,
-          style: text.bodySmall?.copyWith(color: Colors.white70),
+          style: text.bodySmall?.copyWith(
+            color: scheme.onSurface.withOpacity(0.68),
+            height: 1.25,
+          ),
         ),
-        const SizedBox(height: 20),
-        LinearProgressIndicator(
-          value: mode == ScanMode.full ? null : progress,
-          color: color,
-          backgroundColor: color.withOpacity(0.1),
-          minHeight: 6,
-          borderRadius: BorderRadius.circular(10),
+        const SizedBox(height: 16),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: LinearProgressIndicator(
+            value: mode == ScanMode.full ? null : progress,
+            minHeight: 8,
+          ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         if (mode == ScanMode.full)
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white24),
+          Card(
+            elevation: 0,
+            color: scheme.surfaceContainerHighest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: scheme.outlineVariant.withOpacity(0.35)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Full Device Scan',
-                  style: text.bodyMedium?.copyWith(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.w700,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Full Device Scan',
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: scheme.error,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'This mode does not support cloud assisted scanning, or app scanning currently.\n'
-                      'It scans every file available in your storage, unfiltered unlike smart scan.\n\n'
-                      'Future updates might add support for cloud mode and app scanning.',
-                  style: text.bodySmall?.copyWith(color: Colors.white70),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    'This mode scans every readable file in storage, unfiltered.\n\n'
+                        'Cloud-assisted scanning and app scanning are not used in this mode.',
+                    style: text.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.72),
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         else
           SizedBox(
-            height: 180,
-            child: _logBox(),
+            height: 190,
+            child: _logBox(context),
           ),
-        const SizedBox(height: 20),
-
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 8,
-            ),
+        const Spacer(),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 6),
             child: TextButton.icon(
               onPressed: _cancelScan,
-              icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
-              label: const Text(
+              icon: Icon(Icons.close_rounded, color: scheme.error),
+              label: Text(
                 'Cancel Scan',
                 style: TextStyle(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.w600,
+                  color: scheme.error,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
           ),
+        ),
       ],
     );
   }
@@ -1605,181 +1711,196 @@ class _ScanScreenState extends State<ScanScreen>
     }
   }
 
-  Widget _buildResult(ThemeData theme, TextTheme text) {
-    final accent = switch (mode) {
-      ScanMode.smart => Colors.greenAccent,
-      ScanMode.single => Colors.blueAccent,
-      ScanMode.rapid => Colors.amberAccent,
-      ScanMode.installed => Colors.purpleAccent,
-      _ => theme.colorScheme.primary,
-    };
+  Widget _buildResult(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
 
     final hasThreats = infected.isNotEmpty;
 
+    final accent = hasThreats ? scheme.error : _modeAccent(scheme);
+    final headerIcon = hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded;
+
+    final cleanCount = mode == ScanMode.full ? fullCleanCount : clean.length;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
-          _glowIcon(
-            hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded,
-            hasThreats ? Colors.orangeAccent : accent,
-          ),
-          const SizedBox(height: 25),
+          _glowIcon(headerIcon, accent),
+          const SizedBox(height: 16),
           Text(
             'Scan Complete',
             style: text.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: accent,
+              fontWeight: FontWeight.w900,
+              color: scheme.onSurface.withOpacity(0.95),
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
-          Text(
-            hasThreats ? 'Suspicious: ${infected.length}' : 'Clean: ${clean.length}',
-            style: text.bodyMedium?.copyWith(
-              color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: hasThreats
-                    ? Colors.orangeAccent.withOpacity(0.4)
-                    : Colors.greenAccent.withOpacity(0.4),
-                width: 1,
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
+            children: [
+              _pill(
+                context,
+                icon: Icons.shield_rounded,
+                label: _modeTitle(),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  hasThreats
-                      ? (mode == ScanMode.installed ? 'Suspicious apps' : 'Suspicious files')
-                      : 'Your device looks safe',
-                  style: text.titleSmall?.copyWith(
-                    color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
-                    fontWeight: FontWeight.w700,
-                  ),
+              _pill(
+                context,
+                icon: hasThreats ? Icons.warning_amber_rounded : Icons.check_circle_rounded,
+                label: hasThreats ? 'Suspicious: ${infected.length}' : 'Clean: $cleanCount',
+                tint: hasThreats ? scheme.error : scheme.tertiary,
+              ),
+              if (mode == ScanMode.full)
+                _pill(
+                  context,
+                  icon: Icons.storage_rounded,
+                  label: 'Scanned: $scanned',
                 ),
-                const SizedBox(height: 10),
-                if (hasThreats)
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: infected.length,
-                    itemBuilder: (context, i) {
-                      final d = infected[i];
-                      final pct = (d.confidence * 100).round();
-
-                      return ExpansionTile(
-                        tilePadding: EdgeInsets.zero,
-                        leading: const Icon(
-                          Icons.warning_amber_rounded,
-                          size: 18,
-                          color: Colors.orangeAccent,
-                        ),
-                        title: Text(
-                          d.name,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        subtitle: Text(
-                          d.label,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.orangeAccent,
-                          ),
-                        ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 36, bottom: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Confidence: $pct%',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.orangeAccent,
-                                  ),
-                                ),
-                                Text(
-                                  _explainLabel(d.label),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                if (!hasThreats)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      'No threats detected in scanned items.',
-                      style: text.bodySmall?.copyWith(color: Colors.grey),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 0,
+            color: scheme.surfaceContainerHighest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hasThreats
+                        ? (mode == ScanMode.installed ? 'Suspicious apps' : 'Suspicious items')
+                        : 'No threats detected',
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: hasThreats ? scheme.error : scheme.tertiary,
                     ),
                   ),
-              ],
+                  if (hasThreats)
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: infected.length,
+                      itemBuilder: (context, i) {
+                        final d = infected[i];
+                        final pct = (d.confidence * 100).round();
+
+                        return Theme(
+                          data: theme.copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            childrenPadding: const EdgeInsets.only(bottom: 10),
+                            dense: true,
+                            visualDensity: const VisualDensity(vertical: -4),
+                            leading: Icon(
+                              Icons.warning_amber_rounded,
+                              size: 18,
+                              color: scheme.error,
+                            ),
+                            title: Text(
+                              d.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: Text(
+                              d.label,
+                              style: text.bodySmall?.copyWith(
+                                color: scheme.error.withOpacity(0.9),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: _pill(
+                                  context,
+                                  label: 'Confidence: $pct%',
+                                  tint: scheme.error,
+                                ),
+                              ),
+                              Text(
+                                _explainLabel(d.label),
+                                style: text.bodySmall?.copyWith(
+                                  color: scheme.onSurface.withOpacity(0.72),
+                                  height: 1.35,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  else
+                    Text(
+                      'No threats detected in scanned items.',
+                      style: text.bodySmall?.copyWith(
+                        color: scheme.onSurface.withOpacity(0.7),
+                        height: 1.35,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _finishToHome,
-            child: const Text('Return Home'),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _finishToHome,
+              child: const Text('Return Home'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmpty(ThemeData theme, TextTheme text) {
+  Widget _buildEmpty(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
     return Center(
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.info_outline_rounded,
                 size: 60,
-                color: Colors.blueAccent,
+                color: scheme.primary,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 'No vulnerable files to scan',
                 style: text.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.w900,
+                  color: scheme.onSurface.withOpacity(0.92),
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               Text(
                 'Your device did not contain any files matching the scan criteria.',
-                style: text.bodySmall?.copyWith(color: Colors.grey),
+                style: text.bodySmall?.copyWith(
+                  color: scheme.onSurface.withOpacity(0.7),
+                  height: 1.35,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 30),
-              ElevatedButton(
+              const SizedBox(height: 18),
+              FilledButton(
                 onPressed: _finishToHome,
                 child: const Text('Return Home'),
               ),
@@ -1790,33 +1911,79 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _logBox() {
-    return Container(
-      height: 160,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.black12,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white24),
+  Widget _logBox(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    return Card(
+      elevation: 0,
+      color: scheme.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: ValueListenableBuilder(
-        valueListenable: LogBuffer.notifier,
-        builder: (context, _, __) {
-          return ListView.builder(
-            controller: _logScroll,
-            itemCount: LogBuffer.all.length,
-            itemBuilder: (context, i) {
-              return Text(
-                LogBuffer.all[i],
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white70,
-                  height: 1.2,
-                ),
-              );
-            },
-          );
-        },
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: ValueListenableBuilder(
+          valueListenable: LogBuffer.notifier,
+          builder: (context, _, __) {
+            return ListView.builder(
+              controller: _logScroll,
+              itemCount: LogBuffer.all.length,
+              itemBuilder: (context, i) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    LogBuffer.all[i],
+                    style: text.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.72),
+                      height: 1.2,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _pill(
+      BuildContext context, {
+        IconData? icon,
+        required String label,
+        Color? tint,
+      }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    final c = tint ?? scheme.primary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 16, color: c),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            label,
+            style: text.labelMedium?.copyWith(
+              color: scheme.onSurface.withOpacity(0.82),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1825,29 +1992,30 @@ class _ScanScreenState extends State<ScanScreen>
     return AnimatedBuilder(
       animation: _pulse,
       builder: (context, child) {
-        final glow = 0.4 + (_pulse.value * 0.5);
-        final scale = 1.0 + (_pulse.value * 0.1);
+        final glow = 0.35 + (_pulse.value * 0.55);
+        final scale = 1.0 + (_pulse.value * 0.08);
+
         return Transform.scale(
           scale: scale,
           child: Container(
-            width: 100,
-            height: 100,
+            width: 96,
+            height: 96,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: color.withOpacity(glow),
-                  blurRadius: 45,
+                  blurRadius: 38,
                   spreadRadius: 10,
                 ),
               ],
               gradient: LinearGradient(
-                colors: [color.withOpacity(0.3), color.withOpacity(0.05)],
+                colors: [color.withOpacity(0.22), color.withOpacity(0.06)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Icon(icon, size: 55, color: color),
+            child: Icon(icon, size: 54, color: color),
           ),
         );
       },

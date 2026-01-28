@@ -241,7 +241,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                 'malicious servers or redirecting internet traffic.\n'
                 'Network Protection blocks known dangerous domains & common ads by using '
                 'a local VPN.\n\n'
-                'CS Security does not collect any data.',
+                'AvarionX Security does not collect any data.',
             style: text.bodySmall?.copyWith(
               color: text.bodySmall?.color?.withOpacity(0.8),
               height: 1.35,
@@ -316,7 +316,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                 title: 'Malware Blocking Only',
                 subtitle: 'Uses 1.1.1.2',
                 description:
-                'Combines CS Security’s local malware database with Cloudflare’s online threat intelligence '
+                'Combines AvarionX’s local malware database with Cloudflare’s online threat intelligence '
                     'for maximum malware protection.',
                 selected: dnsMode == 'malware',
                 enabled: networkEnabled,
@@ -326,7 +326,7 @@ class _NetworkProtectionScreenState extends State<NetworkProtectionScreen> {
                 title: 'Malware & Adult Content',
                 subtitle: 'Uses 1.1.1.3',
                 description:
-                'Uses CS Security’s offline malware database and adds adult content filtering. '
+                'Uses AvarionX’s offline malware database and adds adult content filtering. '
                     'Cloud-based malware intelligence is disabled in this mode.',
                 selected: dnsMode == 'adult',
                 enabled: networkEnabled,

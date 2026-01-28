@@ -10,12 +10,15 @@ import '../services/realtime_protection_service.dart';
 import '../services/update_service.dart';
 import '../utils/animated_route.dart';
 import '../widgets/antivirus_bridge.dart';
-import 'exclusions/exclusion_manager_screen.dart';
+import 'link checker/link_check_screen.dart';
 import 'scan_ui_screen.dart';
 import '../services/service_manager.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import '../widgets/update_log.dart';
+import '../services/launch_flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
@@ -50,10 +53,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   late AnimationController _pulseController;
   late Animation<double> _pulseAnim;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static const String _autoUpdateKey = 'defs_auto_update_enabled';
 
   bool _pressed = false;
+  bool _updateLogShown = false;
 
   Future<void> _loadShizukuRtpState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -129,6 +132,33 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      final flags = Provider.of<LaunchFlags>(context, listen: false);
+      if (flags.showUpdateLog != true) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'update_log_shown_${flags.currentVersion}';
+
+      if (prefs.getBool(key) == true) return;
+
+      await prefs.setBool(key, true);
+
+      await showUpdateLogDialog(
+        context,
+        data: UpdateLogData(
+          version: flags.currentVersion.isEmpty ? version : flags.currentVersion,
+          changes: const [
+            'Improved scanning speed',
+            'Revamped the old UI completely',
+            'Added Link Checker in the explore tab',
+            'Added Full Device Scanning (A bit limited currently)',
+          ],
+        ),
+      );
+    });
+
     SharedPreferences.getInstance().then((prefs) {
       if (!(prefs.getBool('defs_auto_update_enabled') ?? false)) {
         prefs.setBool('defs_auto_update_enabled', true);
@@ -191,47 +221,34 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         final theme = Theme.of(context);
         final text = theme.textTheme;
 
-        return Dialog(
-          backgroundColor: theme.cardColor.withOpacity(0.92),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surfaceContainerHigh,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Realtime Protection',
-                  style: text.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Along with blocking suspicious files downloaded intentionally (or by malware), RTP uses a local VPN to block malicious domains system-wide.\n\n'
-                      'When enabled, network filtering remains active unless:\n'
-                      '• Disabled manually via Terminal\n'
-                      '• Replaced by another VPN\n\n'
-                      'File protection continues regardless as long as RTP is enabled.',
-                  style: text.bodySmall?.copyWith(
-                    height: 1.4,
-                    color: text.bodySmall?.color?.withOpacity(0.85),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('OK'),
-                  ),
-                ),
-              ],
+          title: Text(
+            'Realtime Protection',
+            style: text.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
+          content: Text(
+            'Along with blocking suspicious files downloaded intentionally (or by malware), RTP uses a local VPN to block malicious domains system-wide.\n\n'
+                'When enabled, network filtering remains active unless:\n'
+                '• Disabled manually via Terminal\n'
+                '• Replaced by another VPN\n\n'
+                'File protection continues regardless as long as RTP is enabled.',
+            style: text.bodySmall?.copyWith(
+              height: 1.4,
+              color: text.bodySmall?.color?.withOpacity(0.85),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
         );
       },
     );
@@ -250,7 +267,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       builder: (context) {
         final theme = Theme.of(context);
         final text = theme.textTheme;
-        final isDark = theme.brightness == Brightness.dark;
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -309,19 +325,16 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               }
             });
 
+            final sheetTheme = Theme.of(context);
+
             return Padding(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.cardColor.withOpacity(isDark ? 0.92 : 0.96),
+              child: Card(
+                color: sheetTheme.colorScheme.surfaceContainerHigh,
+                elevation: 10,
+                shadowColor: Colors.black.withOpacity(0.35),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.45 : 0.15),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
@@ -332,7 +345,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         children: [
                           Icon(
                             Icons.system_update_rounded,
-                            color: theme.colorScheme.primary,
+                            color: sheetTheme.colorScheme.primary,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -345,9 +358,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 6),
-
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -357,24 +368,20 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
                           backgroundColor:
-                          theme.colorScheme.onSurface.withOpacity(0.12),
+                          sheetTheme.colorScheme.onSurface.withOpacity(0.12),
                           valueColor: AlwaysStoppedAnimation(
-                            theme.colorScheme.primary,
+                            sheetTheme.colorScheme.primary,
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       Text(
                         '${(progress * 100).toStringAsFixed(0)}%',
                         style: text.bodySmall?.copyWith(
@@ -382,9 +389,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           letterSpacing: 0.3,
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       Row(
                         children: [
                           Switch(
@@ -564,14 +569,14 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
-      backgroundColor: theme.cardColor,
+      backgroundColor: theme.colorScheme.surfaceContainerHigh,
       builder: (context) {
         bool localCloudScan = useCloudScan;
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
             return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.55,
+              height: MediaQuery.of(context).size.height * 0.80,
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
@@ -586,10 +591,18 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Divider(height: 1),
+                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
                     ListTile(
                       leading: const Icon(Icons.storage_rounded),
                       title: const Text('Full Device Scan'),
+                      subtitle: Text(
+                        'Scans all readable storage files.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: text.bodySmall?.color?.withOpacity(0.65),
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -600,7 +613,15 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_search_rounded),
-                      title: const Text('Smart Scan'),
+                      title: const Text('Smart Scan [Recommended]'),
+                      subtitle: Text(
+                        'Scans files that could contain malware.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: text.bodySmall?.color?.withOpacity(0.65),
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -612,6 +633,14 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ListTile(
                       leading: const Icon(Icons.bolt_rounded),
                       title: const Text('Rapid Scan'),
+                      subtitle: Text(
+                        'Checks recent APKs in Downloads.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: text.bodySmall?.color?.withOpacity(0.65),
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -623,6 +652,14 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ListTile(
                       leading: const Icon(Icons.apps_rounded),
                       title: const Text('Installed Apps'),
+                      subtitle: Text(
+                        'Scans your installed apps for threats.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: text.bodySmall?.color?.withOpacity(0.65),
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -634,6 +671,14 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ListTile(
                       leading: const Icon(Icons.insert_drive_file_rounded),
                       title: const Text('File / App Scan'),
+                      subtitle: Text(
+                        'Pick a file or app to scan.',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: text.bodySmall?.color?.withOpacity(0.65),
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -643,7 +688,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       },
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1),
+                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Row(
@@ -700,7 +745,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     return Icons.verified_user;
   }
 
-
   String _stateTitle() {
     if (!protectionEnabled) return 'Protection';
     if (vpnConflict) return 'Protection';
@@ -712,8 +756,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     if (shizukuRtpEnabled && protectionEnabled) {
       return 'Advanced protection is active';
     }
-    if (!networkEnabled || vpnConflict) return 'Partial protection enabled';
-    return 'Your device is fully protected';
+    if (!networkEnabled || vpnConflict) return 'File Protection Only';
+    return 'Device Protected';
   }
 
   String _stateLine2() {
@@ -752,19 +796,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       borderRadius: BorderRadius.circular(7),
                     ),
                     child: const Text(
-                      'SPONSOR',
+                      'PRO',
                       style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],
               ],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () {
-              _scaffoldKey.currentState?.openEndDrawer();
-            },
           ),
         ],
       ),
@@ -778,7 +816,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Drawer(
-        backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.92),
+        backgroundColor: theme.colorScheme.surfaceContainerLow,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -794,7 +832,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               ),
               Divider(
                 height: 1,
-                color: theme.colorScheme.onSurface.withOpacity(0.18),
+                color: theme.colorScheme.outlineVariant,
               ),
               _drawerItem(
                 context,
@@ -829,6 +867,18 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                   Navigator.push(
                     context,
                     animatedRoute(const CleanerScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.link_rounded,
+                label: 'Link Checker',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    animatedRoute(const LinkCheckScreen()),
                   );
                 },
               ),
@@ -874,7 +924,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           onTapDown: (_) => setState(() => _pressed = true),
           onTapUp: (_) => setState(() => _pressed = false),
           onTapCancel: () => setState(() => _pressed = false),
-          onTap: _toggleProtection,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            _toggleProtection();
+          },
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -893,12 +946,11 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                   scale: _pressed ? 0.94 : 1.0,
                   child: Icon(
                     _stateIcon(),
-                    size: 46,
+                    size: 60,
                     color: accent,
                   ),
                 ),
               ),
-
               if (shizukuRtpEnabled && protectionEnabled)
                 IgnorePointer(
                   child: SizedBox(
@@ -908,8 +960,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       animation: _pulseController,
                       builder: (_, __) {
                         final t = _pulseController.value;
-                        final opacity =
-                            0.35 + math.sin(t * math.pi * 2) * 0.25;
+                        final opacity = 0.35 + math.sin(t * math.pi * 2) * 0.25;
 
                         return CustomPaint(
                           painter: _RingPulsePainter(
@@ -983,17 +1034,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
             ),
           ),
         ),
-
-        const SizedBox(height: 10),
-        IconButton(
-          onPressed: _showRtpInfo,
-          icon: Icon(
-            Icons.info_outline_rounded,
-            size: 20,
-            color: theme.iconTheme.color?.withOpacity(0.65),
-          ),
-          splashRadius: 18,
-        ),
       ],
     );
   }
@@ -1024,77 +1064,65 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       }) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
 
-    final bg = theme.scaffoldBackgroundColor.withOpacity(isDark ? 0.35 : 0.6);
-    final border = theme.colorScheme.onSurface.withOpacity(isDark ? 0.10 : 0.08);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
+    return Card.outlined(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: border),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.28 : 0.06),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.16),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface.withOpacity(0.88),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      description,
+                      style: text.bodySmall?.copyWith(
+                        height: 1.35,
+                        color: text.bodySmall?.color?.withOpacity(0.72),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: theme.iconTheme.color?.withOpacity(0.55),
+                ),
               ),
             ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.16),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: color, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: theme.colorScheme.onSurface.withOpacity(0.88),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        description,
-                        style: text.bodySmall?.copyWith(
-                          height: 1.35,
-                          color: text.bodySmall?.color?.withOpacity(0.72),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Icon(
-                    Icons.chevron_right_rounded,
-                    size: 22,
-                    color: theme.iconTheme.color?.withOpacity(0.55),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
@@ -1107,25 +1135,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: _buildSideDrawer(context),
-    backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Stack(
           children: [
             Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.18),
-                    isDark ? Colors.black : theme.scaffoldBackgroundColor,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
+              color: theme.colorScheme.surface,
             ),
-
             if (shizukuRtpEnabled && protectionEnabled)
               IgnorePointer(
                 child: Container(
@@ -1155,7 +1171,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     )
                   else
                     _buildTopBar(context),
-
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
                     child: Column(
@@ -1164,7 +1179,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: _buildSectionTitle(context, 'Quick Features'),
+                          child: _buildSectionTitle(context, 'Recommended'),
                         ),
                         const SizedBox(height: 6),
                         _buildFeatureRow(

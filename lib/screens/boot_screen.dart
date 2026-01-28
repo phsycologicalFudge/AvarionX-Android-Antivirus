@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/av_engine.dart';
 import 'main_shell.dart';
-import '../utils/defs_manager.dart';
-import '../services/update_service.dart';
 import 'package:provider/provider.dart';
 import '../services/theme_manager.dart';
 
@@ -21,7 +19,8 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
   late AnimationController _fadeOutController;
   late Timer _textTimer;
   int _currentIndex = 0;
-  bool _finished = false;
+
+  static const String _onboardingKey = 'onboarding_done_v2';
 
   final List<String> _messages = [
     'Preparing protection...',
@@ -46,12 +45,12 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
     );
 
     _textTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
       setState(() => _currentIndex = (_currentIndex + 1) % _messages.length);
     });
 
     _initEngine();
   }
-
 
   Future<void> _initEngine() async {
     await Future.delayed(const Duration(seconds: 2));
@@ -60,27 +59,22 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
     if (!mounted) return;
     await _fadeOutController.forward();
 
-    if (!mounted) return;
-    await _fadeOutController.forward();
-
     final prefs = await SharedPreferences.getInstance();
-    final firstLaunch = prefs.getBool('firstLaunch') ?? true;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final done = prefs.getBool(_onboardingKey) ?? false;
 
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (_, __, ___) =>
-          firstLaunch ? const PermissionsIntroScreen() : const MainShell(),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
-    }
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 500),
+        pageBuilder: (_, __, ___) =>
+        done ? const MainShell() : const PermissionsIntroScreen(),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
   }
-
 
   @override
   void dispose() {
@@ -116,7 +110,8 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                         clipBehavior: Clip.antiAlias,
                         child: Image.asset(
                           (context.watch<ThemeManager>().themeName == 'white' ||
-                              context.watch<ThemeManager>().themeName == 'emerald')
+                              context.watch<ThemeManager>().themeName ==
+                                  'emerald')
                               ? 'assets/images/logo_light.png'
                               : 'assets/images/logo_dark.png',
                           fit: BoxFit.cover,
@@ -127,7 +122,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                 },
               ),
               const SizedBox(height: 35),
-
               Text(
                 'AVarionX Security',
                 style: text.headlineSmall?.copyWith(
@@ -137,7 +131,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 20),
-
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 transitionBuilder: (child, animation) =>
@@ -152,8 +145,6 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 30),
-
-              // Copyright
               Text(
                 '© ColourSwift Technologies',
                 style: text.bodySmall?.copyWith(

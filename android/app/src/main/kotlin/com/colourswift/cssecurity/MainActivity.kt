@@ -366,17 +366,46 @@ class MainActivity : FlutterActivity() {
     private fun switchLauncherIcon(icon: String) {
         val pm = applicationContext.packageManager
 
-        val defAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconDefaultAlias")
-        val birdAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconBirdAlias")
-        val neonAlias = ComponentName(applicationContext, "com.colourswift.cssecurity.IconNeonAlias")
+        val defAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconDefaultAlias"
+        )
+
+        val birdAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconBirdAlias"
+        )
+
+        val neonAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconNeonAlias"
+        )
+
+        val axAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconAXAlias"
+        )
+
+        val avxAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconAVXAlias"
+        )
 
         val enable = when (icon) {
             "bird" -> birdAlias
             "neon" -> neonAlias
+            "ax" -> axAlias
+            "avx" -> avxAlias
             else -> defAlias
         }
 
-        val allAliases = listOf(defAlias, birdAlias, neonAlias)
+        val allAliases = listOf(
+            defAlias,
+            birdAlias,
+            neonAlias,
+            axAlias,
+            avxAlias
+        )
 
         for (alias in allAliases) {
             pm.setComponentEnabledSetting(

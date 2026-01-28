@@ -1,7 +1,7 @@
 name: colourswift_av
-description: CS Security - antivirus suite
+description: AvarionX Security - antivirus suite
 publish_to: "none"
-version: 3.0.3+11515
+version: 3.0.4+11517
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
@@ -40,6 +40,7 @@ dependencies:
   crypto: ^3.0.3
   workmanager: ^0.9.0+3
   battery_plus: ^6.0.2
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
@@ -55,16 +56,8 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
-    - assets/icons/logo.png
-    - assets/icons/logo3.png
-    - assets/images/logo.png
-    - assets/defs/defs.vxpack
-    - assets/defs/defs_key.bin
-    - assets/icons/ic_launcher_default.png
-    - assets/icons/ic_launcher_bird.png
-    - assets/images/logo_dark.png
-    - assets/images/logo_light.png
-    - assets/icons/ic_launcher_neon.png
+    - assets/icons/
+    - assets/images/
 
 flutter_launcher_icons:
   android: true

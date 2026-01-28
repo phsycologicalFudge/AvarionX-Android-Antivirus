@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart';
 import 'main_shell.dart';
+import 'scan_ui_screen.dart';
 
 class PermissionsIntroScreen extends StatefulWidget {
   const PermissionsIntroScreen({super.key});
@@ -16,6 +17,7 @@ class PermissionsIntroScreen extends StatefulWidget {
 class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
   final PageController _controller = PageController();
   int _page = 0;
+
   bool storageGranted = false;
   bool notifGranted = false;
   bool vpnGranted = false;
@@ -37,173 +39,221 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
             status = await Permission.manageExternalStorage.status;
           }
           granted = status.isGranted;
-        } catch (e) {
-          debugPrint('⚠️ Storage permission check failed: $e');
+        } catch (_) {
           await openAppSettings();
         }
       } else {
         final status = await Permission.storage.status;
-        if (!status.isGranted) {
-          granted = await Permission.storage.request().isGranted;
-        } else {
-          granted = true;
-        }
+        granted = status.isGranted || await Permission.storage.request().isGranted;
       }
     } else {
       granted = true;
     }
 
+    if (!mounted) return;
+
     setState(() => storageGranted = granted);
+
     if (!granted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission required for scanning.')),
+        const SnackBar(content: Text('Storage permission is required for scanning.')),
       );
     }
   }
 
   Future<void> _requestNotifications() async {
-    final status = await Permission.notification.request();
-    setState(() => notifGranted = status.isGranted);
+    try {
+      final status = await Permission.notification.request();
+      if (!mounted) return;
+      setState(() => notifGranted = status.isGranted);
+    } catch (_) {}
   }
 
-  Future<void> _finishSetup() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('firstLaunch', false);
-
-    if (context.mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainShell()),
-      );
+  Future<bool> _requestVpnPermission() async {
+    try {
+      const chan = MethodChannel("cs_vpn_permission");
+      final ok = await chan.invokeMethod<bool>("prepareVpn");
+      return ok == true;
+    } catch (_) {
+      return false;
     }
   }
 
-  Future<bool> requestVpnPermission() async {
-    const chan = MethodChannel("cs_vpn_permission");
-    final ok = await chan.invokeMethod<bool>("prepareVpn");
-    return ok == true;
+  Future<void> _completeOnboarding({required bool runFullScan}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done_v2', true);
+
+    if (!mounted) return;
+
+    if (runFullScan) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const ScanScreen(startMode: ScanMode.full),
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MainShell()),
+    );
+  }
+
+  void _next() {
+    if (_page >= 3) return;
+    _controller.nextPage(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _back() {
+    if (_page <= 0) return;
+    _controller.previousPage(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final text = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: scheme.surface,
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(width: 10),
-                Text('AVarionX Security',
-                    style: text.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: text.bodyLarge?.color)),
-              ],
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'AVarionX Security',
+                      style: text.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: scheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                children: List.generate(4, (i) {
+                  final active = i == _page;
+                  return Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      margin: EdgeInsets.only(right: i == 3 ? 0 : 8),
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: active ? scheme.primary : scheme.outlineVariant.withOpacity(0.45),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 14),
             Expanded(
               child: PageView(
                 controller: _controller,
                 onPageChanged: (i) => setState(() => _page = i),
                 children: [
-                  _buildSlide(
+                  _slide(
                     context,
                     icon: Icons.folder_rounded,
-                    title: 'Storage Access',
-                    desc:
-                    'To scan your device for threats, CS Security needs access to your storage. '
-                        'You can grant it now or later, but scanning will require it.',
+                    title: 'Storage access',
+                    desc: 'This permission is required to scan files on your device. You can grant this now or later.',
                     granted: storageGranted,
-                    buttonLabel: 'Grant Access',
-                    onPressed: _requestStorage,
+                    primaryLabel: storageGranted ? 'Granted' : 'Grant access',
+                    onPrimary: storageGranted ? null : _requestStorage,
+                    footnote: 'Skipping You can skip this, but you will be asked again when you choose a scan mode.',
                   ),
-                  _buildSlide(
+                  _slide(
                     context,
                     icon: Icons.notifications_active_rounded,
                     title: 'Notifications',
-                    desc:
-                    'Used for realtime alerts and updates when threats are detected or quarantined.',
+                    desc: 'Used for real time alerts, scan status, and quarantine updates.',
                     granted: notifGranted,
-                    buttonLabel: 'Allow Notifications',
-                    onPressed: _requestNotifications,
+                    primaryLabel: notifGranted ? 'Granted' : 'Allow notifications',
+                    onPrimary: notifGranted ? null : _requestNotifications,
+                    footnote: 'Required by Android for RealTime Protection.',
                   ),
-                  _buildSlide(
+                  _slide(
                     context,
                     icon: Icons.network_check_rounded,
-                    title: 'Network Protection',
-                    desc:
-                    'To enable Wi-Fi Protection, CS Security needs VPN permission. '
-                        'This does NOT create a real VPN or send traffic anywhere.',
+                    title: 'Network protection',
+                    desc: 'Enables Wi Fi protection using Androids VPN permission.',
                     granted: vpnGranted,
-                    buttonLabel: 'Allow VPN Access',
-                    onPressed: () async {
-                      final ok = await requestVpnPermission();
+                    primaryLabel: vpnGranted ? 'Granted' : 'Allow VPN access',
+                    onPrimary: vpnGranted
+                        ? null
+                        : () async {
+                      final ok = await _requestVpnPermission();
+                      if (!mounted) return;
                       setState(() => vpnGranted = ok);
                     },
+                    footnote: 'This is optional but recommended.',
                   ),
-                  _buildSlide(
-                    context,
-                    icon: Icons.check_circle_outline_rounded,
-                    title: 'Setup Complete',
-                    desc:
-                    'Everything’s ready! You can now start protecting your device with CS Security.',
-                    granted: true,
-                    buttonLabel: 'Finish Setup',
-                    onPressed: _finishSetup,
-                  ),
+                  _finishSlide(context),
                 ],
               ),
             ),
             Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (_page > 0)
                     TextButton(
-                      onPressed: () {
-                        _controller.previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
-                      },
+                      onPressed: _back,
+                      style: TextButton.styleFrom(
+                        foregroundColor: scheme.onSurface.withOpacity(0.8),
+                        backgroundColor: Colors.transparent,
+                        surfaceTintColor: Colors.transparent,
+                      ),
                       child: const Text('Back'),
                     )
                   else
-                    const SizedBox(width: 70),
-                  Row(
-                    children: List.generate(
-                      3,
-                          (i) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _page == i
-                              ? theme.colorScheme.primary
-                              : Colors.grey.withOpacity(0.4),
-                        ),
+                    const SizedBox(width: 72),
+                  const Spacer(),
+                  if (_page < 3)
+                    FilledButton(
+                      onPressed: _next,
+                      style: FilledButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
+                        surfaceTintColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
+                      child: const Text('Next'),
+                    )
+                  else
+                    FilledButton(
+                      onPressed: () => _completeOnboarding(runFullScan: false),
+                      style: FilledButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
+                        surfaceTintColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Finish'),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (_page < 2) {
-                        _controller.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
-                      } else {
-                        _finishSetup();
-                      }
-                    },
-                    child: Text(_page == 2 ? 'Finish' : 'Next/skip'),
-                  ),
                 ],
               ),
             ),
@@ -213,62 +263,158 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     );
   }
 
-  Widget _buildSlide(
+  Widget _finishSlide(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 10, 22, 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            size: 64,
+            color: scheme.tertiary,
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Setup complete',
+            style: text.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: scheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'We reccomend running a Full Device Scan (this does not scan installed apps currently), or go straight to the home screen.',
+            style: text.bodyMedium?.copyWith(
+              color: scheme.onSurface.withOpacity(0.78),
+              height: 1.35,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => _completeOnboarding(runFullScan: true),
+              style: FilledButton.styleFrom(
+                elevation: 0,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+                surfaceTintColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text('Run full device scan'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => _completeOnboarding(runFullScan: false),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.onSurface,
+                side: BorderSide.none,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text('Go to home'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _slide(
       BuildContext context, {
         required IconData icon,
         required String title,
         required String desc,
-        required String buttonLabel,
-        required VoidCallback onPressed,
         required bool granted,
+        required String primaryLabel,
+        required VoidCallback? onPrimary,
+        required String footnote,
       }) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final text = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
+
+    final iconColor = granted ? scheme.tertiary : scheme.primary;
+    final badgeText = granted ? 'Granted' : 'Not granted';
+    final badgeColor = granted ? scheme.tertiary : scheme.outline;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(22, 10, 22, 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon,
-              size: 90,
-              color:
-              granted ? Colors.greenAccent : theme.colorScheme.primary),
-          const SizedBox(height: 25),
-          Text(title,
-              style: text.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold, color: text.bodyLarge?.color)),
-          const SizedBox(height: 12),
+          Icon(icon, size: 68, color: iconColor),
+          const SizedBox(height: 16),
           Text(
-            desc,
-            style: text.bodyMedium
-                ?.copyWith(color: text.bodyMedium?.color?.withOpacity(0.8)),
+            title,
+            style: text.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: scheme.onSurface,
+            ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 25),
-          ElevatedButton.icon(
-            onPressed: onPressed,
-            icon: Icon(
-                granted
-                    ? Icons.check_rounded
-                    : Icons.arrow_forward_rounded,
-                color: Colors.white),
-            label: Text(
-              granted ? 'Granted' : buttonLabel,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+          const SizedBox(height: 10),
+          Text(
+            desc,
+            style: text.bodyMedium?.copyWith(
+              color: scheme.onSurface.withOpacity(0.78),
+              height: 1.35,
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: granted
-                  ? Colors.greenAccent
-                  : theme.colorScheme.primary,
-              foregroundColor:
-              isDark ? Colors.black : Colors.white,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 36, vertical: 14),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(999),
             ),
+            child: Text(
+              badgeText,
+              style: text.labelMedium?.copyWith(
+                color: badgeColor,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: onPrimary,
+              style: FilledButton.styleFrom(
+                elevation: 0,
+                backgroundColor: granted ? scheme.tertiary : scheme.primary,
+                foregroundColor: granted ? scheme.onTertiary : scheme.onPrimary,
+                surfaceTintColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: Text(primaryLabel),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            footnote,
+            style: text.bodySmall?.copyWith(
+              color: scheme.onSurface.withOpacity(0.62),
+              height: 1.25,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

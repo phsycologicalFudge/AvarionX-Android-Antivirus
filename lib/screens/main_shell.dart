@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/footer_nav.dart';
+import 'explore tab/explore_screen.dart';
 import 'terminal_screen.dart';
 import 'home_screen.dart';
 import 'scan_ui_screen.dart';
@@ -22,7 +23,7 @@ class _MainShellState extends State<MainShell> {
     switch (_active) {
       case 'scan':
         return 1;
-      case 'terminal':
+      case 'explore':
         return 2;
       case 'quarantine':
         return 3;
@@ -42,7 +43,7 @@ class _MainShellState extends State<MainShell> {
         children: [
           AvHomeScreen(key: _homeKey),
           const ScanScreen(),
-          ConsoleScreen(isActive: _active == 'terminal'),
+          const ExploreScreen(),
           QuarantineScreen(key: _quarantineKey),
           const SettingsScreen(),
         ],

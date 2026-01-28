@@ -20,6 +20,7 @@ class _ConsoleScreenState extends State<ConsoleScreen>
 
   final TextEditingController _input = TextEditingController();
   final ScrollController _scroll = ScrollController();
+  final FocusNode _focus = FocusNode();
 
   @override
   bool get wantKeepAlive => true;
@@ -44,10 +45,20 @@ class _ConsoleScreenState extends State<ConsoleScreen>
     if (cmd.isEmpty) return;
     _terminal.runCommand(cmd, _emit);
     _input.clear();
+    _focus.requestFocus();
+  }
+
+  void _runButton() {
+    final cmd = _input.text.trim();
+    if (cmd.isEmpty) return;
+    _terminal.runCommand(cmd, _emit);
+    _input.clear();
+    _focus.requestFocus();
   }
 
   @override
   void dispose() {
+    _focus.dispose();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -59,13 +70,13 @@ class _ConsoleScreenState extends State<ConsoleScreen>
 
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final bg = theme.scaffoldBackgroundColor;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: bg,
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: bg,
+        backgroundColor: scheme.surface,
+        surfaceTintColor: scheme.surfaceTint,
         elevation: 0,
         title: Text(
           "AX Security Terminal",
@@ -83,18 +94,17 @@ class _ConsoleScreenState extends State<ConsoleScreen>
         child: Column(
           children: [
             Expanded(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                color: bg,
-                child: ListView.builder(
-                  controller: _scroll,
-                  itemCount: _log.length,
-                  itemBuilder: (context, index) {
-                    final line = _log[index];
-                    final isPrompt = line.startsWith('AX@') || line.startsWith('>');
+              child: ListView.builder(
+                controller: _scroll,
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                itemCount: _log.length,
+                itemBuilder: (context, index) {
+                  final line = _log[index];
+                  final isPrompt = line.startsWith('AX@') || line.startsWith('>');
 
-                    return SelectableText(
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: SelectableText(
                       line,
                       style: TextStyle(
                         fontFamily: "monospace",
@@ -104,69 +114,97 @@ class _ConsoleScreenState extends State<ConsoleScreen>
                             ? scheme.primary
                             : theme.textTheme.bodyMedium?.color,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
-
-            Container(
-              color: theme.cardColor,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    ">",
-                    style: TextStyle(
-                      fontFamily: "monospace",
-                      fontSize: 12,
-                      color: scheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: TextField(
-                      controller: _input,
-                      maxLines: null,
-                      minLines: 1,
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.newline,
-                      style: TextStyle(
-                        fontFamily: "monospace",
-                        fontSize: 12,
-                        height: 1.3,
-                        color: theme.textTheme.bodyMedium?.color,
+            SafeArea(
+              top: false,
+              child: Material(
+                color: scheme.surfaceContainerHigh,
+                surfaceTintColor: scheme.surfaceTint,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          ">",
+                          style: TextStyle(
+                            fontFamily: "monospace",
+                            fontSize: 12,
+                            color: scheme.primary,
+                          ),
+                        ),
                       ),
-                      decoration: const InputDecoration(
-                        hintText: "enter command",
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _input,
+                          focusNode: _focus,
+                          maxLines: 4,
+                          minLines: 1,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.newline,
+                          style: TextStyle(
+                            fontFamily: "monospace",
+                            fontSize: 12,
+                            height: 1.3,
+                            color: theme.textTheme.bodyMedium?.color,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "enter command",
+                            hintStyle: TextStyle(
+                              fontFamily: "monospace",
+                              fontSize: 12,
+                              color: scheme.onSurface.withOpacity(0.5),
+                            ),
+                            filled: true,
+                            fillColor: scheme.surfaceContainerHighest,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: scheme.outlineVariant,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: scheme.outlineVariant,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: scheme.primary.withOpacity(0.8),
+                              ),
+                            ),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                          ),
+                          onSubmitted: _submit,
+                        ),
                       ),
-                      onSubmitted: _submit,
-                    ),
+                      const SizedBox(width: 8),
+                      IconButton.filledTonal(
+                        onPressed: _runButton,
+                        icon: Icon(
+                          Icons.play_arrow_rounded,
+                          size: 20,
+                          color: scheme.onSurface,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 44,
+                          minHeight: 44,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                    onPressed: () {
-                      final cmd = _input.text.trim();
-                      if (cmd.isEmpty) return;
-                      _terminal.runCommand(cmd, _emit);
-                      _input.clear();
-                    },
-                    icon: Icon(
-                      Icons.play_arrow_rounded,
-                      size: 20,
-                      color: scheme.primary,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

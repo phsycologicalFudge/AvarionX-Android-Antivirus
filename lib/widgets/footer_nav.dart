@@ -15,40 +15,33 @@ class FooterNav extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    final bool isTerminal = active == 'terminal';
+    final isTerminal = active == 'terminal';
 
-    final Color bgColor = isTerminal
-        ? theme.cardColor
-        : (theme.brightness == Brightness.dark
-        ? scheme.surface.withOpacity(0.96)
-        : scheme.surfaceVariant.withOpacity(0.96));
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(
-              theme.brightness == Brightness.dark ? 0.25 : 0.12,
-            ),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
+    return SafeArea(
+      top: false,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              scheme.surface.withOpacity(0.0),
+              (isTerminal ? scheme.surface : scheme.surfaceContainer),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildItem(context, Icons.home_rounded, 'Home', 'home'),
-          _buildItem(context, Icons.terminal_rounded, 'Terminal', 'terminal'),
-          _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
-          _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
-        ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildItem(context, Icons.home_rounded, 'Home', 'home'),
+              _buildItem(context, Icons.explore_rounded, 'Explore', 'explore'),
+              _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
+              _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -63,42 +56,46 @@ class FooterNav extends StatelessWidget {
     final scheme = theme.colorScheme;
     final text = theme.textTheme;
 
-    final bool isActive = active == tag;
-    final bool isTerminal = active == 'terminal';
+    final isActive = active == tag;
 
-    final Color activeColor = scheme.primary;
-    final Color inactiveColor = scheme.onSurface.withOpacity(0.55);
+    final activeColor = scheme.primary;
+    final inactiveColor = scheme.onSurfaceVariant;
 
-    final Color color = isActive ? activeColor : inactiveColor;
+    final color = isActive ? activeColor : inactiveColor;
 
-    final Color bg = isActive
-        ? activeColor.withOpacity(isTerminal ? 0.20 : 0.14)
-        : Colors.transparent;
-
-    return GestureDetector(
+    return InkWell(
       onTap: () => onTabChange(tag),
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: bg,
-              shape: BoxShape.circle,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isActive ? scheme.primaryContainer : Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                icon,
+                color: isActive ? scheme.onPrimaryContainer : color,
+                size: 24,
+              ),
             ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: text.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: text.labelSmall?.copyWith(
+                color: color,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -3,12 +3,14 @@ import 'package:colourswift_av/widgets/antivirus_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/theme_manager.dart';
 import 'screens/boot_screen.dart';
 import 'screens/quarantine/quarantine_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:colourswift_av/services/purchase_service.dart';
-
+import 'services/launch_flag.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,11 +21,25 @@ void main() async {
     SystemUiMode.immersiveSticky,
   );
 
-
   final themeManager = ThemeManager();
   await themeManager.init();
 
   await PurchaseService.init();
+
+  final info = await PackageInfo.fromPlatform();
+  final currentVersion = '${info.version}+${info.buildNumber}';
+
+  final prefs = await SharedPreferences.getInstance();
+  final lastSeen = prefs.getString('last_seen_app_version');
+
+  bool showUpdateLog = false;
+
+  if (lastSeen == null) {
+    await prefs.setString('last_seen_app_version', currentVersion);
+  } else if (lastSeen != currentVersion) {
+    showUpdateLog = true;
+    await prefs.setString('last_seen_app_version', currentVersion);
+  }
 
   const channel = MethodChannel('colourswift/foreground_service');
   bool openQuarantine = false;
@@ -33,8 +49,16 @@ void main() async {
   } catch (_) {}
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => themeManager,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => themeManager),
+        Provider(
+          create: (_) => LaunchFlags(
+            showUpdateLog: showUpdateLog,
+            currentVersion: currentVersion,
+          ),
+        ),
+      ],
       child: MyApp(openQuarantine: openQuarantine),
     ),
   );
@@ -46,8 +70,6 @@ Future<void> _ensureNotificationPermission() async {
   }
 }
 
-
-
 class MyApp extends StatelessWidget {
   final bool openQuarantine;
   const MyApp({super.key, required this.openQuarantine});
@@ -58,7 +80,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CS Security',
+      title: 'AvarionX Security',
       theme: themeManager.themeData,
       themeMode: themeManager.themeMode,
       home: openQuarantine ? const QuarantineScreen() : const BootScreen(),
@@ -82,7 +104,3 @@ void vpnMain() {
     return 0;
   });
 }
-
-
-
-

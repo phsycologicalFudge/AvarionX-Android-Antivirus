@@ -6,10 +6,11 @@ class ThemeManager extends ChangeNotifier {
   static const String _keyTheme = 'appTheme';
 
   late Box _box;
-  String _themeName = 'black';
+  String _themeName = 'white';
   ThemeData _themeData = _buildBlackTheme();
 
   String get themeName => _themeName;
+
   ThemeData get themeData => _themeData;
 
   ThemeMode get themeMode {
@@ -25,7 +26,7 @@ class ThemeManager extends ChangeNotifier {
   Future<void> init() async {
     await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);
-    _themeName = _box.get(_keyTheme, defaultValue: 'black') as String;
+    _themeName = _box.get(_keyTheme, defaultValue: 'white') as String;
     _themeData = _resolveTheme(_themeName);
   }
 
@@ -60,143 +61,117 @@ class ThemeManager extends ChangeNotifier {
     );
   }
 
-  static ThemeData _buildBlackTheme() {
-    const surface = Color(0xFF121212);
-    const card = Color(0xFF1C1C1C);
+  static ThemeData _buildTheme({
+    required Brightness brightness,
+    required Color primary,
+    required Color secondary,
+    required Color surface,
+    required Color container,
+  }) {
+    final cs = ColorScheme(
+      brightness: brightness,
+      primary: primary,
+      onPrimary: brightness == Brightness.dark ? Colors.black : Colors.white,
+      secondary: secondary,
+      onSecondary: brightness == Brightness.dark ? Colors.black : Colors.white,
+      surface: surface,
+      onSurface: brightness == Brightness.dark ? Colors.white : Colors.black,
+      background: surface,
+      onBackground: brightness == Brightness.dark ? Colors.white : Colors.black,
+      error: Colors.redAccent,
+      onError: Colors.white,
+    );
 
     return ThemeData(
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: surface,
-      cardColor: card,
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF4EA3FF),
-        secondary: Color(0xFF3DD6C6),
-        surface: card,
-        onSurface: Colors.white,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      textTheme: ThemeData.dark().textTheme.apply(
-        bodyColor: Colors.white.withOpacity(0.88),
-        displayColor: Colors.white.withOpacity(0.88),
-      ),
-      pageTransitionsTheme: _pageTransitions(),
       useMaterial3: true,
+      brightness: brightness,
+      colorScheme: cs,
+      scaffoldBackgroundColor: surface,
+      canvasColor: surface,
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: cs.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+
+      cardTheme: CardThemeData(
+        color: container,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: container,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+      ),
+
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: container,
+        modalBackgroundColor: container,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
+
+      pageTransitionsTheme: _pageTransitions(),
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    );
+  }
+
+  static ThemeData _buildBlackTheme() {
+    return _buildTheme(
+      brightness: Brightness.dark,
+      primary: const Color(0xFF4EA3FF),
+      secondary: const Color(0xFF3DD6C6),
+      surface: const Color(0xFF121212),
+      container: const Color(0xFF1C1C1C),
     );
   }
 
   static ThemeData _buildGreyTheme() {
-    const surface = Color(0xFF232323);
-    const card = Color(0xFF2F2F2F);
-
-    return ThemeData(
+    return _buildTheme(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: surface,
-      cardColor: card,
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF9FA4AA),
-        secondary: Color(0xFFB0B5BB),
-        surface: card,
-        onSurface: Colors.white,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      textTheme: ThemeData.dark().textTheme.apply(
-        bodyColor: Colors.white70,
-        displayColor: Colors.white70,
-      ),
-      pageTransitionsTheme: _pageTransitions(),
-      useMaterial3: true,
+      primary: const Color(0xFFB0B5BB),
+      secondary: const Color(0xFF8E9398),
+      surface: const Color(0xFF1E1E1E),
+      container: const Color(0xFF2A2A2A),
     );
   }
 
   static ThemeData _buildWhiteTheme() {
-    const surface = Color(0xFFF6F7F8);
-    const card = Color(0xFFFFFFFF);
-
-    return ThemeData(
+    return _buildTheme(
       brightness: Brightness.light,
-      scaffoldBackgroundColor: surface,
-      cardColor: card,
-      colorScheme: const ColorScheme.light(
-        primary: Color(0xFF3B82F6),
-        secondary: Color(0xFF3B82F6),
-        surface: card,
-        onSurface: Colors.black,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      textTheme: ThemeData.light().textTheme.apply(
-        bodyColor: Colors.black87,
-        displayColor: Colors.black87,
-      ),
-      pageTransitionsTheme: _pageTransitions(),
-      useMaterial3: true,
+      primary: const Color(0xFF3B82F6),
+      secondary: const Color(0xFF2563EB),
+      surface: const Color(0xFFF6F7F8),
+      container: const Color(0xFFFFFFFF),
     );
   }
 
   static ThemeData _buildEmeraldTheme() {
-    const surface = Color(0xFFF1F6F4);
-    const card = Color(0xFFE6F0EC);
-
-    return ThemeData(
+    return _buildTheme(
       brightness: Brightness.light,
-      scaffoldBackgroundColor: surface,
-      cardColor: card,
-      colorScheme: const ColorScheme.light(
-        primary: Color(0xFF00A97A),
-        secondary: Color(0xFF00B989),
-        surface: card,
-        onSurface: Colors.black,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      textTheme: ThemeData.light().textTheme.apply(
-        bodyColor: Colors.black87,
-        displayColor: Colors.black87,
-      ),
-      pageTransitionsTheme: _pageTransitions(),
-      useMaterial3: true,
+      primary: const Color(0xFF00A97A),
+      secondary: const Color(0xFF00C18A),
+      surface: const Color(0xFFF1F6F4),
+      container: const Color(0xFFE6F0EC),
     );
   }
 
   static ThemeData _buildPurpleTheme() {
-    const surface = Color(0xFF120F1A);
-    const card = Color(0xFF1A1626);
-
-    return ThemeData(
+    return _buildTheme(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: surface,
-      cardColor: card,
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF8B5CF6),
-        secondary: Color(0xFFA78BFA),
-        surface: card,
-        onSurface: Colors.white,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      textTheme: ThemeData.dark().textTheme.apply(
-        bodyColor: Colors.white.withOpacity(0.88),
-        displayColor: Colors.white.withOpacity(0.88),
-      ),
-      pageTransitionsTheme: _pageTransitions(),
-      useMaterial3: true,
+      primary: const Color(0xFF8B5CF6),
+      secondary: const Color(0xFFA78BFA),
+      surface: const Color(0xFF14101F),
+      container: const Color(0xFF1F1A33),
     );
   }
 }

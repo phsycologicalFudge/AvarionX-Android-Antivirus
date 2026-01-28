@@ -16,7 +16,6 @@ import '../../services/purchase_service.dart';
 import '../exclusions/exclusion_manager_screen.dart';
 import 'package:flutter/foundation.dart';
 
-
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -75,9 +74,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Become a sponsor?'),
+          title: const Text('Want to get PRO?'),
           content: const Text(
-            'Sponsors mode supports developement and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
+            'PRO mode supports developement and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
           ),
           actions: [
             TextButton(
@@ -109,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sponsors mode unlocked')),
+            const SnackBar(content: Text('PRO mode unlocked')),
           );
         }
       } else {
@@ -150,9 +149,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('About Sponsor'),
+          title: const Text('About PRO'),
           content: const Text(
-            'Sponsor mode does not give stronger protection, but it does give:\n\n'
+            'PRO mode does not give better protection, but it does give:\n\n'
                 '• Emerald and Grey themes\n'
                 '• Custom app icons\n'
                 '• Future features\n\n'
@@ -178,107 +177,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
+        final theme = Theme.of(context);
+        final scheme = theme.colorScheme;
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 14,
+              right: 14,
+              top: 10,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 14,
             ),
-            child: StatefulBuilder(
-              builder: (context, setModalState) {
-                Future<void> _changeIcon(String icon) async {
-                  await iconChannel.invokeMethod('setIcon', {'icon': icon});
-                  await prefs.setString('selectedIcon', icon);
-                  setModalState(() => selectedIcon = icon);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Icon changed to ${icon[0].toUpperCase()}${icon.substring(1)}'),
-                    ),
-                  );
-                }
+            child: Material(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                child: StatefulBuilder(
+                  builder: (context, setModalState) {
+                    Future<void> _changeIcon(String icon) async {
+                      setModalState(() => selectedIcon = icon);
+                      await prefs.setString('selectedIcon', icon);
 
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sponsors Customization',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      try {
+                        iconChannel.invokeMethod('setIcon', {'icon': icon});
+                      } catch (_) {}
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Icon selected: ${icon.toUpperCase()}'),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      CheckboxListTile(
-                        value: hideGoldHeader,
-                        onChanged: (val) async {
-                          setModalState(() => hideGoldHeader = val ?? false);
-                          await prefs.setBool('hideGoldHeader', hideGoldHeader);
-                        },
-                        title: const Text('Hide gold header on Home Screen'),
-                        controlAffinity: ListTileControlAffinity.leading,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'App Icon',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _iconPreview(
-                            context,
-                            'default',
-                            selectedIcon,
-                            'Default',
-                                () => _changeIcon('default'),
+                          Text(
+                            'PRO Customization',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                          const SizedBox(width: 16),
-                          _iconPreview(
-                            context,
-                            'bird',
-                            selectedIcon,
-                            'Bird',
-                                () => _changeIcon('bird'),
+                          const SizedBox(height: 10),
+                          SwitchListTile(
+                            value: hideGoldHeader,
+                            onChanged: (val) async {
+                              setModalState(() => hideGoldHeader = val);
+                              await prefs.setBool('hideGoldHeader', hideGoldHeader);
+                            },
+                            title: const Text('Hide gold header on Home Screen'),
+                            contentPadding: EdgeInsets.zero,
                           ),
-                          const SizedBox(width: 16),
-                          _iconPreview(
-                            context,
-                            'neon',
-                            selectedIcon,
-                            'Neon',
-                                () => _changeIcon('neon'),
+                          const SizedBox(height: 18),
+                          Text(
+                            'App Icon',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 12,
+                            children: [
+                              _iconPreview(
+                                context,
+                                'default',
+                                selectedIcon,
+                                'Default',
+                                    () => _changeIcon('default'),
+                              ),
+                              _iconPreview(
+                                context,
+                                'bird',
+                                selectedIcon,
+                                'Bird',
+                                    () => _changeIcon('bird'),
+                              ),
+                              _iconPreview(
+                                context,
+                                'neon',
+                                selectedIcon,
+                                'Neon',
+                                    () => _changeIcon('neon'),
+                              ),
+                              _iconPreview(
+                                context,
+                                'ax',
+                                selectedIcon,
+                                'AX',
+                                    () => _changeIcon('ax'),
+                              ),
+                              _iconPreview(
+                                context,
+                                'avx',
+                                selectedIcon,
+                                'AVX',
+                                    () => _changeIcon('avx'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Save'),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 30),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFB8860B),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          minimumSize: const Size.fromHeight(50),
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         );
@@ -356,77 +376,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showExclusionsSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: false,
       builder: (context) {
+        final theme = Theme.of(context);
+        final scheme = theme.colorScheme;
+
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 10),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+            child: Material(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  ListTile(
+                    leading: const Icon(Icons.folder_open_rounded),
+                    title: const Text('Exclude a Folder'),
+                    onTap: () async {
+                      Navigator.pop(context);
 
-              ListTile(
-                leading: const Icon(Icons.folder_open_rounded),
-                title: const Text('Exclude a Folder'),
-                onTap: () async {
-                  Navigator.pop(context);
+                      final result = await FilePicker.platform.getDirectoryPath();
+                      if (result != null) {
+                        final ex = ExclusionService();
+                        await ex.load();
+                        await ex.addFolder(result);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Folder excluded')),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.insert_drive_file_rounded),
+                    title: const Text('Exclude a File'),
+                    onTap: () async {
+                      Navigator.pop(context);
 
-                  final result = await FilePicker.platform.getDirectoryPath();
-                  if (result != null) {
-                    final ex = ExclusionService();
-                    await ex.load();
-                    await ex.addFolder(result);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Folder excluded')),
+                      final r = await FilePicker.platform.pickFiles();
+                      if (r != null && r.files.isNotEmpty) {
+                        final path = r.files.single.path!;
+                        final bytes = File(path).readAsBytesSync();
+                        final sha = sha256.convert(bytes).toString();
+
+                        final ex = ExclusionService();
+                        await ex.load();
+                        await ex.addSha(sha);
+
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('File excluded')),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.rule_folder_rounded),
+                    title: const Text('Manage Existing Exclusions'),
+                    subtitle: const Text('View or remove exclusions'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ExclusionManagerScreen()),
                       );
-                    }
-                  }
-                },
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
-
-              ListTile(
-                leading: const Icon(Icons.insert_drive_file_rounded),
-                title: const Text('Exclude a File'),
-                onTap: () async {
-                  Navigator.pop(context);
-
-                  final r = await FilePicker.platform.pickFiles();
-                  if (r != null && r.files.isNotEmpty) {
-                    final path = r.files.single.path!;
-                    final bytes = File(path).readAsBytesSync();
-                    final sha = sha256.convert(bytes).toString();
-
-                    final ex = ExclusionService();
-                    await ex.load();
-                    await ex.addSha(sha);
-
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('File excluded')),
-                      );
-                    }
-                  }
-                },
-              ),
-
-              ListTile(
-                leading: const Icon(Icons.rule_folder_rounded),
-                title: const Text('Manage Existing Exclusions'),
-                subtitle: const Text('View or remove exclusions'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ExclusionManagerScreen()),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 10),
-            ],
+            ),
           ),
         );
       },
@@ -434,7 +460,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _iconPreview(BuildContext context, String name, String selected, String label, VoidCallback onTap) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final isSelected = name == selected;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -445,14 +474,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isSelected ? const Color(0xFFB8860B) : Colors.grey.shade400,
-                width: isSelected ? 2.5 : 1.0,
+                color: isSelected ? scheme.primary : scheme.outlineVariant,
+                width: isSelected ? 2.0 : 1.0,
               ),
+              color: isSelected
+                  ? scheme.primaryContainer.withOpacity(0.25)
+                  : scheme.surfaceContainer,
             ),
             padding: const EdgeInsets.all(6),
-            child: Image.asset(
-              'assets/icons/ic_launcher_$name.png',
-              fit: BoxFit.contain,
+            child: Stack(
+              children: [
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/icons/ic_launcher_$name.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: scheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      child: Icon(
+                        Icons.check_rounded,
+                        size: 14,
+                        color: scheme.onPrimary,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 6),
@@ -460,8 +518,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isSelected ? const Color(0xFFB8860B) : null,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? scheme.primary : theme.textTheme.bodyMedium?.color,
             ),
           ),
         ],
@@ -477,33 +535,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: theme.cardColor,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
+        final scheme = Theme.of(context).colorScheme;
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 14,
+              right: 14,
+              top: 10,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 14,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Choose Theme', style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 15),
-                _themeOption(context, 'Black', 'black', Colors.black, current),
-                _themeOption(context, 'White', 'white', Colors.white, current),
-                _themeOption(context, 'Grey', 'grey', Colors.grey.shade700, current),
-                _themeOption(context, 'Emerald', 'emerald', const Color(0xFF009E73), current),
-                _themeOption(context, 'Purple', 'purple', const Color(0xFF8B5CF6), current),
-                const SizedBox(height: 10),
-              ],
+            child: Material(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Choose Theme',
+                      style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 12),
+                    _themeOption(context, 'Black', 'black', Colors.black, current),
+                    _themeOption(context, 'White', 'white', Colors.white, current),
+                    _themeOption(context, 'Grey', 'grey', Colors.grey.shade700, current),
+                    _themeOption(context, 'Emerald', 'emerald', const Color(0xFF009E73), current),
+                    _themeOption(context, 'Purple', 'purple', const Color(0xFF8B5CF6), current),
+                    const SizedBox(height: 6),
+                  ],
+                ),
+              ),
             ),
           ),
         );
@@ -512,15 +580,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _themeOption(BuildContext context, String label, String value, Color color, String current) {
-    final isSelected = current == value;
     final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isSelected = current == value;
 
     return ListTile(
       onTap: () {
         Navigator.pop(context);
         if ((value == 'emerald' || value == 'grey' || value == 'purple') && !isPro) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('That theme requires Sponsors mode')),
+            const SnackBar(content: Text('That theme requires PRO mode')),
           );
         } else {
           themeManager.setTheme(value);
@@ -530,7 +598,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(
         (value == 'emerald' || value == 'grey' || value == 'purple') ? '$label  (Pro)' : label,
         style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
           color: (value == 'emerald' || value == 'grey' || value == 'purple')
               ? (isPro ? null : Colors.grey)
               : null,
@@ -545,36 +613,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeManager = Provider.of<ThemeManager>(context);
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final scheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: scheme.surface,
       appBar: AppBar(
         title: Text(
           'Settings',
           style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: text.bodyLarge?.color,
+            fontWeight: FontWeight.w800,
+            color: scheme.onSurface,
           ),
         ),
         centerTitle: true,
-        backgroundColor: theme.appBarTheme.backgroundColor,
+        backgroundColor: scheme.surface,
+        surfaceTintColor: scheme.surfaceTint,
+        scrolledUnderElevation: 0,
         elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
-              Text(
-                'Appearance',
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: text.bodyLarge?.color?.withOpacity(0.9),
-                ),
-              ),
+              _sectionHeader(context, 'Appearance'),
               const SizedBox(height: 10),
               _buildSettingTile(
                 context,
@@ -584,18 +648,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'Current: ${themeManager.themeName[0].toUpperCase()}${themeManager.themeName.substring(1)}',
                 onTap: () => _openThemePicker(context),
               ),
-              const SizedBox(height: 25),
-              Text(
-                'Join the community!',
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: text.bodyLarge?.color?.withOpacity(0.9),
-                ),
-              ),
+              const SizedBox(height: 18),
+
+              _sectionHeader(context, 'Join the community!'),
               const SizedBox(height: 10),
               _buildSettingTile(
                 context,
-                icon: Icons.chat_rounded, // or another Material icon
+                icon: Icons.chat_rounded,
                 title: 'Discord',
                 subtitle: 'Chat, updates and feedback',
                 onTap: () async {
@@ -609,133 +668,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 25),
-              Text(
-                'Sponsors Features',
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: text.bodyLarge?.color?.withOpacity(0.9),
-                ),
-              ),
+              const SizedBox(height: 18),
+
+              _sectionHeader(context, 'PRO Features'),
               const SizedBox(height: 10),
               if (isPro)
-                GestureDetector(
+                _buildSponsorCard(
+                  context,
                   onTap: () => _showProOptions(context),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB8860B),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFB8860B).withOpacity(0.35),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ),
-                  ),
                 )
               else
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFFB8860B),
                           foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: _showUpgradeDialog,
                         child: const Text(
-                          'Become a sponsor',
+                          'Unlock PRO',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.4,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.3,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Container(
-                      height: 48,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFB8860B), width: 1.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.info_outline, color: Color(0xFFB8860B)),
-                        onPressed: _showProInfo,
-                        tooltip: 'About Pro',
-                      ),
+                    IconButton.filledTonal(
+                      onPressed: _showProInfo,
+                      icon: const Icon(Icons.info_outline_rounded),
                     ),
                   ],
                 ),
-              const SizedBox(height: 25),
+              const SizedBox(height: 18),
 
-              const SizedBox(height: 25),
-              Text(
-                'Advanced Protection (Shizuku)',
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: text.bodyLarge?.color?.withOpacity(0.9),
-                ),
-              ),
+              _sectionHeader(context, 'Advanced Protection (Shizuku)'),
               const SizedBox(height: 10),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 12,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+              Card.outlined(
+                color: scheme.surfaceContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: SwitchListTile(
-                  secondary: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
+                  secondary: CircleAvatar(
+                    backgroundColor: scheme.primaryContainer,
                     child: Icon(
                       Icons.developer_mode_rounded,
-                      color: theme.colorScheme.primary,
+                      color: scheme.onPrimaryContainer,
                     ),
                   ),
                   title: const Text(
                     'Enable Shizuku',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(
                     !shizukuCertPresent
@@ -746,11 +738,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ? 'Permission required'
                         : 'Advanced system access available',
                     style: text.bodySmall?.copyWith(
-                      color: text.bodySmall?.color?.withOpacity(0.7),
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                   value: shizukuWanted,
-
                   onChanged: (value) async {
                     if (!value) {
                       await _setShizukuWanted(false);
@@ -816,13 +807,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: _showShizukuInfo,
               ),
 
-              Text(
-                'General',
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: text.bodyLarge?.color?.withOpacity(0.9),
-                ),
-              ),
+              const SizedBox(height: 18),
+
+              _sectionHeader(context, 'General'),
               const SizedBox(height: 10),
 
               _buildSettingTile(
@@ -858,12 +845,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       prefixIcon: const Icon(Icons.key_rounded),
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          obscure
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
+                                          obscure ? Icons.visibility_off : Icons.visibility,
                                         ),
-                                        onPressed: () =>
-                                            setState(() => obscure = !obscure),
+                                        onPressed: () => setState(() => obscure = !obscure),
                                       ),
                                       border: const OutlineInputBorder(),
                                     ),
@@ -876,7 +860,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: () => Navigator.pop(context),
                                 child: const Text('Cancel'),
                               ),
-                              ElevatedButton(
+                              FilledButton(
                                 onPressed: () async {
                                   final value = controller.text.trim();
                                   if (value.isEmpty) return;
@@ -912,11 +896,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Privacy Policy',
                 subtitle: 'View how your data is handled',
                 onTap: () async {
-                  final uri = Uri.parse(
-                    'https://colourswift.com/Policies/Private-Policy',
-                  );
+                  final uri = Uri.parse('https://colourswift.com/Policies/Private-Policy');
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Unable to open privacy policy')),
+                    );
                   }
                 },
               ),
@@ -949,6 +935,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _sectionHeader(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Text(
+      title,
+      style: theme.textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w800,
+        color: scheme.onSurface.withOpacity(0.92),
+      ),
+    );
+  }
+
+  Widget _buildSponsorCard(BuildContext context, {required VoidCallback onTap}) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Card.outlined(
+      color: scheme.surfaceContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: const Color(0xFFB8860B).withOpacity(0.18),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: Color(0xFFB8860B),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PRO Customization',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Icons, gold header, and cosmetics',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSettingTile(
       BuildContext context, {
         required IconData icon,
@@ -958,45 +1012,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         VoidCallback? onTap,
       }) {
     final theme = Theme.of(context);
-    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.15),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: theme.colorScheme.primary),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card.outlined(
+        color: scheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        title: Text(
-          title,
-          style: text.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: text.bodyLarge?.color,
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: scheme.primaryContainer,
+            child: Icon(icon, color: scheme.onPrimaryContainer),
           ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: text.bodySmall?.copyWith(
-            color: text.bodySmall?.color?.withOpacity(0.7),
+          title: Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+            ),
           ),
+          subtitle: Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          trailing: trailing,
+          onTap: onTap,
         ),
-        trailing: trailing,
-        onTap: onTap,
       ),
     );
   }

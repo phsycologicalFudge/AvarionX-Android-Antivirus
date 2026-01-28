@@ -75,7 +75,6 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
       }
     } catch (_) {}
 
-    // Split into batches and scan
     for (final path in files.take(5000)) {
       final result = await compute(_scanFileTask, path);
       scanned++;

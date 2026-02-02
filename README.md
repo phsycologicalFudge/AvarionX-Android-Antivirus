@@ -5,7 +5,7 @@
 # AvarionX Security
 
 Ad-free antivirus for Android, offering the same protection features as mainstream AVs without paid tiers.  
-Available on **Google Play** and **GitHub**.
+Available on Google Play and GitHub.
 
 <br>
 

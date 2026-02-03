@@ -83,7 +83,8 @@ https://github.com/phsycologicalFudge/ColourSwift_AV/releases
 - No personal data collection  
 - Files are never uploaded as cloud checks use hashes only  
 - No user accounts  
-- No tracking or analytics  
+- No tracking or analytics
+- No Ads (Play store version does include ads)
 
 ## Open source status
 

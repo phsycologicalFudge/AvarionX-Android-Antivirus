@@ -56,7 +56,7 @@ AvarionX uses a dual detection model:
 - **VX-Titanium**  
   The local, on-device scanning engine used for offline detection and analysis.
 
-- **VX-Titanium Threat Intelligence (VTTI)**  
+- **VX-Titanium Threat Intelligence (VTTI/VTTI Cloud)**  
   A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.  
   No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 

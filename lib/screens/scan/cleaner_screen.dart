@@ -7,6 +7,7 @@ import 'package:device_apps/device_apps.dart';
 import 'package:usage_stats/usage_stats.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
+import '../../translations/app_localizations.dart';
 import 'detail_screen.dart'; // reuses your existing file-list viewer
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -53,24 +54,22 @@ class _CleanerScreenState extends State<CleanerScreen> {
 
   Future<void> _runCleaner() async {
     if (scanning) return;
+    final l10n = AppLocalizations.of(context)!;
     final hasUsagePerm = await UsageStats.checkUsagePermission() ?? false;
     if (!hasUsagePerm) {
       final go = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Grant Usage Access'),
-          content: const Text(
-            'To detect unused apps, this cleaner requires Usage Access permission. '
-                'You’ll be redirected to system settings to enable it.',
-          ),
+          title: Text(l10n.cleanerGrantUsageAccessTitle),
+          content: Text(l10n.cleanerGrantUsageAccessBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cleanerCancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Continue'),
+              child: Text(l10n.cleanerContinue),
             ),
           ],
         ),
@@ -84,8 +83,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
     setState(() {
       scanning = true;
       progress = 0.0;
-      status = 'Starting…';
-
+      status = l10n.cleanerStatusStarting;
       // reset results
       dupFiles.clear();
       dupReclaimBytes = 0;
@@ -171,13 +169,13 @@ class _CleanerScreenState extends State<CleanerScreen> {
         largeFilesBytes = (result['largeFilesBytes'] as num).toInt();
 
         progress = 1.0;
-        status = 'Files scanned';
+        status = l10n.cleanerStatusFilesScanned;
         scanning = false;
       });
 
       setState(() {
         appsLoading = true;
-        status = 'Finding unused apps…';
+        status = l10n.cleanerStatusFindingUnusedApps;
       });
 
       final apps = await _scanUnusedApps();
@@ -185,13 +183,13 @@ class _CleanerScreenState extends State<CleanerScreen> {
       setState(() {
         unusedApps = apps;
         appsLoading = false;
-        status = 'Complete';
+        status = l10n.cleanerStatusComplete;
       });
     } catch (e) {
       setState(() {
         scanning = false;
         appsLoading = false;
-        status = 'Scan error';
+        status = l10n.cleanerStatusScanError;
       });
       debugPrint('Cleaner: scan error $e');
     } finally {
@@ -277,6 +275,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final muted = text.bodySmall?.color?.withOpacity(0.7);
@@ -285,7 +284,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
     final appsBusy = appsLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cleaner Pro')),
+      appBar: AppBar(title: Text(l10n.cleanerTitle)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -295,7 +294,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Ready to Scan',
+                  l10n.cleanerReadyToScan,
                   style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 FilledButton.icon(
@@ -308,7 +307,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
                     }
                   },
                   icon: const Icon(Icons.bolt_rounded),
-                  label: Text(filesScanning || appsBusy ? 'Scanning…' : 'Scan'),
+                  label: Text(filesScanning || appsBusy ? l10n.cleanerScanning : l10n.cleanerScan),
                 ),
               ],
             ),
@@ -322,7 +321,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                (filesScanning || appsBusy) ? status : 'Ready',
+                (filesScanning || appsBusy) ? status : l10n.cleanerReady,
                 style: TextStyle(color: muted),
               ),
             ),
@@ -334,63 +333,71 @@ class _CleanerScreenState extends State<CleanerScreen> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   _card(
-                    title: 'Duplicates',
+                    id: 'duplicates',
+                    title: l10n.cleanerDuplicates,
                     enabled: !filesScanning,
                     subtitle: dupFiles.isEmpty
-                        ? 'No duplicates found'
-                        : '${dupFiles.length} items • reclaim ${_fmtBytes(dupReclaimBytes)}',
-                    trailing:
-                    dupReclaimBytes > 0 ? Text(_fmtBytes(dupReclaimBytes)) : null,
-                    onTap: () => _openFiles('Duplicates', dupFiles),
+                        ? l10n.cleanerDuplicatesNone
+                        : l10n.cleanerDuplicatesSubtitle(
+                      dupFiles.length.toString(),
+                      _fmtBytes(dupReclaimBytes),
+                    ),
+                    trailing: dupReclaimBytes > 0 ? Text(_fmtBytes(dupReclaimBytes)) : null,
+                    onTap: () => _openFiles(l10n.cleanerDuplicates, dupFiles),
                   ),
                   const SizedBox(height: 12),
                   _card(
-                    title: 'Old Photos',
+                    id: 'oldPhotos',
+                    title: l10n.cleanerOldPhotos,
                     enabled: !filesScanning,
                     subtitle: oldPhotos.isEmpty
-                        ? 'No photos older than 90 days'
-                        : '${oldPhotos.length} items • ${_fmtBytes(oldPhotosBytes)}',
-                    trailing: oldPhotosBytes > 0
-                        ? Text(_fmtBytes(oldPhotosBytes))
-                        : null,
-                    onTap: () => _openFiles('Old Photos', oldPhotos),
+                        ? l10n.cleanerOldPhotosNone('90')
+                        : l10n.cleanerOldPhotosSubtitle(
+                      oldPhotos.length.toString(),
+                      _fmtBytes(oldPhotosBytes),
+                    ),
+                    trailing: oldPhotosBytes > 0 ? Text(_fmtBytes(oldPhotosBytes)) : null,
+                    onTap: () => _openFiles(l10n.cleanerOldPhotos, oldPhotos),
                   ),
                   const SizedBox(height: 12),
                   _card(
-                    title: 'Old Videos',
+                    id: 'oldVideos',
+                    title: l10n.cleanerOldVideos,
                     enabled: !filesScanning,
                     subtitle: oldVideos.isEmpty
-                        ? 'No videos older than 90 days'
-                        : '${oldVideos.length} items • ${_fmtBytes(oldVideosBytes)}',
-                    trailing: oldVideosBytes > 0
-                        ? Text(_fmtBytes(oldVideosBytes))
-                        : null,
-                    onTap: () => _openFiles('Old Videos', oldVideos),
+                        ? l10n.cleanerOldVideosNone('90')
+                        : l10n.cleanerOldVideosSubtitle(
+                      oldVideos.length.toString(),
+                      _fmtBytes(oldVideosBytes),
+                    ),
+                    trailing: oldVideosBytes > 0 ? Text(_fmtBytes(oldVideosBytes)) : null,
+                    onTap: () => _openFiles(l10n.cleanerOldVideos, oldVideos),
                   ),
                   const SizedBox(height: 12),
                   _card(
-                    title: 'Large Files',
+                    id: 'largeFiles',
+                    title: l10n.cleanerLargeFiles,
                     enabled: !filesScanning,
                     subtitle: largeFiles.isEmpty
-                        ? 'No files ≥ 5 MB'
-                        : '${largeFiles.length} items • ${_fmtBytes(largeFilesBytes)}',
-                    trailing: largeFilesBytes > 0
-                        ? Text(_fmtBytes(largeFilesBytes))
-                        : null,
-                    onTap: () => _openFiles('Large Files', largeFiles),
+                        ? l10n.cleanerLargeFilesNone(_fmtBytes(20 * 1024 * 1024))
+                        : l10n.cleanerLargeFilesSubtitle(
+                      largeFiles.length.toString(),
+                      _fmtBytes(largeFilesBytes),
+                    ),
+                    trailing: largeFilesBytes > 0 ? Text(_fmtBytes(largeFilesBytes)) : null,
+                    onTap: () => _openFiles(l10n.cleanerLargeFiles, largeFiles),
                   ),
                   const SizedBox(height: 12),
                   _card(
-                    title: 'Unused Apps',
+                    id: 'unusedApps',
+                    title: l10n.cleanerUnusedApps,
                     enabled: !(filesScanning || appsBusy),
                     subtitle: appsBusy
-                        ? 'Scanning apps…'
+                        ? l10n.cleanerStatusScanningApps
                         : (unusedApps.isEmpty
-                        ? 'No unused apps (last 30 days)'
-                        : '${unusedApps.length} apps'),
-                    trailing: unusedApps.isNotEmpty
-                        ? Text('${unusedApps.length}')
-                        : null,
+                        ? l10n.cleanerUnusedAppsNone('30')
+                        : l10n.cleanerUnusedAppsCount(unusedApps.length.toString())),
+                    trailing: unusedApps.isNotEmpty ? Text('${unusedApps.length}') : null,
                     onTap: _openUnusedApps,
                   ),
                 ],
@@ -403,6 +410,7 @@ class _CleanerScreenState extends State<CleanerScreen> {
   }
 
   Widget _card({
+    required String id,
     required String title,
     required bool enabled,
     required String subtitle,
@@ -413,20 +421,20 @@ class _CleanerScreenState extends State<CleanerScreen> {
     final text = theme.textTheme;
 
     IconData innerIcon;
-    switch (title) {
-      case 'Duplicates':
+    switch (id) {
+      case 'duplicates':
         innerIcon = Icons.copy_rounded;
         break;
-      case 'Old Photos':
+      case 'oldPhotos':
         innerIcon = Icons.photo_rounded;
         break;
-      case 'Old Videos':
+      case 'oldVideos':
         innerIcon = Icons.play_arrow_rounded;
         break;
-      case 'Large Files':
+      case 'largeFiles':
         innerIcon = Icons.description_rounded;
         break;
-      case 'Unused Apps':
+      case 'unusedApps':
         innerIcon = Icons.apps_rounded;
         break;
       default:
@@ -832,10 +840,11 @@ class UnusedAppsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Unused Apps')),
+      appBar: AppBar(title: Text(l10n.unusedAppsTitle)),
       body: apps.isEmpty
-          ? const Center(child: Text('No unused apps in last 30 days'))
+          ? Center(child: Text(l10n.unusedAppsEmpty('30')))
           : ListView.separated(
         itemCount: apps.length,
         separatorBuilder: (_, __) => const Divider(height: 1),

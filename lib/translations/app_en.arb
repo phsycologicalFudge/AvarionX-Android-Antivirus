@@ -1,0 +1,688 @@
+{
+  "@@locale": "en",
+
+  "appName": "AVarionX Security",
+  "ok": "OK",
+  "cancel": "Cancel",
+
+  "footerHome": "Home",
+  "footerExplore": "Explore",
+  "footerRemoved": "Removed",
+  "footerSettings": "Settings",
+
+  "proBadge": "PRO",
+
+  "updateDbTitle": "Updating Database",
+  "updateDbVersionLabel": "Version {version}",
+  "@updateDbVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "updateDbAutoDownloadLabel": "Automatically download future updates",
+  "updateDbUpdatedAutoOn": "Database updated • Auto updates enabled",
+  "updateDbUpdatedSuccess": "Database updated successfully",
+  "updateDbUpdateFailed": "Database update failed",
+
+  "engineReadyBanner": "ENGINE READY • VX-TITANIUM-v7",
+
+  "scanButton": "Scan",
+
+  "scanModeFullTitle": "Full Device Scan",
+  "scanModeFullSubtitle": "Scans all readable storage files.",
+  "scanModeSmartTitle": "Smart Scan [Recommended]",
+  "scanModeSmartSubtitle": "Scans files that could contain malware.",
+  "scanModeRapidTitle": "Rapid Scan",
+  "scanModeRapidSubtitle": "Checks recent APKs in Downloads.",
+  "scanModeInstalledTitle": "Installed Apps",
+  "scanModeInstalledSubtitle": "Scans your installed apps for threats.",
+  "scanModeSingleTitle": "File / App Scan",
+  "scanModeSingleSubtitle": "Pick a file or app to scan.",
+
+  "useCloudAssistedScan": "Use cloud-assisted scan",
+
+  "protectionTitle": "Protection",
+  "stateOffLine1": "Device protection is off",
+  "stateOffLine2": "Tap to turn on",
+  "stateAdvancedActiveLine1": "Advanced protection is active",
+  "stateFileOnlyLine1": "File Protection Only",
+  "stateFileOnlyLine2": "Network protection disabled",
+  "stateVpnConflictLine2": "Another VPN is active",
+  "stateProtectedLine1": "Device Protected",
+  "stateProtectedLine2": "Tap to turn off",
+
+  "dbUpdating": "Database updating",
+  "dbVersionAutoUpdated": "Database v{version} • Auto updated",
+  "@dbVersionAutoUpdated": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+
+  "rtpInfoTitle": "Realtime Protection",
+  "rtpInfoBody": "Along with blocking suspicious files downloaded intentionally (or by malware), RTP uses a local VPN to block malicious domains system-wide.\n\nWhen enabled, network filtering remains active unless:\n• Disabled manually via Terminal\n• Replaced by another VPN\n\nFile protection continues regardless as long as RTP is enabled.",
+
+  "scanTitleDefault": "Scan",
+  "scanTitleSmart": "Smart Scan",
+  "scanTitleRapid": "Rapid Scan",
+  "scanTitleInstalled": "Scan Installed Apps",
+  "scanTitleFull": "Full Device Scan",
+  "scanTitleSingle": "Single Scan",
+
+  "cancellingScan": "Cancelling scan…",
+  "cancelScan": "Cancel Scan",
+
+  "scanProgressZero": "Progress: 0%",
+  "scanProgressWithPct": "Progress: {pct}% ({scanned} / {total})",
+  "@scanProgressWithPct": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+
+  "scanProgressFullItems": "Scanned: {count} items",
+  "@scanProgressFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "initializing": "Initializing...",
+  "scanningEllipsis": "Scanning...",
+
+  "fullScanInfoTitle": "Full Device Scan",
+  "fullScanInfoBody": "This mode scans every readable file in storage, unfiltered.\n\nCloud-assisted scanning and app scanning are not used in this mode.",
+
+  "scanComplete": "Scan Complete",
+
+  "pillSuspiciousCount": "Suspicious: {count}",
+  "@pillSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillCleanCount": "Clean: {count}",
+  "@pillCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillScannedCount": "Scanned: {count}",
+  "@pillScannedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "resultNoThreatsTitle": "No threats detected",
+  "resultNoThreatsBody": "No threats detected in scanned items.",
+  "resultSuspiciousAppsTitle": "Suspicious apps",
+  "resultSuspiciousItemsTitle": "Suspicious items",
+  "returnHome": "Return Home",
+
+  "emptyTitle": "No vulnerable files to scan",
+  "emptyBody": "Your device did not contain any files matching the scan criteria.",
+
+  "knownMalware": "Known malware",
+  "suspiciousActivityDetected": "Suspicious activity detected",
+  "maliciousActivityDetected": "Malicious activity detected",
+
+  "androidBankingTrojan": "Android banking trojan",
+  "androidSpyware": "Android spyware",
+  "androidAdware": "Android adware",
+  "androidSmsFraud": "Android SMS fraud",
+
+  "threatLevelConfirmed": "Confirmed",
+  "threatLevelHigh": "High",
+  "threatLevelMedium": "Medium",
+
+  "threatLevelLabel": "Threat level: {level}",
+  "@threatLevelLabel": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+
+  "explainFoundInCloud": "This item is listed in the ColourSwift cloud threat database.",
+  "explainFoundInOffline": "This item is listed in the offline malware database on your device.",
+  "explainBanker": "Designed to steal financial credentials, often using overlays, keylogging, or traffic interception.",
+  "explainSpyware": "Silently monitors activity or collects personal data such as messages, location, or device identifiers.",
+  "explainAdware": "Displays intrusive ads, performs redirects, or generates fraudulent ad traffic.",
+  "explainSmsFraud": "Attempts to send or trigger SMS actions without consent, which can cause unexpected charges.",
+  "explainGenericMalware": "Strong indicators of malicious intent were detected, even though it does not match a named family.",
+  "explainSuspiciousDefault": "Indicators of suspicious behavior were detected. This can include abuse patterns seen in malware, but it may also be a false positive.",
+
+  "singleChoiceScanFile": "Scan a file",
+  "singleChoiceScanInstalledApp": "Scan an installed app",
+  "singleChoiceManageExclusions": "Manage exclusions",
+
+  "labelKnownMalwareDb": "Found in malware database",
+  "labelFoundInCloudDb": "Found in cloud database",
+
+  "logEngineFullDeviceScan": "[ENGINE] Full device scan",
+  "logEngineTargetStorage": "[ENGINE] Target: /storage/emulated/0",
+  "logEngineNoFilesFound": "[ENGINE] No files found.",
+  "logEngineFilesEnumerated": "[ENGINE] Files enumerated: {count}",
+  "@logEngineFilesEnumerated": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "logEngineNoReadableFilesFound": "[ENGINE] No readable files found.",
+  "logEngineInstalledAppsFound": "[ENGINE] Installed apps found: {count}",
+  "@logEngineInstalledAppsFound": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logModeCloudAssisted": "[MODE] Cloud-assisted mode",
+  "logModeOffline": "[MODE] Offline mode",
+
+  "logStageHashing": "[STAGE 1] Getting file hashes (cached)...",
+  "logStageCloudLookup": "[STAGE 2] Cloud hash lookup...",
+  "logStageLocalScanning": "[STAGE {stage}] Local scanning files...",
+  "@logStageLocalScanning": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+
+  "logCloudHashHits": "[CLOUD] {count} hash hits",
+  "@logCloudHashHits": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logSummary": "[SUMMARY] {suspicious} suspicious • {clean} clean",
+  "@logSummary": {
+    "placeholders": {
+      "suspicious": {},
+      "clean": {}
+    }
+  },
+
+  "logErrorPrefix": "[ERROR] {message}",
+  "@logErrorPrefix": {
+    "placeholders": {
+      "message": {}
+    }
+  },
+
+  "genericUnknownAppName": "Unknown",
+  "genericUnknownFileName": "Unknown",
+
+  "featuresDrawerTitle": "Features",
+  "recommendedSectionTitle": "Recommended",
+
+  "featureNetworkProtection": "Network Protection",
+  "featureLinkChecker": "Link Checker",
+  "featureMetaPass": "MetaPass",
+  "featureCleanerPro": "Cleaner Pro",
+  "featureTerminal": "Terminal",
+  "featureScheduledScans": "Scheduled Scans",
+
+  "recommendedMetaPassDesc": "Generate secure offline passwords.",
+  "recommendedCleanerProDesc": "Find duplicates, old media, and unused apps to reclaim storage automatically.",
+  "recommendedLinkCheckerDesc": "Check suspicious links with the safe view feature, risk free.",
+  "recommendedNetworkProtectionDesc": "Keep your internet connection safe from malware.",
+  "recommendedTerminalDesc": "An advanced feature for Shizuku",
+  "recommendedScheduledScansDesc": "Automatic background scans.",
+
+  "metaPassTitle": "MetaPass",
+  "metaPassHowItWorks": "How MetaPass works",
+  "metaPassOk": "OK",
+  "metaPassSettings": "Settings",
+  "metaPassPoweredBy": "powered by VX-TITANIUM",
+  "metaPassLoading": "Loading…",
+  "metaPassEmptyTitle": "No entries yet",
+  "metaPassEmptyBody": "Add an app or website.\nPasswords are generated on-device from your secret meta password.",
+  "metaPassAddFirstEntry": "Add first entry",
+  "metaPassTapToCopyHint": "Tap to copy. Long-press to remove.",
+  "metaPassCopyTooltip": "Copy password",
+  "metaPassAdd": "Add",
+  "metaPassPickFromInstalledApps": "Pick from installed apps",
+  "metaPassAddWebsiteOrLabel": "Add website or custom label",
+  "metaPassSelectApp": "Select an app",
+  "metaPassSearchApps": "Search apps",
+  "metaPassCancel": "Cancel",
+  "metaPassContinue": "Continue",
+  "metaPassSave": "Save",
+  "metaPassAddEntryTitle": "Add entry",
+  "metaPassNameOrUrl": "Name or URL",
+  "metaPassNameOrUrlHint": "e.g. nextcloud, steam, example.com",
+  "metaPassVersion": "Version",
+  "metaPassLength": "Length",
+  "metaPassSetMetaTitle": "Set Meta Password",
+  "metaPassSetMetaBody": "Enter your meta password. It never leaves this device. All vault passwords rely on it.",
+  "metaPassMetaLabel": "Meta password",
+  "metaPassRememberThisDevice": "Remember for this device (stored securely)",
+  "metaPassChangingMetaWarning": "Changing this later changes all generated passwords. Using the same meta password restores them.",
+  "metaPassRemoveEntryTitle": "Remove entry",
+  "metaPassRemoveEntryBody": "Remove \"{label}\" from your vault?",
+  "@metaPassRemoveEntryBody": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "metaPassRemove": "Remove",
+  "metaPassPasswordCopied": "Password copied for {label} (v{version}, {length} chars)",
+  "@metaPassPasswordCopied": {
+    "placeholders": {
+      "label": {},
+      "version": {},
+      "length": {}
+    }
+  },
+  "metaPassGenerateFailed": "Failed to generate password: {error}",
+  "@metaPassGenerateFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassLoadAppsFailed": "Failed to load apps: {error}",
+  "@metaPassLoadAppsFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassChars": "{length} chars",
+  "@metaPassChars": {
+    "placeholders": {
+      "length": {}
+    }
+  },
+  "metaPassVersionShort": "v{version}",
+  "@metaPassVersionShort": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "metaPassInfoBody": "Passwords are never stored.\n\nEach entry derives a password from:\n• Your meta password\n• The label(name)\n• The version and length\n\nReinstalling the app with the same meta password and labels regenerates the same passwords.",
+
+  "passwordSettingsTitle": "Password settings",
+  "passwordSettingsSectionMetaPass": "MetaPass",
+  "passwordSettingsMetaPasswordTitle": "Meta password",
+  "passwordSettingsMetaNotSet": "Not set",
+  "passwordSettingsMetaStoredSecurely": "Stored securely on this device",
+  "passwordSettingsChange": "Change",
+  "passwordSettingsSetMetaPassTitle": "Set MetaPass",
+  "passwordSettingsMetaPasswordLabel": "Meta password",
+  "passwordSettingsChangingAltersAll": "Changing this alters all passwords.\nUsing the same MetaPass restores them.",
+  "passwordSettingsCancel": "Cancel",
+  "passwordSettingsSave": "Save",
+  "passwordSettingsSectionRestoreCode": "Restore code",
+  "passwordSettingsGenerateRestoreCode": "Generate restore code",
+  "passwordSettingsCopy": "Copy",
+  "passwordSettingsRestoreCodeCopied": "Restore code copied",
+  "passwordSettingsSectionRestoreFromCode": "Restore from code",
+  "passwordSettingsRestoreCodeLabel": "Restore code",
+  "passwordSettingsRestore": "Restore",
+  "passwordSettingsVaultRestored": "Vault restored",
+  "passwordSettingsFooterInfo": "Passwords are never stored.\n\nThe restore code contains only structure data. Combined with your MetaPass, it rebuilds your vault.",
+
+  "onboardingAppName": "AVarionX Security",
+  "onboardingStorageTitle": "Storage access",
+  "onboardingStorageDesc": "This permission is required to scan files on your device. You can grant this now or later.",
+  "onboardingStorageFootnote": "You can skip this, but you will be asked again when you choose a scan mode.",
+  "onboardingStorageSnack": "Storage permission is required for scanning.",
+  "onboardingNotificationsTitle": "Notifications",
+  "onboardingNotificationsDesc": "Used for real time alerts, scan status, and quarantine updates.",
+  "onboardingNotificationsFootnote": "Required by Android for RealTime Protection.",
+  "onboardingNetworkTitle": "Network protection",
+  "onboardingNetworkDesc": "Enables Wi Fi protection using Androids VPN permission.",
+  "onboardingNetworkFootnote": "This is optional but recommended.",
+  "onboardingGranted": "Granted",
+  "onboardingNotGranted": "Not granted",
+  "onboardingGrantAccess": "Grant access",
+  "onboardingAllowNotifications": "Allow notifications",
+  "onboardingAllowVpnAccess": "Allow VPN access",
+  "onboardingBack": "Back",
+  "onboardingNext": "Next",
+  "onboardingFinish": "Finish",
+  "onboardingSetupCompleteTitle": "Setup complete",
+  "onboardingSetupCompleteDesc": "We reccomend running a Full Device Scan (this does not scan installed apps currently), or go straight to the home screen.",
+  "onboardingRunFullScan": "Run full device scan",
+  "onboardingGoHome": "Go to home",
+
+  "networkProtectionTitle": "Network Protection",
+
+  "networkStatusConnected": "Connected to {dns}",
+  "@networkStatusConnected": {
+    "placeholders": {
+      "dns": {}
+    }
+  },
+  "networkStatusVpnConflict": "Another VPN is active",
+  "networkStatusOff": "Network protection is off",
+
+  "networkModeMalwareTitle": "Malware Blocking Only",
+  "networkModeMalwareSubtitle": "Uses 1.1.1.2",
+  "networkModeMalwareDescription": "Combines AvarionX’s local malware database with Cloudflare’s online threat intelligence for maximum malware protection.",
+
+  "networkModeAdultTitle": "Malware & Adult Content",
+  "networkModeAdultSubtitle": "Uses 1.1.1.3",
+  "networkModeAdultDescription": "Uses AvarionX’s offline malware database and adds adult content filtering. Cloud-based malware intelligence is disabled in this mode.",
+
+  "networkInfoTitle": "What is Network Protection?",
+  "networkInfoBody": "Some threats work by connecting to malicious servers or redirecting internet traffic.\nNetwork Protection blocks known dangerous domains and common ads by using a local VPN.\n\nAVarionX Security does not collect any data.",
+
+  "linkCheckerTitle": "Link Checker",
+  "linkCheckerTabAnalyse": "Analyse",
+  "linkCheckerTabView": "View",
+  "linkCheckerTabHistory": "History",
+  "linkCheckerAnalyseSubtitle": "Check page for malware or suspicious content",
+  "linkCheckerUrlLabel": "URL",
+  "linkCheckerUrlHint": "https://example.com",
+  "linkCheckerButtonAnalyse": "Analyse",
+  "linkCheckerButtonChecking": "Checking",
+  "linkCheckerEngineNotReadySnack": "Engine not ready",
+  "linkCheckerStatusVerifyingLink": "Verifying link…",
+  "linkCheckerStatusScanningPage": "Scanning page…",
+  "linkCheckerBlockedNavigation": "Navigation blocked",
+  "linkCheckerBlockedUnsupportedType": "Unsupported link type",
+  "linkCheckerBlockedInvalidDestination": "Invalid destination",
+  "linkCheckerBlockedUnableResolve": "Unable to resolve destination",
+  "linkCheckerBlockedUnableVerify": "Unable to verify destination",
+  "linkCheckerAnalyseCardTitleDefault": "Check page for suspicious content",
+  "linkCheckerAnalyseCardDetailDefault": "Paste a URL and run an analysis.",
+  "linkCheckerAnalyseCardTitleEngineNotReady": "Engine not ready",
+  "linkCheckerAnalyseCardDetailEngineNotReady": "error 1001.",
+  "linkCheckerAnalyseCardTitleChecking": "Checking",
+  "linkCheckerVerdictClean": "Clean",
+  "linkCheckerVerdictCleanDetail": "This page appears to be safe.",
+  "linkCheckerVerdictSuspicious": "Suspicious",
+  "linkCheckerVerdictSuspiciousDetail": "This page contains suspicious content.",
+  "linkCheckerViewLockedBody": "Run an analysis first to enable viewing.",
+  "linkCheckerViewSubtitle": "View the webpage safely",
+  "linkCheckerViewPage": "View page",
+  "linkCheckerClose": "Close",
+  "linkCheckerBlockedBody": "This page was stopped before it could load.",
+  "linkCheckerSuspiciousBanner": "Suspicious link, may not render if it requires blocked content.",
+  "linkCheckerHistorySubtitle": "Tap an entry to copy the link.",
+  "linkCheckerHistoryEmpty": "No checks yet.",
+  "linkCheckerCopied": "Copied",
+
+  "settingsSectionAppearance": "Appearance",
+  "settingsTheme": "Theme",
+  "settingsThemeCurrent": "Current: {theme}",
+  "@settingsThemeCurrent": {
+    "placeholders": {
+      "theme": {}
+    }
+  },
+  "settingsLanguage": "Language",
+  "settingsLanguageCurrent": "Current: {language}",
+  "@settingsLanguageCurrent": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "settingsChooseLanguage": "Choose Language",
+  "settingsLanguageApplied": "Language applied",
+  "settingsSystemDefault": "System default",
+
+  "settingsSectionCommunity": "Join the community!",
+  "settingsDiscord": "Discord",
+  "settingsDiscordSubtitle": "Chat, updates and feedback",
+  "settingsDiscordOpenFail": "Unable to open Discord link",
+
+  "settingsSectionPro": "PRO Features",
+  "settingsProCustomization": "PRO Customization",
+  "settingsProSubtitle": "Remove ads and unlock themes and icons",
+  "settingsUnlockPro": "Unlock PRO",
+  "settingsProUnlocked": "PRO mode unlocked",
+  "settingsPurchaseNotConfirmed": "Purchase not confirmed",
+  "settingsPurchaseFailed": "Purchase failed: {error}",
+  "@settingsPurchaseFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "settingsProReset": "PRO reset (debug only)",
+  "settingsProSheetTitle": "PRO Customization",
+  "settingsHideGoldHeader": "Hide gold header on Home Screen",
+  "settingsAppIcon": "App Icon",
+  "settingsIconSelected": "Icon selected: {icon}",
+  "@settingsIconSelected": {
+    "placeholders": {
+      "icon": {}
+    }
+  },
+  "settingsSave": "Save",
+
+  "settingsSectionShizuku": "Advanced Protection (Shizuku)",
+  "settingsEnableShizuku": "Enable Shizuku",
+  "settingsShizukuRequiresManager": "Requires external manager",
+  "settingsShizukuNotRunning": "Shizuku service not running",
+  "settingsShizukuPermissionRequired": "Permission required",
+  "settingsShizukuAvailable": "Advanced system access available",
+  "settingsAboutAdvancedProtection": "About Advanced Protection",
+  "settingsAboutAdvancedProtectionSubtitle": "Learn how advanced protection works",
+  "settingsAdvancedProtectionDialogTitle": "Advanced system Protection",
+  "settingsAdvancedProtectionDialogBody": "Shizuku access requires an external manager intended for advanced users.\n\nThis feature is optional and not recommended for casual protection.",
+  "settingsAboutShizukuTitle": "About Shizuku",
+  "settingsAboutShizukuBody": "AVarionX can integrate with Shizuku to access app processes at the system level.\n\nThis allows the app to:\n• Detect malware that hides from standard scanners\n• Inspect running app processes\n• Disable or contain most active malware\n\nShizuku however, does not grant root access\n\nThis feature is intended for advanced users and is not required for normal protection.\n\nDocumentation:\nhttps://shizuku.rikka.app",
+
+  "settingsSectionGeneral": "General",
+  "settingsExclusions": "Exclusions",
+  "settingsExclusionsSubtitle": "Manage and add exclusions",
+  "settingsExcludeFolder": "Exclude a Folder",
+  "settingsExcludeFile": "Exclude a File",
+  "settingsManageExclusions": "Manage Existing Exclusions",
+  "settingsManageExclusionsSubtitle": "View or remove exclusions",
+  "settingsFolderExcluded": "Folder excluded",
+  "settingsFileExcluded": "File excluded",
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "settingsPrivacyPolicySubtitle": "View how your data is handled",
+  "settingsPrivacyPolicyOpenFail": "Unable to open privacy policy",
+  "settingsAboutApp": "About AVarionX",
+  "settingsHowThisAppWorks": "How This App Works",
+  "settingsHowThisAppWorksSubtitle": "Learn about protection",
+  "settingsThemePickerTitle": "Choose Theme",
+  "settingsThemeRequiresPro": "That theme requires PRO mode",
+
+  "scheduledScansTitle": "Scheduled Scans",
+  "scheduledScansInfoTitle": "Scheduled Scans",
+  "scheduledScansInfoBody": "While RTP focuses on downloaded malware, Scheduled Scans will automatically launch your chosen scan mode in the background.\nIt will only run while RTP is enabled.\n\nPRO users can customize scan mode and frequency.",
+
+  "scheduledScansHeader": "Automatic background scans",
+  "scheduledScansSubheader": "While RTP is active, the app will scan your device based on the selected scan mode and frequency.",
+
+  "proRequiredToCustomize": "PRO required to customize",
+
+  "scheduledScansEnabledTitle": "Enabled",
+  "scheduledScansEnabledSubtitle": "When enabled, a scan runs automatically on your chosen schedule.",
+
+  "scheduledScansModeTitle": "Scan mode",
+  "scheduledScansModeHint": "Current mode: {mode}",
+  "@scheduledScansModeHint": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+
+  "scheduledScansFrequencyTitle": "Frequency",
+  "scheduledScansFrequencyHint": "Runs: {freq}",
+  "@scheduledScansFrequencyHint": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
+
+  "scheduledEveryDay": "Every day",
+  "scheduledEvery3Days": "Every 3 days",
+  "scheduledEveryWeek": "Every week",
+  "scheduledEvery2Weeks": "Every 2 weeks",
+  "scheduledEvery3Weeks": "Every 3 weeks",
+  "scheduledMonthly": "Monthly",
+
+  "scheduledEveryDays": "Every {days} days",
+  "@scheduledEveryDays": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+
+  "scheduledEveryHours": "Every {hours} hours",
+  "@scheduledEveryHours": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+
+  "scheduledChargingOnlyTitle": "Only when charging",
+  "scheduledChargingOnlySubtitle": "Run the scheduled scan only while the device is plugged in.",
+
+  "scheduledPreferredTimeTitle": "Preferred time",
+  "scheduledPreferredTimeSubtitle": "AVarionX will aim to start around this time. Android may delay it to save battery.",
+
+  "scheduledPickTime": "Pick time",
+
+  "cleanerTitle": "Cleaner Pro",
+  "cleanerReadyToScan": "Ready to Scan",
+  "cleanerScan": "Scan",
+  "cleanerScanning": "Scanning…",
+  "cleanerReady": "Ready",
+  "cleanerStatusReady": "Ready",
+  "cleanerStatusStarting": "Starting…",
+  "cleanerStatusFilesScanned": "Files scanned",
+  "cleanerStatusFindingUnusedApps": "Finding unused apps…",
+  "cleanerStatusComplete": "Complete",
+  "cleanerStatusScanError": "Scan error",
+  "cleanerStatusScanningApps": "Scanning apps…",
+  "cleanerGrantUsageAccessTitle": "Grant Usage Access",
+  "cleanerGrantUsageAccessBody": "To detect unused apps, this cleaner requires Usage Access permission. You’ll be redirected to system settings to enable it.",
+  "cleanerCancel": "Cancel",
+  "cleanerContinue": "Continue",
+
+  "cleanerDuplicates": "Duplicates",
+  "cleanerDuplicatesNone": "No duplicates found",
+  "cleanerDuplicatesSubtitle": "{count} items • reclaim {size}",
+  "@cleanerDuplicatesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerOldPhotos": "Old Photos",
+  "cleanerOldPhotosNone": "No photos older than {days} days",
+  "@cleanerOldPhotosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldPhotosSubtitle": "{count} items • {size}",
+  "@cleanerOldPhotosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerOldVideos": "Old Videos",
+  "cleanerOldVideosNone": "No videos older than {days} days",
+  "@cleanerOldVideosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldVideosSubtitle": "{count} items • {size}",
+  "@cleanerOldVideosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerLargeFiles": "Large Files",
+  "cleanerLargeFilesNone": "No files ≥ {size}",
+  "@cleanerLargeFilesNone": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "cleanerLargeFilesSubtitle": "{count} items • {sizeTotal}",
+  "@cleanerLargeFilesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "sizeTotal": {}
+    }
+  },
+
+  "cleanerUnusedApps": "Unused Apps",
+  "cleanerUnusedAppsNone": "No unused apps (last {days} days)",
+  "@cleanerUnusedAppsNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerUnusedAppsCount": "{count} apps",
+  "@cleanerUnusedAppsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "cleanerStageDuplicates": "Scanning duplicates…",
+  "cleanerStageDuplicatesGrouping": "Grouping duplicates…",
+  "cleanerStageOldPhotos": "Scanning old photos…",
+  "cleanerStageOldVideos": "Scanning old videos…",
+  "cleanerStageLargeFiles": "Scanning large files…",
+
+  "cleanerStageOldPhotosProgress": "Old photos: {count} • {size}",
+  "@cleanerStageOldPhotosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerStageOldVideosProgress": "Old videos: {count} • {size}",
+  "@cleanerStageOldVideosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerStageLargeFilesProgress": "Large files: {count} • {size}",
+  "@cleanerStageLargeFilesProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "unusedAppsTitle": "Unused Apps",
+  "unusedAppsEmpty": "No unused apps in last {days} days",
+  "@unusedAppsEmpty": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+
+  "quarantineTitle": "Removed",
+  "quarantineSelectAll": "Select all",
+  "quarantineRefresh": "Refresh",
+
+  "quarantineEmptyTitle": "No removed files",
+  "quarantineEmptyBody": "Anything you remove will show up here.",
+
+  "quarantineRestore": "Restore",
+  "quarantineDelete": "Delete",
+
+  "quarantineSnackRestored": "Restored",
+  "quarantineSnackDeleted": "Deleted",
+
+  "quarantineDeleteDialogTitle": "Delete selected files?",
+  "quarantineDeleteDialogBody": "This will permanently delete {count} item{plural}.",
+  "@quarantineDeleteDialogBody": {
+    "placeholders": {
+      "count": {},
+      "plural": {}
+    }
+  }
+}

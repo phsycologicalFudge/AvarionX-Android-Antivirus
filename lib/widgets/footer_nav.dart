@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../translations/app_localizations.dart';
 
 class FooterNav extends StatelessWidget {
   final String active;
@@ -14,6 +15,7 @@ class FooterNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isTerminal = active == 'terminal';
 
@@ -35,10 +37,10 @@ class FooterNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildItem(context, Icons.home_rounded, 'Home', 'home'),
-              _buildItem(context, Icons.explore_rounded, 'Explore', 'explore'),
-              _buildItem(context, Icons.shield_outlined, 'Removed', 'quarantine'),
-              _buildItem(context, Icons.settings_outlined, 'Settings', 'settings'),
+              _buildItem(context, Icons.home_rounded, l10n.footerHome, 'home'),
+              _buildItem(context, Icons.explore_rounded, l10n.footerExplore, 'explore'),
+              _buildItem(context, Icons.shield_outlined, l10n.footerRemoved, 'quarantine'),
+              _buildItem(context, Icons.settings_outlined, l10n.footerSettings, 'settings'),
             ],
           ),
         ),

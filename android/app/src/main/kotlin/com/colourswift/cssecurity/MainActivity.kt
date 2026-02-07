@@ -1,11 +1,16 @@
 package com.colourswift.cssecurity
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,13 +26,66 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
-import android.net.VpnService
+import org.json.JSONArray
+import com.colourswift.cssecurity.https.CertService
+
+object CsDnsEvents {
+    private const val MAX = 200
+
+    private val lock = Any()
+    private val buffer = ArrayDeque<Map<String, Any?>>(MAX)
+
+    private val main = Handler(Looper.getMainLooper())
+
+    private val sinks = LinkedHashSet<EventChannel.EventSink>()
+
+    fun addSink(s: EventChannel.EventSink?) {
+        if (s == null) return
+
+        val snapshot: List<Map<String, Any?>> = synchronized(lock) {
+            sinks.add(s)
+            buffer.toList()
+        }
+
+        main.post {
+            for (e in snapshot) {
+                try { s.success(e) } catch (_: Exception) {}
+            }
+        }
+    }
+
+    fun removeSink(s: EventChannel.EventSink?) {
+        if (s == null) return
+        synchronized(lock) {
+            sinks.remove(s)
+        }
+    }
+
+    fun emit(map: Map<String, Any?>) {
+        val targets: List<EventChannel.EventSink>
+        synchronized(lock) {
+            if (buffer.size >= MAX) buffer.removeFirst()
+            buffer.addLast(map)
+            targets = sinks.toList()
+        }
+
+        if (targets.isEmpty()) return
+
+        main.post {
+            for (t in targets) {
+                try { t.success(map) } catch (_: Exception) {}
+            }
+        }
+    }
+}
 
 class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     private val channel = MethodChannel(messenger, "cs.fastapps")
     private val io = Executors.newSingleThreadExecutor()
 
-    init { channel.setMethodCallHandler(this) }
+    init {
+        channel.setMethodCallHandler(this)
+    }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -45,12 +103,60 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                                     "path" to it.sourceDir
                                 )
                             }
+                            .sortedBy { (it["name"] as? String)?.lowercase() ?: "" }
                         Handler(Looper.getMainLooper()).post { result.success(apps) }
                     } catch (t: Throwable) {
-                        Handler(Looper.getMainLooper()).post { result.error("ERR", t.message, null) }
+                        Handler(Looper.getMainLooper()).post {
+                            result.error(
+                                "ERR",
+                                t.message,
+                                null
+                            )
+                        }
                     }
                 }
             }
+
+            "getAppIconPng" -> {
+                io.execute {
+                    try {
+                        val pkg = call.argument<String>("package") ?: ""
+                        if (pkg.isBlank()) {
+                            Handler(Looper.getMainLooper()).post { result.success(null) }
+                            return@execute
+                        }
+
+                        val pm = context.packageManager
+                        val drawable = pm.getApplicationIcon(pkg)
+
+                        val bmp = if (drawable is android.graphics.drawable.BitmapDrawable) {
+                            drawable.bitmap
+                        } else {
+                            val w = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 96
+                            val h =
+                                if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 96
+                            val b = android.graphics.Bitmap.createBitmap(
+                                w,
+                                h,
+                                android.graphics.Bitmap.Config.ARGB_8888
+                            )
+                            val c = android.graphics.Canvas(b)
+                            drawable.setBounds(0, 0, c.width, c.height)
+                            drawable.draw(c)
+                            b
+                        }
+
+                        val baos = java.io.ByteArrayOutputStream()
+                        bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos)
+                        val bytes = baos.toByteArray()
+
+                        Handler(Looper.getMainLooper()).post { result.success(bytes) }
+                    } catch (_: Throwable) {
+                        Handler(Looper.getMainLooper()).post { result.success(null) }
+                    }
+                }
+            }
+
             else -> result.notImplemented()
         }
     }
@@ -60,18 +166,55 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "colourswift/foreground_service"
     private val EVENT_CHANNEL = "colourswift/realtime_stream"
     private var receiver: RealtimeReceiver? = null
+
     private var pendingVpnResult: MethodChannel.Result? = null
-    private var pendingVpnDomain: String? = null
     private var heuristicEvents: EventChannel.EventSink? = null
     private var watcherStateEvents: EventChannel.EventSink? = null
     private var processEvents: EventChannel.EventSink? = null
+    private var fe: FlutterEngine? = null
+
+    private val SCAN_NOTIF_ID = 201
+    private val SCAN_NOTIF_CHANNEL = "cssecurity_scan_status"
+    private val EXTRA_CANCEL_SCHEDULED_SCAN = "cancel_scheduled_scan"
+
+    private val VPN_REQ_CODE = 777
+    private var pendingVpnPermissionResult: MethodChannel.Result? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(i: Intent?) {
+        if (i == null) return
+        val cancel = i.getBooleanExtra(EXTRA_CANCEL_SCHEDULED_SCAN, false)
+        if (!cancel) return
+        try {
+            val engine = fe ?: return
+            MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL).invokeMethod("cancelScheduledScan", null)
+        } catch (_: Exception) {}
+        try {
+            i.removeExtra(EXTRA_CANCEL_SCHEDULED_SCAN)
+        } catch (_: Exception) {}
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != VPN_REQ_CODE) return
+        val ok = VpnService.prepare(this) == null
+        pendingVpnPermissionResult?.success(ok)
+        pendingVpnPermissionResult = null
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        fe = flutterEngine
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
@@ -92,6 +235,24 @@ class MainActivity : FlutterActivity() {
                         val title = args?.get("title") as? String ?: "AVarionX"
                         val text = args?.get("text") as? String ?: ""
                         showNotification(title, text)
+                        result.success(true)
+                    }
+                    "showScanOngoing" -> {
+                        val args = call.arguments as? Map<*, *>
+                        val title = args?.get("title") as? String ?: "Scheduled scan running"
+                        val text = args?.get("text") as? String ?: "Scanning files..."
+                        showScanOngoingNotification(title, text)
+                        result.success(true)
+                    }
+                    "updateScanOngoing" -> {
+                        val args = call.arguments as? Map<*, *>
+                        val title = args?.get("title") as? String ?: "Scheduled scan running"
+                        val text = args?.get("text") as? String ?: "Scanning files..."
+                        updateScanOngoingNotification(title, text)
+                        result.success(true)
+                    }
+                    "hideScanOngoing" -> {
+                        hideScanOngoingNotification()
                         result.success(true)
                     }
                     else -> result.notImplemented()
@@ -138,20 +299,34 @@ class MainActivity : FlutterActivity() {
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
+            "cs_https_cert"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "install" -> {
+                    try {
+                        CertService.launchInstaller(applicationContext)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("CERT_INSTALL_FAILED", e.message, null)
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
             "colourswift/system_watcher"
         ).setMethodCallHandler { call, result ->
             when (call.method) {
-
                 "start" -> {
                     SystemWatcher.start(applicationContext)
                     result.success(null)
                 }
-
                 "stop" -> {
                     SystemWatcher.stop()
                     result.success(null)
                 }
-
                 "startLogs" -> {
                     SystemWatcher.enableHeuristicLogs { line ->
                         Handler(Looper.getMainLooper()).post {
@@ -160,12 +335,10 @@ class MainActivity : FlutterActivity() {
                     }
                     result.success(null)
                 }
-
                 "stopLogs" -> {
                     SystemWatcher.disableHeuristicLogs()
                     result.success(null)
                 }
-
                 else -> result.notImplemented()
             }
         }
@@ -173,12 +346,34 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_channel")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "checkDomain" -> {
-                        val domain = call.argument<String>("domain") ?: ""
+                    "checkConnection" -> {
                         pendingVpnResult = result
-                        pendingVpnDomain = domain
+                        val ip = call.argument<String>("ip") ?: ""
+                        val sni = call.argument<String>("sni") ?: ""
+                        val port = call.argument<Int>("port") ?: 443
                         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_callback")
-                            .invokeMethod("checkDomain", mapOf("domain" to domain))
+                            .invokeMethod(
+                                "checkConnection",
+                                mapOf(
+                                    "ip" to ip,
+                                    "sni" to sni,
+                                    "port" to port
+                                )
+                            )
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_callback")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "replyCheckConnection" -> {
+                        val code = call.argument<Int>("code") ?: 0
+                        val r = pendingVpnResult
+                        pendingVpnResult = null
+                        try { r?.success(code) } catch (_: Exception) {}
+                        result.success(true)
                     }
                     else -> result.notImplemented()
                 }
@@ -189,37 +384,84 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "startVpn" -> {
                         val dnsMode = call.argument<String>("dns_mode") ?: "malware"
-
                         val intent = Intent(applicationContext, CSVpnService::class.java).apply {
                             action = CSVpnService.ACTION_START
                             putExtra("dns_mode", dnsMode)
                         }
-
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             applicationContext.startForegroundService(intent)
                         } else {
                             applicationContext.startService(intent)
                         }
-
                         Log.i("CSMain", "Starting VPN with dns_mode=$dnsMode")
                         result.success(true)
                     }
-
                     "stopVpn" -> {
                         val intent = Intent(applicationContext, CSVpnService::class.java)
                         intent.action = CSVpnService.ACTION_STOP
                         applicationContext.startService(intent)
                         result.success(true)
                     }
+                    else -> result.notImplemented()
                 }
             }
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "cs_dns_events"
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                CsDnsEvents.addSink(events)
+            }
+
+            override fun onCancel(arguments: Any?) {
+            }
+        })
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "cs_dns_settings"
+        ).setMethodCallHandler { call, result ->
+            if (call.method != "setCloudSettings") {
+                result.notImplemented()
+                return@setMethodCallHandler
+            }
+
+            val args = call.arguments as? Map<*, *>
+            val enabledLists = args?.get("enabled_lists") as? List<*>
+            val resolver = (args?.get("resolver") as? String)?.trim().orEmpty()
+            val plan = (args?.get("plan") as? String)?.trim()?.lowercase().orEmpty()
+            val cloudUrl = (args?.get("cloud_url") as? String)?.trim().orEmpty()
+            val clientId = (args?.get("client_id") as? String)?.trim().orEmpty()
+
+            val prefs = applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
+            val ed = prefs.edit()
+
+            if (enabledLists != null) {
+                val arr = JSONArray()
+                enabledLists.forEach { v ->
+                    val s = v?.toString()?.trim().orEmpty()
+                    if (s.isNotEmpty()) arr.put(s)
+                }
+                ed.putString("enabled_lists_json", arr.toString())
+            }
+
+            if (resolver.isNotEmpty()) ed.putString("resolver", resolver)
+            if (plan == "pro" || plan == "free") ed.putString("plan", plan)
+            if (cloudUrl.isNotEmpty()) ed.putString("cloud_url", cloudUrl)
+            if (clientId.isNotEmpty()) ed.putString("client_id", clientId)
+
+            ed.commit()
+            result.success(true)
+        }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")
             .setMethodCallHandler { call, result ->
                 if (call.method == "prepareVpn") {
                     val intent = VpnService.prepare(this)
                     if (intent != null) {
-                        startActivityForResult(intent, 777)
-                        result.success(false)
+                        pendingVpnPermissionResult = result
+                        startActivityForResult(intent, VPN_REQ_CODE)
                     } else {
                         result.success(true)
                     }
@@ -230,7 +472,6 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "colourswift/heuristic_logs"
         ).setStreamHandler(object : EventChannel.StreamHandler {
-
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 heuristicEvents = events
             }
@@ -244,12 +485,9 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "colourswift/process_logs"
         ).setStreamHandler(object : EventChannel.StreamHandler {
-
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 processEvents = events
-
                 SystemWatcher.start(applicationContext)
-
                 SystemWatcher.enableProcessLogs { line ->
                     Handler(Looper.getMainLooper()).post {
                         processEvents?.success(line)
@@ -267,7 +505,6 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "colourswift/watcher_state"
         ).setStreamHandler(object : EventChannel.StreamHandler {
-
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 watcherStateEvents = events
                 SystemWatcher.setStateSink { alive ->
@@ -319,6 +556,7 @@ class MainActivity : FlutterActivity() {
                 }
             })
     }
+
     private fun startForegroundServiceCompat(title: String, text: String) {
         try {
             val intent = Intent(this, CSForegroundService::class.java)
@@ -345,22 +583,91 @@ class MainActivity : FlutterActivity() {
 
     private fun showNotification(title: String, text: String) {
         val channelId = "cssecurity_realtime_notify"
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = android.app.NotificationChannel(
+            val channel = NotificationChannel(
                 channelId, "Realtime Alerts",
-                android.app.NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_HIGH
             )
             channel.setShowBadge(false)
             manager.createNotificationChannel(channel)
         }
-        val notification = android.app.Notification.Builder(applicationContext, channelId)
+        val notification = Notification.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setAutoCancel(true)
             .build()
         manager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    private fun ensureScanChannel(mgr: NotificationManager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val ch = NotificationChannel(
+                SCAN_NOTIF_CHANNEL,
+                "Scheduled Scan",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            ch.setShowBadge(false)
+            mgr.createNotificationChannel(ch)
+        }
+    }
+
+    private fun scanCancelPendingIntent(): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            putExtra(EXTRA_CANCEL_SCHEDULED_SCAN, true)
+        }
+        return PendingIntent.getActivity(
+            this,
+            8801,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun scanContentPendingIntent(): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        return PendingIntent.getActivity(
+            this,
+            8802,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun showScanOngoingNotification(title: String, text: String) {
+        val mgr = getSystemService(NotificationManager::class.java)
+        ensureScanChannel(mgr)
+
+        val n = Notification.Builder(this, SCAN_NOTIF_CHANNEL)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(scanContentPendingIntent())
+            .addAction(
+                Notification.Action.Builder(
+                    null,
+                    "Cancel",
+                    scanCancelPendingIntent()
+                ).build()
+            )
+            .build()
+
+        mgr.notify(SCAN_NOTIF_ID, n)
+    }
+
+    private fun updateScanOngoingNotification(title: String, text: String) {
+        showScanOngoingNotification(title, text)
+    }
+
+    private fun hideScanOngoingNotification() {
+        val mgr = getSystemService(NotificationManager::class.java)
+        mgr.cancel(SCAN_NOTIF_ID)
     }
 
     private fun switchLauncherIcon(icon: String) {

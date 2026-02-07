@@ -1,0 +1,688 @@
+{
+  "@@locale": "pl",
+
+  "appName": "AVarionX Security",
+  "ok": "OK",
+  "cancel": "Anuluj",
+
+  "footerHome": "Główna",
+  "footerExplore": "Eksploruj",
+  "footerRemoved": "Usunięte",
+  "footerSettings": "Ustawienia",
+
+  "proBadge": "PRO",
+
+  "updateDbTitle": "Aktualizowanie bazy danych",
+  "updateDbVersionLabel": "Wersja {version}",
+  "@updateDbVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "updateDbAutoDownloadLabel": "Automatycznie pobieraj przyszłe aktualizacje",
+  "updateDbUpdatedAutoOn": "Baza zaktualizowana • Auto-aktualizacje włączone",
+  "updateDbUpdatedSuccess": "Baza danych zaktualizowana pomyślnie",
+  "updateDbUpdateFailed": "Aktualizacja bazy danych nie powiodła się",
+
+  "engineReadyBanner": "SILNIK GOTOWY • VX-TITANIUM-v7",
+
+  "scanButton": "Skanuj",
+
+  "scanModeFullTitle": "Pełny skan urządzenia",
+  "scanModeFullSubtitle": "Skanuje wszystkie czytelne pliki w pamięci.",
+  "scanModeSmartTitle": "Inteligentny skan [Zalecane]",
+  "scanModeSmartSubtitle": "Skanuje pliki, które mogą zawierać malware.",
+  "scanModeRapidTitle": "Szybki skan",
+  "scanModeRapidSubtitle": "Sprawdza ostatnie pliki APK w Pobranych.",
+  "scanModeInstalledTitle": "Zainstalowane aplikacje",
+  "scanModeInstalledSubtitle": "Skanuje aplikacje pod kątem zagrożeń.",
+  "scanModeSingleTitle": "Skanowanie pliku / aplikacji",
+  "scanModeSingleSubtitle": "Wybierz plik lub aplikację do skanowania.",
+
+  "useCloudAssistedScan": "Używaj skanowania wspomaganego chmurą",
+
+  "protectionTitle": "Ochrona",
+  "stateOffLine1": "Ochrona urządzenia jest wyłączona",
+  "stateOffLine2": "Dotknij, aby włączyć",
+  "stateAdvancedActiveLine1": "Zaawansowana ochrona jest aktywna",
+  "stateFileOnlyLine1": "Tylko ochrona plików",
+  "stateFileOnlyLine2": "Ochrona sieci wyłączona",
+  "stateVpnConflictLine2": "Inny VPN jest aktywny",
+  "stateProtectedLine1": "Urządzenie chronione",
+  "stateProtectedLine2": "Dotknij, aby wyłączyć",
+
+  "dbUpdating": "Aktualizowanie bazy...",
+  "dbVersionAutoUpdated": "Baza v{version} • Auto-aktualizacja",
+  "@dbVersionAutoUpdated": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+
+  "rtpInfoTitle": "Ochrona w czasie rzeczywistym",
+  "rtpInfoBody": "Oprócz blokowania podejrzanych plików pobranych celowo (lub przez malware), ochrona RTP używa lokalnego VPN do blokowania złośliwych domen w całym systemie.\n\nPo włączeniu filtrowanie sieci pozostaje aktywne, chyba że:\n• Zostanie wyłączone ręcznie w Terminalu\n• Zostanie zastąpione przez inny VPN\n\nOchrona plików kontynuuje działanie, dopóki RTP jest włączone.",
+
+  "scanTitleDefault": "Skanuj",
+  "scanTitleSmart": "Inteligentny skan",
+  "scanTitleRapid": "Szybki skan",
+  "scanTitleInstalled": "Skanuj zainstalowane aplikacje",
+  "scanTitleFull": "Pełny skan urządzenia",
+  "scanTitleSingle": "Pojedynczy skan",
+
+  "cancellingScan": "Anulowanie skanowania…",
+  "cancelScan": "Anuluj skanowanie",
+
+  "scanProgressZero": "Postęp: 0%",
+  "scanProgressWithPct": "Postęp: {pct}% ({scanned} / {total})",
+  "@scanProgressWithPct": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+
+  "scanProgressFullItems": "Przeskanowano: {count} elementów",
+  "@scanProgressFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "initializing": "Inicjowanie...",
+  "scanningEllipsis": "Skanowanie...",
+
+  "fullScanInfoTitle": "Pełny skan urządzenia",
+  "fullScanInfoBody": "Ten tryb skanuje każdy czytelny plik w pamięci, bez filtrowania.\n\nSkanowanie wspomagane chmurą oraz skanowanie aplikacji nie są używane w tym trybie.",
+
+  "scanComplete": "Skanowanie zakończone",
+
+  "pillSuspiciousCount": "Podejrzane: {count}",
+  "@pillSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillCleanCount": "Czyste: {count}",
+  "@pillCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillScannedCount": "Przeskanowano: {count}",
+  "@pillScannedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "resultNoThreatsTitle": "Nie wykryto zagrożeń",
+  "resultNoThreatsBody": "Nie wykryto zagrożeń w skanowanych elementach.",
+  "resultSuspiciousAppsTitle": "Podejrzane aplikacje",
+  "resultSuspiciousItemsTitle": "Podejrzane elementy",
+  "returnHome": "Wróć do ekranu głównego",
+
+  "emptyTitle": "Brak plików do skanowania",
+  "emptyBody": "Twoje urządzenie nie zawiera plików spełniających kryteria skanowania.",
+
+  "knownMalware": "Znane malware",
+  "suspiciousActivityDetected": "Wykryto podejrzaną aktywność",
+  "maliciousActivityDetected": "Wykryto złośliwą aktywność",
+
+  "androidBankingTrojan": "Trojan bankowy (Android)",
+  "androidSpyware": "Spyware (Android)",
+  "androidAdware": "Adware (Android)",
+  "androidSmsFraud": "Oszustwo SMS (Android)",
+
+  "threatLevelConfirmed": "Potwierdzone",
+  "threatLevelHigh": "Wysokie",
+  "threatLevelMedium": "Średnie",
+
+  "threatLevelLabel": "Poziom zagrożenia: {level}",
+  "@threatLevelLabel": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+
+  "explainFoundInCloud": "Ten element znajduje się w chmurowej bazie zagrożeń ColourSwift.",
+  "explainFoundInOffline": "Ten element znajduje się w lokalnej bazie złośliwego oprogramowania na urządzeniu.",
+  "explainBanker": "Zaprojektowany do kradzieży danych finansowych, często przy użyciu nakładek, rejestrowania klawiszy lub przechwytywania ruchu.",
+  "explainSpyware": "Dyskretnie monitoruje aktywność lub zbiera dane osobowe, takie jak wiadomości, lokalizacja czy identyfikatory urządzenia.",
+  "explainAdware": "Wyświetla natrętne reklamy, wykonuje przekierowania lub generuje nieuczciwy ruch reklamowy.",
+  "explainSmsFraud": "Próbuje wysyłać lub wyzwalać działania SMS bez zgody użytkownika, co może powodować nieoczekiwane opłaty.",
+  "explainGenericMalware": "Wykryto silne wskaźniki złośliwego działania, mimo że element nie pasuje do żadnej nazwanej rodziny.",
+  "explainSuspiciousDefault": "Wykryto wskaźniki podejrzanego zachowania. Może to obejmować wzorce spotykane w malware, ale może to być również fałszywy alarm (false positive).",
+
+  "singleChoiceScanFile": "Skanuj plik",
+  "singleChoiceScanInstalledApp": "Skanuj zainstalowaną aplikację",
+  "singleChoiceManageExclusions": "Zarządzaj wykluczeniami",
+
+  "labelKnownMalwareDb": "Znaleziono w bazie malware",
+  "labelFoundInCloudDb": "Znaleziono w bazie chmurowej",
+
+  "logEngineFullDeviceScan": "[ENGINE] Pełny skan urządzenia",
+  "logEngineTargetStorage": "[ENGINE] Cel: /storage/emulated/0",
+  "logEngineNoFilesFound": "[ENGINE] Nie znaleziono plików.",
+  "logEngineFilesEnumerated": "[ENGINE] Wyliczone pliki: {count}",
+  "@logEngineFilesEnumerated": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "logEngineNoReadableFilesFound": "[ENGINE] Nie znaleziono czytelnych plików.",
+  "logEngineInstalledAppsFound": "[ENGINE] Znalezione zainstalowane aplikacje: {count}",
+  "@logEngineInstalledAppsFound": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logModeCloudAssisted": "[TRYB] Wspomagany chmurą",
+  "logModeOffline": "[TRYB] Offline",
+
+  "logStageHashing": "[ETAP 1] Pobieranie skrótów plików (z bufora)...",
+  "logStageCloudLookup": "[ETAP 2] Sprawdzanie skrótów w chmurze...",
+  "logStageLocalScanning": "[ETAP {stage}] Lokalne skanowanie plików...",
+  "@logStageLocalScanning": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+
+  "logCloudHashHits": "[CHMURA] {count} trafień skrótów",
+  "@logCloudHashHits": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logSummary": "[PODSUMOWANIE] {suspicious} podejrzane • {clean} czyste",
+  "@logSummary": {
+    "placeholders": {
+      "suspicious": {},
+      "clean": {}
+    }
+  },
+
+  "logErrorPrefix": "[BŁĄD] {message}",
+  "@logErrorPrefix": {
+    "placeholders": {
+      "message": {}
+    }
+  },
+
+  "genericUnknownAppName": "Nieznana",
+  "genericUnknownFileName": "Nieznany",
+
+  "featuresDrawerTitle": "Funkcje",
+  "recommendedSectionTitle": "Zalecane",
+
+  "featureNetworkProtection": "Ochrona sieci",
+  "featureLinkChecker": "Skaner linków",
+  "featureMetaPass": "MetaPass",
+  "featureCleanerPro": "Cleaner Pro",
+  "featureTerminal": "Terminal",
+  "featureScheduledScans": "Planowane skanowania",
+
+  "recommendedMetaPassDesc": "Generuj bezpieczne hasła offline.",
+  "recommendedCleanerProDesc": "Znajdź duplikaty, stare media i nieużywane aplikacje, aby automatycznie odzyskać miejsce.",
+  "recommendedLinkCheckerDesc": "Sprawdzaj podejrzane linki dzięki funkcji bezpiecznego widoku, bez ryzyka.",
+  "recommendedNetworkProtectionDesc": "Chroń swoje połączenie internetowe przed złośliwym oprogramowaniem.",
+  "recommendedTerminalDesc": "Zaawansowana funkcja dla Shizuku",
+  "recommendedScheduledScansDesc": "Automatyczne skanowania w tle.",
+
+  "metaPassTitle": "MetaPass",
+  "metaPassHowItWorks": "Jak działa MetaPass",
+  "metaPassOk": "OK",
+  "metaPassSettings": "Ustawienia",
+  "metaPassPoweredBy": "napędzane przez VX-TITANIUM",
+  "metaPassLoading": "Ładowanie…",
+  "metaPassEmptyTitle": "Brak wpisów",
+  "metaPassEmptyBody": "Dodaj aplikację lub stronę.\nHasła są generowane na urządzeniu na podstawie Twojego hasła meta.",
+  "metaPassAddFirstEntry": "Dodaj pierwszy wpis",
+  "metaPassTapToCopyHint": "Dotknij, aby skopiować. Przytrzymaj, aby usunąć.",
+  "metaPassCopyTooltip": "Kopiuj hasło",
+  "metaPassAdd": "Dodaj",
+  "metaPassPickFromInstalledApps": "Wybierz z zainstalowanych aplikacji",
+  "metaPassAddWebsiteOrLabel": "Dodaj stronę lub własną etykietę",
+  "metaPassSelectApp": "Wybierz aplikację",
+  "metaPassSearchApps": "Szukaj aplikacji",
+  "metaPassCancel": "Anuluj",
+  "metaPassContinue": "Kontynuuj",
+  "metaPassSave": "Zapisz",
+  "metaPassAddEntryTitle": "Dodaj wpis",
+  "metaPassNameOrUrl": "Nazwa lub URL",
+  "metaPassNameOrUrlHint": "np. nextcloud, steam, przykład.pl",
+  "metaPassVersion": "Wersja",
+  "metaPassLength": "Długość",
+  "metaPassSetMetaTitle": "Ustaw hasło Meta",
+  "metaPassSetMetaBody": "Wprowadź swoje hasło meta. Nigdy nie opuszcza ono tego urządzenia. Wszystkie hasła w sejfie od niego zależą.",
+  "metaPassMetaLabel": "Hasło meta",
+  "metaPassRememberThisDevice": "Zapamiętaj na tym urządzeniu (bezpieczny zapis)",
+  "metaPassChangingMetaWarning": "Zmiana hasła meta w przyszłości spowoduje zmianę wszystkich haseł. Użycie tego samego hasła przywróci je.",
+  "metaPassRemoveEntryTitle": "Usuń wpis",
+  "metaPassRemoveEntryBody": "Usunąć „{label}” z sejfu?",
+  "@metaPassRemoveEntryBody": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "metaPassRemove": "Usuń",
+  "metaPassPasswordCopied": "Skopiowano hasło dla {label} (v{version}, {length} znaków)",
+  "@metaPassPasswordCopied": {
+    "placeholders": {
+      "label": {},
+      "version": {},
+      "length": {}
+    }
+  },
+  "metaPassGenerateFailed": "Nie udało się wygenerować hasła: {error}",
+  "@metaPassGenerateFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassLoadAppsFailed": "Nie udało się załadować aplikacji: {error}",
+  "@metaPassLoadAppsFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassChars": "{length} zn.",
+  "@metaPassChars": {
+    "placeholders": {
+      "length": {}
+    }
+  },
+  "metaPassVersionShort": "v{version}",
+  "@metaPassVersionShort": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "metaPassInfoBody": "Hasła nie są nigdzie przechowywane.\n\nKażdy wpis generuje hasło na podstawie:\n• Twojego hasła meta\n• Etykiety (nazwy)\n• Wersji i długości\n\nPonowna instalacja aplikacji z tym samym hasłem meta i tymi samymi etykietami wygeneruje identyczne hasła.",
+
+  "passwordSettingsTitle": "Ustawienia haseł",
+  "passwordSettingsSectionMetaPass": "MetaPass",
+  "passwordSettingsMetaPasswordTitle": "Hasło meta",
+  "passwordSettingsMetaNotSet": "Nie ustawiono",
+  "passwordSettingsMetaStoredSecurely": "Zapisane bezpiecznie na urządzeniu",
+  "passwordSettingsChange": "Zmień",
+  "passwordSettingsSetMetaPassTitle": "Ustaw MetaPass",
+  "passwordSettingsMetaPasswordLabel": "Hasło meta",
+  "passwordSettingsChangingAltersAll": "Zmiana tego hasła zmienia wszystkie hasła wyjściowe.\nUżycie pierwotnego MetaPass przywróci je.",
+  "passwordSettingsCancel": "Anuluj",
+  "passwordSettingsSave": "Zapisz",
+  "passwordSettingsSectionRestoreCode": "Kod odzyskiwania",
+  "passwordSettingsGenerateRestoreCode": "Generuj kod odzyskiwania",
+  "passwordSettingsCopy": "Kopiuj",
+  "passwordSettingsRestoreCodeCopied": "Kod odzyskiwania skopiowany",
+  "passwordSettingsSectionRestoreFromCode": "Przywróć z kodu",
+  "passwordSettingsRestoreCodeLabel": "Kod odzyskiwania",
+  "passwordSettingsRestore": "Przywróć",
+  "passwordSettingsVaultRestored": "Sejf przywrócony",
+  "passwordSettingsFooterInfo": "Hasła nigdy nie są przechowywane.\n\nKod odzyskiwania zawiera tylko strukturę danych. W połączeniu z hasłem MetaPass pozwala odbudować Twój sejf.",
+
+  "onboardingAppName": "AVarionX Security",
+  "onboardingStorageTitle": "Dostęp do plików",
+  "onboardingStorageDesc": "To uprawnienie jest wymagane do skanowania plików na Twoim urządzeniu. Możesz je nadać teraz lub później.",
+  "onboardingStorageFootnote": "Możesz to pominąć, ale zostaniesz o to zapytany ponownie przy wyborze trybu skanowania.",
+  "onboardingStorageSnack": "Uprawnienie do plików jest wymagane do skanowania.",
+  "onboardingNotificationsTitle": "Powiadomienia",
+  "onboardingNotificationsDesc": "Używane do alertów w czasie rzeczywistym, statusu skanowania i powiadomień o kwarantannie.",
+  "onboardingNotificationsFootnote": "Wymagane przez system Android dla poprawnego działania RTP.",
+  "onboardingNetworkTitle": "Ochrona sieci",
+  "onboardingNetworkDesc": "Umożliwia ochronę Wi-Fi za pomocą uprawnienia VPN systemu Android.",
+  "onboardingNetworkFootnote": "To działanie jest opcjonalne, ale zalecane.",
+  "onboardingGranted": "Przyznano",
+  "onboardingNotGranted": "Nie przyznano",
+  "onboardingGrantAccess": "Przyznaj dostęp",
+  "onboardingAllowNotifications": "Zezwól na powiadomienia",
+  "onboardingAllowVpnAccess": "Zezwól na dostęp VPN",
+  "onboardingBack": "Wstecz",
+  "onboardingNext": "Dalej",
+  "onboardingFinish": "Zakończ",
+  "onboardingSetupCompleteTitle": "Konfiguracja zakończona",
+  "onboardingSetupCompleteDesc": "Zalecamy uruchomienie Pełnego skanu urządzenia (obecnie nie obejmuje skanowania zainstalowanych aplikacji) lub przejście prosto do ekranu głównego.",
+  "onboardingRunFullScan": "Uruchom pełny skan",
+  "onboardingGoHome": "Przejdź do strony głównej",
+
+  "networkProtectionTitle": "Ochrona sieci",
+
+  "networkStatusConnected": "Połączono z {dns}",
+  "@networkStatusConnected": {
+    "placeholders": {
+      "dns": {}
+    }
+  },
+  "networkStatusVpnConflict": "Inny VPN jest aktywny",
+  "networkStatusOff": "Ochrona sieci jest wyłączona",
+
+  "networkModeMalwareTitle": "Tylko blokowanie malware",
+  "networkModeMalwareSubtitle": "Używa 1.1.1.2",
+  "networkModeMalwareDescription": "Łączy lokalną bazę malware AVarionX z chmurową inteligencją Cloudflare dla maksymalnej ochrony przed zagrożeniami.",
+
+  "networkModeAdultTitle": "Malware i treści dla dorosłych",
+  "networkModeAdultSubtitle": "Używa 1.1.1.3",
+  "networkModeAdultDescription": "Używa lokalnej bazy malware AVarionX i dodaje filtrowanie treści dla dorosłych. Inteligencja chmurowa jest wyłączona w tym trybie.",
+
+  "networkInfoTitle": "Czym jest Ochrona sieci?",
+  "networkInfoBody": "Niektóre zagrożenia działają poprzez łączenie się ze złośliwymi serwerami lub przekierowywanie ruchu internetowego.\nOchrona sieci blokuje znane niebezpieczne domeny i typowe reklamy przy użyciu lokalnego połączenia VPN.\n\nAVarionX Security nie gromadzi żadnych danych.",
+
+  "linkCheckerTitle": "Skaner linków",
+  "linkCheckerTabAnalyse": "Analizuj",
+  "linkCheckerTabView": "Widok",
+  "linkCheckerTabHistory": "Historia",
+  "linkCheckerAnalyseSubtitle": "Sprawdź stronę pod kątem malware lub podejrzanych treści",
+  "linkCheckerUrlLabel": "URL",
+  "linkCheckerUrlHint": "https://przykład.pl",
+  "linkCheckerButtonAnalyse": "Analizuj",
+  "linkCheckerButtonChecking": "Sprawdzanie",
+  "linkCheckerEngineNotReadySnack": "Silnik niegotowy",
+  "linkCheckerStatusVerifyingLink": "Weryfikowanie linku…",
+  "linkCheckerStatusScanningPage": "Skanowanie strony…",
+  "linkCheckerBlockedNavigation": "Nawigacja zablokowana",
+  "linkCheckerBlockedUnsupportedType": "Nieobsługiwany typ linku",
+  "linkCheckerBlockedInvalidDestination": "Nieprawidłowy cel",
+  "linkCheckerBlockedUnableResolve": "Nie można rozwiązać celu",
+  "linkCheckerBlockedUnableVerify": "Nie można zweryfikować celu",
+  "linkCheckerAnalyseCardTitleDefault": "Sprawdź stronę pod kątem podejrzanych treści",
+  "linkCheckerAnalyseCardDetailDefault": "Wklej adres URL i uruchom analizę.",
+  "linkCheckerAnalyseCardTitleEngineNotReady": "Silnik niegotowy",
+  "linkCheckerAnalyseCardDetailEngineNotReady": "błąd 1001.",
+  "linkCheckerAnalyseCardTitleChecking": "Sprawdzanie",
+  "linkCheckerVerdictClean": "Bezpieczny",
+  "linkCheckerVerdictCleanDetail": "Ta strona wydaje się być bezpieczna.",
+  "linkCheckerVerdictSuspicious": "Podejrzany",
+  "linkCheckerVerdictSuspiciousDetail": "Ta strona zawiera podejrzane treści.",
+  "linkCheckerViewLockedBody": "Najpierw przeprowadź analizę, aby umożliwić podgląd.",
+  "linkCheckerViewSubtitle": "Wyświetl stronę bezpiecznie",
+  "linkCheckerViewPage": "Wyświetl stronę",
+  "linkCheckerClose": "Zamknij",
+  "linkCheckerBlockedBody": "Ta strona została zatrzymana przed załadowaniem.",
+  "linkCheckerSuspiciousBanner": "Podejrzany link, strona może nie renderować się poprawnie ze względu na blokadę treści.",
+  "linkCheckerHistorySubtitle": "Dotknij wpisu, aby skopiować link.",
+  "linkCheckerHistoryEmpty": "Brak historii sprawdzeń.",
+  "linkCheckerCopied": "Skopiowano",
+
+  "settingsSectionAppearance": "Wygląd",
+  "settingsTheme": "Motyw",
+  "settingsThemeCurrent": "Aktualny: {theme}",
+  "@settingsThemeCurrent": {
+    "placeholders": {
+      "theme": {}
+    }
+  },
+  "settingsLanguage": "Język",
+  "settingsLanguageCurrent": "Aktualny: {language}",
+  "@settingsLanguageCurrent": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "settingsChooseLanguage": "Wybierz język",
+  "settingsLanguageApplied": "Język został zmieniony",
+  "settingsSystemDefault": "Systemowy",
+
+  "settingsSectionCommunity": "Dołącz do społeczności!",
+  "settingsDiscord": "Discord",
+  "settingsDiscordSubtitle": "Czat, aktualizacje i opinie",
+  "settingsDiscordOpenFail": "Nie można otworzyć linku Discord",
+
+  "settingsSectionPro": "Funkcje PRO",
+  "settingsProCustomization": "Personalizacja PRO",
+  "settingsProSubtitle": "Usuń reklamy i odblokuj motywy oraz ikony",
+  "settingsUnlockPro": "Odblokuj PRO",
+  "settingsProUnlocked": "Tryb PRO odblokowany",
+  "settingsPurchaseNotConfirmed": "Zakup nie został potwierdzony",
+  "settingsPurchaseFailed": "Zakup nie powiódł się: {error}",
+  "@settingsPurchaseFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "settingsProReset": "Reset PRO (tylko debug)",
+  "settingsProSheetTitle": "Personalizacja PRO",
+  "settingsHideGoldHeader": "Ukryj złoty nagłówek na ekranie głównym",
+  "settingsAppIcon": "Ikona aplikacji",
+  "settingsIconSelected": "Wybrana ikona: {icon}",
+  "@settingsIconSelected": {
+    "placeholders": {
+      "icon": {}
+    }
+  },
+  "settingsSave": "Zapisz",
+
+  "settingsSectionShizuku": "Zaawansowana ochrona (Shizuku)",
+  "settingsEnableShizuku": "Włącz Shizuku",
+  "settingsShizukuRequiresManager": "Wymaga zewnętrznego menedżera",
+  "settingsShizukuNotRunning": "Usługa Shizuku nie jest uruchomiona",
+  "settingsShizukuPermissionRequired": "Wymagane uprawnienie",
+  "settingsShizukuAvailable": "Zaawansowany dostęp systemowy dostępny",
+  "settingsAboutAdvancedProtection": "O zaawansowanej ochronie",
+  "settingsAboutAdvancedProtectionSubtitle": "Dowiedz się, jak działa zaawansowana ochrona",
+  "settingsAdvancedProtectionDialogTitle": "Zaawansowana ochrona systemu",
+  "settingsAdvancedProtectionDialogBody": "Dostęp Shizuku wymaga zewnętrznego menedżera i jest przeznaczony dla zaawansowanych użytkowników.\n\nTa funkcja jest opcjonalna i nie jest zalecana do standardowej ochrony.",
+  "settingsAboutShizukuTitle": "O Shizuku",
+  "settingsAboutShizukuBody": "AVarionX może zintegrować się z Shizuku, aby uzyskać dostęp do procesów aplikacji na poziomie systemowym.\n\nPozwala to aplikacji na:\n• Wykrywanie malware ukrywającego się przed standardowymi skanerami\n• Inspekcję uruchomionych procesów aplikacji\n• Wyłączanie lub izolowanie aktywnego malware\n\nShizuku nie nadaje jednak pełnego dostępu Root.\n\nTa funkcja jest przeznaczona dla zaawansowanych użytkowników i nie jest wymagana do normalnej ochrony.\n\nDokumentacja:\nhttps://shizuku.rikka.app",
+
+  "settingsSectionGeneral": "Ogólne",
+  "settingsExclusions": "Wykluczenia",
+  "settingsExclusionsSubtitle": "Zarządzaj wykluczeniami i dodawaj nowe",
+  "settingsExcludeFolder": "Wyklucz folder",
+  "settingsExcludeFile": "Wyklucz plik",
+  "settingsManageExclusions": "Zarządzaj istniejącymi wykluczeniami",
+  "settingsManageExclusionsSubtitle": "Wyświetl lub usuń wykluczenia",
+  "settingsFolderExcluded": "Folder wykluczony",
+  "settingsFileExcluded": "Plik wykluczony",
+  "settingsPrivacyPolicy": "Polityka prywatności",
+  "settingsPrivacyPolicySubtitle": "Zobacz, jak przetwarzane są Twoje dane",
+  "settingsPrivacyPolicyOpenFail": "Nie można otworzyć polityki prywatności",
+  "settingsAboutApp": "O aplikacji AVarionX",
+  "settingsHowThisAppWorks": "Jak działa ta aplikacja",
+  "settingsHowThisAppWorksSubtitle": "Dowiedz się więcej o mechanizmach ochrony",
+  "settingsThemePickerTitle": "Wybierz motyw",
+  "settingsThemeRequiresPro": "Ten motyw wymaga trybu PRO",
+
+  "scheduledScansTitle": "Planowane skanowania",
+  "scheduledScansInfoTitle": "Planowane skanowania",
+  "scheduledScansInfoBody": "Podczas gdy RTP skupia się na nowo pobranym malware, planowane skanowania automatycznie uruchomią wybrany tryb skanowania w tle.\nFunkcja działa tylko wtedy, gdy RTP jest włączone.\n\nUżytkownicy PRO mogą dostosować tryb i częstotliwość skanowania.",
+
+  "scheduledScansHeader": "Automatyczne skanowania w tle",
+  "scheduledScansSubheader": "Gdy ochrona RTP jest aktywna, aplikacja będzie skanować urządzenie zgodnie z wybranym trybem i harmonogramem.",
+
+  "proRequiredToCustomize": "Wymagane PRO do personalizacji",
+
+  "scheduledScansEnabledTitle": "Włączone",
+  "scheduledScansEnabledSubtitle": "Gdy włączone, skanowanie odbywa się automatycznie zgodnie z harmonogramem.",
+
+  "scheduledScansModeTitle": "Tryb skanowania",
+  "scheduledScansModeHint": "Aktualny tryb: {mode}",
+  "@scheduledScansModeHint": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+
+  "scheduledScansFrequencyTitle": "Częstotliwość",
+  "scheduledScansFrequencyHint": "Uruchamia się: {freq}",
+  "@scheduledScansFrequencyHint": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
+
+  "scheduledEveryDay": "Codziennie",
+  "scheduledEvery3Days": "Co 3 dni",
+  "scheduledEveryWeek": "Co tydzień",
+  "scheduledEvery2Weeks": "Co 2 tygodnie",
+  "scheduledEvery3Weeks": "Co 3 tygodnie",
+  "scheduledMonthly": "Raz w miesiącu",
+
+  "scheduledEveryDays": "Co {days} dni",
+  "@scheduledEveryDays": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+
+  "scheduledEveryHours": "Co {hours} godz.",
+  "@scheduledEveryHours": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+
+  "scheduledChargingOnlyTitle": "Tylko podczas ładowania",
+  "scheduledChargingOnlySubtitle": "Uruchamiaj planowane skanowanie tylko wtedy, gdy urządzenie jest podłączone do zasilania.",
+
+  "scheduledPreferredTimeTitle": "Preferowany czas",
+  "scheduledPreferredTimeSubtitle": "AVarionX spróbuje uruchomić skanowanie o tej porze. System Android może opóźnić start, aby oszczędzać baterię.",
+
+  "scheduledPickTime": "Wybierz czas",
+
+  "cleanerTitle": "Cleaner Pro",
+  "cleanerReadyToScan": "Gotowy do skanowania",
+  "cleanerScan": "Skanuj",
+  "cleanerScanning": "Skanowanie…",
+  "cleanerReady": "Gotowe",
+  "cleanerStatusReady": "Gotowy",
+  "cleanerStatusStarting": "Uruchamianie…",
+  "cleanerStatusFilesScanned": "Pliki przeskanowane",
+  "cleanerStatusFindingUnusedApps": "Szukanie nieużywanych aplikacji…",
+  "cleanerStatusComplete": "Zakończono",
+  "cleanerStatusScanError": "Błąd skanowania",
+  "cleanerStatusScanningApps": "Skanowanie aplikacji…",
+  "cleanerGrantUsageAccessTitle": "Nadaj dostęp do użycia",
+  "cleanerGrantUsageAccessBody": "Aby wykryć nieużywane aplikacje, Cleaner wymaga uprawnienia „Dostęp do danych o użyciu”. Zostaniesz przekierowany do ustawień systemowych, aby je włączyć.",
+  "cleanerCancel": "Anuluj",
+  "cleanerContinue": "Kontynuuj",
+
+  "cleanerDuplicates": "Duplikaty",
+  "cleanerDuplicatesNone": "Nie znaleziono duplikatów",
+  "cleanerDuplicatesSubtitle": "{count} elementów • odzyskaj {size}",
+  "@cleanerDuplicatesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerOldPhotos": "Stare zdjęcia",
+  "cleanerOldPhotosNone": "Brak zdjęć starszych niż {days} dni",
+  "@cleanerOldPhotosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldPhotosSubtitle": "{count} elementów • {size}",
+  "@cleanerOldPhotosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerOldVideos": "Stare filmy",
+  "cleanerOldVideosNone": "Brak filmów starszych niż {days} dni",
+  "@cleanerOldVideosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldVideosSubtitle": "{count} elementów • {size}",
+  "@cleanerOldVideosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "cleanerLargeFiles": "Duże pliki",
+  "cleanerLargeFilesNone": "Brak plików ≥ {size}",
+  "@cleanerLargeFilesNone": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "cleanerLargeFilesSubtitle": "{count} elementów • {sizeTotal}",
+  "@cleanerLargeFilesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "sizeTotal": {}
+    }
+  },
+
+  "cleanerUnusedApps": "Nieużywane aplikacje",
+  "cleanerUnusedAppsNone": "Brak nieużywanych aplikacji (ostatnie {days} dni)",
+  "@cleanerUnusedAppsNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerUnusedAppsCount": "{count} aplikacji",
+  "@cleanerUnusedAppsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "cleanerStageDuplicates": "Skanowanie duplikatów…",
+  "cleanerStageDuplicatesGrouping": "Grupowanie duplikatów…",
+  "cleanerStageOldPhotos": "Skanowanie starych zdjęć…",
+  "cleanerStageOldVideos": "Skanowanie starych filmów…",
+  "cleanerStageLargeFiles": "Skanowanie dużych plików…",
+
+  "cleanerStageOldPhotosProgress": "Stare zdjęcia: {count} • {size}",
+  "@cleanerStageOldPhotosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerStageOldVideosProgress": "Stare filmy: {count} • {size}",
+  "@cleanerStageOldVideosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerStageLargeFilesProgress": "Duże pliki: {count} • {size}",
+  "@cleanerStageLargeFilesProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+
+  "unusedAppsTitle": "Nieużywane aplikacje",
+  "unusedAppsEmpty": "Brak nieużywanych aplikacji w ciągu ostatnich {days} dni",
+  "@unusedAppsEmpty": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+
+  "quarantineTitle": "Usunięte",
+  "quarantineSelectAll": "Zaznacz wszystko",
+  "quarantineRefresh": "Odśwież",
+
+  "quarantineEmptyTitle": "Brak usuniętych plików",
+  "quarantineEmptyBody": "Wszystkie pliki, które usuniesz, pojawią się tutaj.",
+
+  "quarantineRestore": "Przywróć",
+  "quarantineDelete": "Usuń",
+
+  "quarantineSnackRestored": "Przywrócono",
+  "quarantineSnackDeleted": "Usunięto",
+
+  "quarantineDeleteDialogTitle": "Usunąć zaznaczone pliki?",
+  "quarantineDeleteDialogBody": "To trwale usunie {count} element{plural}.",
+  "@quarantineDeleteDialogBody": {
+    "placeholders": {
+      "count": {},
+      "plural": {}
+    }
+  }
+}

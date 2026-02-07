@@ -179,7 +179,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                     granted: storageGranted,
                     primaryLabel: storageGranted ? 'Granted' : 'Grant access',
                     onPrimary: storageGranted ? null : _requestStorage,
-                    footnote: 'Skipping You can skip this, but you will be asked again when you choose a scan mode.',
+                    footnote: 'You can skip this, but you will be asked again when you choose a scan mode.',
                   ),
                   _slide(
                     context,

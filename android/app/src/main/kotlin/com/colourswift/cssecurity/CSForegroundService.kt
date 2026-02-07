@@ -3,7 +3,6 @@ package com.colourswift.cssecurity
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.FileObserver
 import android.os.IBinder
@@ -15,12 +14,16 @@ class CSForegroundService : Service() {
     private var observer: FileObserver? = null
     private val downloadsPath = "/storage/emulated/0/Download"
 
+    private val channelId = "cssecurity_realtime_v2"
+    private val groupKey = "cssecurity_protection_group"
+    private val notifRtpId = 1
+    private val notifSummaryId = 2
+
     override fun onCreate() {
         super.onCreate()
         startDownloadWatcher()
         Log.i("CSRealtime", "Service created and FileObserver started")
     }
-
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val title = intent?.getStringExtra("title") ?: "ColourSwift AV+"
@@ -32,14 +35,13 @@ class CSForegroundService : Service() {
     }
 
     private fun createNotification(title: String, text: String) {
-        val channelId = "cssecurity_realtime_v2"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
                 "Realtime Protection",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             channel.setShowBadge(false)
             manager.createNotificationChannel(channel)
@@ -53,6 +55,17 @@ class CSForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val summary = Notification.Builder(applicationContext, channelId)
+            .setContentTitle("AVarionX")
+            .setContentText("Protection active")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setGroup(groupKey)
+            .setGroupSummary(true)
+            .setOnlyAlertOnce(true)
+            .build()
+
+        manager.notify(notifSummaryId, summary)
+
         val notification = Notification.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(text)
@@ -60,13 +73,10 @@ class CSForegroundService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
+            .setGroup(groupKey)
             .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(1, notification)
-        } else {
-            startForeground(1, notification)
-        }
+        startForeground(notifRtpId, notification)
     }
 
     private fun startDownloadWatcher() {
@@ -100,6 +110,12 @@ class CSForegroundService : Service() {
     override fun onDestroy() {
         observer?.stopWatching()
         observer = null
+
+        try {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.cancel(notifSummaryId)
+        } catch (_: Throwable) {}
+
         Log.i("CSRealtime", "Service destroyed, FileObserver stopped")
         super.onDestroy()
     }

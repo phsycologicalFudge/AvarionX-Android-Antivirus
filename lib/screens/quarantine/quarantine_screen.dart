@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/quarantine_service.dart';
-import '../../services/exclusion_service.dart';
+import '../../translations/app_localizations.dart';
 
 class QuarantineScreen extends StatefulWidget {
   const QuarantineScreen({super.key});
@@ -48,13 +48,14 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
 
   Future<void> _restore() async {
     if (selected.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     setState(() => restoring = true);
     try {
       await QuarantineService.restoreManyIsolated(selected);
       await _reload();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Restored')),
+          SnackBar(content: Text(l10n.quarantineSnackRestored)),
         );
       }
     } finally {
@@ -64,23 +65,27 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
 
   Future<void> _delete() async {
     if (selected.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete selected files?'),
+          title: Text(l10n.quarantineDeleteDialogTitle),
           content: Text(
-            'This will permanently delete ${selected.length} item${selected.length == 1 ? '' : 's'}.',
+            l10n.quarantineDeleteDialogBody(
+              selected.length.toString(),
+              selected.length == 1 ? '' : 's',
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(l10n.quarantineDelete),
             ),
           ],
         );
@@ -93,7 +98,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
     await _reload();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Deleted')),
+        SnackBar(content: Text(l10n.quarantineSnackDeleted)),
       );
     }
   }
@@ -103,6 +108,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final body = loading
         ? const Center(child: CircularProgressIndicator())
@@ -120,7 +126,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'No removed files',
+              l10n.quarantineEmptyTitle,
               style: text.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: scheme.onSurface.withOpacity(0.9),
@@ -129,7 +135,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Anything you remove will show up here.',
+              l10n.quarantineEmptyBody,
               style: text.bodySmall?.copyWith(
                 color: scheme.onSurface.withOpacity(0.65),
                 height: 1.35,
@@ -147,13 +153,12 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
       itemBuilder: (context, i) {
         final m = items[i];
         final id = m['id'] as String;
-        final name = (m['name'] as String?) ?? 'Unknown';
+        final name = (m['name'] as String?) ?? l10n.genericUnknownFileName;
         final orig = (m['originalPath'] as String?) ?? '';
         final size = (m['size'] as int?) ?? 0;
         final dateRaw = (m['date'] as String?) ?? '';
         final dt = dateRaw.isEmpty ? null : DateTime.tryParse(dateRaw);
         final sel = selected.contains(id);
-        final sha = (m['sha256'] as String?) ?? '';
 
         return Card(
           clipBehavior: Clip.antiAlias,
@@ -247,15 +252,15 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
       children: [
         Scaffold(
           appBar: AppBar(
-            title: const Text('Removed'),
+            title: Text(l10n.quarantineTitle),
             actions: [
               IconButton(
-                tooltip: 'Select all',
+                tooltip: l10n.quarantineSelectAll,
                 icon: const Icon(Icons.select_all_rounded),
                 onPressed: items.isEmpty ? null : _toggleAll,
               ),
               IconButton(
-                tooltip: 'Refresh',
+                tooltip: l10n.quarantineRefresh,
                 icon: const Icon(Icons.refresh_rounded),
                 onPressed: _reload,
               ),
@@ -279,7 +284,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
                     child: FilledButton.icon(
                       onPressed: selected.isEmpty ? null : _restore,
                       icon: const Icon(Icons.restore_rounded),
-                      label: const Text('Restore'),
+                      label: Text(l10n.quarantineRestore),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -291,7 +296,7 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
                         foregroundColor: scheme.onError,
                       ),
                       icon: const Icon(Icons.delete_forever_rounded),
-                      label: const Text('Delete'),
+                      label: Text(l10n.quarantineDelete),
                     ),
                   ),
                 ],

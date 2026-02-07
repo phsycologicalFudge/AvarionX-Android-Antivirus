@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/footer_nav.dart';
 import 'explore tab/explore_screen.dart';
-import 'terminal_screen.dart';
 import 'home_screen.dart';
 import 'scan_ui_screen.dart';
 import 'settings/settings_screen.dart';
@@ -17,7 +16,10 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   String _active = 'home';
   Key _homeKey = UniqueKey();
+  Key _exploreKey = UniqueKey();
   Key _quarantineKey = UniqueKey();
+
+  final GlobalKey<SettingsScreenState> _settingsKey = GlobalKey<SettingsScreenState>();
 
   int get _index {
     switch (_active) {
@@ -43,9 +45,9 @@ class _MainShellState extends State<MainShell> {
         children: [
           AvHomeScreen(key: _homeKey),
           const ScanScreen(),
-          const ExploreScreen(),
+          ExploreScreen(key: _exploreKey),
           QuarantineScreen(key: _quarantineKey),
-          const SettingsScreen(),
+          SettingsScreen(key: _settingsKey),
         ],
       ),
       bottomNavigationBar: FooterNav(
@@ -54,9 +56,17 @@ class _MainShellState extends State<MainShell> {
           setState(() {
             _active = tab;
             if (tab == 'home') _homeKey = UniqueKey();
+            if (tab == 'explore') _exploreKey = UniqueKey();
             if (tab == 'quarantine') _quarantineKey = UniqueKey();
           });
+
+          if (tab == 'settings') {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _settingsKey.currentState?.refresh();
+            });
+          }
         },
+
       ),
     );
   }

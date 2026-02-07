@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:http/http.dart' as http;
 import '../../services/av_engine.dart';
 import '../../widgets/antivirus_bridge.dart';
+import '../../translations/app_localizations.dart';
 
 class LinkCheckScreen extends StatefulWidget {
   const LinkCheckScreen({super.key});
@@ -15,6 +18,10 @@ class LinkCheckScreen extends StatefulWidget {
 }
 
 class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProviderStateMixin {
+  static const String _cloudBaseUrl = 'https://efkou1u21ooih2hko.colourswift.com';
+  static const String _cloudKey = '23JVO3ojo23oO3O423rrTR';
+  static const Duration _cloudTimeout = Duration(seconds: 5);
+
   final _controller = TextEditingController();
   final _av = AntivirusBridge();
 
@@ -30,8 +37,8 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   WebViewController? _web;
   bool _webBlocked = false;
   bool _webLoading = false;
-  String _analyseDetail = 'Verifying link…';
-  String _webBlockedReason = 'Navigation blocked';
+  String _analyseDetail = '';
+  String _webBlockedReason = '';
 
   final List<_HistoryItem> _history = [];
   static const int _historyMax = 250;
@@ -168,8 +175,71 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
     return false;
   }
 
+  bool get _cloudEnabled => _cloudBaseUrl.trim().isNotEmpty && _cloudKey.trim().isNotEmpty;
+
+  Future<bool?> _cloudCheck(Uri u) async {
+    if (!_cloudEnabled) return null;
+
+    final base = _cloudBaseUrl.trim().replaceAll(RegExp(r'\/+$'), '');
+    final endpoint = Uri.parse('$base/ioc/check');
+
+    try {
+      final res = await http
+          .post(
+        endpoint,
+        headers: {
+          'content-type': 'application/json',
+          'x-cs-key': _cloudKey,
+        },
+        body: jsonEncode({'url': u.toString()}),
+      )
+          .timeout(_cloudTimeout);
+
+      if (res.statusCode != 200) return null;
+
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map) return null;
+
+      final malicious = decoded['malicious'];
+      if (malicious is bool) return malicious;
+
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool?> _offlineCheck(Uri u) async {
+    try {
+      final addrs = await InternetAddress.lookup(u.host);
+      final ip = addrs.isNotEmpty ? addrs.first.address : '';
+      if (ip.isEmpty) return null;
+
+      final port = u.hasPort ? u.port : _defaultPort(u);
+      final verdict = _av.checkNetwork(ip, u.host, port);
+      return verdict == 0;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool?> _checkUrlVerdict(Uri u) async {
+    final cloudMal = await _cloudCheck(u);
+    if (cloudMal == true) return false;
+    if (cloudMal == false) {
+      final offlineSafe = await _offlineCheck(u);
+      if (offlineSafe != null) return offlineSafe;
+      return true;
+    }
+
+    final offlineSafe = await _offlineCheck(u);
+    return offlineSafe;
+  }
+
   Future<void> _checkLink() async {
     if (_checking) return;
+
+    final l10n = AppLocalizations.of(context)!;
 
     if (!AvEngine.isInitialized) {
       setState(() {
@@ -179,7 +249,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         _revealPage = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Engine not ready')),
+        SnackBar(content: Text(l10n.linkCheckerEngineNotReadySnack)),
       );
       return;
     }
@@ -201,36 +271,22 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
     setState(() {
       _checking = true;
-      _analyseDetail = 'Verifying link…';
+      _analyseDetail = l10n.linkCheckerStatusVerifyingLink;
       _isSafe = null;
       _checkedUri = u;
       _viewUnlocked = true;
       _revealPage = false;
       _webBlocked = false;
       _webLoading = false;
-      _webBlockedReason = 'Navigation blocked';
+      _webBlockedReason = l10n.linkCheckerBlockedNavigation;
     });
 
     try {
       await Future.delayed(const Duration(milliseconds: 180));
       if (!mounted) return;
-      setState(() => _analyseDetail = 'Scanning page…');
+      setState(() => _analyseDetail = l10n.linkCheckerStatusScanningPage);
 
-      final addrs = await InternetAddress.lookup(u.host);
-      final ip = addrs.isNotEmpty ? addrs.first.address : '';
-      if (ip.isEmpty) {
-        if (!mounted) return;
-        setState(() {
-          _checking = false;
-          _isSafe = null;
-          _viewUnlocked = false;
-        });
-        return;
-      }
-
-      final port = u.hasPort ? u.port : _defaultPort(u);
-      final verdict = _av.checkNetwork(ip, u.host, port);
-      final safe = verdict == 0;
+      final safe = await _checkUrlVerdict(u);
 
       final elapsed = DateTime.now().difference(analyseStart);
       if (elapsed < minAnalyseTime) {
@@ -242,13 +298,18 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       setState(() {
         _checking = false;
         _isSafe = safe;
-        _viewUnlocked = true;
+        _viewUnlocked = safe != null;
       });
 
-      _addHistory(u, safe);
-
-      await _ensureWebViewController();
-      await _verifyAndLoad(u.toString());
+      if (safe != null) {
+        _addHistory(u, safe);
+        await _ensureWebViewController();
+        await _verifyAndLoad(u.toString());
+      } else {
+        setState(() {
+          _viewUnlocked = false;
+        });
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -261,6 +322,8 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
   Future<void> _ensureWebViewController() async {
     if (_web != null) return;
+
+    final l10n = AppLocalizations.of(context)!;
 
     final w = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.disabled)
@@ -277,7 +340,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
               if (mounted) {
                 setState(() {
                   _webBlocked = true;
-                  _webBlockedReason = 'Unsupported link type';
+                  _webBlockedReason = l10n.linkCheckerBlockedUnsupportedType;
                   _webLoading = false;
                 });
               }
@@ -286,6 +349,13 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
             if (_sameSite(u.host, cur.host)) {
               return NavigationDecision.navigate;
+            }
+
+            if (mounted) {
+              setState(() {
+                _webBlocked = false;
+                _webBlockedReason = '';
+              });
             }
 
             _verifyAndLoad(request.url);
@@ -307,15 +377,16 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
   Future<void> _verifyAndLoad(String url) async {
     if (_web == null) return;
-    if (_webBlocked) return;
     if (!AvEngine.isInitialized) return;
+
+    final l10n = AppLocalizations.of(context)!;
 
     final u = Uri.tryParse(url);
     if (u == null || u.host.isEmpty) {
       if (!mounted) return;
       setState(() {
         _webBlocked = true;
-        _webBlockedReason = 'Invalid destination';
+        _webBlockedReason = l10n.linkCheckerBlockedInvalidDestination;
         _webLoading = false;
       });
       return;
@@ -326,33 +397,30 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       if (!mounted) return;
       setState(() {
         _webBlocked = true;
-        _webBlockedReason = 'Unsupported link type';
+        _webBlockedReason = l10n.linkCheckerBlockedUnsupportedType;
         _webLoading = false;
       });
       return;
     }
 
-    final port = u.hasPort ? u.port : _defaultPort(u);
-
     try {
-      final addrs = await InternetAddress.lookup(u.host);
-      final ip = addrs.isNotEmpty ? addrs.first.address : '';
-      if (ip.isEmpty) {
-        if (!mounted) return;
+      final safe = await _checkUrlVerdict(u);
+      if (!mounted) return;
+
+      if (safe == null) {
         setState(() {
           _webBlocked = true;
-          _webBlockedReason = 'Unable to resolve destination';
+          _webBlockedReason = l10n.linkCheckerBlockedUnableVerify;
           _webLoading = false;
         });
         return;
       }
 
-      final verdict = _av.checkNetwork(ip, u.host, port);
-      if (!mounted) return;
-
       setState(() {
-        _isSafe = verdict == 0;
+        _isSafe = safe;
         _checkedUri = u;
+        _webBlocked = false;
+        _webBlockedReason = '';
       });
 
       await _web!.loadRequest(u);
@@ -360,7 +428,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       if (!mounted) return;
       setState(() {
         _webBlocked = true;
-        _webBlockedReason = 'Unable to verify destination';
+        _webBlockedReason = l10n.linkCheckerBlockedUnableVerify;
         _webLoading = false;
       });
     }
@@ -371,36 +439,38 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   }
 
   Future<void> _copy(String v) async {
+    final l10n = AppLocalizations.of(context)!;
     await Clipboard.setData(ClipboardData(text: v));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied')),
+      SnackBar(content: Text(l10n.linkCheckerCopied)),
     );
   }
 
   Widget _analyseTab(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
-    String title = 'Check page for suspicious content ';
-    String detail = 'Paste a URL and run an analysis.';
+    String title = l10n.linkCheckerAnalyseCardTitleDefault;
+    String detail = l10n.linkCheckerAnalyseCardDetailDefault;
     IconData icon = Icons.link_rounded;
 
     if (!AvEngine.isInitialized) {
-      title = 'Engine not ready';
-      detail = 'error 1001.';
+      title = l10n.linkCheckerAnalyseCardTitleEngineNotReady;
+      detail = l10n.linkCheckerAnalyseCardDetailEngineNotReady;
       icon = Icons.warning_amber_rounded;
     } else if (_checking) {
-      title = 'Checking';
-      detail = _analyseDetail;
+      title = l10n.linkCheckerAnalyseCardTitleChecking;
+      detail = _analyseDetail.isEmpty ? l10n.linkCheckerStatusVerifyingLink : _analyseDetail;
       icon = Icons.hourglass_top_rounded;
     } else if (_isSafe == true) {
-      title = 'Clean';
-      detail = 'This page appears to be safe.';
+      title = l10n.linkCheckerVerdictClean;
+      detail = l10n.linkCheckerVerdictCleanDetail;
       icon = Icons.verified_user;
     } else if (_isSafe == false) {
-      title = 'Suspicious';
-      detail = 'This page contains suspicious content.';
+      title = l10n.linkCheckerVerdictSuspicious;
+      detail = l10n.linkCheckerVerdictSuspiciousDetail;
       icon = Icons.block_rounded;
     }
 
@@ -427,7 +497,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Analyse',
+                  l10n.linkCheckerTabAnalyse,
                   style: text.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -435,7 +505,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Check page for malware or suspicious content',
+                  l10n.linkCheckerAnalyseSubtitle,
                   style: text.bodySmall?.copyWith(
                     height: 1.35,
                     color: text.bodySmall?.color?.withOpacity(0.75),
@@ -448,8 +518,8 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => AvEngine.isInitialized ? _checkLink() : null,
                   decoration: InputDecoration(
-                    labelText: 'URL',
-                    hintText: 'https://example.com',
+                    labelText: l10n.linkCheckerUrlLabel,
+                    hintText: l10n.linkCheckerUrlHint,
                     filled: true,
                     fillColor: theme.colorScheme.surfaceContainerLow,
                     border: OutlineInputBorder(
@@ -467,7 +537,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                       _checking ? Icons.hourglass_top_rounded : Icons.search_rounded,
                       size: 18,
                     ),
-                    label: Text(_checking ? 'Checking' : 'Analyse'),
+                    label: Text(_checking ? l10n.linkCheckerButtonChecking : l10n.linkCheckerButtonAnalyse),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -532,11 +602,10 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
             ),
           ),
         ),
-
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Text(
-            'Powered by VX-TITANIUM',
+            'Powered by VTTI Cloud',
             style: text.bodySmall?.copyWith(
               fontSize: 11,
               letterSpacing: 0.6,
@@ -552,6 +621,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   Widget _viewTab(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final unlocked = _viewUnlocked && _checkedUri != null;
 
@@ -563,7 +633,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'View',
+              l10n.linkCheckerTabView,
               style: text.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -571,7 +641,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
             ),
             const SizedBox(height: 6),
             Text(
-              'Run an analysis first to enable viewing.',
+              l10n.linkCheckerViewLockedBody,
               style: text.bodySmall?.copyWith(
                 height: 1.35,
                 color: text.bodySmall?.color?.withOpacity(0.75),
@@ -588,7 +658,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'View',
+            l10n.linkCheckerTabView,
             style: text.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
               color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -596,7 +666,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
           ),
           const SizedBox(height: 6),
           Text(
-            'View the webpage safely',
+            l10n.linkCheckerViewSubtitle,
             style: text.bodySmall?.copyWith(
               height: 1.35,
               color: text.bodySmall?.color?.withOpacity(0.75),
@@ -610,9 +680,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                 children: [
                   Container(
                     color: theme.colorScheme.surfaceContainerHigh,
-                    child: _web == null
-                        ? const SizedBox.shrink()
-                        : WebViewWidget(controller: _web!),
+                    child: _web == null ? const SizedBox.shrink() : WebViewWidget(controller: _web!),
                   ),
                   if (_webLoading && !_webBlocked)
                     IgnorePointer(
@@ -634,7 +702,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                             const Icon(Icons.block_rounded, size: 48, color: Colors.redAccent),
                             const SizedBox(height: 14),
                             Text(
-                              _webBlockedReason,
+                              _webBlockedReason.isEmpty ? l10n.linkCheckerBlockedNavigation : _webBlockedReason,
                               style: text.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -643,7 +711,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'This page was stopped before it could load.',
+                              l10n.linkCheckerBlockedBody,
                               style: text.bodySmall?.copyWith(
                                 height: 1.35,
                                 color: text.bodySmall?.color?.withOpacity(0.75),
@@ -653,7 +721,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                             const SizedBox(height: 14),
                             OutlinedButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Close'),
+                              child: Text(l10n.linkCheckerClose),
                             ),
                           ],
                         ),
@@ -673,7 +741,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                                   setState(() => _revealPage = true);
                                 },
                                 icon: const Icon(Icons.visibility_rounded, size: 18),
-                                label: const Text('View page'),
+                                label: Text(l10n.linkCheckerViewPage),
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
@@ -718,7 +786,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Suspicious link, May not render if it requires blocked content.',
+                                  l10n.linkCheckerSuspiciousBanner,
                                   style: text.bodySmall?.copyWith(
                                     height: 1.25,
                                     color: theme.colorScheme.onSurface.withOpacity(0.85),
@@ -743,6 +811,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   Widget _historyTab(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -751,7 +820,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'History',
+            l10n.linkCheckerTabHistory,
             style: text.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
               color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -759,7 +828,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
           ),
           const SizedBox(height: 6),
           Text(
-            'Tap an entry to copy the link.',
+            l10n.linkCheckerHistorySubtitle,
             style: text.bodySmall?.copyWith(
               height: 1.35,
               color: text.bodySmall?.color?.withOpacity(0.75),
@@ -775,7 +844,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'No checks yet.',
+                  l10n.linkCheckerHistoryEmpty,
                   style: text.bodySmall?.copyWith(
                     color: text.bodySmall?.color?.withOpacity(0.75),
                   ),
@@ -823,7 +892,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  h.safe ? 'Clean' : 'Suspicious',
+                                  h.safe ? l10n.linkCheckerVerdictClean : l10n.linkCheckerVerdictSuspicious,
                                   style: text.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w800,
                                     color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -871,6 +940,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final viewTabOpacity = (_checkedUri != null) ? 1.0 : 0.45;
 
@@ -878,19 +948,19 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
-        title: const Text('Link Checker'),
+        title: Text(l10n.linkCheckerTitle),
         bottom: TabBar(
           controller: _tabs,
           onTap: _tryOpenViewTab,
           tabs: [
-            const Tab(text: 'Analyse'),
+            Tab(text: l10n.linkCheckerTabAnalyse),
             Tab(
               child: Opacity(
                 opacity: viewTabOpacity,
-                child: const Text('View'),
+                child: Text(l10n.linkCheckerTabView),
               ),
             ),
-            const Tab(text: 'History'),
+            Tab(text: l10n.linkCheckerTabHistory),
           ],
         ),
       ),

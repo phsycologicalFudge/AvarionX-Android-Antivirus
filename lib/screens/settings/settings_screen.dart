@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:crypto/crypto.dart';
@@ -6,24 +7,29 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../main.dart';
 import '../../services/defs_update_scheduler.dart';
 import '../../services/exclusion_service.dart';
 import '../../services/meta_password_service.dart';
+import '../../services/pro_temp_service.dart';
 import '../../services/theme_manager.dart';
+import '../../translations/app_localizations.dart';
 import '../about/how_this_app_works.dart';
 import 'package:flutter/services.dart';
 import '../../services/purchase_service.dart';
 import '../exclusions/exclusion_manager_screen.dart';
 import 'package:flutter/foundation.dart';
+import '../../constants/build_flags.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<SettingsScreen> createState() => SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class SettingsScreenState extends State<SettingsScreen> {
   bool isPro = false;
   bool autoUpdateDefs = false;
   bool shizukuWanted = false;
@@ -34,58 +40,237 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _shizukuChannel = const MethodChannel('cs.shizuku');
   final _managerChannel = const MethodChannel('cs.manager');
 
+  String _language = 'system';
+
+  static const Map<String, String> _languageLabels = {
+    'system': 'system',
+    'en': 'en',
+    'es': 'es',
+    'fr': 'fr',
+    'de': 'de',
+    'it': 'it',
+    'pl': 'pl',
+    'pt': 'pt',
+    'ar': 'ar',
+  };
+
+  final _secure = const FlutterSecureStorage();
+  String? _metaPassword;
+
+  static const String _trialUntilKey = 'pro_trial_until';
+
+  int? _trialUntilMs;
+
+  RewardedAd? _rewardedAd;
+  Timer? _trialExpiryTimer;
+  bool _rewardedLoading = false;
+
+  static const String _rewardedProdAdUnitId = 'ca-app-pub-4198956812643415/2103409684';
+  static const String _rewardedTestAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+
+  bool get _trialActive {
+    final until = _trialUntilMs;
+    if (until == null) return false;
+    return until > DateTime.now().millisecondsSinceEpoch;
+  }
+
+  bool get _hasProAccess => isPro || _trialActive;
+
+  String _trialRemainingLabel() {
+    final until = _trialUntilMs;
+    if (until == null) return '';
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final remainingMs = until - now;
+    if (remainingMs <= 0) return '';
+    final remaining = Duration(milliseconds: remainingMs);
+    final days = remaining.inDays;
+    if (days >= 1) {
+      return '${days}d';
+    }
+    final hours = remaining.inHours;
+    if (hours >= 1) {
+      return '${hours}h';
+    }
+    final mins = remaining.inMinutes;
+    if (mins >= 1) {
+      return '${mins}m';
+    }
+    return '1m';
+  }
+
+  String _languageLabel(String code) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (code) {
+      case 'system':
+        return l10n.settingsSystemDefault;
+      case 'en':
+        return 'English';
+      case 'es':
+        return 'Español';
+      case 'fr':
+        return 'Français';
+      case 'de':
+        return 'Deutsch';
+      case 'it':
+        return 'Italiano';
+      case 'pl':
+        return 'Polski';
+      case 'pt':
+        return 'Português';
+      case 'ar':
+        return 'عربي';
+      default:
+        return code;
+    }
+  }
+
+  Future<void> refresh() async {
+    await _loadPro();
+    if (kEnableAds && _rewardedAd == null && !_rewardedLoading) {
+      _loadRewardedAd();
+    }
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> _loadLanguage() async {
+    final lm = Provider.of<LanguageManager>(context, listen: false);
+    setState(() => _language = lm.code);
+  }
+
+  Future<void> _setLanguage(String code) async {
+    final l10n = AppLocalizations.of(context)!;
+    final lm = Provider.of<LanguageManager>(context, listen: false);
+    await lm.setLanguage(code);
+    if (!mounted) return;
+    setState(() => _language = code);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.settingsLanguageApplied)),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadLanguage();
     _loadPro();
     _loadMetaPassword();
     _loadAutoUpdate();
     _loadShizukuState();
     _loadShizukuRuntimeState();
+    if (kEnableAds) {
+      _loadRewardedAd();
+    }
   }
-
-  final _secure = const FlutterSecureStorage();
-  String? _metaPassword;
 
   Future<void> _loadMetaPassword() async {
     _metaPassword = await MetaPasswordService.getMeta();
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> _saveMetaPassword(String meta) async {
     await MetaPasswordService.setMeta(meta);
+    if (!mounted) return;
     setState(() => _metaPassword = meta);
   }
 
   Future<void> _clearMetaPassword() async {
     await MetaPasswordService.clearMeta();
+    if (!mounted) return;
     setState(() => _metaPassword = null);
   }
 
   Future<void> _loadAutoUpdate() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       autoUpdateDefs = prefs.getBool('defs_auto_update_enabled') ?? false;
     });
   }
 
+  Future<void> _resetProForDebug() async {
+    final l10n = AppLocalizations.of(context)!;
+    final prefs = await SharedPreferences.getInstance();
+
+    await ProGate.setDebugIgnorePaid(true);
+    await ProGate.clearLocalUnlock();
+    await ProGate.clearTrial();
+    await prefs.setBool('isPro', false);
+
+    await _loadPro();
+
+    if (!mounted) return;
+    setState(() {
+      isPro = false;
+      _trialUntilMs = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.settingsProReset)),
+    );
+  }
+
   Future<void> _showUpgradeDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Want to get PRO?'),
-          content: const Text(
-            'PRO mode supports developement and provides cosmetics. You get Emerald and Grey themes, icon switching, and visual tweaks. Scans and protection are the same for everyone.',
-          ),
+          title: Text(l10n.settingsUnlockPro),
+          content: Text(l10n.settingsProSubtitle),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Continue'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.metaPassCancel,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                      _showSupportUnlockDialog();
+                    },
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: const Text(
+                        'Code',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.metaPassContinue,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -96,80 +281,239 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     try {
       await PurchaseService.buyPro();
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 100));
       await PurchaseService.restore();
 
       final hasPro = await PurchaseService.hasPro();
 
       if (hasPro) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isPro', true);
-        setState(() => isPro = true);
+        await ProGate.clearTrial();
+        await ProGate.sync();
+        await _loadPro();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('PRO mode unlocked')),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Purchase not confirmed')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Purchase failed: $e')),
+          SnackBar(content: Text(l10n.settingsProUnlocked)),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.settingsPurchaseNotConfirmed)),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.settingsPurchaseFailed(e.toString()))),
+      );
     }
   }
 
-  Future<void> _loadPro() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool playPro = false;
-    try {
-      playPro = await PurchaseService.hasPro();
-    } catch (_) {
-      playPro = false;
-    }
-    if (playPro) {
-      await prefs.setBool('isPro', true);
-      setState(() => isPro = true);
-      return;
-    }
-    final cached = prefs.getBool('isPro') ?? false;
-    setState(() => isPro = cached);
-  }
+  Future<void> _showSupportUnlockDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+    String? expected;
 
-  void _showProInfo() {
-    showDialog(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('About PRO'),
-          content: const Text(
-            'PRO mode does not give better protection, but it does give:\n\n'
-                '• Emerald and Grey themes\n'
-                '• Custom app icons\n'
-                '• Future features\n\n'
-                'Scanning and protection strength remain identical for all users. '
-                'This upgrade supports future updates and development.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Got it'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Sponsors unlock ❤️'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () async {
+                        final picked = await FilePicker.platform.pickFiles();
+                        if (picked == null || picked.files.isEmpty) return;
+
+                        final path = picked.files.single.path;
+                        if (path == null) return;
+
+                        try {
+                          final txt = await File(path).readAsString();
+                          final v = txt.trim();
+                          if (v.isEmpty) return;
+                          setState(() => expected = v);
+                        } catch (_) {}
+                      },
+                      child: Text(
+                        expected == null ? 'Pick Certificate' : 'Certificate loaded',
+                      ),
+                    ),
+                  ),
+                  TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      labelText: 'enter code',
+                      filled: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(l10n.metaPassCancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(l10n.metaPassContinue),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+
+    if (confirmed != true) return;
+
+    if (expected == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Support file missing')),
+      );
+      return;
+    }
+
+    final code = controller.text.trim();
+    if (code != expected) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid support code')),
+      );
+      return;
+    }
+
+    await _unlockProLocally();
+  }
+
+  Future<void> _unlockProLocally() async {
+    final l10n = AppLocalizations.of(context)!;
+    await ProGate.setLocalUnlocked(true);
+    await ProGate.clearTrial();
+    await _loadPro();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.settingsProUnlocked)),
+    );
+  }
+
+  static const String _supportUnlockCode = 'CS-SUPPORT-UNLOCK';
+
+  Future<void> _loadPro() async {
+    final effective = await ProGate.sync();
+    final until = await ProGate.trialUntilMs();
+
+    if (!mounted) return;
+
+    setState(() {
+      isPro = effective;
+      _trialUntilMs = until;
+    });
+  }
+
+  void _armTrialExpiryTimer(int untilMs) {
+    _trialExpiryTimer?.cancel();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final delayMs = untilMs - now;
+    if (delayMs <= 0) return;
+
+    _trialExpiryTimer = Timer(Duration(milliseconds: delayMs), () {
+      if (!mounted) return;
+      setState(() {});
+    });
+  }
+
+  void _loadRewardedAd() {
+    if (_rewardedLoading) return;
+    if (_rewardedAd != null) return;
+
+    _rewardedLoading = true;
+    if (mounted) setState(() {});
+
+    final adUnitId = kDebugMode ? _rewardedTestAdUnitId : _rewardedProdAdUnitId;
+
+    RewardedAd.load(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedLoading = false;
+          _rewardedAd = ad;
+
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+              _rewardedAd = null;
+              _loadRewardedAd();
+            },
+            onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+              _rewardedAd = null;
+              _loadRewardedAd();
+            },
+          );
+
+          if (!mounted) return;
+          setState(() {});
+        },
+        onAdFailedToLoad: (error) {
+          _rewardedLoading = false;
+          _rewardedAd = null;
+
+          if (!mounted) return;
+          setState(() {});
+
+          Future.delayed(const Duration(seconds: 3), () {
+            if (!mounted) return;
+            _loadRewardedAd();
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _activateTrialPro() async {
+    await ProGate.setTrial(const Duration(days: 7));
+    await _loadPro();
+  }
+
+
+  Future<void> _watchAdForTrialPro() async {
+    if (_trialActive) return;
+
+    final ad = _rewardedAd;
+    if (ad == null) {
+      _loadRewardedAd();
+      return;
+    }
+
+    ad.show(
+      onUserEarnedReward: (ad, reward) async {
+        await _activateTrialPro();
+      },
+    );
+
+    _rewardedAd = null;
+
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _showProOptions(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
     bool hideGoldHeader = prefs.getBool('hideGoldHeader') ?? true;
     String selectedIcon = prefs.getString('selectedIcon') ?? 'default';
@@ -210,9 +554,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Icon selected: ${icon.toUpperCase()}'),
+                          content: Text(
+                            l10n.settingsIconSelected(icon.toUpperCase()),
+                          ),
                         ),
                       );
+                    }
+
+                    String _iconLabel(String icon) {
+                      switch (icon) {
+                        case 'default':
+                          return 'Default';
+                        case 'bird':
+                          return 'Bird';
+                        case 'neon':
+                          return 'Neon';
+                        case 'ax':
+                          return 'AX';
+                        case 'avx':
+                          return 'AVX';
+                        default:
+                          return icon;
+                      }
                     }
 
                     return SingleChildScrollView(
@@ -221,7 +584,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'PRO Customization',
+                            l10n.settingsProSheetTitle,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),
@@ -233,12 +596,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setModalState(() => hideGoldHeader = val);
                               await prefs.setBool('hideGoldHeader', hideGoldHeader);
                             },
-                            title: const Text('Hide gold header on Home Screen'),
+                            title: Text(l10n.settingsHideGoldHeader),
                             contentPadding: EdgeInsets.zero,
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            'App Icon',
+                            l10n.settingsAppIcon,
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),
@@ -252,35 +615,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                                 'default',
                                 selectedIcon,
-                                'Default',
+                                _iconLabel('default'),
                                     () => _changeIcon('default'),
                               ),
                               _iconPreview(
                                 context,
                                 'bird',
                                 selectedIcon,
-                                'Bird',
+                                _iconLabel('bird'),
                                     () => _changeIcon('bird'),
                               ),
                               _iconPreview(
                                 context,
                                 'neon',
                                 selectedIcon,
-                                'Neon',
+                                _iconLabel('neon'),
                                     () => _changeIcon('neon'),
                               ),
                               _iconPreview(
                                 context,
                                 'ax',
                                 selectedIcon,
-                                'AX',
+                                _iconLabel('ax'),
                                     () => _changeIcon('ax'),
                               ),
                               _iconPreview(
                                 context,
                                 'avx',
                                 selectedIcon,
-                                'AVX',
+                                _iconLabel('avx'),
                                     () => _changeIcon('avx'),
                               ),
                             ],
@@ -290,7 +653,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: double.infinity,
                             child: FilledButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Save'),
+                              child: Text(l10n.settingsSave),
                             ),
                           ),
                         ],
@@ -307,25 +670,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showShizukuInfo() {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('About Shizuku'),
-          content: const Text(
-            'AVarionX can integrate with Shizuku to access app processes at the system level.\n\n'
-                'This allows the app to:\n'
-                '• Detect malware that hides from standard scanners\n'
-                '• Inspect running app processes\n'
-                '• Disable or contain most active malware\n\n'
-                'Shizuku however, does not grant root access\n\n'
-                'This feature is intended for advanced users and is not required for normal protection.\n\n'
-                'Documentation:\nhttps://shizuku.rikka.app',
-          ),
+          title: Text(l10n.settingsAboutShizukuTitle),
+          content: Text(l10n.settingsAboutShizukuBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: Text(l10n.ok),
             ),
           ],
         );
@@ -348,6 +704,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     shizukuWanted = prefs.getBool('shizuku_enabled') ?? false;
     shizukuCertPresent = await _hasShizukuCert();
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -355,25 +712,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('shizuku_enabled', value);
     shizukuWanted = value;
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> _loadShizukuRuntimeState() async {
     try {
-      shizukuBinderAlive =
-          await _shizukuChannel.invokeMethod<bool>('isBinderAlive') ?? false;
+      shizukuBinderAlive = await _shizukuChannel.invokeMethod<bool>('isBinderAlive') ?? false;
 
-      shizukuPermissionGranted =
-          await _shizukuChannel.invokeMethod<bool>('hasPermission') ?? false;
+      shizukuPermissionGranted = await _shizukuChannel.invokeMethod<bool>('hasPermission') ?? false;
     } catch (_) {
       shizukuBinderAlive = false;
       shizukuPermissionGranted = false;
     }
 
+    if (!mounted) return;
     setState(() {});
   }
 
   void _showExclusionsSheet() {
+    final l10n = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -396,7 +755,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 10),
                   ListTile(
                     leading: const Icon(Icons.folder_open_rounded),
-                    title: const Text('Exclude a Folder'),
+                    title: Text(l10n.settingsExcludeFolder),
                     onTap: () async {
                       Navigator.pop(context);
 
@@ -405,17 +764,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         final ex = ExclusionService();
                         await ex.load();
                         await ex.addFolder(result);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Folder excluded')),
-                          );
-                        }
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.settingsFolderExcluded)),
+                        );
                       }
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.insert_drive_file_rounded),
-                    title: const Text('Exclude a File'),
+                    title: Text(l10n.settingsExcludeFile),
                     onTap: () async {
                       Navigator.pop(context);
 
@@ -429,18 +787,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         await ex.load();
                         await ex.addSha(sha);
 
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('File excluded')),
-                          );
-                        }
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.settingsFileExcluded)),
+                        );
                       }
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.rule_folder_rounded),
-                    title: const Text('Manage Existing Exclusions'),
-                    subtitle: const Text('View or remove exclusions'),
+                    title: Text(l10n.settingsManageExclusions),
+                    subtitle: Text(l10n.settingsManageExclusionsSubtitle),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -477,9 +834,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: isSelected ? scheme.primary : scheme.outlineVariant,
                 width: isSelected ? 2.0 : 1.0,
               ),
-              color: isSelected
-                  ? scheme.primaryContainer.withOpacity(0.25)
-                  : scheme.surfaceContainer,
+              color: isSelected ? scheme.primaryContainer.withOpacity(0.25) : scheme.surfaceContainer,
             ),
             padding: const EdgeInsets.all(6),
             child: Stack(
@@ -527,7 +882,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _openLanguagePicker(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
+
+    final languageManager = Provider.of<LanguageManager>(context, listen: false);
+    final supported = AppLocalizations.supportedLocales;
+
+    String labelFor(Locale locale) {
+      switch (locale.languageCode) {
+        case 'en':
+          return 'English';
+        case 'es':
+          return 'Español';
+        case 'fr':
+          return 'Français';
+        case 'de':
+          return 'Deutsch';
+        case 'it':
+          return 'Italiano';
+        case 'pl':
+          return 'Polski';
+        case 'pt':
+          return 'Português';
+        case 'ar':
+          return 'عربي';
+        default:
+          return locale.languageCode;
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 14,
+              right: 14,
+              top: 10,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 14,
+            ),
+            child: Material(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.settingsChooseLanguage,
+                      style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 12),
+                    ListTile(
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await languageManager.setLanguage('system');
+                        if (!mounted) return;
+                        setState(() => _language = 'system');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.settingsLanguageApplied)),
+                        );
+                      },
+                      title: Text(
+                        l10n.settingsSystemDefault,
+                        style: TextStyle(
+                          fontWeight: languageManager.code == 'system' ? FontWeight.w800 : FontWeight.w600,
+                        ),
+                      ),
+                      trailing: languageManager.code == 'system' ? const Icon(Icons.check_rounded) : null,
+                    ),
+                    ...supported.map((loc) {
+                      final code = loc.languageCode;
+                      final isSelected = languageManager.code == code;
+                      return ListTile(
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await languageManager.setLanguage(code);
+                          if (!mounted) return;
+                          setState(() => _language = code);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.settingsLanguageApplied)),
+                          );
+                        },
+                        title: Text(
+                          labelFor(loc),
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          ),
+                        ),
+                        trailing: isSelected ? const Icon(Icons.check_rounded) : null,
+                      );
+                    }).toList(),
+                    const SizedBox(height: 6),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _openThemePicker(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final themeManager = Provider.of<ThemeManager>(context, listen: false);
@@ -559,7 +1026,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Choose Theme',
+                      l10n.settingsThemePickerTitle,
                       style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 12),
@@ -580,15 +1047,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _themeOption(BuildContext context, String label, String value, Color color, String current) {
+    final l10n = AppLocalizations.of(context)!;
     final themeManager = Provider.of<ThemeManager>(context, listen: false);
     final isSelected = current == value;
+    final isProTheme = value == 'emerald' || value == 'grey' || value == 'purple';
 
     return ListTile(
       onTap: () {
         Navigator.pop(context);
-        if ((value == 'emerald' || value == 'grey' || value == 'purple') && !isPro) {
+        if (isProTheme && !_hasProAccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('That theme requires PRO mode')),
+            SnackBar(content: Text(l10n.settingsThemeRequiresPro)),
           );
         } else {
           themeManager.setTheme(value);
@@ -596,12 +1065,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       leading: CircleAvatar(backgroundColor: color, radius: 14),
       title: Text(
-        (value == 'emerald' || value == 'grey' || value == 'purple') ? '$label  (Pro)' : label,
+        isProTheme ? '$label (${l10n.proBadge})' : label,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-          color: (value == 'emerald' || value == 'grey' || value == 'purple')
-              ? (isPro ? null : Colors.grey)
-              : null,
+          color: isProTheme ? (_hasProAccess ? null : Colors.grey) : null,
         ),
       ),
       trailing: isSelected ? const Icon(Icons.check_rounded) : null,
@@ -610,16 +1077,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final themeManager = Provider.of<ThemeManager>(context);
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final scheme = theme.colorScheme;
 
+    final themeName = themeManager.themeName;
+    final themeLabel = themeName.isEmpty ? themeName : '${themeName[0].toUpperCase()}${themeName.substring(1)}';
+
+    final trialLabel = _trialActive ? _trialRemainingLabel() : '';
+
     return Scaffold(
       backgroundColor: scheme.surface,
       appBar: AppBar(
         title: Text(
-          'Settings',
+          l10n.footerSettings,
           style: text.titleLarge?.copyWith(
             fontWeight: FontWeight.w800,
             color: scheme.onSurface,
@@ -638,80 +1112,190 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _sectionHeader(context, 'Appearance'),
+              _sectionHeader(context, l10n.settingsSectionAppearance),
               const SizedBox(height: 10),
               _buildSettingTile(
                 context,
                 icon: Icons.color_lens_rounded,
-                title: 'Theme',
-                subtitle:
-                'Current: ${themeManager.themeName[0].toUpperCase()}${themeManager.themeName.substring(1)}',
+                title: l10n.settingsTheme,
+                subtitle: l10n.settingsThemeCurrent(themeLabel),
                 onTap: () => _openThemePicker(context),
               ),
-              const SizedBox(height: 18),
-
-              _sectionHeader(context, 'Join the community!'),
+              _buildSettingTile(
+                context,
+                icon: Icons.language_rounded,
+                title: l10n.settingsLanguage,
+                subtitle: l10n.settingsLanguageCurrent(_languageLabel(_language)),
+                onTap: () => _openLanguagePicker(context),
+              ),
+              _sectionHeader(context, l10n.settingsSectionCommunity),
               const SizedBox(height: 10),
               _buildSettingTile(
                 context,
                 icon: Icons.chat_rounded,
-                title: 'Discord',
-                subtitle: 'Chat, updates and feedback',
+                title: l10n.settingsDiscord,
+                subtitle: l10n.settingsDiscordSubtitle,
                 onTap: () async {
                   final uri = Uri.parse('https://discord.gg/VYubQJfcYM');
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Unable to open Discord link')),
+                      SnackBar(content: Text(l10n.settingsDiscordOpenFail)),
                     );
                   }
                 },
               ),
               const SizedBox(height: 18),
-
-              _sectionHeader(context, 'PRO Features'),
+              _sectionHeader(context, l10n.settingsSectionPro),
               const SizedBox(height: 10),
-              if (isPro)
-                _buildSponsorCard(
-                  context,
-                  onTap: () => _showProOptions(context),
-                )
-              else
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFB8860B),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        onPressed: _showUpgradeDialog,
-                        child: const Text(
-                          'Unlock PRO',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.3,
-                          ),
+              Column(
+                children: [
+                  if (_hasProAccess)
+                    _buildSponsorCard(
+                      context,
+                      onTap: () => _showProOptions(context),
+                      trialLabel: trialLabel,
+                    )
+                  else
+                    Card.outlined(
+                      color: scheme.surfaceContainer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: const Color(0xFFB8860B).withOpacity(0.18),
+                                  child: const Icon(
+                                    Icons.workspace_premium_rounded,
+                                    color: Color(0xFFB8860B),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.settingsProCustomization,
+                                        style: text.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        l10n.settingsProSubtitle,
+                                        style: text.bodySmall?.copyWith(
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: const Color(0xFFB8860B),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                onPressed: _showUpgradeDialog,
+                                child: Text(
+                                  l10n.settingsUnlockPro,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    IconButton.filledTonal(
-                      onPressed: _showProInfo,
-                      icon: const Icon(Icons.info_outline_rounded),
+                  if (kEnableAds && !isPro) ...[
+                    const SizedBox(height: 12),
+                    Card.outlined(
+                      color: scheme.surfaceContainer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: scheme.primaryContainer,
+                                  child: Icon(
+                                    Icons.timer_rounded,
+                                    color: scheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Temporary Pro',
+                                        style: text.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Unlock all Pro features for 1 week',
+                                        style: text.bodySmall?.copyWith(
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: (_rewardedAd == null || _rewardedLoading || _trialActive)
+                                    ? null
+                                    : _watchAdForTrialPro,
+                                child: Text(
+                                  _trialActive
+                                      ? 'Active, $trialLabel left'
+                                      : (_rewardedAd == null ? 'Loading ad…' : 'Watch ad, 1 week Pro'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
-                ),
-              const SizedBox(height: 18),
+                ],
+              ),
 
-              _sectionHeader(context, 'Advanced Protection (Shizuku)'),
+              _sectionHeader(context, l10n.settingsSectionShizuku),
               const SizedBox(height: 10),
-
               Card.outlined(
                 color: scheme.surfaceContainer,
                 shape: RoundedRectangleBorder(
@@ -725,18 +1309,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: scheme.onPrimaryContainer,
                     ),
                   ),
-                  title: const Text(
-                    'Enable Shizuku',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  title: Text(
+                    l10n.settingsEnableShizuku,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(
                     !shizukuCertPresent
-                        ? 'Requires external manager'
+                        ? l10n.settingsShizukuRequiresManager
                         : !shizukuBinderAlive
-                        ? 'Shizuku service not running'
+                        ? l10n.settingsShizukuNotRunning
                         : !shizukuPermissionGranted
-                        ? 'Permission required'
-                        : 'Advanced system access available',
+                        ? l10n.settingsShizukuPermissionRequired
+                        : l10n.settingsShizukuAvailable,
                     style: text.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -752,23 +1336,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     final hasCert = await _hasShizukuCert();
                     if (!hasCert) {
-                      setState(() => shizukuCertPresent = false);
-
                       if (!mounted) return;
+                      setState(() => shizukuCertPresent = false);
 
                       showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: const Text('Advanced system Protection'),
-                            content: const Text(
-                              'Shizuku access requires an external manager intended for advanced users.\n\n'
-                                  'This feature is optional and not recommended for casual protection.',
-                            ),
+                            title: Text(l10n.settingsAdvancedProtectionDialogTitle),
+                            content: Text(l10n.settingsAdvancedProtectionDialogBody),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('OK'),
+                                child: Text(l10n.ok),
                               ),
                             ],
                           );
@@ -796,29 +1376,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               ),
-
               const SizedBox(height: 10),
-
               _buildSettingTile(
                 context,
                 icon: Icons.info_outline_rounded,
-                title: 'About Advanced Protection',
-                subtitle: 'Learn how advanced Protection works',
+                title: l10n.settingsAboutAdvancedProtection,
+                subtitle: l10n.settingsAboutAdvancedProtectionSubtitle,
                 onTap: _showShizukuInfo,
               ),
-
               const SizedBox(height: 18),
-
-              _sectionHeader(context, 'General'),
+              _sectionHeader(context, l10n.settingsSectionGeneral),
               const SizedBox(height: 10),
-
               _buildSettingTile(
                 context,
                 icon: Icons.lock_outline_rounded,
-                title: 'Meta Password',
-                subtitle: _metaPassword == null
-                    ? 'Required for password vault'
-                    : 'Stored securely (tap to change)',
+                title: l10n.passwordSettingsMetaPasswordTitle,
+                subtitle: _metaPassword == null ? l10n.passwordSettingsMetaNotSet : l10n.passwordSettingsMetaStoredSecurely,
                 onTap: () async {
                   final controller = TextEditingController(
                     text: await _secure.read(key: 'meta_password') ?? '',
@@ -832,7 +1405,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         builder: (context, setState) {
                           return AlertDialog(
                             scrollable: true,
-                            title: const Text('Set Meta Password'),
+                            title: Text(l10n.metaPassSetMetaTitle),
                             content: SingleChildScrollView(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -841,7 +1414,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     controller: controller,
                                     obscureText: obscure,
                                     decoration: InputDecoration(
-                                      labelText: 'Meta password',
+                                      labelText: l10n.metaPassMetaLabel,
                                       prefixIcon: const Icon(Icons.key_rounded),
                                       suffixIcon: IconButton(
                                         icon: Icon(
@@ -858,7 +1431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text(l10n.metaPassCancel),
                               ),
                               FilledButton(
                                 onPressed: () async {
@@ -868,10 +1441,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     key: 'meta_password',
                                     value: value,
                                   );
+                                  if (!mounted) return;
                                   setState(() => _metaPassword = value);
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Save'),
+                                child: Text(l10n.metaPassSave),
                               ),
                             ],
                           );
@@ -881,44 +1455,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-
               _buildSettingTile(
                 context,
                 icon: Icons.rule_folder_rounded,
-                title: 'Exclusions',
-                subtitle: 'Manage and add exclusions',
+                title: l10n.settingsExclusions,
+                subtitle: l10n.settingsExclusionsSubtitle,
                 onTap: _showExclusionsSheet,
               ),
-
               _buildSettingTile(
                 context,
                 icon: Icons.security_rounded,
-                title: 'Privacy Policy',
-                subtitle: 'View how your data is handled',
+                title: l10n.settingsPrivacyPolicy,
+                subtitle: l10n.settingsPrivacyPolicySubtitle,
                 onTap: () async {
                   final uri = Uri.parse('https://colourswift.com/Policies/Private-Policy');
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Unable to open privacy policy')),
+                      SnackBar(content: Text(l10n.settingsPrivacyPolicyOpenFail)),
                     );
                   }
                 },
               ),
-
               _buildSettingTile(
                 context,
                 icon: Icons.info_outline_rounded,
-                title: 'About AVarionX',
-                subtitle: 'Version 3.0.2',
+                title: l10n.settingsAboutApp,
+                subtitle: 'v3.0.4',
               ),
-
+              if (kDebugMode)
+                _buildSettingTile(
+                  context,
+                  icon: Icons.bug_report_rounded,
+                  title: l10n.settingsProReset,
+                  subtitle: l10n.settingsProReset,
+                  onTap: _resetProForDebug,
+                ),
               _buildSettingTile(
                 context,
                 icon: Icons.help_outline_rounded,
-                title: 'How This App Works',
-                subtitle: 'Learn about protection',
+                title: l10n.settingsHowThisAppWorks,
+                subtitle: l10n.settingsHowThisAppWorksSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -948,7 +1526,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSponsorCard(BuildContext context, {required VoidCallback onTap}) {
+  Widget _buildSponsorCard(BuildContext context, {required VoidCallback onTap, required String trialLabel}) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
@@ -977,14 +1556,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'PRO Customization',
+                      l10n.settingsProCustomization,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Icons, gold header, and cosmetics',
+                      _trialActive ? 'Trial active, $trialLabel left' : l10n.settingsProSubtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),

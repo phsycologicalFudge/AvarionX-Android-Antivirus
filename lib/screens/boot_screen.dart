@@ -6,6 +6,7 @@ import '../services/av_engine.dart';
 import 'main_shell.dart';
 import 'package:provider/provider.dart';
 import '../services/theme_manager.dart';
+import '../translations/app_localizations.dart';
 
 class BootScreen extends StatefulWidget {
   const BootScreen({super.key});
@@ -22,13 +23,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
 
   static const String _onboardingKey = 'onboarding_done_v2';
 
-  final List<String> _messages = [
-    'Preparing protection...',
-    'Loading definitions...',
-    'Initializing engine...',
-    'Optimizing memory...',
-    'Starting services...',
-  ];
+  late List<String> _messages;
 
   @override
   void initState() {
@@ -43,6 +38,14 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+
+    _messages = const [
+      'Preparing protection...',
+      'Loading definitions...',
+      'Initializing engine...',
+      'Optimizing memory...',
+      'Starting services...',
+    ];
 
     _textTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -86,8 +89,11 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final text = theme.textTheme;
+
+    final themeName = context.watch<ThemeManager>().themeName;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -109,9 +115,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                       child: ClipOval(
                         clipBehavior: Clip.antiAlias,
                         child: Image.asset(
-                          (context.watch<ThemeManager>().themeName == 'white' ||
-                              context.watch<ThemeManager>().themeName ==
-                                  'emerald')
+                          (themeName == 'white' || themeName == 'emerald')
                               ? 'assets/images/logo_light.png'
                               : 'assets/images/logo_dark.png',
                           fit: BoxFit.cover,
@@ -123,7 +127,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 35),
               Text(
-                'AVarionX Security',
+                l10n.appName,
                 style: text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.primary,

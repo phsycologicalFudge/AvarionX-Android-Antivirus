@@ -21,14 +21,30 @@ class AvServiceManager {
   }
 
   static Future<void> startVpn({String dnsMode = 'malware'}) async {
+    String nativeMode;
+    switch (dnsMode) {
+      case 'cloud':
+        nativeMode = 'cloud';
+        break;
+      case 'adult':
+      case 'basic_adult':
+        nativeMode = 'basic_adult';
+        break;
+      case 'malware':
+      case 'basic_malware':
+      default:
+        nativeMode = 'basic_malware';
+        break;
+    }
+
     try {
       await _vpnChannel.invokeMethod(
         "startVpn",
         {
-          "dns_mode": dnsMode,
+          "dns_mode": nativeMode,
         },
       );
-      dev.log("VPN start requested (dns=$dnsMode).");
+      dev.log("VPN start requested (dns=$nativeMode).");
     } catch (e) {
       dev.log("VPN start failed: $e");
     }

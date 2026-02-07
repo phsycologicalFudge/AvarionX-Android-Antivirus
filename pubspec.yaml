@@ -1,12 +1,14 @@
 name: colourswift_av
 description: AvarionX Security - antivirus suite
 publish_to: "none"
-version: 3.0.4+11517
+version: 3.0.5+11523
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   ffi: ^2.1.4
   permission_handler: ^11.4.0
@@ -41,6 +43,7 @@ dependencies:
   workmanager: ^0.9.0+3
   battery_plus: ^6.0.2
   webview_flutter: ^4.7.0
+  google_mobile_ads: ^5.3.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
@@ -53,11 +56,15 @@ dependency_overrides:
     path: plugins/device_apps-2.2.0
   usage_stats:
     path: plugins/usage_stats-fixed
+
 flutter:
   uses-material-design: true
+  generate: true
+
   assets:
     - assets/icons/
     - assets/images/
+    - assets/defs/
 
 flutter_launcher_icons:
   android: true

@@ -1,14 +1,20 @@
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
+import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
 import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/build_flags.dart';
 import '../services/defs_auto_update_service.dart';
+import '../services/pro_temp_service.dart';
 import '../services/realtime_protection_service.dart';
+import '../services/scan_scheduler.dart';
 import '../services/update_service.dart';
+import '../translations/app_localizations.dart';
 import '../utils/animated_route.dart';
+import '../widgets/ads/ads_config.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'link checker/link_check_screen.dart';
 import 'scan_ui_screen.dart';
@@ -18,7 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../widgets/update_log.dart';
-import '../services/launch_flag.dart';
+import '../constants/launch_flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
@@ -56,6 +62,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   static const String _autoUpdateKey = 'defs_auto_update_enabled';
 
   bool _pressed = false;
+  bool _loadingProtectionState = false;
   bool _updateLogShown = false;
 
   Future<void> _loadShizukuRtpState() async {
@@ -78,8 +85,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   Future<void> _loadProStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => isPro = prefs.getBool('isPro') ?? false);
+    final effective = await ProGate.sync();
+    if (!mounted) return;
+    setState(() => isPro = effective);
   }
 
   Future<void> _togglePro() async {
@@ -97,6 +105,18 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     setState(() {
       autoUpdateDefs = prefs.getBool('defs_auto_update_enabled') ?? false;
     });
+  }
+
+  Future<String> _getDnsModeFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final vpnMode = prefs.getString('networkProtectionMode');
+    final basicMode = prefs.getString('networkDnsMode');
+
+    debugPrint('[CS VPN] _getDnsModeFromPrefs vpnMode=$vpnMode basicMode=$basicMode');
+
+    if (vpnMode == 'cloud') return 'cloud';
+    if (basicMode == 'adult') return 'adult';
+    return 'malware';
   }
 
   Future<void> _loadCloudToggle() async {
@@ -124,7 +144,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadProtectionState();
     _loadShizukuRtpState();
   }
 
@@ -145,18 +164,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
       await prefs.setBool(key, true);
 
-      await showUpdateLogDialog(
-        context,
-        data: UpdateLogData(
-          version: flags.currentVersion.isEmpty ? version : flags.currentVersion,
-          changes: const [
-            'Improved scanning speed',
-            'Revamped the old UI completely',
-            'Added Link Checker in the explore tab',
-            'Added Full Device Scanning (A bit limited currently)',
-          ],
-        ),
-      );
     });
 
     SharedPreferences.getInstance().then((prefs) {
@@ -220,6 +227,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       builder: (context) {
         final theme = Theme.of(context);
         final text = theme.textTheme;
+        final l10n = AppLocalizations.of(context)!;
 
         return AlertDialog(
           backgroundColor: theme.colorScheme.surfaceContainerHigh,
@@ -227,17 +235,13 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
             borderRadius: BorderRadius.circular(18),
           ),
           title: Text(
-            'Realtime Protection',
+            l10n.rtpInfoTitle,
             style: text.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
           content: Text(
-            'Along with blocking suspicious files downloaded intentionally (or by malware), RTP uses a local VPN to block malicious domains system-wide.\n\n'
-                'When enabled, network filtering remains active unless:\n'
-                '• Disabled manually via Terminal\n'
-                '• Replaced by another VPN\n\n'
-                'File protection continues regardless as long as RTP is enabled.',
+            l10n.rtpInfoBody,
             style: text.bodySmall?.copyWith(
               height: 1.4,
               color: text.bodySmall?.color?.withOpacity(0.85),
@@ -246,7 +250,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: Text(l10n.ok),
             ),
           ],
         );
@@ -267,6 +271,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       builder: (context) {
         final theme = Theme.of(context);
         final text = theme.textTheme;
+        final l10n = AppLocalizations.of(context)!;
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -311,8 +316,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                   SnackBar(
                     content: Text(
                       autoUpdate
-                          ? 'Database updated • Auto updates enabled'
-                          : 'Database updated successfully',
+                          ? l10n.updateDbUpdatedAutoOn
+                          : l10n.updateDbUpdatedSuccess,
                     ),
                   ),
                 );
@@ -320,7 +325,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                 if (!mounted || !mountedSheet) return;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(content: Text('Database update failed')),
+                  SnackBar(content: Text(l10n.updateDbUpdateFailed)),
                 );
               }
             });
@@ -350,7 +355,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Updating Database',
+                              l10n.updateDbTitle,
                               style: text.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
@@ -362,7 +367,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Version $newRemoteVersion',
+                          l10n.updateDbVersionLabel(newRemoteVersion),
                           style: text.bodySmall?.copyWith(
                             color: text.bodySmall?.color?.withOpacity(0.7),
                           ),
@@ -401,7 +406,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Automatically download future updates',
+                              l10n.updateDbAutoDownloadLabel,
                               style: text.bodySmall?.copyWith(
                                 height: 1.3,
                               ),
@@ -472,31 +477,107 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   Future<void> _loadProtectionState() async {
-    final prefs = await SharedPreferences.getInstance();
+    if (_loadingProtectionState) return;
+    _loadingProtectionState = true;
 
-    final rtp = prefs.getBool('protectionEnabled') ?? false;
-    final net = prefs.getBool('networkProtectionEnabled') ?? false;
-    final conflict = rtp && net ? await _isAnotherVpnActive() : false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      protectionEnabled = rtp;
-      networkEnabled = rtp && net && !conflict;
-      vpnConflict = conflict;
-      vpnActive = networkEnabled;
+      final rtp = prefs.getBool('protectionEnabled') ?? false;
+      final netPref = prefs.getBool('networkProtectionEnabled') ?? false;
+
+      bool conflict = false;
+      try {
+        conflict = rtp && netPref ? await _isAnotherVpnActive() : false;
+      } catch (_) {
+        conflict = false;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        protectionEnabled = rtp;
+        networkEnabled = rtp && netPref && !conflict;
+        vpnConflict = conflict;
+        vpnActive = networkEnabled;
+
+        if (!rtp) {
+          protectionPercent = 0.0;
+        } else if (!networkEnabled || conflict) {
+          protectionPercent = 0.6;
+        } else {
+          protectionPercent = 1.0;
+        }
+      });
 
       if (!rtp) {
-        protectionPercent = 0.0;
-      } else if (!networkEnabled || conflict) {
-        protectionPercent = 0.6;
-      } else {
-        protectionPercent = 1.0;
+        try {
+          await AvServiceManager.stopProtection();
+        } catch (_) {}
+        try {
+          await AvServiceManager.stopVpn();
+        } catch (_) {}
+        _stopBackgroundScan();
+        await ScheduledScanScheduler.disable();
+        return;
       }
-    });
 
-    if (rtp) {
+      try {
+        await AvServiceManager.startProtection();
+      } catch (_) {
+        await ScheduledScanScheduler.disable();
+        await prefs.setBool('protectionEnabled', false);
+        await prefs.setBool('networkProtectionEnabled', false);
+
+        if (!mounted) return;
+
+        setState(() {
+          protectionEnabled = false;
+          networkEnabled = false;
+          vpnActive = false;
+          vpnConflict = false;
+          protectionPercent = 0.0;
+        });
+
+        _stopBackgroundScan();
+        return;
+      }
+
+      bool netEnabled = false;
+
+      if (netPref) {
+        bool conflict2 = false;
+        try {
+          conflict2 = await _isAnotherVpnActive();
+        } catch (_) {
+          conflict2 = false;
+        }
+
+        if (!conflict2) {
+          try {
+            final dnsMode = await _getDnsModeFromPrefs();
+            await AvServiceManager.startVpn(dnsMode: dnsMode);
+            netEnabled = true;
+          } catch (_) {
+            await prefs.setBool('networkProtectionEnabled', false);
+            netEnabled = false;
+          }
+        }
+      }
+
       _startBackgroundScan();
-    } else {
-      _stopBackgroundScan();
+      await ScheduledScanScheduler.enableFromPrefs();
+
+      if (!mounted) return;
+
+      setState(() {
+        networkEnabled = netEnabled;
+        vpnActive = netEnabled;
+        vpnConflict = !netEnabled && netPref ? true : false;
+        protectionPercent = netEnabled ? 1.0 : 0.6;
+      });
+    } finally {
+      _loadingProtectionState = false;
     }
   }
 
@@ -504,6 +585,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     final prefs = await SharedPreferences.getInstance();
 
     if (protectionEnabled) {
+      await ScheduledScanScheduler.disable();
       await AvServiceManager.stopProtection();
       await AvServiceManager.stopVpn();
       _stopBackgroundScan();
@@ -537,11 +619,18 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     await AvServiceManager.startProtection();
     _startBackgroundScan();
 
+    await ScheduledScanScheduler.enableFromPrefs();
+
     bool netEnabled = false;
 
     if (!conflict) {
-      await AvServiceManager.startVpn();
-      netEnabled = true;
+      try {
+        final dnsMode = await _getDnsModeFromPrefs();
+        await AvServiceManager.startVpn(dnsMode: dnsMode);
+        netEnabled = true;
+      } catch (_) {
+        netEnabled = false;
+      }
     }
 
     await prefs.setBool('protectionEnabled', true);
@@ -572,6 +661,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       backgroundColor: theme.colorScheme.surfaceContainerHigh,
       builder: (context) {
         bool localCloudScan = useCloudScan;
+        final l10n = AppLocalizations.of(context)!;
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -583,7 +673,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                   children: [
                     const SizedBox(height: 14),
                     Text(
-                      'ENGINE READY • VX-TITANIUM-v7',
+                      l10n.engineReadyBanner,
                       style: text.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -594,9 +684,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     Divider(height: 1, color: theme.colorScheme.outlineVariant),
                     ListTile(
                       leading: const Icon(Icons.storage_rounded),
-                      title: const Text('Full Device Scan'),
+                      title: Text(l10n.scanModeFullTitle),
                       subtitle: Text(
-                        'Scans all readable storage files.',
+                        l10n.scanModeFullSubtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
@@ -613,9 +703,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_search_rounded),
-                      title: const Text('Smart Scan [Recommended]'),
+                      title: Text(l10n.scanModeSmartTitle),
                       subtitle: Text(
-                        'Scans files that could contain malware.',
+                        l10n.scanModeSmartSubtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
@@ -632,9 +722,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ),
                     ListTile(
                       leading: const Icon(Icons.bolt_rounded),
-                      title: const Text('Rapid Scan'),
+                      title: Text(l10n.scanModeRapidTitle),
                       subtitle: Text(
-                        'Checks recent APKs in Downloads.',
+                        l10n.scanModeRapidSubtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
@@ -651,9 +741,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ),
                     ListTile(
                       leading: const Icon(Icons.apps_rounded),
-                      title: const Text('Installed Apps'),
+                      title: Text(l10n.scanModeInstalledTitle),
                       subtitle: Text(
-                        'Scans your installed apps for threats.',
+                        l10n.scanModeInstalledSubtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
@@ -670,9 +760,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                     ),
                     ListTile(
                       leading: const Icon(Icons.insert_drive_file_rounded),
-                      title: const Text('File / App Scan'),
+                      title: Text(l10n.scanModeSingleTitle),
                       subtitle: Text(
-                        'Pick a file or app to scan.',
+                        l10n.scanModeSingleSubtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
@@ -694,7 +784,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Use cloud-assisted scan', style: text.bodyMedium),
+                          Text(l10n.useCloudAssistedScan, style: text.bodyMedium),
                           Switch(
                             value: localCloudScan,
                             onChanged: (v) async {
@@ -745,31 +835,28 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     return Icons.verified_user;
   }
 
-  String _stateTitle() {
-    if (!protectionEnabled) return 'Protection';
-    if (vpnConflict) return 'Protection';
-    return 'Protection';
+  String _stateTitle(AppLocalizations l10n) {
+    return l10n.protectionTitle;
   }
 
-  String _stateLine1() {
-    if (!protectionEnabled) return 'Device protection is off';
-    if (shizukuRtpEnabled && protectionEnabled) {
-      return 'Advanced protection is active';
-    }
-    if (!networkEnabled || vpnConflict) return 'File Protection Only';
-    return 'Device Protected';
+  String _stateLine1(AppLocalizations l10n) {
+    if (!protectionEnabled) return l10n.stateOffLine1;
+    if (shizukuRtpEnabled && protectionEnabled) return l10n.stateAdvancedActiveLine1;
+    if (!networkEnabled || vpnConflict) return l10n.stateFileOnlyLine1;
+    return l10n.stateProtectedLine1;
   }
 
-  String _stateLine2() {
-    if (!protectionEnabled) return 'Tap to turn on';
-    if (!networkEnabled) return 'Network protection disabled';
-    if (vpnConflict) return 'Another VPN is active';
-    return 'Tap to turn off';
+  String _stateLine2(AppLocalizations l10n) {
+    if (!protectionEnabled) return l10n.stateOffLine2;
+    if (!networkEnabled) return l10n.stateFileOnlyLine2;
+    if (vpnConflict) return l10n.stateVpnConflictLine2;
+    return l10n.stateProtectedLine2;
   }
 
   Widget _buildTopBar(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
@@ -779,7 +866,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
             child: Row(
               children: [
                 Text(
-                  'AVarionX Security',
+                  l10n.appName,
                   overflow: TextOverflow.ellipsis,
                   style: text.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
@@ -795,8 +882,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       color: Colors.amber.shade700,
                       borderRadius: BorderRadius.circular(7),
                     ),
-                    child: const Text(
-                      'PRO',
+                    child: Text(
+                      l10n.proBadge,
                       style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -812,6 +899,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   Widget _buildSideDrawer(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -824,7 +912,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
                 child: Text(
-                  'Features',
+                  l10n.featuresDrawerTitle,
                   style: text.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
@@ -837,7 +925,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               _drawerItem(
                 context,
                 icon: Icons.wifi_lock_rounded,
-                label: 'Network Protection',
+                label: l10n.featureNetworkProtection,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -848,20 +936,20 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               ),
               _drawerItem(
                 context,
-                icon: Icons.key_rounded,
-                label: 'MetaPass',
+                icon: Icons.schedule_rounded,
+                label: l10n.featureScheduledScans,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    animatedRoute(const PasswordTestScreen()),
+                    animatedRoute(const ScheduledScansScreen()),
                   );
                 },
               ),
               _drawerItem(
                 context,
                 icon: Icons.cleaning_services_rounded,
-                label: 'Cleaner Pro',
+                label: l10n.featureCleanerPro,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -873,7 +961,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               _drawerItem(
                 context,
                 icon: Icons.link_rounded,
-                label: 'Link Checker',
+                label: l10n.featureLinkChecker,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -911,6 +999,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   Widget _buildPrimaryControl(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final isDark = theme.brightness == Brightness.dark;
@@ -977,7 +1066,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         ),
         const SizedBox(height: 18),
         Text(
-          _stateLine1(),
+          _stateLine1(l10n),
           style: text.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
             color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -986,7 +1075,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         ),
         const SizedBox(height: 6),
         Text(
-          _stateLine2(),
+          _stateLine2(l10n),
           style: text.bodySmall?.copyWith(
             color: text.bodySmall?.color?.withOpacity(0.7),
           ),
@@ -995,8 +1084,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         const SizedBox(height: 8),
         Text(
           defsVersion.isEmpty
-              ? 'Database updating'
-              : 'Database v$defsVersion • Auto updated',
+              ? l10n.dbUpdating
+              : l10n.dbVersionAutoUpdated(defsVersion),
           style: text.bodySmall?.copyWith(
             fontSize: 12,
             color: text.bodySmall?.color?.withOpacity(0.55),
@@ -1020,7 +1109,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
             child: OutlinedButton.icon(
               onPressed: _openScanDrawer,
               icon: const Icon(Icons.search_rounded, size: 18),
-              label: const Text('Scan'),
+              label: Text(l10n.scanButton),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -1133,6 +1222,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -1179,26 +1269,26 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: _buildSectionTitle(context, 'Recommended'),
+                          child: _buildSectionTitle(context, l10n.recommendedSectionTitle),
                         ),
                         const SizedBox(height: 6),
                         _buildFeatureRow(
                           context,
-                          title: 'MetaPass',
-                          description: 'Generate secure offline passwords.',
-                          icon: Icons.key_rounded,
-                          color: Colors.amberAccent,
+                          title: l10n.featureScheduledScans,
+                          description: l10n.recommendedScheduledScansDesc,
+                          icon: Icons.schedule_rounded,
+                          color: Theme.of(context).colorScheme.secondaryContainer,
                           onTap: () => Navigator.push(
                             context,
-                            animatedRoute(const PasswordTestScreen()),
+                            animatedRoute(const ScheduledScansScreen()),
                           ),
                         ),
+
                         const SizedBox(height: 12),
                         _buildFeatureRow(
                           context,
-                          title: 'Cleaner Pro',
-                          description:
-                          'Find duplicates, old media, and unused apps to reclaim storage automatically.',
+                          title: l10n.featureCleanerPro,
+                          description: l10n.recommendedCleanerProDesc,
                           icon: Icons.cleaning_services_rounded,
                           color: Colors.blueAccent,
                           onTap: () => Navigator.push(
@@ -1207,6 +1297,12 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           ),
                         ),
                         const SizedBox(height: 12),
+
+                        if (!isPro && kEnableAds)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8, bottom: 4),
+                            child: AdBanner(),
+                          ),
                       ],
                     ),
                   ),

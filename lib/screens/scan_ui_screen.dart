@@ -532,7 +532,12 @@ class _ScanScreenState extends State<ScanScreen>
 
     LogBuffer.add('[USER] Cancelled');
 
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainShell()),
+          (route) => false,
+    );
   }
 
   void _finishToHome() {
@@ -1692,22 +1697,55 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
+  String _threatLevel(double confidence) {
+    if (confidence >= 0.999) return 'Confirmed';
+    if (confidence >= 0.90) return 'High';
+    return 'Medium';
+  }
+
+  String _displayLabel(String label) {
+    switch (label) {
+      case 'Found in cloud database':
+      case 'Found in malware database':
+        return 'Known malware';
+      case 'Generic.Suspicious':
+      case 'Suspicious.Item':
+        return 'Suspicious activity detected';
+      case 'Generic.Malware':
+        return 'Malicious activity detected';
+      case 'Android.Banker':
+        return 'Android banking trojan';
+      case 'Android.Spyware':
+        return 'Android spyware';
+      case 'Android.Adware':
+        return 'Android adware';
+      case 'Android.SMS.Fraud':
+        return 'Android SMS fraud';
+      default:
+        return label.replaceAll('.', ' ');
+    }
+  }
+
   String _explainLabel(String label) {
     switch (label) {
       case 'Found in cloud database':
-        return 'This file exists within the ColourSwift cloud threat database.';
+        return 'This item is listed in the ColourSwift cloud threat database.';
+      case 'Found in malware database':
+        return 'This item is listed in the offline malware database on your device.';
       case 'Android.Banker':
-        return 'Designed to steal banking or financial credentials, often by overlaying fake login screens or intercepting sensitive data.';
+        return 'Designed to steal financial credentials, often using overlays, keylogging, or traffic interception.';
       case 'Android.Spyware':
         return 'Silently monitors activity or collects personal data such as messages, location, or device identifiers.';
       case 'Android.Adware':
-        return 'Displays intrusive advertisements, performs hidden redirects, or generates fraudulent ad traffic.';
+        return 'Displays intrusive ads, performs redirects, or generates fraudulent ad traffic.';
       case 'Android.SMS.Fraud':
-        return 'Attempts to send SMS commands without user consent, potentially causing unexpected charges.';
-      case 'Found in malware database':
-        return 'This file exists inside the malware database.';
+        return 'Attempts to send or trigger SMS actions without consent, which can cause unexpected charges.';
+      case 'Generic.Malware':
+        return 'Strong indicators of malicious intent were detected, even though it does not match a named family.';
+      case 'Generic.Suspicious':
+      case 'Suspicious.Item':
       default:
-        return 'Has behavior commonly associated with malware, but does not match a known malware family.';
+        return 'Indicators of suspicious behavior were detected. This can include abuse patterns seen in malware, but it may also be a false positive.';
     }
   }
 
@@ -1812,7 +1850,7 @@ class _ScanScreenState extends State<ScanScreen>
                               style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             subtitle: Text(
-                              d.label,
+                              _displayLabel(d.label),
                               style: text.bodySmall?.copyWith(
                                 color: scheme.error.withOpacity(0.9),
                                 fontWeight: FontWeight.w600,
@@ -1823,7 +1861,7 @@ class _ScanScreenState extends State<ScanScreen>
                                 padding: const EdgeInsets.only(bottom: 6),
                                 child: _pill(
                                   context,
-                                  label: 'Confidence: $pct%',
+                                  label: 'Threat level: ${_threatLevel(d.confidence)}',
                                   tint: scheme.error,
                                 ),
                               ),

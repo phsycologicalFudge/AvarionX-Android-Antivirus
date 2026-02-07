@@ -8,68 +8,28 @@ import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.os.ParcelFileDescriptor
+import android.util.Base64
 import android.util.Log
-import io.flutter.FlutterInjector
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
+import org.json.JSONObject
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
+import java.net.URL
 import java.nio.ByteBuffer
-import java.util.concurrent.CountDownLatch
-
-object CsvpnBridge {
-    @Volatile
-    private var engine: FlutterEngine? = null
-
-    fun ensureEngine(context: Context) {
-        if (engine != null) return
-        synchronized(this) {
-            if (engine != null) return
-
-            val latch = CountDownLatch(1)
-            val appContext = context.applicationContext
-
-            Handler(Looper.getMainLooper()).post {
-                try {
-                    val loader = FlutterInjector.instance().flutterLoader()
-                    loader.ensureInitializationComplete(appContext, null)
-
-                    val fe = FlutterEngine(appContext)
-                    val entry = DartExecutor.DartEntrypoint(
-                        loader.findAppBundlePath(),
-                        "vpnMain"
-                    )
-                    fe.dartExecutor.executeDartEntrypoint(entry)
-                    engine = fe
-                } finally {
-                    latch.countDown()
-                }
-            }
-
-            latch.await()
-        }
-    }
-
-    fun channel(context: Context): MethodChannel {
-        ensureEngine(context)
-        return MethodChannel(engine!!.dartExecutor.binaryMessenger, "cs_vpn_channel")
-    }
-}
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 
 class CSVpnService : VpnService() {
 
@@ -77,6 +37,21 @@ class CSVpnService : VpnService() {
         const val ACTION_START = "com.colourswift.cssecurity.VPN_START"
         const val ACTION_STOP = "com.colourswift.cssecurity.VPN_STOP"
         const val NOTIF_ID = 200
+
+        private const val PROTECTION_CHANNEL_ID = "cssecurity_realtime_v2"
+        private const val GROUP_KEY = "cssecurity_protection_group"
+        private const val SUMMARY_ID = 2
+
+        private const val PREFS = "cs_dns_cloud"
+        private const val PREF_CLOUD_ENABLED_LISTS = "enabled_lists_json"
+        private const val PREF_CLOUD_RESOLVER = "resolver"
+        private const val PREF_CLOUD_PLAN = "plan"
+        private const val PREF_CLOUD_URL = "cloud_url"
+        private const val PREF_CLIENT_ID = "client_id"
+
+        private const val DEFAULT_CLOUD_URL = "https://dns.colourswift.com/resolve"
+        private const val DEFAULT_UPSTREAM_FREE = "1.1.1.2"
+        private const val DEFAULT_UPSTREAM_ADULT = "1.1.1.3"
     }
 
     private var tun: ParcelFileDescriptor? = null
@@ -86,26 +61,22 @@ class CSVpnService : VpnService() {
     private val fakeDnsIp = "10.0.0.1"
     private val tunIp = "10.0.0.2"
 
-    private enum class DnsMode {
-        MALWARE_ONLY,
-        MALWARE_ADULT
+    private enum class Mode {
+        BASIC_MALWARE,
+        BASIC_ADULT,
+        CLOUD
     }
 
     @Volatile
-    private var dnsMode = DnsMode.MALWARE_ONLY
-
-    private fun resolveUpstream(): InetSocketAddress {
-        return when (dnsMode) {
-            DnsMode.MALWARE_ONLY -> InetSocketAddress("1.1.1.2", 53)
-            DnsMode.MALWARE_ADULT -> InetSocketAddress("1.1.1.3", 53)
-        }
-    }
+    private var mode: Mode = Mode.BASIC_MALWARE
 
     @Volatile
     private var shouldStop = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
+        val rawMode = intent?.getStringExtra("dns_mode")
+        Log.i("CSVpn", "onStartCommand action=$action dns_mode=$rawMode oldMode=$mode")
 
         if (action == ACTION_STOP) {
             stopTunnel()
@@ -113,45 +84,117 @@ class CSVpnService : VpnService() {
             return START_NOT_STICKY
         }
 
-        val mode = intent?.getStringExtra("dns_mode")
-        dnsMode = when (mode) {
-            "adult" -> DnsMode.MALWARE_ADULT
-            else -> DnsMode.MALWARE_ONLY
+        val m = rawMode?.trim()?.lowercase()
+        mode = when (m) {
+            "basic_malware", "malware" -> {
+                Log.i("CSVpn", "onStartCommand setting mode=BASIC_MALWARE (raw=$m)")
+                Mode.BASIC_MALWARE
+            }
+            "basic_adult", "adult" -> {
+                Log.i("CSVpn", "onStartCommand setting mode=BASIC_ADULT (raw=$m)")
+                Mode.BASIC_ADULT
+            }
+            "cloud" -> {
+                Log.i("CSVpn", "onStartCommand setting mode=CLOUD")
+                Mode.CLOUD
+            }
+            null -> {
+                Log.i("CSVpn", "onStartCommand with null dns_mode, keeping existing mode=$mode")
+                mode
+            }
+            else -> {
+                Log.i("CSVpn", "onStartCommand unknown dns_mode=$m, defaulting to BASIC_MALWARE")
+                Mode.BASIC_MALWARE
+            }
         }
 
         startForegroundNotif()
         startTunnel()
         return START_STICKY
     }
-
-    private fun startForegroundNotif() {
-        val id = "cs_vpn_channel"
-        val mgr = getSystemService(NotificationManager::class.java)
-
+    private fun ensureProtectionChannel(mgr: NotificationManager) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val ch = NotificationChannel(id, "CS Network Protection", NotificationManager.IMPORTANCE_LOW)
+            val ch = NotificationChannel(
+                PROTECTION_CHANNEL_ID,
+                "Protection",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            ch.setShowBadge(false)
             mgr.createNotificationChannel(ch)
         }
+    }
+
+    private fun buildSummaryNotification(pi: PendingIntent): Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, PROTECTION_CHANNEL_ID)
+                .setContentTitle("AVarionX")
+                .setContentText("Protection active")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pi)
+                .setOnlyAlertOnce(true)
+                .setGroup(GROUP_KEY)
+                .setGroupSummary(true)
+                .build()
+        } else {
+            Notification.Builder(this)
+                .setContentTitle("AVarionX")
+                .setContentText("Protection active")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pi)
+                .setOnlyAlertOnce(true)
+                .setGroup(GROUP_KEY)
+                .setGroupSummary(true)
+                .build()
+        }
+    }
+
+    private fun buildVpnNotification(pi: PendingIntent): Notification {
+        val title = if (mode == Mode.CLOUD) "Cloud Protection Active" else "Network Protection Active"
+        val text = if (mode == Mode.CLOUD) "DNS Protection" else "DNS Protection"
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, PROTECTION_CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pi)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setGroup(GROUP_KEY)
+                .build()
+        } else {
+            Notification.Builder(this)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pi)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setGroup(GROUP_KEY)
+                .build()
+        }
+    }
+
+    private fun startForegroundNotif() {
+        val mgr = getSystemService(NotificationManager::class.java)
+        ensureProtectionChannel(mgr)
 
         val pi = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val n = Notification.Builder(this, id)
-            .setContentTitle("Network Protection Active")
-            .setContentText("Scanning DNS requests")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(pi)
-            .setOngoing(true)
-            .build()
-
+        mgr.notify(SUMMARY_ID, buildSummaryNotification(pi))
+        val n = buildVpnNotification(pi)
+        Log.i("CSVpn", "Starting foreground with notification, mode=$mode")
         startForeground(NOTIF_ID, n)
     }
 
     private fun startTunnel() {
-        if (tun != null) return
+        if (tun != null) {
+            Log.i("CSVpn", "startTunnel called but tun already exists, mode=$mode")
+            return
+        }
 
         shouldStop = false
 
@@ -161,6 +204,7 @@ class CSVpnService : VpnService() {
             .addDnsServer(fakeDnsIp)
             .addRoute(fakeDnsIp, 32)
 
+        Log.i("CSVpn", "Establishing TUN with tunIp=$tunIp fakeDnsIp=$fakeDnsIp")
         tun = builder.establish()
 
         if (tun == null) {
@@ -171,14 +215,18 @@ class CSVpnService : VpnService() {
 
         tunnelJob?.cancel()
         tunnelJob = scope.launch {
+            Log.i("CSVpn", "runTunnelLoop starting, initial mode=$mode")
             runTunnelLoop()
+            Log.i("CSVpn", "runTunnelLoop exited")
         }
 
-        Log.i("CSVpn", "Tunnel started")
+        Log.i("CSVpn", "Tunnel started, mode=$mode")
     }
 
     private fun stopTunnel() {
+        Log.i("CSVpn", "stopTunnel called")
         shouldStop = true
+
         try {
             tun?.close()
         } catch (_: Exception) {
@@ -194,11 +242,185 @@ class CSVpnService : VpnService() {
         }
 
         scope.cancel()
-        Log.i("CSVpn", "Tunnel stopped")
+        Log.i("CSVpn", "Tunnel stopped, scope cancelled")
+    }
+
+    private fun cloudPrefs(): android.content.SharedPreferences {
+        return applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    }
+
+    private fun cloudUrl(): String {
+        val v = cloudPrefs().getString(PREF_CLOUD_URL, null)
+        val s = v?.trim().orEmpty()
+        val url = if (s.isNotEmpty()) s else DEFAULT_CLOUD_URL
+        Log.i("CSVpn", "cloudUrl() -> $url")
+        return url
+    }
+
+    private fun cloudPlan(): String {
+        val v = cloudPrefs().getString(PREF_CLOUD_PLAN, null)
+        val s = v?.trim()?.lowercase().orEmpty()
+        val plan = if (s == "pro") "pro" else "free"
+        Log.i("CSVpn", "cloudPlan() -> $plan (raw=$v)")
+        return plan
+    }
+
+    private fun cloudClientId(): String? {
+        val v = cloudPrefs().getString(PREF_CLIENT_ID, null)
+        val s = v?.trim().orEmpty()
+        val id = if (s.isNotEmpty()) s else null
+        Log.i("CSVpn", "cloudClientId() -> $id")
+        return id
+    }
+
+    private fun cloudSettingsB64(): String? {
+        val listsJson = cloudPrefs().getString(PREF_CLOUD_ENABLED_LISTS, null)
+        val resolver = cloudPrefs().getString(PREF_CLOUD_RESOLVER, null)
+
+        val obj = JSONObject()
+
+        if (!listsJson.isNullOrBlank()) {
+            try {
+                obj.put("enabled_lists", org.json.JSONArray(listsJson))
+            } catch (_: Exception) {
+            }
+        }
+
+        val r = resolver?.trim().orEmpty()
+        if (r.isNotEmpty()) {
+            obj.put("resolver", r)
+        }
+
+        if (obj.length() == 0) {
+            Log.i("CSVpn", "cloudSettingsB64() no settings to send")
+            return null
+        }
+        val raw = obj.toString().toByteArray(Charsets.UTF_8)
+        val out = Base64.encodeToString(raw, Base64.NO_WRAP)
+        Log.i("CSVpn", "cloudSettingsB64() built payload=${obj.toString()} length=${raw.size}")
+        return out
+    }
+
+    private fun openCloudHttp(url: String): HttpURLConnection {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val network = cm.allNetworks.firstOrNull { n ->
+            val caps = cm.getNetworkCapabilities(n) ?: return@firstOrNull false
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) &&
+                    (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                            caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
+        }
+
+        val u = URL(url)
+        val conn = if (network != null) network.openConnection(u) else u.openConnection()
+        return conn as HttpURLConnection
+    }
+    private fun cloudResolverIp(): String {
+        val v = cloudPrefs().getString(PREF_CLOUD_RESOLVER, null)
+        val s = v?.trim().orEmpty()
+        val ip = if (s.isNotEmpty()) s else "1.1.1.1"
+        Log.i("CSVpn", "cloudResolverIp() -> $ip")
+        return ip
+    }
+
+    private fun basicUpstream(): InetSocketAddress {
+        val target = when (mode) {
+            Mode.BASIC_MALWARE -> InetSocketAddress(DEFAULT_UPSTREAM_FREE, 53)
+            Mode.BASIC_ADULT -> InetSocketAddress(DEFAULT_UPSTREAM_ADULT, 53)
+            Mode.CLOUD -> InetSocketAddress(cloudResolverIp(), 53)
+        }
+        Log.i("CSVpn", "basicUpstream() mode=$mode -> $target")
+        return target
+    }
+
+    private fun cloudResolve(dnsQuery: ByteArray, qname: String?): Pair<ByteArray?, Map<String, Any?>?> {
+        val url = cloudUrl()
+        val plan = cloudPlan()
+        val clientId = cloudClientId()
+        val settingsB64 = cloudSettingsB64()
+
+        Log.i("CSVpn", "cloudResolve() start url=$url plan=$plan qname=$qname settingsPresent=${settingsB64 != null}")
+
+        val bodyObj = JSONObject()
+        bodyObj.put("dns_b64", Base64.encodeToString(dnsQuery, Base64.NO_WRAP))
+        if (settingsB64 != null) bodyObj.put("settings_b64", settingsB64)
+        val bodyBytes = bodyObj.toString().toByteArray(Charsets.UTF_8)
+
+        val start = System.nanoTime()
+
+        try {
+            val conn = openCloudHttp(url)
+            conn.requestMethod = "POST"
+            conn.connectTimeout = 3000
+            conn.readTimeout = 3500
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("x-plan", plan)
+            if (clientId != null) conn.setRequestProperty("x-client-id", clientId)
+
+            Log.i("CSVpn", "cloudResolve() sending HTTP POST, bodyLen=${bodyBytes.size}")
+            conn.outputStream.use { it.write(bodyBytes) }
+
+            val code = conn.responseCode
+            Log.i("CSVpn", "cloudResolve() HTTP status=$code")
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val raw = stream?.readBytes() ?: ByteArray(0)
+            Log.i("CSVpn", "cloudResolve() HTTP bodyLen=${raw.size}")
+            if (raw.isEmpty()) return Pair(null, null)
+
+            val respJson = JSONObject(String(raw, Charsets.UTF_8))
+            val dnsB64 = respJson.optString("dns_b64", null) ?: return Pair(null, null)
+            val meta = respJson.optJSONObject("meta")
+
+            val dnsReply = Base64.decode(dnsB64, Base64.DEFAULT)
+
+            val metaMap = mutableMapOf<String, Any?>()
+            metaMap["ts_ms"] = meta?.optLong("ts_ms", System.currentTimeMillis()) ?: System.currentTimeMillis()
+            metaMap["qname"] = meta?.optString("qname", qname ?: "unknown") ?: (qname ?: "unknown")
+            metaMap["blocked"] = meta?.optBoolean("blocked", false) ?: false
+            metaMap["plan"] = meta?.optString("plan", plan) ?: plan
+            metaMap["upstream"] = meta?.optString("upstream", null)
+            metaMap["latency_ms"] = meta?.optInt("latency_ms", -1)?.let { if (it >= 0) it else null }
+                ?: ((System.nanoTime() - start) / 1_000_000L).toInt()
+
+            val decision = meta?.optJSONObject("decision")
+            if (decision != null) {
+                val match = decision.optJSONObject("match")
+                metaMap["decision"] = mapOf(
+                    "match" to if (match != null) mapOf(
+                        "list" to match.optString("list", null),
+                        "type" to match.optString("type", null)
+                    ) else null
+                )
+            } else {
+                metaMap["decision"] = mapOf("match" to null)
+            }
+
+            Log.i("CSVpn", "cloudResolve() success blocked=${metaMap["blocked"]} latency=${metaMap["latency_ms"]}")
+            return Pair(dnsReply, metaMap)
+        } catch (e: Exception) {
+            val latencyMs = ((System.nanoTime() - start) / 1_000_000L).toInt()
+            Log.e("CSVpn", "cloudResolve() error: ${e.message}", e)
+            val metaMap = mapOf(
+                "ts_ms" to System.currentTimeMillis(),
+                "qname" to (qname ?: "unknown"),
+                "blocked" to false,
+                "plan" to plan,
+                "upstream" to null,
+                "latency_ms" to latencyMs,
+                "decision" to mapOf("match" to null)
+            )
+            return Pair(null, metaMap)
+        }
     }
 
     private suspend fun runTunnelLoop() {
-        val fd = tun?.fileDescriptor ?: return
+        val fd = tun?.fileDescriptor ?: run {
+            Log.e("CSVpn", "runTunnelLoop: tun.fileDescriptor is null, aborting")
+            return
+        }
         val input = FileInputStream(fd).channel
         val output = FileOutputStream(fd).channel
         val buf = ByteBuffer.allocate(65535)
@@ -206,12 +428,14 @@ class CSVpnService : VpnService() {
         val dnsSocket = DatagramSocket()
         dnsSocket.soTimeout = 3000
         protect(dnsSocket)
+        Log.i("CSVpn", "runTunnelLoop: DNS socket created and protected, mode=$mode")
 
         while (!shouldStop && scope.isActive) {
             buf.clear()
             val n = try {
                 input.read(buf)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("CSVpn", "runTunnelLoop: error reading from TUN: ${e.message}", e)
                 break
             }
 
@@ -236,40 +460,101 @@ class CSVpnService : VpnService() {
                 val domain = extractDomain(packet)
                 val dnsQuery = extractDnsPayload(packet)
 
+                Log.i("CSVpn", "runTunnelLoop: intercepted DNS qname=$domain len=${dnsQuery?.size ?: 0} mode=$mode")
+
                 if (dnsQuery == null) {
-                    output.write(ByteBuffer.wrap(packet))
+                    try {
+                        output.write(ByteBuffer.wrap(packet))
+                    } catch (_: Exception) {
+                    }
                     continue
                 }
 
-                if (domain != null && shouldBlockDomain(domain)) {
-                    val nx = buildNxDomainPayload(dnsQuery)
-                    val nxReply = rebuildDnsReply(packet, nx)
-                    output.write(ByteBuffer.wrap(nxReply))
+                if (mode == Mode.CLOUD) {
+                    if (domain != null && domain.equals("dns.colourswift.com", ignoreCase = true)) {
+                        Log.i("CSVpn", "runTunnelLoop: special handling for resolver host, using UDP upstream only for qname=$domain")
+                        val upstream = InetSocketAddress(cloudResolverIp(), 53)
+                        val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstream)
+                        dnsSocket.send(upstreamPacket)
+
+                        val recv = ByteArray(4096)
+                        val replyPacket = DatagramPacket(recv, recv.size)
+                        try {
+                            dnsSocket.receive(replyPacket)
+                        } catch (e: SocketTimeoutException) {
+                            Log.e("CSVpn", "runTunnelLoop: UDP special-case timeout for qname=$domain")
+                            output.write(ByteBuffer.wrap(packet))
+                            continue
+                        }
+
+                        val dnsReply = replyPacket.data.copyOf(replyPacket.length)
+                        Log.i("CSVpn", "runTunnelLoop: special-case UDP reply len=${dnsReply.size} for qname=$domain")
+                        val rebuilt = rebuildDnsReply(packet, dnsReply)
+                        output.write(ByteBuffer.wrap(rebuilt))
+                        continue
+                    }
+
+                    Log.i("CSVpn", "runTunnelLoop: using cloudResolve for qname=$domain")
+                    val (dnsReply, meta) = cloudResolve(dnsQuery, domain)
+                    if (meta != null) {
+                        try {
+                            Log.i("CSVpn", "runTunnelLoop: emitting DNS meta to Flutter for qname=${meta["qname"]}")
+                            CsDnsEvents.emit(meta)
+                        } catch (e: Exception) {
+                            Log.e("CSVpn", "runTunnelLoop: error emitting DNS meta: ${e.message}", e)
+                        }
+                    }
+                    if (dnsReply != null) {
+                        Log.i("CSVpn", "runTunnelLoop: got reply from cloud server for qname=$domain, sending to app")
+                        val rebuilt = rebuildDnsReply(packet, dnsReply)
+                        output.write(ByteBuffer.wrap(rebuilt))
+                        continue
+                    }
+
+                    Log.i("CSVpn", "runTunnelLoop: cloudResolve no reply, falling back to UDP resolver")
+                    val upstream = InetSocketAddress(cloudResolverIp(), 53)
+                    val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstream)
+                    dnsSocket.send(upstreamPacket)
+
+                    val recv = ByteArray(4096)
+                    val replyPacket = DatagramPacket(recv, recv.size)
+                    try {
+                        dnsSocket.receive(replyPacket)
+                    } catch (e: SocketTimeoutException) {
+                        Log.e("CSVpn", "runTunnelLoop: UDP fallback timed out for qname=$domain")
+                        output.write(ByteBuffer.wrap(packet))
+                        continue
+                    }
+
+                    val dnsFallbackReply = replyPacket.data.copyOf(replyPacket.length)
+                    Log.i("CSVpn", "runTunnelLoop: UDP fallback reply len=${dnsFallbackReply.size} for qname=$domain")
+                    val rebuiltFallback = rebuildDnsReply(packet, dnsFallbackReply)
+                    output.write(ByteBuffer.wrap(rebuiltFallback))
                     continue
                 }
 
-                val upstream = resolveUpstream()
-                Log.i("CSVpn", "Forwarding DNS to ${upstream.address.hostAddress}")
-
+                val upstream = basicUpstream()
+                Log.i("CSVpn", "runTunnelLoop: basic mode, forwarding to $upstream qname=$domain")
                 val upstreamPacket = DatagramPacket(dnsQuery, dnsQuery.size, upstream)
                 dnsSocket.send(upstreamPacket)
-
 
                 val recv = ByteArray(4096)
                 val replyPacket = DatagramPacket(recv, recv.size)
 
                 try {
                     dnsSocket.receive(replyPacket)
-                } catch (_: SocketTimeoutException) {
+                } catch (e: SocketTimeoutException) {
+                    Log.e("CSVpn", "runTunnelLoop: basic UDP timeout for qname=$domain")
                     output.write(ByteBuffer.wrap(packet))
                     continue
                 }
 
                 val dnsReply = replyPacket.data.copyOf(replyPacket.length)
+                Log.i("CSVpn", "runTunnelLoop: basic reply len=${dnsReply.size} for qname=$domain")
                 val rebuilt = rebuildDnsReply(packet, dnsReply)
                 output.write(ByteBuffer.wrap(rebuilt))
             } catch (e: Exception) {
-                Log.e("CSVpn", "DNS error: ${e.message}", e)
+                Log.e("CSVpn", "runTunnelLoop: DNS error: ${e.message}", e)
                 try {
                     output.write(ByteBuffer.wrap(packet))
                 } catch (_: Exception) {
@@ -279,6 +564,7 @@ class CSVpnService : VpnService() {
 
         try {
             dnsSocket.close()
+            Log.i("CSVpn", "runTunnelLoop: DNS socket closed")
         } catch (_: Exception) {
         }
     }
@@ -319,8 +605,11 @@ class CSVpnService : VpnService() {
         val fakeInt = (parts[0] shl 24) or (parts[1] shl 16) or (parts[2] shl 8) or parts[3]
 
         val dstPort = ((d[ihl + 2].toInt() and 0xFF) shl 8) or (d[ihl + 3].toInt() and 0xFF)
-
-        return dstIp == fakeInt && dstPort == 53
+        val match = dstIp == fakeInt && dstPort == 53
+        if (match) {
+            Log.i("CSVpn", "isDnsToFakeServer: packet to fakeDnsIp=$fakeDnsIp:53")
+        }
+        return match
     }
 
     private fun extractDnsPayload(d: ByteArray): ByteArray? {
@@ -356,39 +645,10 @@ class CSVpnService : VpnService() {
         }
 
         if (labels.isEmpty()) return null
-        return normalizeHost(labels.joinToString("."))
-    }
-
-    private fun normalizeHost(h: String): String {
-        var t = h.trim().lowercase()
+        var t = labels.joinToString(".").trim().lowercase()
         if (t.endsWith(".")) t = t.dropLast(1)
         if (t.startsWith("www.")) t = t.substring(4)
         return t
-    }
-
-    private fun shouldBlockDomain(domain: String): Boolean {
-        return try {
-            val channel = CsvpnBridge.channel(applicationContext)
-            val result = channel.invokeMethod(
-                "checkConnection",
-                mapOf(
-                    "ip" to domain,
-                    "sni" to domain,
-                    "port" to 443
-                )
-            ) as Int
-            result != 0
-        } catch (_: Exception) {
-            false
-        }
-    }
-
-    private fun buildNxDomainPayload(query: ByteArray): ByteArray {
-        if (query.size < 12) return query
-        val resp = query.copyOf()
-        resp[2] = (resp[2].toInt() or 0x80 or 0x04).toByte()
-        resp[3] = ((resp[3].toInt() and 0xF0) or 0x03).toByte()
-        return resp
     }
 
     private fun rebuildDnsReply(original: ByteArray, dnsReply: ByteArray): ByteArray {

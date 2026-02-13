@@ -4,8 +4,15 @@
 
 # AvarionX Security
 
-Ad-free antivirus for Android, offering the same protection features as mainstream AVs without paid tiers.  
+Antivirus for Android, offering the same protection features as mainstream AVs without paid tiers.  
 Available on Google Play and GitHub.
+
+## Important: Ads
+
+Short answer: Github builds do NOT include ads
+
+Long answer:
+In order to fund the project, the play store version comes with ads. Users can purchase Pro to unlock additional app customisation features. To maintain balance between ecosystems, GitHub builds do not support Play Store Pro purchases. Sponsor certificates are used instead. However, Github builds will forever remain ad-free.
 
 <br>
 
@@ -78,13 +85,49 @@ https://github.com/phsycologicalFudge/ColourSwift_AV/releases
   <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/6.jpg" width="220">
 </div>
 
-## Privacy
+## Network Protection
+
+The Android build includes a DNS-based Network Protection layer powered by VTTI and is hosted on Cloudflare. It works by using Android's VpnService API to intercept DNS queries ONLY.
+
+### How Does It Work?
+
+- No registration required at all.
+- DNS queries are sent to our cloud proxy.
+- The proxy evaluates each request against multiple blocklist categories.
+- Matching is performed using Bloom filters for high-speed, low-memory domain checks.
+- CNAME chain inspection is performed to detect malicious domains.
+- If a domain matches an enabled policy, it is blocked.
+- Otherwise, the query is securely forwarded to an upstream resolver.
+
+### Blocklists
+
+Supported categories:
+
+- Malware domains
+- Phishing
+- Ad domains
+- Tracker domains
+- Adult content
+- Gambling
+- Social media
+- Romain domain set
+
+### Plan Tiers
+
+- Free plan is split into two tiers. Github users are not restricted on blocklists, whilst Google play users cannot use the 'ad-block' lists. This was a difficult but needed choice to fund the project.
+- Pro plan enables unlimited queries per month.
+- Monthly query caps only apply to the free tier (300,000 queries/pm).
+
+### Privacy
+
+- No HTTPS traffic is decrypted.
+- No content inspection is performed.
+- Only DNS query names and user filtering settings (blocklists, resolver preference) are sent to the proxy.
 
 - No personal data collection  
 - Files are never uploaded as cloud checks use hashes only  
 - No user accounts  
 - No tracking or analytics
-- No Ads (Play store version does include ads)
 
 ## Open source status
 

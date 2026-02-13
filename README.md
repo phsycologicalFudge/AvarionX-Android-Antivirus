@@ -123,12 +123,11 @@ Supported categories:
 - No HTTPS traffic is decrypted.
 - No content inspection is performed.
 - Only DNS query names and user filtering settings (blocklists, resolver preference) are sent to the proxy.
-  
+
 - No personal data collection  
 - Files are never uploaded as cloud checks use hashes only  
 - No user accounts  
 - No tracking or analytics
-- No Ads (Play store version does include ads)
 
 ## Open source status
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.colourswift.cssecurity.vpn.CSVpnService
 
 object AppWifiRules {
     private const val PREFS = "cs_app_rules"
@@ -24,6 +25,28 @@ object AppWifiRules {
         return prefs.edit().putStringSet(KEY, next).commit()
     }
 
+    fun applyToBuilderIfWifiAndLockdown(ctx: Context, builder: android.net.VpnService.Builder) {
+        if (!isWifi(ctx)) return
+
+        val state = try {
+            CSVpnService.snapshotLockdownState(ctx)
+        } catch (_: Exception) {
+            mapOf("always_on" to false, "lockdown" to false)
+        }
+
+        val lockdown = (state["lockdown"] as? Boolean) == true
+        if (!lockdown) return
+
+        val blocked = getWifiBlockedPkgs(ctx)
+        if (blocked.isEmpty()) return
+
+        for (pkg in blocked) {
+            try {
+                builder.addDisallowedApplication(pkg)
+            } catch (_: Exception) {}
+        }
+    }
+
     fun isWifi(ctx: Context): Boolean {
         val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val n = cm.activeNetwork ?: return false
@@ -31,18 +54,21 @@ object AppWifiRules {
         return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
     }
 
-    fun applyToBuilderIfWifi(ctx: Context, builder: android.net.VpnService.Builder) {
-        if (!isWifi(ctx)) return
-        val pkgs = getWifiBlockedPkgs(ctx)
-        if (pkgs.isEmpty()) return
-        val pm = ctx.packageManager
-        for (pkg in pkgs) {
-            try {
-                pm.getApplicationInfo(pkg, 0)
-                builder.addDisallowedApplication(pkg)
-            } catch (_: PackageManager.NameNotFoundException) {
-            } catch (_: Exception) {
-            }
+    fun shouldBlockUidOnWifi(ctx: Context, uid: Int): Boolean {
+        if (!isWifi(ctx)) return false
+        val blocked = getWifiBlockedPkgs(ctx)
+        if (blocked.isEmpty()) return false
+
+        val pkgs = try {
+            ctx.packageManager.getPackagesForUid(uid)?.toList().orEmpty()
+        } catch (_: Exception) {
+            emptyList()
         }
+
+        if (pkgs.isEmpty()) return false
+        for (p in pkgs) {
+            if (blocked.contains(p)) return true
+        }
+        return false
     }
 }

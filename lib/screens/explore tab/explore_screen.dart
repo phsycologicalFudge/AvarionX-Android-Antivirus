@@ -3,12 +3,13 @@ import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../constants/build_flags.dart';
 import '../../services/pro_temp_service.dart';
 import '../../translations/app_localizations.dart';
 import '../../widgets/ads/ads_config.dart';
 import '../link checker/link_check_screen.dart';
+import '../scan/scan_limits_screen.dart';
+import '../scan/scheduled_scan_screen.dart';
 import '../terminal_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -75,6 +76,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
         subtitle: l10n.recommendedCleanerProDesc,
         isProFeature: true,
         builder: (_) => const CleanerScreen(),
+      ),
+      _ExploreItem(
+        title: l10n.featureScheduledScans,
+        icon: Icons.schedule_rounded,
+        subtitle: l10n.recommendedScheduledScansDesc,
+        isProFeature: true,
+        builder: (_) => const ScheduledScansScreen(),
+      ),
+      _ExploreItem(
+        title: l10n.exploreMultiThreadingTitle,
+        icon: Icons.computer_outlined,
+        subtitle: l10n.exploreMultiThreadingSubtitle,
+        isProFeature: true,
+        builder: (_) => const ScanLimitsScreen(),
       ),
     ];
 

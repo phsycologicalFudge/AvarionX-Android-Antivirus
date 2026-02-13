@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkAppControlScreen extends StatefulWidget {
   const NetworkAppControlScreen({super.key});
@@ -33,8 +32,7 @@ class _AppRow {
 
 class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
   static const MethodChannel _chan = MethodChannel('cs.fastapps');
-
-  static const _prefWifiBlockedSet = 'dns_wifi_blocked_apps';
+  static const MethodChannel _lockdownChan = MethodChannel('cs_vpn_lockdown');
 
   final TextEditingController _searchCtrl = TextEditingController();
   final Map<String, Future<Uint8List?>> _iconFutures = {};
@@ -45,11 +43,15 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
 
   Set<String> _wifiBlocked = <String>{};
 
+  bool _alwaysOn = false;
+  bool _lockdown = false;
+  String? _alwaysOnPkg;
+
   @override
   void initState() {
     super.initState();
     _searchCtrl.addListener(_applyFilter);
-    _loadPrefs().then((_) => _load());
+    _refreshAll();
   }
 
   @override
@@ -59,22 +61,96 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     super.dispose();
   }
 
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_prefWifiBlockedSet) ?? const <String>[];
-    if (!mounted) return;
-    setState(() {
-      _wifiBlocked = list.toSet();
-    });
+  Future<void> _refreshAll() async {
+    await _refreshLockdownState();
+    await _loadNativeBlocked();
+    await _load();
   }
 
-  Future<void> _savePrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_prefWifiBlockedSet, _wifiBlocked.toList()..sort());
+  Future<void> _refreshLockdownState() async {
+    try {
+      final res = await _lockdownChan.invokeMethod('getLockdownState');
+      final m = (res as Map?) ?? const {};
+      if (!mounted) return;
+      setState(() {
+        _alwaysOn = (m['always_on'] as bool?) ?? false;
+        _lockdown = (m['lockdown'] as bool?) ?? false;
+        _alwaysOnPkg = m['always_on_pkg']?.toString();
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _alwaysOn = false;
+        _lockdown = false;
+        _alwaysOnPkg = null;
+      });
+    }
+  }
+
+  Future<void> _openVpnSettings() async {
+    try {
+      await _lockdownChan.invokeMethod('openVpnSettings');
+    } catch (_) {}
+  }
+
+  bool get _isReadyForBlocking => _alwaysOn && _lockdown;
+
+  Future<void> _showVpnSetupDialog() async {
+    if (!mounted) return;
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && !_alwaysOn);
+        final msg = other
+            ? 'Another VPN is currently selected as Always-on.\n\nTo block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN'
+            : 'To block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN';
+
+        return AlertDialog(
+          title: const Text('Enable VPN toggles'),
+          content: Text(msg),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _openVpnSettings();
+              },
+              child: const Text('Open settings'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _loadNativeBlocked() async {
+    try {
+      final res = await _chan.invokeMethod('getWifiBlockedPkgs');
+      final list = (res as List?)?.map((e) => e.toString()).where((s) => s.isNotEmpty).toList() ?? <String>[];
+      if (!mounted) return;
+      setState(() {
+        _wifiBlocked = list.toSet();
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _wifiBlocked = <String>{};
+      });
+    }
   }
 
   Future<void> _setWifiBlocked(String pkg, bool blocked) async {
     if (!mounted) return;
+
+    await _refreshLockdownState();
+
+    if (!_isReadyForBlocking) {
+      await _showVpnSetupDialog();
+      return;
+    }
 
     setState(() {
       if (blocked) {
@@ -84,11 +160,21 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
       }
     });
 
-    await _savePrefs();
-
     try {
-      await _chan.invokeMethod('setAppWifiBlock', {'package': pkg, 'blocked': blocked});
-    } catch (_) {}
+      final ok = await _chan.invokeMethod('setAppWifiBlock', {'package': pkg, 'blocked': blocked});
+      if (ok != true) {
+        throw Exception('setAppWifiBlock failed');
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        if (blocked) {
+          _wifiBlocked.remove(pkg);
+        } else {
+          _wifiBlocked.add(pkg);
+        }
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -148,6 +234,45 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     return f;
   }
 
+  Widget _statusBanner(ThemeData theme) {
+    final ok = _isReadyForBlocking;
+    final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && !_alwaysOn);
+
+    final text = ok
+        ? 'App blocking is active.'
+        : (other
+        ? 'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AVarionX.'
+        : 'Enable Always-on + Block without VPN for AVarionX to make app blocking work.');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.40),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Icon(ok ? Icons.verified : Icons.lock, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(width: 10),
+            FilledButton(
+              onPressed: _openVpnSettings,
+              child: const Text('Open'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -157,7 +282,11 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
         title: const Text('App control'),
         actions: [
           IconButton(
-            onPressed: _loading ? null : () => _load(),
+            onPressed: _loading
+                ? null
+                : () async {
+              await _refreshAll();
+            },
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -165,6 +294,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            _statusBanner(theme),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
               child: TextField(
@@ -235,45 +365,6 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
                         value: blocked,
                         onChanged: (v) => _setWifiBlocked(a.packageName, v),
                       ),
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          showDragHandle: true,
-                          builder: (_) {
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    a.name,
-                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(a.packageName, style: theme.textTheme.bodySmall),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Block on WiFi',
-                                          style: theme.textTheme.bodyMedium,
-                                        ),
-                                      ),
-                                      Switch(
-                                        value: blocked,
-                                        onChanged: (v) => _setWifiBlocked(a.packageName, v),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
                     ),
                   );
                 },

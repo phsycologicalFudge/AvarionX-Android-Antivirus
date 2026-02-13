@@ -2,10 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 
-bool enableScanLogs = true;
-
 typedef ScanLogFn = void Function(String msg);
-ScanLogFn? scanLogSink;
 
 typedef AvInitNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanNative = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -25,6 +22,7 @@ typedef NetCheckNative = Int32 Function(
     Pointer<Utf8>,
     Uint16,
     );
+
 typedef NetCheckDart = int Function(
     Pointer<Utf8>,
     Pointer<Utf8>,
@@ -37,13 +35,16 @@ typedef PwGenNative = Pointer<Utf8> Function(
     Uint32,
     IntPtr,
     );
+
 typedef PwFreeNative = Void Function(Pointer<Utf8>);
+
 typedef PwGenDart = Pointer<Utf8> Function(
     Pointer<Utf8>,
     Pointer<Utf8>,
     int,
     int,
     );
+
 typedef PwFreeDart = void Function(Pointer<Utf8>);
 
 typedef RestoreEncodeNative = Pointer<Utf8> Function(
@@ -67,21 +68,20 @@ typedef RestoreDecodeDart = Pointer<Utf8> Function(
     );
 
 typedef ScanCbNative = Void Function(Pointer<Utf8>);
-typedef SetScanCbNative = Void Function(
-    Pointer<NativeFunction<ScanCbNative>>,
-    );
-typedef SetScanCbDart = void Function(
-    Pointer<NativeFunction<ScanCbNative>>,
-    );
+typedef SetScanCbNative = Void Function(Pointer<NativeFunction<ScanCbNative>>);
+typedef SetScanCbDart = void Function(Pointer<NativeFunction<ScanCbNative>>);
+
+typedef SetScanLimitsNative = Void Function(Uint64, Uint64);
+typedef SetScanLimitsDart = void Function(int, int);
+
+ScanLogFn? _scanLogSink;
 
 @pragma('vm:entry-point')
 void _scanLogCallback(Pointer<Utf8> msgPtr) {
-  final msg = msgPtr.toDartString();
-  scanLogSink?.call(msg);
+  final sink = _scanLogSink;
+  if (sink == null) return;
+  sink(msgPtr.toDartString());
 }
-
-final Pointer<NativeFunction<ScanCbNative>> _scanLogPtr =
-Pointer.fromFunction<ScanCbNative>(_scanLogCallback);
 
 class AntivirusBridge {
   late DynamicLibrary _lib;
@@ -96,8 +96,14 @@ class AntivirusBridge {
   late final SetScanCbDart _setScanCallback;
   late final RestoreEncodeDart _restoreEncode;
   late final RestoreDecodeDart _restoreDecode;
+  SetScanLimitsDart? _setScanLimits;
 
-  AntivirusBridge() {
+  final bool enableScanLogs;
+  final ScanLogFn? scanLogSink;
+
+  Pointer<NativeFunction<ScanCbNative>>? _scanLogPtr;
+
+  AntivirusBridge({this.enableScanLogs = false, this.scanLogSink}) {
     if (Platform.isAndroid) {
       _lib = DynamicLibrary.open("libcolourswift_av.so");
     } else if (Platform.isWindows) {
@@ -113,20 +119,32 @@ class AntivirusBridge {
     _pwGen = _lib.lookupFunction<PwGenNative, PwGenDart>('generate_password');
     _pwFree = _lib.lookupFunction<PwFreeNative, PwFreeDart>('free_password');
     _restoreEncode = _lib.lookupFunction<RestoreEncodeNative, RestoreEncodeDart>(
-        'generate_restore_code_ffi');
+      'generate_restore_code_ffi',
+    );
     _restoreDecode = _lib.lookupFunction<RestoreDecodeNative, RestoreDecodeDart>(
-        'decode_restore_code_ffi');
+      'decode_restore_code_ffi',
+    );
     _netInit =
         _lib.lookupFunction<NetIocInitNative, NetIocInitDart>('cs_net_ioc_init');
     _netCheck =
         _lib.lookupFunction<NetCheckNative, NetCheckDart>('cs_net_check');
     _setScanCallback =
         _lib.lookupFunction<SetScanCbNative, SetScanCbDart>('set_scan_callback');
+
     try {
-      if (enableScanLogs) {
-        _setScanCallback(_scanLogPtr);
-      }
-    } catch (_) {}
+      _setScanLimits =
+          _lib.lookupFunction<SetScanLimitsNative, SetScanLimitsDart>(
+            'set_scan_limits',
+          );
+    } catch (_) {
+      _setScanLimits = null;
+    }
+
+    if (enableScanLogs) {
+      _scanLogSink = scanLogSink;
+      _scanLogPtr = Pointer.fromFunction<ScanCbNative>(_scanLogCallback);
+      _setScanCallback(_scanLogPtr!);
+    }
   }
 
   int init(String defsPath, String keyPath) {
@@ -145,6 +163,16 @@ class AntivirusBridge {
     malloc.free(defs);
     malloc.free(key);
     return res;
+  }
+
+  void setScanLimits(int maxConcurrent, int maxThreads) {
+    final fn = _setScanLimits;
+    if (fn == null) {
+      return;
+    }
+    final mc = maxConcurrent < 1 ? 1 : maxConcurrent;
+    final mt = maxThreads < 0 ? 0 : maxThreads;
+    fn(mc, mt);
   }
 
   int initNetIoc(String defsPath) {

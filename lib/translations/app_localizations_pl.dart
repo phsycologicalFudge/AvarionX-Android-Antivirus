@@ -41,6 +41,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get exploreMultiThreadingTitle => 'Multi-Threading';
+
+  @override
+  String get exploreMultiThreadingSubtitle => 'Experimental engine control';
+
+  @override
   String get updateDbAutoDownloadLabel =>
       'Automatycznie pobieraj przyszłe aktualizacje';
 
@@ -401,6 +407,201 @@ class AppLocalizationsPl extends AppLocalizations {
   String get featureScheduledScans => 'Planowane skanowania';
 
   @override
+  String get networkStatusDisconnected => 'Disconnected';
+
+  @override
+  String get networkStatusConnecting => 'Connecting';
+
+  @override
+  String get networkStatusConnected => 'Połączono z null';
+
+  @override
+  String get networkUsageTitle => 'Usage';
+
+  @override
+  String get networkUsageEnableVpnToView => 'Enable VPN to view usage.';
+
+  @override
+  String get networkUsageUnlimited => 'Unlimited';
+
+  @override
+  String networkUsageUsedOf(Object used, Object limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String networkUsageResetsOn(Object y, Object m, Object d) {
+    return 'Resets on $y-$m-$d';
+  }
+
+  @override
+  String networkUsageUpdatedAt(Object hh, Object mm) {
+    return 'Updated $hh:$mm';
+  }
+
+  @override
+  String get networkCardStatusAvailable => 'Available';
+
+  @override
+  String get networkCardStatusDisabled => 'Disabled';
+
+  @override
+  String get networkCardStatusCustom => 'Custom';
+
+  @override
+  String get networkCardStatusReady => 'Ready';
+
+  @override
+  String get networkCardStatusOpen => 'Open';
+
+  @override
+  String get networkCardStatusComingSoon => 'Coming soon';
+
+  @override
+  String get networkCardBlocklistsTitle => 'Blocklists';
+
+  @override
+  String get networkCardBlocklistsSubtitle => 'Filtering controls';
+
+  @override
+  String get networkCardUpstreamTitle => 'Upstream';
+
+  @override
+  String get networkCardUpstreamSubtitle => 'Resolver selection';
+
+  @override
+  String get networkCardAppsTitle => 'Apps';
+
+  @override
+  String get networkCardAppsSubtitle => 'Block apps on WiFi';
+
+  @override
+  String get networkCardLogsTitle => 'Logs';
+
+  @override
+  String get networkCardLogsSubtitle => 'Live DNS events';
+
+  @override
+  String get networkCardSpeedTitle => 'Speed';
+
+  @override
+  String get networkCardSpeedSubtitle => 'DNS test';
+
+  @override
+  String get networkCardAboutTitle => 'About';
+
+  @override
+  String get networkCardAboutSubtitle => 'GitHub';
+
+  @override
+  String get networkLogsStatusNoActivity => 'No activity';
+
+  @override
+  String networkLogsStatusRecent(Object count) {
+    return '$count recent';
+  }
+
+  @override
+  String get networkResolverTitle => 'Resolver';
+
+  @override
+  String get networkResolverIpLabel => 'Resolver IP';
+
+  @override
+  String get networkResolverIpHint => 'Example: 1.1.1.1';
+
+  @override
+  String get networkSpeedTestTitle => 'Speed test';
+
+  @override
+  String get networkSpeedTestBody =>
+      'Runs a DNS speed tester using your current settings.';
+
+  @override
+  String get networkSpeedTestRun => 'Run speed test';
+
+  @override
+  String get networkBlocklistsRecommendedTitle => 'Recommended';
+
+  @override
+  String get networkBlocklistsCsMalwareTitle => 'ColourSwift Malware';
+
+  @override
+  String get networkBlocklistsCsAdsTitle => 'ColourSwift ads';
+
+  @override
+  String get networkBlocklistsSeeGithub => 'See GitHub for details...';
+
+  @override
+  String get networkBlocklistsMalwareSection => 'Malware';
+
+  @override
+  String get networkBlocklistsMalwareTitle => 'Malware blocklist';
+
+  @override
+  String get networkBlocklistsMalwareSources =>
+      'HaGeZi TIF • URLHaus • DigitalSide • Spam404';
+
+  @override
+  String get networkBlocklistsAdsSection => 'Ads';
+
+  @override
+  String get networkBlocklistsAdsTitle => 'Ads blocklist';
+
+  @override
+  String get networkBlocklistsAdsSources =>
+      'OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard';
+
+  @override
+  String get networkBlocklistsTrackersSection => 'Trackers';
+
+  @override
+  String get networkBlocklistsTrackersTitle => 'Trackers blocklist';
+
+  @override
+  String get networkBlocklistsTrackersSources =>
+      'EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker';
+
+  @override
+  String get networkBlocklistsGamblingSection => 'Gambling';
+
+  @override
+  String get networkBlocklistsGamblingTitle => 'Gambling blocklist';
+
+  @override
+  String get networkBlocklistsGamblingSources => 'HaGeZi Gambling';
+
+  @override
+  String get networkBlocklistsSocialSection => 'Social media';
+
+  @override
+  String get networkBlocklistsSocialTitle => 'Social media blocklist';
+
+  @override
+  String get networkBlocklistsSocialSources => 'HaGeZi Social';
+
+  @override
+  String get networkBlocklistsAdultSection => '18+';
+
+  @override
+  String get networkBlocklistsAdultTitle => 'Adult blocklist';
+
+  @override
+  String get networkBlocklistsAdultSources => 'StevenBlack 18+ • HaGeZi NSFW';
+
+  @override
+  String get networkLiveLogsTitle => 'Live logs';
+
+  @override
+  String get networkLiveLogsEmpty => 'No requests yet.';
+
+  @override
+  String get networkLiveLogsBlocked => 'Blocked';
+
+  @override
+  String get networkLiveLogsAllowed => 'Allowed';
+
+  @override
   String get recommendedMetaPassDesc => 'Generuj bezpieczne hasła offline.';
 
   @override
@@ -698,15 +899,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get networkProtectionTitle => 'Ochrona sieci';
 
   @override
-  String networkStatusConnected(Object dns) {
-    return 'Połączono z $dns';
+  String networkStatusConnectedToDns(Object dns) {
+    return 'Connected to $dns';
   }
 
   @override
-  String get networkStatusVpnConflict => 'Inny VPN jest aktywny';
+  String get networkStatusVpnConflictDetail => 'Another VPN is active';
 
   @override
-  String get networkStatusOff => 'Ochrona sieci jest wyłączona';
+  String get networkStatusOffDetail => 'Network protection is off';
 
   @override
   String get networkModeMalwareTitle => 'Tylko blokowanie malware';
@@ -910,6 +1111,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String settingsPurchaseFailed(Object error) {
     return 'Zakup nie powiódł się: $error';
   }
+
+  @override
+  String get proActivated => 'PRO activated';
+
+  @override
+  String get proDeactivated => 'PRO deactivated';
 
   @override
   String get settingsProReset => 'Reset PRO (tylko debug)';

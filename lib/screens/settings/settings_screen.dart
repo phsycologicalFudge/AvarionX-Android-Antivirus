@@ -1482,7 +1482,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 context,
                 icon: Icons.info_outline_rounded,
                 title: l10n.settingsAboutApp,
-                subtitle: 'v3.0.4',
+                subtitle: 'v3.0.6',
               ),
               if (kDebugMode)
                 _buildSettingTile(

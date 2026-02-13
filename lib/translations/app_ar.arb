@@ -1,77 +1,65 @@
 {
   "@@locale": "ar",
-
   "appName": "AVarionX Security",
-  "ok": "موافق",
+  "ok": "حسنًا",
   "cancel": "إلغاء",
-
   "footerHome": "الرئيسية",
   "footerExplore": "استكشاف",
   "footerRemoved": "المحذوفات",
   "footerSettings": "الإعدادات",
-
   "proBadge": "PRO",
-
-  "updateDbTitle": "تحديث قاعدة البيانات",
+  "updateDbTitle": "جارٍ تحديث قاعدة البيانات",
   "updateDbVersionLabel": "الإصدار {version}",
   "@updateDbVersionLabel": {
     "placeholders": {
       "version": {}
     }
   },
+  "exploreMultiThreadingTitle": "تعدد الخيوط",
+  "exploreMultiThreadingSubtitle": "تحكم تجريبي بالمحرك",
   "updateDbAutoDownloadLabel": "تنزيل التحديثات المستقبلية تلقائيًا",
-  "updateDbUpdatedAutoOn": "تم تحديث قاعدة البيانات • التحديث التلقائي مفعل",
+  "updateDbUpdatedAutoOn": "تم تحديث قاعدة البيانات • التحديثات التلقائية مفعلة",
   "updateDbUpdatedSuccess": "تم تحديث قاعدة البيانات بنجاح",
   "updateDbUpdateFailed": "فشل تحديث قاعدة البيانات",
-
   "engineReadyBanner": "المحرك جاهز • VX-TITANIUM-v7",
-
   "scanButton": "فحص",
-
   "scanModeFullTitle": "فحص كامل للجهاز",
-  "scanModeFullSubtitle": "فحص جميع ملفات التخزين القابلة للقراءة.",
+  "scanModeFullSubtitle": "يفحص كل الملفات القابلة للقراءة في التخزين.",
   "scanModeSmartTitle": "فحص ذكي [موصى به]",
-  "scanModeSmartSubtitle": "فحص الملفات التي قد تحتوي على برمجيات خبيثة.",
+  "scanModeSmartSubtitle": "يفحص الملفات التي قد تحتوي على برمجيات خبيثة.",
   "scanModeRapidTitle": "فحص سريع",
-  "scanModeRapidSubtitle": "التحقق من ملفات APK الأخيرة في التنزيلات.",
+  "scanModeRapidSubtitle": "يفحص ملفات APK الحديثة في التنزيلات.",
   "scanModeInstalledTitle": "التطبيقات المثبتة",
-  "scanModeInstalledSubtitle": "فحص تطبيقاتك المثبتة بحثًا عن تهديدات.",
+  "scanModeInstalledSubtitle": "يفحص تطبيقاتك المثبتة بحثًا عن التهديدات.",
   "scanModeSingleTitle": "فحص ملف / تطبيق",
   "scanModeSingleSubtitle": "اختر ملفًا أو تطبيقًا لفحصه.",
-
-  "useCloudAssistedScan": "استخدام الفحص المدعوم سحابيًا",
-
+  "useCloudAssistedScan": "استخدام فحص بمساعدة السحابة",
   "protectionTitle": "الحماية",
   "stateOffLine1": "حماية الجهاز متوقفة",
-  "stateOffLine2": "انقر للتشغيل",
+  "stateOffLine2": "اضغط للتشغيل",
   "stateAdvancedActiveLine1": "الحماية المتقدمة نشطة",
   "stateFileOnlyLine1": "حماية الملفات فقط",
   "stateFileOnlyLine2": "حماية الشبكة معطلة",
   "stateVpnConflictLine2": "هناك VPN آخر نشط",
   "stateProtectedLine1": "الجهاز محمي",
-  "stateProtectedLine2": "انقر للإيقاف",
-
-  "dbUpdating": "جاري تحديث قاعدة البيانات",
-  "dbVersionAutoUpdated": "قاعدة البيانات v{version} • تحديث تلقائي",
+  "stateProtectedLine2": "اضغط للإيقاف",
+  "dbUpdating": "جارٍ تحديث قاعدة البيانات",
+  "dbVersionAutoUpdated": "قاعدة البيانات v{version} • تم تحديثها تلقائيًا",
   "@dbVersionAutoUpdated": {
     "placeholders": {
       "version": {}
     }
   },
-
   "rtpInfoTitle": "الحماية في الوقت الحقيقي",
-  "rtpInfoBody": "بالإضافة إلى حظر الملفات المشبوهة التي يتم تنزيلها عمدًا (أو بواسطة برمجيات خبيثة)، تستخدم الحماية في الوقت الحقيقي (RTP) شبكة VPN محلية لحظر النطاقات الضارة على مستوى النظام.\n\nعند التفعيل، يظل تصفية الشبكة نشطًا إلا في الحالات التالية:\n• التعطيل يدويًا عبر Terminal\n• الاستبدال بواسطة VPN آخر\n\nتستمر حماية الملفات بغض النظر عن ذلك طالما أن RTP مفعل.",
-
+  "rtpInfoBody": "بالإضافة إلى حظر الملفات المشبوهة التي تم تنزيلها عمدًا (أو بواسطة برمجيات خبيثة)، يستخدم RTP شبكة VPN محلية لحظر النطاقات الخبيثة على مستوى النظام.\n\nعند التفعيل، يبقى ترشيح الشبكة نشطًا إلا إذا:\n• تم تعطيله يدويًا عبر الطرفية\n• تم استبداله بـ VPN آخر\n\nتستمر حماية الملفات طالما أن RTP مفعّل.",
   "scanTitleDefault": "فحص",
   "scanTitleSmart": "فحص ذكي",
   "scanTitleRapid": "فحص سريع",
   "scanTitleInstalled": "فحص التطبيقات المثبتة",
   "scanTitleFull": "فحص كامل للجهاز",
-  "scanTitleSingle": "فحص فردي",
-
-  "cancellingScan": "جاري إلغاء الفحص…",
+  "scanTitleSingle": "فحص واحد",
+  "cancellingScan": "جارٍ إلغاء الفحص…",
   "cancelScan": "إلغاء الفحص",
-
   "scanProgressZero": "التقدم: 0%",
   "scanProgressWithPct": "التقدم: {pct}% ({scanned} / {total})",
   "@scanProgressWithPct": {
@@ -81,195 +69,255 @@
       "total": {}
     }
   },
-
   "scanProgressFullItems": "تم فحص: {count} عنصر",
   "@scanProgressFullItems": {
     "placeholders": {
       "count": {}
     }
   },
-
-  "initializing": "جاري التهيئة...",
-  "scanningEllipsis": "جاري الفحص...",
-
+  "initializing": "جارٍ التهيئة...",
+  "scanningEllipsis": "جارٍ الفحص...",
   "fullScanInfoTitle": "فحص كامل للجهاز",
-  "fullScanInfoBody": "يقوم هذا الوضع بفحص كل ملف قابل للقراءة في التخزين دون تصفية.\n\nلا يتم استخدام الفحص المدعوم سحابيًا وفحص التطبيقات في هذا الوضع.",
-
+  "fullScanInfoBody": "يقوم هذا الوضع بفحص كل ملف قابل للقراءة في التخزين دون أي فلترة.\n\nلا يتم استخدام الفحص بمساعدة السحابة أو فحص التطبيقات في هذا الوضع.",
   "scanComplete": "اكتمل الفحص",
-
   "pillSuspiciousCount": "مشبوه: {count}",
   "@pillSuspiciousCount": {
     "placeholders": {
       "count": {}
     }
   },
-  "pillCleanCount": "آمن: {count}",
+  "pillCleanCount": "نظيف: {count}",
   "@pillCleanCount": {
     "placeholders": {
       "count": {}
     }
   },
-  "pillScannedCount": "مفحوص: {count}",
+  "pillScannedCount": "تم فحص: {count}",
   "@pillScannedCount": {
     "placeholders": {
       "count": {}
     }
   },
-
   "resultNoThreatsTitle": "لم يتم اكتشاف تهديدات",
-  "resultNoThreatsBody": "لم يتم العثور على تهديدات في العناصر المفحوصة.",
+  "resultNoThreatsBody": "لم يتم اكتشاف تهديدات في العناصر التي تم فحصها.",
   "resultSuspiciousAppsTitle": "تطبيقات مشبوهة",
   "resultSuspiciousItemsTitle": "عناصر مشبوهة",
   "returnHome": "العودة للرئيسية",
-
   "emptyTitle": "لا توجد ملفات قابلة للفحص",
-  "emptyBody": "لا يحتوي جهازك على أي ملفات تطابق معايير الفحص.",
-
+  "emptyBody": "لم يحتوي جهازك على أي ملفات تطابق معايير الفحص.",
   "knownMalware": "برمجيات خبيثة معروفة",
   "suspiciousActivityDetected": "تم اكتشاف نشاط مشبوه",
-  "maliciousActivityDetected": "تم اكتشاف نشاط ضار",
-
-  "androidBankingTrojan": "طروادة مصرفية للأندرويد",
-  "androidSpyware": "برمجيات تجسس للأندرويد",
-  "androidAdware": "برمجيات إعلانية للأندرويد",
-  "androidSmsFraud": "احتيال عبر الرسائل النصية",
-
+  "maliciousActivityDetected": "تم اكتشاف نشاط خبيث",
+  "androidBankingTrojan": "حصان طروادة مصرفي لأندرويد",
+  "androidSpyware": "برامج تجسس لأندرويد",
+  "androidAdware": "برامج إعلانات لأندرويد",
+  "androidSmsFraud": "احتيال رسائل SMS لأندرويد",
   "threatLevelConfirmed": "مؤكد",
-  "threatLevelHigh": "عالي",
+  "threatLevelHigh": "مرتفع",
   "threatLevelMedium": "متوسط",
-
   "threatLevelLabel": "مستوى التهديد: {level}",
   "@threatLevelLabel": {
     "placeholders": {
       "level": {}
     }
   },
-
-  "explainFoundInCloud": "هذا العنصر مدرج في قاعدة بيانات تهديدات ColourSwift السحابية.",
-  "explainFoundInOffline": "هذا العنصر مدرج في قاعدة بيانات البرمجيات الخبيثة غير المتصلة بالإنترنت على جهازك.",
-  "explainBanker": "مصمم لسرقة البيانات المالية، غالبًا باستخدام واجهات وهمية، أو تسجيل ضربات المفاتيح، أو اعتراض حركة المرور.",
-  "explainSpyware": "يراقب النشاط بصمت أو يجمع البيانات الشخصية مثل الرسائل أو الموقع أو معرفات الجهاز.",
-  "explainAdware": "يعرض إعلانات متطفلة، أو يقوم بعمليات إعادة توجيه، أو يولد حركة مرور إعلانية احتيالية.",
-  "explainSmsFraud": "يحاول إرسال رسائل نصية أو تشغيل إجراءات SMS دون موافقة، مما قد يسبب رسومًا غير متوقعة.",
-  "explainGenericMalware": "تم اكتشاف مؤشرات قوية على وجود نوايا ضارة، رغم أنه لا يتطابق مع عائلة برمجيات محددة الاسم.",
-  "explainSuspiciousDefault": "تم اكتشاف مؤشرات على سلوك مشبوه. قد يشمل ذلك أنماط إساءة شوهدت في البرمجيات الخبيثة، ولكن قد يكون أيضًا إنذارًا خاطئًا.",
-
+  "explainFoundInCloud": "هذا العنصر مُدرج في قاعدة بيانات تهديدات ColourSwift السحابية.",
+  "explainFoundInOffline": "هذا العنصر مُدرج في قاعدة بيانات البرمجيات الخبيثة غير المتصلة على جهازك.",
+  "explainBanker": "مصمم لسرقة بيانات الاعتماد المالية، غالبًا عبر التراكبات أو تسجيل المفاتيح أو اعتراض الحركة.",
+  "explainSpyware": "يراقب النشاط بصمت أو يجمع بيانات شخصية مثل الرسائل أو الموقع أو معرفات الجهاز.",
+  "explainAdware": "يعرض إعلانات مزعجة، أو ينفذ إعادة توجيه، أو يولد حركة إعلانات احتيالية.",
+  "explainSmsFraud": "يحاول إرسال أو تشغيل إجراءات عبر SMS دون موافقة، ما قد يسبب رسومًا غير متوقعة.",
+  "explainGenericMalware": "تم اكتشاف مؤشرات قوية على نية خبيثة، رغم أنه لا يطابق عائلة مسماة.",
+  "explainSuspiciousDefault": "تم اكتشاف مؤشرات لسلوك مشبوه. قد يتضمن ذلك أنماطًا تُرى في البرمجيات الخبيثة، لكنه قد يكون إنذارًا كاذبًا.",
   "singleChoiceScanFile": "فحص ملف",
   "singleChoiceScanInstalledApp": "فحص تطبيق مثبت",
   "singleChoiceManageExclusions": "إدارة الاستثناءات",
-
   "labelKnownMalwareDb": "موجود في قاعدة بيانات البرمجيات الخبيثة",
-  "labelFoundInCloudDb": "موجود في قاعدة البيانات السحابية",
-
-  "logEngineFullDeviceScan": "[المحرك] فحص كامل للجهاز",
-  "logEngineTargetStorage": "[المحرك] الهدف: /storage/emulated/0",
-  "logEngineNoFilesFound": "[المحرك] لم يتم العثور على ملفات.",
-  "logEngineFilesEnumerated": "[المحرك] الملفات المكتشفة: {count}",
+  "labelFoundInCloudDb": "موجود في قاعدة بيانات السحابة",
+  "logEngineFullDeviceScan": "[ENGINE] فحص كامل للجهاز",
+  "logEngineTargetStorage": "[ENGINE] الهدف: /storage/emulated/0",
+  "logEngineNoFilesFound": "[ENGINE] لم يتم العثور على ملفات.",
+  "logEngineFilesEnumerated": "[ENGINE] عدد الملفات: {count}",
   "@logEngineFilesEnumerated": {
     "placeholders": {
       "count": {}
     }
   },
-  "logEngineNoReadableFilesFound": "[المحرك] لم يتم العثور على ملفات قابلة للقراءة.",
-  "logEngineInstalledAppsFound": "[المحرك] التطبيقات المثبتة المكتشفة: {count}",
+  "logEngineNoReadableFilesFound": "[ENGINE] لم يتم العثور على ملفات قابلة للقراءة.",
+  "logEngineInstalledAppsFound": "[ENGINE] تم العثور على تطبيقات مثبتة: {count}",
   "@logEngineInstalledAppsFound": {
     "placeholders": {
       "count": {}
     }
   },
-
-  "logModeCloudAssisted": "[الوضع] وضع المساعدة السحابية",
-  "logModeOffline": "[الوضع] وضع عدم الاتصال",
-
-  "logStageHashing": "[المرحلة 1] جلب بصمات الملفات (مخزنة)...",
-  "logStageCloudLookup": "[المرحلة 2] البحث عن البصمة في السحابة...",
-  "logStageLocalScanning": "[المرحلة {stage}] فحص الملفات محليًا...",
+  "logModeCloudAssisted": "[MODE] وضع بمساعدة السحابة",
+  "logModeOffline": "[MODE] وضع غير متصل",
+  "logStageHashing": "[STAGE 1] الحصول على بصمات الملفات (مخزنة)...",
+  "logStageCloudLookup": "[STAGE 2] البحث عن البصمات في السحابة...",
+  "logStageLocalScanning": "[STAGE {stage}] فحص الملفات محليًا...",
   "@logStageLocalScanning": {
     "placeholders": {
       "stage": {}
     }
   },
-
-  "logCloudHashHits": "[السحابة] {count} تطابق للبصمات",
+  "logCloudHashHits": "[CLOUD] تطابقات بصمات: {count}",
   "@logCloudHashHits": {
     "placeholders": {
       "count": {}
     }
   },
-
-  "logSummary": "[الملخص] {suspicious} مشبوه • {clean} آمن",
+  "logSummary": "[SUMMARY] {suspicious} مشبوه • {clean} نظيف",
   "@logSummary": {
     "placeholders": {
       "suspicious": {},
       "clean": {}
     }
   },
-
-  "logErrorPrefix": "[خطأ] {message}",
+  "logErrorPrefix": "[ERROR] {message}",
   "@logErrorPrefix": {
     "placeholders": {
       "message": {}
     }
   },
-
   "genericUnknownAppName": "غير معروف",
   "genericUnknownFileName": "غير معروف",
-
   "featuresDrawerTitle": "الميزات",
   "recommendedSectionTitle": "موصى به",
-
   "featureNetworkProtection": "حماية الشبكة",
   "featureLinkChecker": "فاحص الروابط",
   "featureMetaPass": "MetaPass",
   "featureCleanerPro": "Cleaner Pro",
-  "featureTerminal": "المحطة الطرفية",
-  "featureScheduledScans": "الفحوصات المجدولة",
-
-  "recommendedMetaPassDesc": "توليد كلمات مرور آمنة دون اتصال بالإنترنت.",
-  "recommendedCleanerProDesc": "البحث عن التكرارات، والوسائط القديمة، والتطبيقات غير المستخدمة لاستعادة مساحة التخزين تلقائيًا.",
-  "recommendedLinkCheckerDesc": "تحقق من الروابط المشبوهة باستخدام ميزة العرض الآمن، دون مخاطر.",
-  "recommendedNetworkProtectionDesc": "حافظ على أمان اتصالك بالإنترنت من البرمجيات الخبيثة.",
+  "featureTerminal": "الطرفية",
+  "featureScheduledScans": "عمليات فحص مجدولة",
+  "networkStatusDisconnected": "غير متصل",
+  "networkStatusConnecting": "جارٍ الاتصال",
+  "networkStatusConnected": "متصل",
+  "networkUsageTitle": "الاستخدام",
+  "networkUsageEnableVpnToView": "فعّل VPN لعرض الاستخدام.",
+  "networkUsageUnlimited": "غير محدود",
+  "networkUsageUsedOf": "{used} / {limit}",
+  "networkUsageResetsOn": "يعاد الضبط في {y}-{m}-{d}",
+  "networkUsageUpdatedAt": "تم التحديث {hh}:{mm}",
+  "@networkUsageUsedOf": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "@networkUsageResetsOn": {
+    "placeholders": {
+      "y": {},
+      "m": {},
+      "d": {}
+    }
+  },
+  "@networkUsageUpdatedAt": {
+    "placeholders": {
+      "hh": {},
+      "mm": {}
+    }
+  },
+  "networkCardStatusAvailable": "متاح",
+  "networkCardStatusDisabled": "معطل",
+  "networkCardStatusCustom": "مخصص",
+  "networkCardStatusReady": "جاهز",
+  "networkCardStatusOpen": "فتح",
+  "networkCardStatusComingSoon": "قريبًا",
+  "networkCardBlocklistsTitle": "قوائم الحظر",
+  "networkCardBlocklistsSubtitle": "عناصر التحكم بالترشيح",
+  "networkCardUpstreamTitle": "Upstream",
+  "networkCardUpstreamSubtitle": "اختيار المُحلّل",
+  "networkCardAppsTitle": "التطبيقات",
+  "networkCardAppsSubtitle": "حظر التطبيقات على Wi-Fi",
+  "networkCardLogsTitle": "السجلات",
+  "networkCardLogsSubtitle": "أحداث DNS مباشرة",
+  "networkCardSpeedTitle": "السرعة",
+  "networkCardSpeedSubtitle": "اختبار DNS",
+  "networkCardAboutTitle": "حول",
+  "networkCardAboutSubtitle": "GitHub",
+  "networkLogsStatusNoActivity": "لا نشاط",
+  "networkLogsStatusRecent": "{count} حديثة",
+  "@networkLogsStatusRecent": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "networkResolverTitle": "المُحلّل",
+  "networkResolverIpLabel": "IP المُحلّل",
+  "networkResolverIpHint": "مثال: 1.1.1.1",
+  "networkSpeedTestTitle": "اختبار السرعة",
+  "networkSpeedTestBody": "يشغّل اختبار سرعة DNS باستخدام إعداداتك الحالية.",
+  "networkSpeedTestRun": "تشغيل اختبار السرعة",
+  "networkBlocklistsRecommendedTitle": "موصى به",
+  "networkBlocklistsCsMalwareTitle": "ColourSwift Malware",
+  "networkBlocklistsCsAdsTitle": "ColourSwift ads",
+  "networkBlocklistsSeeGithub": "راجع GitHub للتفاصيل...",
+  "networkBlocklistsMalwareSection": "برمجيات خبيثة",
+  "networkBlocklistsMalwareTitle": "قائمة حظر البرمجيات الخبيثة",
+  "networkBlocklistsMalwareSources": "HaGeZi TIF • URLHaus • DigitalSide • Spam404",
+  "networkBlocklistsAdsSection": "إعلانات",
+  "networkBlocklistsAdsTitle": "قائمة حظر الإعلانات",
+  "networkBlocklistsAdsSources": "OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard",
+  "networkBlocklistsTrackersSection": "متعقبات",
+  "networkBlocklistsTrackersTitle": "قائمة حظر المتعقبات",
+  "networkBlocklistsTrackersSources": "EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker",
+  "networkBlocklistsGamblingSection": "مقامرة",
+  "networkBlocklistsGamblingTitle": "قائمة حظر المقامرة",
+  "networkBlocklistsGamblingSources": "HaGeZi Gambling",
+  "networkBlocklistsSocialSection": "وسائل التواصل",
+  "networkBlocklistsSocialTitle": "قائمة حظر وسائل التواصل",
+  "networkBlocklistsSocialSources": "HaGeZi Social",
+  "networkBlocklistsAdultSection": "18+",
+  "networkBlocklistsAdultTitle": "قائمة حظر المحتوى الإباحي",
+  "networkBlocklistsAdultSources": "StevenBlack 18+ • HaGeZi NSFW",
+  "networkLiveLogsTitle": "سجلات مباشرة",
+  "networkLiveLogsEmpty": "لا توجد طلبات بعد.",
+  "networkLiveLogsBlocked": "محظور",
+  "networkLiveLogsAllowed": "مسموح",
+  "recommendedMetaPassDesc": "إنشاء كلمات مرور آمنة دون اتصال.",
+  "recommendedCleanerProDesc": "اعثر على التكرارات والوسائط القديمة والتطبيقات غير المستخدمة لاستعادة المساحة تلقائيًا.",
+  "recommendedLinkCheckerDesc": "تحقق من الروابط المشبوهة باستخدام وضع العرض الآمن، دون مخاطر.",
+  "recommendedNetworkProtectionDesc": "حافظ على اتصالك بالإنترنت آمنًا من البرمجيات الخبيثة.",
   "recommendedTerminalDesc": "ميزة متقدمة لـ Shizuku",
-  "recommendedScheduledScansDesc": "فحوصات تلقائية في الخلفية.",
-
+  "recommendedScheduledScansDesc": "عمليات فحص تلقائية في الخلفية.",
   "metaPassTitle": "MetaPass",
   "metaPassHowItWorks": "كيف يعمل MetaPass",
-  "metaPassOk": "موافق",
+  "metaPassOk": "حسنًا",
   "metaPassSettings": "الإعدادات",
-  "metaPassPoweredBy": "مدعوم من VX-TITANIUM",
-  "metaPassLoading": "جاري التحميل…",
+  "metaPassPoweredBy": "powered by VX-TITANIUM",
+  "metaPassLoading": "جارٍ التحميل…",
   "metaPassEmptyTitle": "لا توجد إدخالات بعد",
-  "metaPassEmptyBody": "أضف تطبيقًا أو موقعًا إلكترونيًا.\nيتم توليد كلمات المرور على الجهاز من كلمة مرور Meta السرية الخاصة بك.",
+  "metaPassEmptyBody": "أضف تطبيقًا أو موقعًا.\nيتم إنشاء كلمات المرور على الجهاز من كلمة مرورك الرئيسية السرية.",
   "metaPassAddFirstEntry": "إضافة أول إدخال",
-  "metaPassTapToCopyHint": "اضغط للنسخ. اضغط مطولاً للإزالة.",
+  "metaPassTapToCopyHint": "اضغط للنسخ. اضغط مطولًا للإزالة.",
   "metaPassCopyTooltip": "نسخ كلمة المرور",
   "metaPassAdd": "إضافة",
-  "metaPassPickFromInstalledApps": "اختر من التطبيقات المثبتة",
+  "metaPassPickFromInstalledApps": "اختيار من التطبيقات المثبتة",
   "metaPassAddWebsiteOrLabel": "إضافة موقع أو تسمية مخصصة",
-  "metaPassSelectApp": "اختر تطبيقًا",
+  "metaPassSelectApp": "اختيار تطبيق",
   "metaPassSearchApps": "بحث في التطبيقات",
   "metaPassCancel": "إلغاء",
   "metaPassContinue": "متابعة",
   "metaPassSave": "حفظ",
   "metaPassAddEntryTitle": "إضافة إدخال",
-  "metaPassNameOrUrl": "الاسم أو الرابط",
+  "metaPassNameOrUrl": "الاسم أو URL",
   "metaPassNameOrUrlHint": "مثال: nextcloud, steam, example.com",
   "metaPassVersion": "الإصدار",
   "metaPassLength": "الطول",
-  "metaPassSetMetaTitle": "تعيين كلمة مرور Meta",
-  "metaPassSetMetaBody": "أدخل كلمة مرور meta الخاصة بك. لن تغادر هذا الجهاز أبدًا. تعتمد جميع كلمات مرور الخزنة عليها.",
-  "metaPassMetaLabel": "كلمة مرور Meta",
-  "metaPassRememberThisDevice": "تذكر هذا الجهاز (مخزنة بأمان)",
-  "metaPassChangingMetaWarning": "تغيير هذا لاحقًا سيغير جميع كلمات المرور المولدة. استخدام نفس كلمة مرور meta يعيد استعادتها.",
-  "metaPassRemoveEntryTitle": "إزالة الإدخال",
-  "metaPassRemoveEntryBody": "هل تريد إزالة \"{label}\" من خزنتك؟",
+  "metaPassSetMetaTitle": "تعيين Meta Password",
+  "metaPassSetMetaBody": "أدخل كلمة مرورك الرئيسية. لا تغادر هذا الجهاز أبدًا. تعتمد كل كلمات المرور في الخزنة عليها.",
+  "metaPassMetaLabel": "Meta password",
+  "metaPassRememberThisDevice": "تذكر على هذا الجهاز (مخزنة بأمان)",
+  "metaPassChangingMetaWarning": "تغيير هذا لاحقًا يغير كل كلمات المرور المُنشأة. استخدام نفس الكلمة يعيدها.",
+  "metaPassRemoveEntryTitle": "إزالة إدخال",
+  "metaPassRemoveEntryBody": "إزالة \"{label}\" من خزنتك؟",
   "@metaPassRemoveEntryBody": {
     "placeholders": {
       "label": {}
     }
   },
   "metaPassRemove": "إزالة",
-  "metaPassPasswordCopied": "تم نسخ كلمة المرور لـ {label} (الإصدار {version}، الطول {length})",
+  "metaPassPasswordCopied": "تم نسخ كلمة المرور لـ {label} (v{version}, {length} chars)",
   "@metaPassPasswordCopied": {
     "placeholders": {
       "label": {},
@@ -277,7 +325,7 @@
       "length": {}
     }
   },
-  "metaPassGenerateFailed": "فشل توليد كلمة المرور: {error}",
+  "metaPassGenerateFailed": "فشل إنشاء كلمة المرور: {error}",
   "@metaPassGenerateFailed": {
     "placeholders": {
       "error": {}
@@ -289,126 +337,117 @@
       "error": {}
     }
   },
-  "metaPassChars": "{length} حرف",
+  "metaPassChars": "{length} chars",
   "@metaPassChars": {
     "placeholders": {
       "length": {}
     }
   },
-  "metaPassVersionShort": "إصدار {version}",
+  "metaPassVersionShort": "v{version}",
   "@metaPassVersionShort": {
     "placeholders": {
       "version": {}
     }
   },
-  "metaPassInfoBody": "لا يتم تخزين كلمات المرور أبدًا.\n\nيتم اشتقاق كل كلمة مرور من:\n• كلمة مرور Meta الخاصة بك\n• التسمية (الاسم)\n• الإصدار والطول\n\nإعادة تثبيت التطبيق بنفس كلمة مرور meta والتسميات يعيد توليد نفس كلمات المرور.",
-
+  "metaPassInfoBody": "لا يتم تخزين كلمات المرور.\n\nكل إدخال يشتق كلمة مرور من:\n• كلمة مرورك الرئيسية\n• التسمية (الاسم)\n• الإصدار والطول\n\nإعادة تثبيت التطبيق مع نفس الكلمة والتسميات يعيد إنشاء نفس كلمات المرور.",
   "passwordSettingsTitle": "إعدادات كلمة المرور",
   "passwordSettingsSectionMetaPass": "MetaPass",
-  "passwordSettingsMetaPasswordTitle": "كلمة مرور Meta",
-  "passwordSettingsMetaNotSet": "لم يتم التعيين",
+  "passwordSettingsMetaPasswordTitle": "Meta password",
+  "passwordSettingsMetaNotSet": "غير معيّنة",
   "passwordSettingsMetaStoredSecurely": "مخزنة بأمان على هذا الجهاز",
   "passwordSettingsChange": "تغيير",
   "passwordSettingsSetMetaPassTitle": "تعيين MetaPass",
-  "passwordSettingsMetaPasswordLabel": "كلمة مرور Meta",
-  "passwordSettingsChangingAltersAll": "تغيير هذا يؤدي لتغيير جميع كلمات المرور.\nاستخدام نفس MetaPass يعيد استعادتها.",
+  "passwordSettingsMetaPasswordLabel": "Meta password",
+  "passwordSettingsChangingAltersAll": "تغيير هذا يغير كل كلمات المرور.\nاستخدام نفس MetaPass يعيدها.",
   "passwordSettingsCancel": "إلغاء",
   "passwordSettingsSave": "حفظ",
-  "passwordSettingsSectionRestoreCode": "كود الاستعادة",
-  "passwordSettingsGenerateRestoreCode": "توليد كود الاستعادة",
+  "passwordSettingsSectionRestoreCode": "رمز الاستعادة",
+  "passwordSettingsGenerateRestoreCode": "إنشاء رمز استعادة",
   "passwordSettingsCopy": "نسخ",
-  "passwordSettingsRestoreCodeCopied": "تم نسخ كود الاستعادة",
-  "passwordSettingsSectionRestoreFromCode": "استعادة من كود",
-  "passwordSettingsRestoreCodeLabel": "كود الاستعادة",
+  "passwordSettingsRestoreCodeCopied": "تم نسخ رمز الاستعادة",
+  "passwordSettingsSectionRestoreFromCode": "استعادة من رمز",
+  "passwordSettingsRestoreCodeLabel": "رمز الاستعادة",
   "passwordSettingsRestore": "استعادة",
   "passwordSettingsVaultRestored": "تمت استعادة الخزنة",
-  "passwordSettingsFooterInfo": "لا يتم تخزين كلمات المرور أبدًا.\n\nيحتوي كود الاستعادة على بيانات الهيكل فقط. بالاقتران مع MetaPass، يعيد بناء خزنتك.",
-
+  "passwordSettingsFooterInfo": "لا يتم تخزين كلمات المرور.\n\nرمز الاستعادة يحتوي فقط على بيانات البنية. مع MetaPass، يعيد بناء خزنتك.",
   "onboardingAppName": "AVarionX Security",
-  "onboardingStorageTitle": "الوصول للتخزين",
+  "onboardingStorageTitle": "إذن التخزين",
   "onboardingStorageDesc": "هذا الإذن مطلوب لفحص الملفات على جهازك. يمكنك منحه الآن أو لاحقًا.",
-  "onboardingStorageFootnote": "يمكنك تخطي هذا، ولكن سيتم سؤالك مرة أخرى عند اختيار وضع الفحص.",
-  "onboardingStorageSnack": "إذن التخزين مطلوب لعملية الفحص.",
+  "onboardingStorageFootnote": "يمكنك التخطي، لكن سيُطلب منك مرة أخرى عند اختيار وضع الفحص.",
+  "onboardingStorageSnack": "إذن التخزين مطلوب للفحص.",
   "onboardingNotificationsTitle": "الإشعارات",
-  "onboardingNotificationsDesc": "تستخدم للتنبيهات الفورية، وحالة الفحص، وتحديثات الحجر الصحي.",
-  "onboardingNotificationsFootnote": "مطلوب من قبل نظام أندرويد لعمل الحماية في الوقت الحقيقي.",
+  "onboardingNotificationsDesc": "تُستخدم لتنبيهات الوقت الحقيقي، حالة الفحص، وتحديثات العزل.",
+  "onboardingNotificationsFootnote": "مطلوب من Android للحماية في الوقت الحقيقي.",
   "onboardingNetworkTitle": "حماية الشبكة",
-  "onboardingNetworkDesc": "تمكن حماية الواي فاي باستخدام إذن VPN الخاص بأندرويد.",
-  "onboardingNetworkFootnote": "هذا اختياري ولكن موصى به.",
+  "onboardingNetworkDesc": "تفعّل حماية Wi-Fi باستخدام إذن VPN في Android.",
+  "onboardingNetworkFootnote": "هذا اختياري لكنه موصى به.",
   "onboardingGranted": "تم المنح",
-  "onboardingNotGranted": "لم يتم المنح",
-  "onboardingGrantAccess": "منح الوصول",
+  "onboardingNotGranted": "لم يُمنح",
+  "onboardingGrantAccess": "منح الإذن",
   "onboardingAllowNotifications": "السماح بالإشعارات",
-  "onboardingAllowVpnAccess": "السماح بالوصول لـ VPN",
+  "onboardingAllowVpnAccess": "السماح بإذن VPN",
   "onboardingBack": "رجوع",
   "onboardingNext": "التالي",
   "onboardingFinish": "إنهاء",
-  "onboardingSetupCompleteTitle": "اكتمل الإعداد",
+  "onboardingSetupCompleteTitle": "اكتملت الإعدادات",
   "onboardingSetupCompleteDesc": "نوصي بتشغيل فحص كامل للجهاز (هذا لا يفحص التطبيقات المثبتة حاليًا)، أو الانتقال مباشرة إلى الشاشة الرئيسية.",
-  "onboardingRunFullScan": "تشغيل فحص كامل",
+  "onboardingRunFullScan": "تشغيل الفحص الكامل",
   "onboardingGoHome": "الانتقال للرئيسية",
-
   "networkProtectionTitle": "حماية الشبكة",
-
-  "networkStatusConnected": "متصل بـ {dns}",
-  "@networkStatusConnected": {
+  "networkStatusConnectedToDns": "متصل بـ {dns}",
+  "@networkStatusConnectedToDns": {
     "placeholders": {
       "dns": {}
     }
   },
-  "networkStatusVpnConflict": "هناك VPN آخر نشط",
-  "networkStatusOff": "حماية الشبكة متوقفة",
-
+  "networkStatusVpnConflictDetail": "هناك VPN آخر نشط",
+  "networkStatusOffDetail": "حماية الشبكة متوقفة",
   "networkModeMalwareTitle": "حظر البرمجيات الخبيثة فقط",
   "networkModeMalwareSubtitle": "يستخدم 1.1.1.2",
-  "networkModeMalwareDescription": "يجمع بين قاعدة بيانات AvarionX المحلية ومعلومات التهديدات عبر الإنترنت من Cloudflare لأقصى حماية.",
-
-  "networkModeAdultTitle": "البرمجيات الخبيثة والمحتوى للبالغين",
+  "networkModeMalwareDescription": "يجمع بين قاعدة بيانات البرمجيات الخبيثة المحلية لدى AvarionX ومعلومات التهديدات عبر الإنترنت من Cloudflare لأقصى حماية.",
+  "networkModeAdultTitle": "برمجيات خبيثة ومحتوى للبالغين",
   "networkModeAdultSubtitle": "يستخدم 1.1.1.3",
-  "networkModeAdultDescription": "يستخدم قاعدة بيانات AvarionX غير المتصلة بالإنترنت ويضيف تصفية محتوى البالغين. يتم تعطيل المعلومات السحابية في هذا الوضع.",
-
+  "networkModeAdultDescription": "يستخدم قاعدة بيانات البرمجيات الخبيثة غير المتصلة لدى AvarionX ويضيف فلترة محتوى للبالغين. يتم تعطيل ذكاء البرمجيات الخبيثة السحابي في هذا الوضع.",
   "networkInfoTitle": "ما هي حماية الشبكة؟",
-  "networkInfoBody": "تعمل بعض التهديدات من خلال الاتصال بخوادم ضارة أو إعادة توجيه حركة المرور.\nتحظر حماية الشبكة النطاقات الخطيرة المعروفة والإعلانات الشائعة باستخدام VPN محلي.\n\nAVarionX Security لا يجمع أي بيانات.",
-
+  "networkInfoBody": "تعمل بعض التهديدات عبر الاتصال بخوادم خبيثة أو إعادة توجيه حركة الإنترنت.\nحماية الشبكة تحظر النطاقات الخطرة المعروفة والإعلانات الشائعة باستخدام VPN محلي.\n\nAVarionX Security لا يجمع أي بيانات.",
   "linkCheckerTitle": "فاحص الروابط",
   "linkCheckerTabAnalyse": "تحليل",
   "linkCheckerTabView": "عرض",
   "linkCheckerTabHistory": "السجل",
-  "linkCheckerAnalyseSubtitle": "تحقق من الصفحة بحثًا عن برمجيات خبيثة أو محتوى مشبوه",
-  "linkCheckerUrlLabel": "الرابط (URL)",
+  "linkCheckerAnalyseSubtitle": "فحص الصفحة بحثًا عن برمجيات خبيثة أو محتوى مشبوه",
+  "linkCheckerUrlLabel": "URL",
   "linkCheckerUrlHint": "https://example.com",
   "linkCheckerButtonAnalyse": "تحليل",
-  "linkCheckerButtonChecking": "جاري التحقق",
+  "linkCheckerButtonChecking": "جارٍ الفحص",
   "linkCheckerEngineNotReadySnack": "المحرك غير جاهز",
-  "linkCheckerStatusVerifyingLink": "جاري التحقق من الرابط…",
-  "linkCheckerStatusScanningPage": "جاري فحص الصفحة…",
+  "linkCheckerStatusVerifyingLink": "جارٍ التحقق من الرابط…",
+  "linkCheckerStatusScanningPage": "جارٍ فحص الصفحة…",
   "linkCheckerBlockedNavigation": "تم حظر التنقل",
-  "linkCheckerBlockedUnsupportedType": "نوع رابط غير مدعوم",
+  "linkCheckerBlockedUnsupportedType": "نوع الرابط غير مدعوم",
   "linkCheckerBlockedInvalidDestination": "وجهة غير صالحة",
-  "linkCheckerBlockedUnableResolve": "تعذر الوصول للوجهة",
-  "linkCheckerBlockedUnableVerify": "تعذر التحقق من الوجهة",
+  "linkCheckerBlockedUnableResolve": "تعذر حل الوجهة",
+  "linkCheckerBlockedUnableVerify": "تعذر التحقق",
   "linkCheckerAnalyseCardTitleDefault": "افحص الصفحة بحثًا عن محتوى مشبوه",
-  "linkCheckerAnalyseCardDetailDefault": "ألصق رابطًا وقم بتشغيل التحليل.",
+  "linkCheckerAnalyseCardDetailDefault": "الصق رابطًا وشغّل التحليل.",
   "linkCheckerAnalyseCardTitleEngineNotReady": "المحرك غير جاهز",
-  "linkCheckerAnalyseCardDetailEngineNotReady": "خطأ 1001.",
-  "linkCheckerAnalyseCardTitleChecking": "جاري التحقق",
-  "linkCheckerVerdictClean": "آمن",
+  "linkCheckerAnalyseCardDetailEngineNotReady": "error 1001.",
+  "linkCheckerAnalyseCardTitleChecking": "جارٍ الفحص",
+  "linkCheckerVerdictClean": "نظيف",
   "linkCheckerVerdictCleanDetail": "تبدو هذه الصفحة آمنة.",
   "linkCheckerVerdictSuspicious": "مشبوه",
   "linkCheckerVerdictSuspiciousDetail": "تحتوي هذه الصفحة على محتوى مشبوه.",
-  "linkCheckerViewLockedBody": "قم بتشغيل التحليل أولاً لتمكين العرض.",
-  "linkCheckerViewSubtitle": "عرض الموقع بأمان",
+  "linkCheckerViewLockedBody": "شغّل التحليل أولًا لتمكين العرض.",
+  "linkCheckerViewSubtitle": "عرض الصفحة بأمان",
   "linkCheckerViewPage": "عرض الصفحة",
   "linkCheckerClose": "إغلاق",
-  "linkCheckerBlockedBody": "تم إيقاف هذه الصفحة قبل تحميلها.",
-  "linkCheckerSuspiciousBanner": "رابط مشبوه، قد لا يتم العرض إذا تطلب الأمر محتوى محظورًا.",
+  "linkCheckerBlockedBody": "تم إيقاف هذه الصفحة قبل أن يتم تحميلها.",
+  "linkCheckerSuspiciousBanner": "رابط مشبوه، قد لا يتم عرضه إذا كان يتطلب محتوى محظورًا.",
   "linkCheckerHistorySubtitle": "اضغط على إدخال لنسخ الرابط.",
   "linkCheckerHistoryEmpty": "لا توجد فحوصات بعد.",
   "linkCheckerCopied": "تم النسخ",
-
   "settingsSectionAppearance": "المظهر",
-  "settingsTheme": "المظهر (Theme)",
-  "settingsThemeCurrent": "الحالي: {theme}",
+  "settingsTheme": "السمة",
+  "settingsThemeCurrent": "الحالية: {theme}",
   "@settingsThemeCurrent": {
     "placeholders": {
       "theme": {}
@@ -421,19 +460,17 @@
       "language": {}
     }
   },
-  "settingsChooseLanguage": "اختر اللغة",
+  "settingsChooseLanguage": "اختيار اللغة",
   "settingsLanguageApplied": "تم تطبيق اللغة",
-  "settingsSystemDefault": "تلقائي حسب النظام",
-
+  "settingsSystemDefault": "افتراضي النظام",
   "settingsSectionCommunity": "انضم للمجتمع!",
-  "settingsDiscord": "ديسكورد",
-  "settingsDiscordSubtitle": "دردشة، تحديثات وآراء",
-  "settingsDiscordOpenFail": "تعذر فتح رابط ديسكورد",
-
+  "settingsDiscord": "Discord",
+  "settingsDiscordSubtitle": "دردشة وتحديثات وملاحظات",
+  "settingsDiscordOpenFail": "تعذر فتح رابط Discord",
   "settingsSectionPro": "ميزات PRO",
   "settingsProCustomization": "تخصيص PRO",
-  "settingsProSubtitle": "إزالة الإعلانات وفتح المظاهر والأيقونات",
-  "settingsUnlockPro": "فتح ميزات PRO",
+  "settingsProSubtitle": "إزالة الإعلانات وفتح السمات والأيقونات",
+  "settingsUnlockPro": "فتح PRO",
   "settingsProUnlocked": "تم فتح وضع PRO",
   "settingsPurchaseNotConfirmed": "لم يتم تأكيد الشراء",
   "settingsPurchaseFailed": "فشل الشراء: {error}",
@@ -442,9 +479,11 @@
       "error": {}
     }
   },
-  "settingsProReset": "إعادة ضبط PRO (للمطورين فقط)",
+  "proActivated": "تم تفعيل PRO",
+  "proDeactivated": "تم إيقاف PRO",
+  "settingsProReset": "إعادة ضبط PRO (للتصحيح فقط)",
   "settingsProSheetTitle": "تخصيص PRO",
-  "settingsHideGoldHeader": "إخفاء الترويسة الذهبية في الرئيسية",
+  "settingsHideGoldHeader": "إخفاء الرأس الذهبي في الشاشة الرئيسية",
   "settingsAppIcon": "أيقونة التطبيق",
   "settingsIconSelected": "الأيقونة المختارة: {icon}",
   "@settingsIconSelected": {
@@ -453,20 +492,18 @@
     }
   },
   "settingsSave": "حفظ",
-
-  "settingsSectionShizuku": "الحماية المتقدمة (Shizuku)",
+  "settingsSectionShizuku": "حماية متقدمة (Shizuku)",
   "settingsEnableShizuku": "تفعيل Shizuku",
-  "settingsShizukuRequiresManager": "يتطلب مديراً خارجياً",
-  "settingsShizukuNotRunning": "خدمة Shizuku لا تعمل",
-  "settingsShizukuPermissionRequired": "الإذن مطلوب",
-  "settingsShizukuAvailable": "الوصول المتقدم للنظام متاح",
+  "settingsShizukuRequiresManager": "يتطلب مديرًا خارجيًا",
+  "settingsShizukuNotRunning": "خدمة Shizuku غير قيد التشغيل",
+  "settingsShizukuPermissionRequired": "إذن مطلوب",
+  "settingsShizukuAvailable": "وصول متقدم للنظام متاح",
   "settingsAboutAdvancedProtection": "حول الحماية المتقدمة",
   "settingsAboutAdvancedProtectionSubtitle": "تعرف على كيفية عمل الحماية المتقدمة",
-  "settingsAdvancedProtectionDialogTitle": "حماية النظام المتقدمة",
-  "settingsAdvancedProtectionDialogBody": "يتطلب الوصول عبر Shizuku مديراً خارجياً مخصصاً للمستخدمين المتقدمين.\n\nهذه الميزة اختيارية ولا يوصى بها للحماية العادية.",
+  "settingsAdvancedProtectionDialogTitle": "حماية متقدمة للنظام",
+  "settingsAdvancedProtectionDialogBody": "يتطلب وصول Shizuku مديرًا خارجيًا مخصصًا للمستخدمين المتقدمين.\n\nهذه الميزة اختيارية وغير موصى بها للحماية العادية.",
   "settingsAboutShizukuTitle": "حول Shizuku",
-  "settingsAboutShizukuBody": "يمكن لـ AVarionX التكامل مع Shizuku للوصول إلى عمليات التطبيق على مستوى النظام.\n\nيسمح هذا للتطبيق بـ:\n• اكتشاف البرمجيات الخبيثة التي تختبئ من الفاحصات العادية\n• فحص عمليات التطبيقات الجارية\n• تعطيل أو احتواء معظم البرمجيات الخبيثة النشطة\n\nومع ذلك، لا يمنح Shizuku صلاحيات الروت (root)\n\nهذه الميزة مخصصة للمستخدمين المتقدمين وليست مطلوبة للحماية العادية.\n\nالتوثيق:\nhttps://shizuku.rikka.app",
-
+  "settingsAboutShizukuBody": "يمكن لـ AVarionX التكامل مع Shizuku للوصول إلى عمليات التطبيقات على مستوى النظام.\n\nيسمح ذلك للتطبيق بـ:\n• اكتشاف البرمجيات الخبيثة التي تختبئ من الماسحات القياسية\n• فحص عمليات التطبيقات قيد التشغيل\n• تعطيل أو احتواء معظم البرمجيات الخبيثة النشطة\n\nShizuku لا يمنح وصول root\n\nهذه الميزة مخصصة للمستخدمين المتقدمين وليست مطلوبة للحماية العادية.\n\nالتوثيق:\nhttps://shizuku.rikka.app",
   "settingsSectionGeneral": "عام",
   "settingsExclusions": "الاستثناءات",
   "settingsExclusionsSubtitle": "إدارة وإضافة الاستثناءات",
@@ -480,23 +517,18 @@
   "settingsPrivacyPolicySubtitle": "عرض كيفية التعامل مع بياناتك",
   "settingsPrivacyPolicyOpenFail": "تعذر فتح سياسة الخصوصية",
   "settingsAboutApp": "حول AVarionX",
-  "settingsHowThisAppWorks": "كيف يعمل التطبيق",
-  "settingsHowThisAppWorksSubtitle": "تعرف على آليات الحماية",
-  "settingsThemePickerTitle": "اختر المظهر",
-  "settingsThemeRequiresPro": "هذا المظهر يتطلب وضع PRO",
-
-  "scheduledScansTitle": "الفحوصات المجدولة",
-  "scheduledScansInfoTitle": "الفحوصات المجدولة",
-  "scheduledScansInfoBody": "بينما يركز RTP على البرمجيات الخبيثة المحملة، ستقوم الفحوصات المجدولة بتشغيل وضع الفحص المختار تلقائيًا في الخلفية.\nسيعمل فقط عندما يكون RTP مفعلاً.\n\nيمكن لمستخدمي PRO تخصيص وضع الفحص وتكراره.",
-
-  "scheduledScansHeader": "فحوصات تلقائية في الخلفية",
-  "scheduledScansSubheader": "بينما يكون RTP نشطًا، سيقوم التطبيق بفحص جهازك بناءً على وضع الفحص والتكرار المختار.",
-
-  "proRequiredToCustomize": "ميزة PRO مطلوبة للتخصيص",
-
-  "scheduledScansEnabledTitle": "مفعل",
-  "scheduledScansEnabledSubtitle": "عند التفعيل، يتم تشغيل الفحص تلقائيًا حسب جدولك المختار.",
-
+  "settingsHowThisAppWorks": "كيف يعمل هذا التطبيق",
+  "settingsHowThisAppWorksSubtitle": "تعرف على الحماية",
+  "settingsThemePickerTitle": "اختيار السمة",
+  "settingsThemeRequiresPro": "هذه السمة تتطلب وضع PRO",
+  "scheduledScansTitle": "عمليات فحص مجدولة",
+  "scheduledScansInfoTitle": "عمليات فحص مجدولة",
+  "scheduledScansInfoBody": "بينما يركز RTP على البرمجيات الخبيثة التي تم تنزيلها، ستطلق عمليات الفحص المجدولة وضع الفحص الذي اخترته في الخلفية تلقائيًا.\nلن تعمل إلا عندما يكون RTP مفعّلًا.\n\nيمكن لمستخدمي PRO تخصيص وضع الفحص وتكراره.",
+  "scheduledScansHeader": "عمليات فحص تلقائية في الخلفية",
+  "scheduledScansSubheader": "أثناء تفعيل RTP، سيقوم التطبيق بفحص جهازك حسب وضع الفحص والتكرار المحددين.",
+  "proRequiredToCustomize": "يتطلب PRO للتخصيص",
+  "scheduledScansEnabledTitle": "مفعّل",
+  "scheduledScansEnabledSubtitle": "عند التفعيل، يتم تشغيل فحص تلقائيًا وفق الجدول.",
   "scheduledScansModeTitle": "وضع الفحص",
   "scheduledScansModeHint": "الوضع الحالي: {mode}",
   "@scheduledScansModeHint": {
@@ -504,7 +536,6 @@
       "mode": {}
     }
   },
-
   "scheduledScansFrequencyTitle": "التكرار",
   "scheduledScansFrequencyHint": "يعمل: {freq}",
   "@scheduledScansFrequencyHint": {
@@ -512,110 +543,98 @@
       "freq": {}
     }
   },
-
   "scheduledEveryDay": "كل يوم",
   "scheduledEvery3Days": "كل 3 أيام",
   "scheduledEveryWeek": "كل أسبوع",
   "scheduledEvery2Weeks": "كل أسبوعين",
   "scheduledEvery3Weeks": "كل 3 أسابيع",
   "scheduledMonthly": "شهريًا",
-
-  "scheduledEveryDays": "كل {days} يوم",
+  "scheduledEveryDays": "كل {days} يومًا",
   "@scheduledEveryDays": {
     "placeholders": {
       "days": {}
     }
   },
-
   "scheduledEveryHours": "كل {hours} ساعة",
   "@scheduledEveryHours": {
     "placeholders": {
       "hours": {}
     }
   },
-
   "scheduledChargingOnlyTitle": "أثناء الشحن فقط",
-  "scheduledChargingOnlySubtitle": "تشغيل الفحص المجدول فقط عندما يكون الجهاز متصلاً بالشاحن.",
-
+  "scheduledChargingOnlySubtitle": "تشغيل الفحص المجدول فقط أثناء توصيل الجهاز بالشاحن.",
   "scheduledPreferredTimeTitle": "الوقت المفضل",
-  "scheduledPreferredTimeSubtitle": "سيحاول AVarionX البدء في هذا الوقت تقريبًا. قد يؤخر نظام أندرويد ذلك لتوفير البطارية.",
-
-  "scheduledPickTime": "اختر الوقت",
-
+  "scheduledPreferredTimeSubtitle": "سيحاول AVarionX البدء قرب هذا الوقت. قد يؤخره Android لتوفير البطارية.",
+  "scheduledPickTime": "اختيار وقت",
   "cleanerTitle": "Cleaner Pro",
   "cleanerReadyToScan": "جاهز للفحص",
   "cleanerScan": "فحص",
-  "cleanerScanning": "جاري الفحص…",
+  "cleanerScanning": "جارٍ الفحص…",
   "cleanerReady": "جاهز",
   "cleanerStatusReady": "جاهز",
-  "cleanerStatusStarting": "جاري البدء…",
+  "cleanerStatusStarting": "جارٍ البدء…",
   "cleanerStatusFilesScanned": "تم فحص الملفات",
-  "cleanerStatusFindingUnusedApps": "جاري البحث عن التطبيقات غير المستخدمة…",
-  "cleanerStatusComplete": "اكتمل",
+  "cleanerStatusFindingUnusedApps": "جارٍ البحث عن التطبيقات غير المستخدمة…",
+  "cleanerStatusComplete": "مكتمل",
   "cleanerStatusScanError": "خطأ في الفحص",
-  "cleanerStatusScanningApps": "جاري فحص التطبيقات…",
-  "cleanerGrantUsageAccessTitle": "منح الوصول لبيانات الاستخدام",
-  "cleanerGrantUsageAccessBody": "لاكتشاف التطبيقات غير المستخدمة، يتطلب المنظف إذن الوصول إلى بيانات الاستخدام. سيتم توجيهك لإعدادات النظام لتمكينه.",
+  "cleanerStatusScanningApps": "جارٍ فحص التطبيقات…",
+  "cleanerGrantUsageAccessTitle": "منح إذن الاستخدام",
+  "cleanerGrantUsageAccessBody": "لاكتشاف التطبيقات غير المستخدمة، يتطلب هذا المنظف إذن الوصول إلى الاستخدام. سيتم تحويلك إلى إعدادات النظام لتفعيله.",
   "cleanerCancel": "إلغاء",
   "cleanerContinue": "متابعة",
-
-  "cleanerDuplicates": "التكرارات",
-  "cleanerDuplicatesNone": "لم يتم العثور على تكرارات",
-  "cleanerDuplicatesSubtitle": "{count} عناصر • استعادة {size}",
+  "cleanerDuplicates": "مكررات",
+  "cleanerDuplicatesNone": "لم يتم العثور على مكررات",
+  "cleanerDuplicatesSubtitle": "{count} عنصر • استعادة {size}",
   "@cleanerDuplicatesSubtitle": {
     "placeholders": {
       "count": {},
       "size": {}
     }
   },
-
-  "cleanerOldPhotos": "الصور القديمة",
-  "cleanerOldPhotosNone": "لا توجد صور أقدم من {days} يوم",
+  "cleanerOldPhotos": "صور قديمة",
+  "cleanerOldPhotosNone": "لا توجد صور أقدم من {days} يومًا",
   "@cleanerOldPhotosNone": {
     "placeholders": {
       "days": {}
     }
   },
-  "cleanerOldPhotosSubtitle": "{count} عناصر • {size}",
+  "cleanerOldPhotosSubtitle": "{count} عنصر • {size}",
   "@cleanerOldPhotosSubtitle": {
     "placeholders": {
       "count": {},
       "size": {}
     }
   },
-
-  "cleanerOldVideos": "الفيديوهات القديمة",
-  "cleanerOldVideosNone": "لا توجد فيديوهات أقدم من {days} يوم",
+  "cleanerOldVideos": "فيديوهات قديمة",
+  "cleanerOldVideosNone": "لا توجد فيديوهات أقدم من {days} يومًا",
   "@cleanerOldVideosNone": {
     "placeholders": {
       "days": {}
     }
   },
-  "cleanerOldVideosSubtitle": "{count} عناصر • {size}",
+  "cleanerOldVideosSubtitle": "{count} عنصر • {size}",
   "@cleanerOldVideosSubtitle": {
     "placeholders": {
       "count": {},
       "size": {}
     }
   },
-
-  "cleanerLargeFiles": "الملفات الكبيرة",
+  "cleanerLargeFiles": "ملفات كبيرة",
   "cleanerLargeFilesNone": "لا توجد ملفات ≥ {size}",
   "@cleanerLargeFilesNone": {
     "placeholders": {
       "size": {}
     }
   },
-  "cleanerLargeFilesSubtitle": "{count} عناصر • {sizeTotal}",
+  "cleanerLargeFilesSubtitle": "{count} عنصر • {sizeTotal}",
   "@cleanerLargeFilesSubtitle": {
     "placeholders": {
       "count": {},
       "sizeTotal": {}
     }
   },
-
   "cleanerUnusedApps": "تطبيقات غير مستخدمة",
-  "cleanerUnusedAppsNone": "لا توجد تطبيقات غير مستخدمة (آخر {days} يوم)",
+  "cleanerUnusedAppsNone": "لا توجد تطبيقات غير مستخدمة (آخر {days} يومًا)",
   "@cleanerUnusedAppsNone": {
     "placeholders": {
       "days": {}
@@ -627,13 +646,11 @@
       "count": {}
     }
   },
-
-  "cleanerStageDuplicates": "جاري فحص التكرارات…",
-  "cleanerStageDuplicatesGrouping": "جاري تجميع التكرارات…",
-  "cleanerStageOldPhotos": "جاري فحص الصور القديمة…",
-  "cleanerStageOldVideos": "جاري فحص الفيديوهات القديمة…",
-  "cleanerStageLargeFiles": "جاري فحص الملفات الكبيرة…",
-
+  "cleanerStageDuplicates": "جارٍ فحص المكررات…",
+  "cleanerStageDuplicatesGrouping": "جارٍ تجميع المكررات…",
+  "cleanerStageOldPhotos": "جارٍ فحص الصور القديمة…",
+  "cleanerStageOldVideos": "جارٍ فحص الفيديوهات القديمة…",
+  "cleanerStageLargeFiles": "جارٍ فحص الملفات الكبيرة…",
   "cleanerStageOldPhotosProgress": "صور قديمة: {count} • {size}",
   "@cleanerStageOldPhotosProgress": {
     "placeholders": {
@@ -655,30 +672,24 @@
       "size": {}
     }
   },
-
   "unusedAppsTitle": "تطبيقات غير مستخدمة",
-  "unusedAppsEmpty": "لا توجد تطبيقات غير مستخدمة في آخر {days} يوم",
+  "unusedAppsEmpty": "لا توجد تطبيقات غير مستخدمة خلال آخر {days} يومًا",
   "@unusedAppsEmpty": {
     "placeholders": {
       "days": {}
     }
   },
-
   "quarantineTitle": "المحذوفات",
   "quarantineSelectAll": "تحديد الكل",
   "quarantineRefresh": "تحديث",
-
   "quarantineEmptyTitle": "لا توجد ملفات محذوفة",
-  "quarantineEmptyBody": "أي شيء تقوم بإزالته سيظهر هنا.",
-
+  "quarantineEmptyBody": "أي شيء تزيله سيظهر هنا.",
   "quarantineRestore": "استعادة",
   "quarantineDelete": "حذف",
-
   "quarantineSnackRestored": "تمت الاستعادة",
   "quarantineSnackDeleted": "تم الحذف",
-
-  "quarantineDeleteDialogTitle": "حذف الملفات المختارة؟",
-  "quarantineDeleteDialogBody": "سيؤدي هذا لحذف {count} {plural} نهائيًا.",
+  "quarantineDeleteDialogTitle": "حذف الملفات المحددة؟",
+  "quarantineDeleteDialogBody": "سيؤدي هذا إلى حذف {count} عنصر{plural} نهائيًا.",
   "@quarantineDeleteDialogBody": {
     "placeholders": {
       "count": {},

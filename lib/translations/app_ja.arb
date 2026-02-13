@@ -1,0 +1,491 @@
+{
+  "@@locale": "ja",
+
+  "appName": "AVarionX Security",
+  "ok": "OK",
+  "cancel": "キャンセル",
+
+  "footerHome": "ホーム",
+  "footerExplore": "探索",
+  "footerRemoved": "削除済み",
+  "footerSettings": "設定",
+  "proBadge": "PRO",
+
+  "updateDbTitle": "データベースを更新中",
+  "updateDbVersionLabel": "バージョン {version}",
+  "@updateDbVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+
+  "exploreMultiThreadingTitle": "マルチスレッド",
+  "exploreMultiThreadingSubtitle": "実験的なエンジン制御",
+
+  "updateDbAutoDownloadLabel": "今後の更新を自動でダウンロード",
+  "updateDbUpdatedAutoOn": "データベース更新済み • 自動更新が有効",
+  "updateDbUpdatedSuccess": "データベースを更新しました",
+  "updateDbUpdateFailed": "データベースの更新に失敗しました",
+
+  "engineReadyBanner": "エンジン準備完了 • VX-TITANIUM-v7",
+
+  "scanButton": "スキャン",
+
+  "scanModeFullTitle": "端末全体スキャン",
+  "scanModeFullSubtitle": "読み取り可能なストレージ内の全ファイルをスキャンします。",
+  "scanModeSmartTitle": "スマートスキャン [推奨]",
+  "scanModeSmartSubtitle": "マルウェアを含む可能性のあるファイルをスキャンします。",
+  "scanModeRapidTitle": "クイックスキャン",
+  "scanModeRapidSubtitle": "ダウンロード内の最近のAPKを確認します。",
+  "scanModeInstalledTitle": "インストール済みアプリ",
+  "scanModeInstalledSubtitle": "インストール済みアプリを脅威スキャンします。",
+  "scanModeSingleTitle": "ファイル / アプリ スキャン",
+  "scanModeSingleSubtitle": "スキャンするファイルまたはアプリを選択します。",
+
+  "useCloudAssistedScan": "クラウド支援スキャンを使用",
+
+  "protectionTitle": "保護",
+  "stateOffLine1": "端末保護はオフです",
+  "stateOffLine2": "タップしてオンにする",
+  "stateAdvancedActiveLine1": "高度な保護が有効です",
+  "stateFileOnlyLine1": "ファイル保護のみ",
+  "stateFileOnlyLine2": "ネットワーク保護は無効です",
+  "stateVpnConflictLine2": "別のVPNが有効です",
+  "stateProtectedLine1": "端末は保護されています",
+  "stateProtectedLine2": "タップしてオフにする",
+
+  "dbUpdating": "データベース更新中",
+  "dbVersionAutoUpdated": "データベース v{version} • 自動更新",
+  "@dbVersionAutoUpdated": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+
+  "rtpInfoTitle": "リアルタイム保護",
+  "rtpInfoBody": "RTPは、意図的（またはマルウェア）にダウンロードされた疑わしいファイルをブロックするだけでなく、ローカルVPNを使用してシステム全体で悪意のあるドメインをブロックします。\n\n有効化すると、ネットワークフィルタリングは次の場合を除き有効のままです:\n• ターミナルから手動で無効化\n• 別のVPNに置き換え\n\nRTPが有効な限り、ファイル保護は継続されます。",
+
+  "scanTitleDefault": "スキャン",
+  "scanTitleSmart": "スマートスキャン",
+  "scanTitleRapid": "クイックスキャン",
+  "scanTitleInstalled": "インストール済みアプリをスキャン",
+  "scanTitleFull": "端末全体スキャン",
+  "scanTitleSingle": "単体スキャン",
+
+  "cancellingScan": "スキャンをキャンセル中…",
+  "cancelScan": "スキャンをキャンセル",
+
+  "scanProgressZero": "進捗: 0%",
+  "scanProgressWithPct": "進捗: {pct}% ({scanned} / {total})",
+  "@scanProgressWithPct": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+
+  "scanProgressFullItems": "スキャン済み: {count} 件",
+  "@scanProgressFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "initializing": "初期化中...",
+  "scanningEllipsis": "スキャン中...",
+
+  "fullScanInfoTitle": "端末全体スキャン",
+  "fullScanInfoBody": "このモードはストレージ内の読み取り可能な全ファイルを、フィルタなしでスキャンします。\n\nこのモードではクラウド支援スキャンおよびアプリスキャンは使用されません。",
+
+  "scanComplete": "スキャン完了",
+
+  "pillSuspiciousCount": "疑わしい: {count}",
+  "@pillSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillCleanCount": "安全: {count}",
+  "@pillCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pillScannedCount": "スキャン済み: {count}",
+  "@pillScannedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "resultNoThreatsTitle": "脅威は検出されませんでした",
+  "resultNoThreatsBody": "スキャンした項目で脅威は検出されませんでした。",
+  "resultSuspiciousAppsTitle": "疑わしいアプリ",
+  "resultSuspiciousItemsTitle": "疑わしい項目",
+  "returnHome": "ホームに戻る",
+
+  "emptyTitle": "スキャン対象のファイルがありません",
+  "emptyBody": "スキャン条件に一致するファイルが見つかりませんでした。",
+
+  "knownMalware": "既知のマルウェア",
+  "suspiciousActivityDetected": "疑わしい活動を検出",
+  "maliciousActivityDetected": "悪意のある活動を検出",
+
+  "androidBankingTrojan": "Android 銀行型トロイの木馬",
+  "androidSpyware": "Android スパイウェア",
+  "androidAdware": "Android アドウェア",
+  "androidSmsFraud": "Android SMS 不正",
+
+  "threatLevelConfirmed": "確認済み",
+  "threatLevelHigh": "高",
+  "threatLevelMedium": "中",
+
+  "threatLevelLabel": "脅威レベル: {level}",
+  "@threatLevelLabel": {
+    "placeholders": {
+      "level": {}
+    }
+  },
+
+  "explainFoundInCloud": "この項目はColourSwiftのクラウド脅威データベースに登録されています。",
+  "explainFoundInOffline": "この項目は端末内のオフラインマルウェアデータベースに登録されています。",
+  "explainBanker": "金融情報を盗む目的で作られ、オーバーレイ、キー入力の記録、通信の傍受などを行うことがあります。",
+  "explainSpyware": "メッセージ、位置情報、端末識別子などの個人データを密かに収集または監視します。",
+  "explainAdware": "迷惑広告の表示、リダイレクト、または不正な広告トラフィック生成を行います。",
+  "explainSmsFraud": "同意なくSMS送信やSMS関連の操作を試み、予期しない課金につながる可能性があります。",
+  "explainGenericMalware": "特定のファミリに一致しない場合でも、悪意の強い兆候が検出されました。",
+  "explainSuspiciousDefault": "疑わしい挙動の兆候が検出されました。マルウェアで見られるパターンを含む場合がありますが、誤検知の可能性もあります。",
+
+  "singleChoiceScanFile": "ファイルをスキャン",
+  "singleChoiceScanInstalledApp": "インストール済みアプリをスキャン",
+  "singleChoiceManageExclusions": "除外を管理",
+
+  "labelKnownMalwareDb": "マルウェアDBに登録",
+  "labelFoundInCloudDb": "クラウドDBに登録",
+
+  "logEngineFullDeviceScan": "[ENGINE] 端末全体スキャン",
+  "logEngineTargetStorage": "[ENGINE] 対象: /storage/emulated/0",
+  "logEngineNoFilesFound": "[ENGINE] ファイルが見つかりません。",
+  "logEngineFilesEnumerated": "[ENGINE] 列挙したファイル数: {count}",
+  "@logEngineFilesEnumerated": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "logEngineNoReadableFilesFound": "[ENGINE] 読み取り可能なファイルが見つかりません。",
+  "logEngineInstalledAppsFound": "[ENGINE] 見つかったインストール済みアプリ数: {count}",
+  "@logEngineInstalledAppsFound": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logModeCloudAssisted": "[MODE] クラウド支援モード",
+  "logModeOffline": "[MODE] オフラインモード",
+
+  "logStageHashing": "[STAGE 1] ファイルハッシュ取得（キャッシュ）...",
+  "logStageCloudLookup": "[STAGE 2] クラウドでハッシュ照合...",
+  "logStageLocalScanning": "[STAGE {stage}] ローカルでファイルをスキャン中...",
+  "@logStageLocalScanning": {
+    "placeholders": {
+      "stage": {}
+    }
+  },
+
+  "logCloudHashHits": "[CLOUD] ハッシュ一致: {count}",
+  "@logCloudHashHits": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "logSummary": "[SUMMARY] 疑わしい {suspicious} • 安全 {clean}",
+  "@logSummary": {
+    "placeholders": {
+      "suspicious": {},
+      "clean": {}
+    }
+  },
+
+  "logErrorPrefix": "[ERROR] {message}",
+  "@logErrorPrefix": {
+    "placeholders": {
+      "message": {}
+    }
+  },
+
+  "genericUnknownAppName": "不明",
+  "genericUnknownFileName": "不明",
+
+  "featuresDrawerTitle": "機能",
+  "recommendedSectionTitle": "おすすめ",
+
+  "featureNetworkProtection": "ネットワーク保護",
+  "featureLinkChecker": "リンクチェッカー",
+  "featureMetaPass": "MetaPass",
+  "featureCleanerPro": "Cleaner Pro",
+  "featureTerminal": "ターミナル",
+  "featureScheduledScans": "スケジュールスキャン",
+
+  "networkStatusDisconnected": "未接続",
+  "networkStatusConnecting": "接続中",
+  "networkStatusConnected": "接続済み",
+
+  "networkUsageTitle": "使用量",
+  "networkUsageEnableVpnToView": "使用量を表示するにはVPNを有効にしてください。",
+  "networkUsageUnlimited": "無制限",
+  "networkUsageUsedOf": "{used} / {limit}",
+  "networkUsageResetsOn": "{y}-{m}-{d} にリセット",
+  "networkUsageUpdatedAt": "{hh}:{mm} に更新",
+  "@networkUsageUsedOf": { "placeholders": { "used": {}, "limit": {} } },
+  "@networkUsageResetsOn": { "placeholders": { "y": {}, "m": {}, "d": {} } },
+  "@networkUsageUpdatedAt": { "placeholders": { "hh": {}, "mm": {} } },
+
+  "networkCardStatusAvailable": "利用可能",
+  "networkCardStatusDisabled": "無効",
+  "networkCardStatusCustom": "カスタム",
+  "networkCardStatusReady": "準備完了",
+  "networkCardStatusOpen": "開く",
+  "networkCardStatusComingSoon": "近日公開",
+
+  "networkCardBlocklistsTitle": "ブロックリスト",
+  "networkCardBlocklistsSubtitle": "フィルタ設定",
+  "networkCardUpstreamTitle": "Upstream",
+  "networkCardUpstreamSubtitle": "リゾルバ選択",
+  "networkCardAppsTitle": "アプリ",
+  "networkCardAppsSubtitle": "Wi-Fiでアプリをブロック",
+  "networkCardLogsTitle": "ログ",
+  "networkCardLogsSubtitle": "DNSイベント（ライブ）",
+  "networkCardSpeedTitle": "速度",
+  "networkCardSpeedSubtitle": "DNSテスト",
+  "networkCardAboutTitle": "情報",
+  "networkCardAboutSubtitle": "GitHub",
+
+  "networkLogsStatusNoActivity": "アクティビティなし",
+  "networkLogsStatusRecent": "最近 {count} 件",
+  "@networkLogsStatusRecent": { "placeholders": { "count": {} } },
+
+  "networkResolverTitle": "リゾルバ",
+  "networkResolverIpLabel": "リゾルバIP",
+  "networkResolverIpHint": "例: 1.1.1.1",
+
+  "networkSpeedTestTitle": "速度テスト",
+  "networkSpeedTestBody": "現在の設定でDNS速度テスターを実行します。",
+  "networkSpeedTestRun": "速度テストを実行",
+
+  "networkBlocklistsRecommendedTitle": "おすすめ",
+  "networkBlocklistsCsMalwareTitle": "ColourSwift Malware",
+  "networkBlocklistsCsAdsTitle": "ColourSwift ads",
+  "networkBlocklistsSeeGithub": "詳細はGitHubを参照...",
+
+  "networkBlocklistsMalwareSection": "マルウェア",
+  "networkBlocklistsMalwareTitle": "マルウェア ブロックリスト",
+  "networkBlocklistsMalwareSources": "HaGeZi TIF • URLHaus • DigitalSide • Spam404",
+
+  "networkBlocklistsAdsSection": "広告",
+  "networkBlocklistsAdsTitle": "広告 ブロックリスト",
+  "networkBlocklistsAdsSources": "OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard",
+
+  "networkBlocklistsTrackersSection": "トラッカー",
+  "networkBlocklistsTrackersTitle": "トラッカー ブロックリスト",
+  "networkBlocklistsTrackersSources": "EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker",
+
+  "networkBlocklistsGamblingSection": "ギャンブル",
+  "networkBlocklistsGamblingTitle": "ギャンブル ブロックリスト",
+  "networkBlocklistsGamblingSources": "HaGeZi Gambling",
+
+  "networkBlocklistsSocialSection": "ソーシャルメディア",
+  "networkBlocklistsSocialTitle": "ソーシャルメディア ブロックリスト",
+  "networkBlocklistsSocialSources": "HaGeZi Social",
+
+  "networkBlocklistsAdultSection": "18+",
+  "networkBlocklistsAdultTitle": "アダルト ブロックリスト",
+  "networkBlocklistsAdultSources": "StevenBlack 18+ • HaGeZi NSFW",
+
+  "networkLiveLogsTitle": "ライブログ",
+  "networkLiveLogsEmpty": "リクエストはまだありません。",
+  "networkLiveLogsBlocked": "ブロック",
+  "networkLiveLogsAllowed": "許可",
+
+  "recommendedMetaPassDesc": "安全なオフラインパスワードを生成します。",
+  "recommendedCleanerProDesc": "重複、古いメディア、未使用アプリを見つけて自動的に容量を回復します。",
+  "recommendedLinkCheckerDesc": "セーフビュー機能で疑わしいリンクを安全にチェックします。",
+  "recommendedNetworkProtectionDesc": "マルウェアからインターネット接続を守ります。",
+  "recommendedTerminalDesc": "Shizuku向けの高度な機能",
+  "recommendedScheduledScansDesc": "バックグラウンドで自動スキャンします。",
+
+  "metaPassTitle": "MetaPass",
+  "metaPassHowItWorks": "MetaPassの仕組み",
+  "metaPassOk": "OK",
+  "metaPassSettings": "設定",
+  "metaPassPoweredBy": "powered by VX-TITANIUM",
+  "metaPassLoading": "読み込み中…",
+  "metaPassEmptyTitle": "まだエントリがありません",
+  "metaPassEmptyBody": "アプリまたはWebサイトを追加してください。\nパスワードは秘密のメタパスワードから端末上で生成されます。",
+  "metaPassAddFirstEntry": "最初のエントリを追加",
+  "metaPassTapToCopyHint": "タップでコピー。長押しで削除。",
+  "metaPassCopyTooltip": "パスワードをコピー",
+  "metaPassAdd": "追加",
+  "metaPassPickFromInstalledApps": "インストール済みアプリから選択",
+  "metaPassAddWebsiteOrLabel": "Webサイトまたはカスタム名を追加",
+  "metaPassSelectApp": "アプリを選択",
+  "metaPassSearchApps": "アプリを検索",
+  "metaPassCancel": "キャンセル",
+  "metaPassContinue": "続行",
+  "metaPassSave": "保存",
+  "metaPassAddEntryTitle": "エントリを追加",
+  "metaPassNameOrUrl": "名前またはURL",
+  "metaPassNameOrUrlHint": "例: nextcloud, steam, example.com",
+  "metaPassVersion": "バージョン",
+  "metaPassLength": "長さ",
+  "metaPassSetMetaTitle": "メタパスワードを設定",
+  "metaPassSetMetaBody": "メタパスワードを入力してください。端末の外へ出ません。すべての保管庫パスワードはこれに依存します。",
+  "metaPassMetaLabel": "メタパスワード",
+  "metaPassRememberThisDevice": "この端末で記憶（安全に保存）",
+  "metaPassChangingMetaWarning": "後で変更すると生成されるパスワードがすべて変わります。同じメタパスワードを使うと復元できます。",
+  "metaPassRemoveEntryTitle": "エントリを削除",
+  "metaPassRemoveEntryBody": "保管庫から「{label}」を削除しますか？",
+  "@metaPassRemoveEntryBody": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "metaPassRemove": "削除",
+  "metaPassPasswordCopied": "{label} のパスワードをコピーしました (v{version}, {length} chars)",
+  "@metaPassPasswordCopied": {
+    "placeholders": {
+      "label": {},
+      "version": {},
+      "length": {}
+    }
+  },
+  "metaPassGenerateFailed": "パスワード生成に失敗しました: {error}",
+  "@metaPassGenerateFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassLoadAppsFailed": "アプリの読み込みに失敗しました: {error}",
+  "@metaPassLoadAppsFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "metaPassChars": "{length} chars",
+  "@metaPassChars": {
+    "placeholders": {
+      "length": {}
+    }
+  },
+  "metaPassVersionShort": "v{version}",
+  "@metaPassVersionShort": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "metaPassInfoBody": "パスワードは保存されません。\n\n各エントリは次からパスワードを導出します:\n• メタパスワード\n• ラベル（名前）\n• バージョンと長さ\n\n同じメタパスワードとラベルでアプリを再インストールすると、同じパスワードが再生成されます。",
+
+  "passwordSettingsTitle": "パスワード設定",
+  "passwordSettingsSectionMetaPass": "MetaPass",
+  "passwordSettingsMetaPasswordTitle": "メタパスワード",
+  "passwordSettingsMetaNotSet": "未設定",
+  "passwordSettingsMetaStoredSecurely": "この端末に安全に保存",
+  "passwordSettingsChange": "変更",
+  "passwordSettingsSetMetaPassTitle": "MetaPassを設定",
+  "passwordSettingsMetaPasswordLabel": "メタパスワード",
+  "passwordSettingsChangingAltersAll": "変更するとすべてのパスワードが変わります。\n同じMetaPassを使うと復元できます。",
+  "passwordSettingsCancel": "キャンセル",
+  "passwordSettingsSave": "保存",
+  "passwordSettingsSectionRestoreCode": "復元コード",
+  "passwordSettingsGenerateRestoreCode": "復元コードを生成",
+  "passwordSettingsCopy": "コピー",
+  "passwordSettingsRestoreCodeCopied": "復元コードをコピーしました",
+  "passwordSettingsSectionRestoreFromCode": "コードから復元",
+  "passwordSettingsRestoreCodeLabel": "復元コード",
+  "passwordSettingsRestore": "復元",
+  "passwordSettingsVaultRestored": "保管庫を復元しました",
+  "passwordSettingsFooterInfo": "パスワードは保存されません。\n\n復元コードには構造データのみが含まれます。MetaPassと組み合わせることで保管庫を再構築します。",
+
+  "onboardingAppName": "AVarionX Security",
+  "onboardingStorageTitle": "ストレージアクセス",
+  "onboardingStorageDesc": "この権限は端末内ファイルをスキャンするために必要です。今すぐ付与するか後で付与できます。",
+  "onboardingStorageFootnote": "スキップできますが、スキャンモードを選択すると再度求められます。",
+  "onboardingStorageSnack": "スキャンにはストレージ権限が必要です。",
+  "onboardingNotificationsTitle": "通知",
+  "onboardingNotificationsDesc": "リアルタイムアラート、スキャン状況、隔離の更新に使用されます。",
+  "onboardingNotificationsFootnote": "リアルタイム保護のためにAndroidが要求します。",
+  "onboardingNetworkTitle": "ネットワーク保護",
+  "onboardingNetworkDesc": "AndroidのVPN権限を使用してWi-Fi保護を有効にします。",
+  "onboardingNetworkFootnote": "任意ですが推奨です。",
+  "onboardingGranted": "付与済み",
+  "onboardingNotGranted": "未付与",
+  "onboardingGrantAccess": "権限を付与",
+  "onboardingAllowNotifications": "通知を許可",
+  "onboardingAllowVpnAccess": "VPNアクセスを許可",
+  "onboardingBack": "戻る",
+  "onboardingNext": "次へ",
+  "onboardingFinish": "完了",
+  "onboardingSetupCompleteTitle": "セットアップ完了",
+  "onboardingSetupCompleteDesc": "端末全体スキャンの実行を推奨します（現時点ではインストール済みアプリはスキャンしません）。またはホーム画面へ移動してください。",
+  "onboardingRunFullScan": "端末全体スキャンを実行",
+  "onboardingGoHome": "ホームへ",
+
+  "networkProtectionTitle": "ネットワーク保護",
+
+  "networkStatusConnected": "Connected to {dns}",
+  "@networkStatusConnected": {
+    "placeholders": {
+      "dns": {}
+    }
+  },
+  "networkStatusVpnConflict": "別のVPNが有効です",
+  "networkStatusOff": "ネットワーク保護はオフです",
+
+  "networkModeMalwareTitle": "マルウェアのみブロック",
+  "networkModeMalwareSubtitle": "1.1.1.2 を使用",
+  "networkModeMalwareDescription": "AVarionXのローカルマルウェアDBとCloudflareのオンライン脅威インテリジェンスを組み合わせ、最大限のマルウェア保護を提供します。",
+
+  "networkModeAdultTitle": "マルウェア + アダルトコンテンツ",
+  "networkModeAdultSubtitle": "1.1.1.3 を使用",
+  "networkModeAdultDescription": "AVarionXのオフラインマルウェアDBを使用し、アダルトコンテンツのフィルタを追加します。このモードではクラウドのマルウェアインテリジェンスは無効です。",
+
+  "networkInfoTitle": "ネットワーク保護とは？",
+  "networkInfoBody": "一部の脅威は悪意のあるサーバーへ接続したり、通信をリダイレクトしたりして動作します。\nネットワーク保護はローカルVPNを使用して、既知の危険ドメインや一般的な広告をブロックします。\n\nAVarionX Securityはデータを収集しません。",
+
+  "linkCheckerTitle": "リンクチェッカー",
+  "linkCheckerTabAnalyse": "解析",
+  "linkCheckerTabView": "表示",
+  "linkCheckerTabHistory": "履歴",
+  "linkCheckerAnalyseSubtitle": "ページにマルウェアや疑わしい内容がないか確認",
+  "linkCheckerUrlLabel": "URL",
+  "linkCheckerUrlHint": "https://example.com",
+  "linkCheckerButtonAnalyse": "解析",
+  "linkCheckerButtonChecking": "確認中",
+  "linkCheckerEngineNotReadySnack": "エンジンが準備できていません",
+  "linkCheckerStatusVerifyingLink": "リンクを検証中…",
+  "linkCheckerStatusScanningPage": "ページをスキャン中…",
+  "linkCheckerBlockedNavigation": "ナビゲーションをブロックしました",
+  "linkCheckerBlockedUnsupportedType": "未対応のリンク種類",
+  "linkCheckerBlockedInvalidDestination": "無効な宛先",
+  "linkCheckerBlockedUnableResolve": "宛先を解決できません",
+  "linkCheckerBlockedUnableVerify": "検証できません",
+  "linkCheckerAnalyseCardTitleDefault": "ページの疑わしい内容を確認",
+  "linkCheckerAnalyseCardDetailDefault": "URLを貼り付けて解析を実行してください。",
+  "linkCheckerAnalyseCardTitleEngineNotReady": "エンジンが準備できていません",
+  "linkCheckerAnalyseCardDetailEngineNotReady": "error 1001.",
+  "linkCheckerAnalyseCardTitleChecking": "確認中",
+  "linkCheckerVerdictClean": "安全",
+  "linkCheckerVerdictCleanDetail": "このページは安全と思われます。",
+  "linkCheckerVerdictSuspicious": "疑わしい",
+  "linkCheckerVerdictSuspiciousDetail": "このページには疑わしい内容があります。",
+  "linkCheckerViewLockedBody": "表示を有効にするには先に解析を実行してください。",
+  "linkCheckerViewSubtitle": "ページを安全に表示",
+  "linkCheckerViewPage": "ページを表示",
+  "linkCheckerClose": "閉じる",
+  "linkCheckerBlockedBody": "このページは読み込まれる前に停止されました。",
+  "linkCheckerSuspiciousBanner": "疑わしいリンクです。ブロックされた要素が必要な場合、正しく表示されない可能性があります。",
+  "linkCheckerHistorySubtitle": "項目をタップしてリンクをコピー。",
+  "linkCheckerHistoryEmpty": "まだ履歴がありません。",
+  "linkCheckerCopied": "コピーしました"
+}

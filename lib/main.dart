@@ -39,6 +39,24 @@ class LanguageManager extends ChangeNotifier {
   }
 }
 
+const String _kMaxConcurrentKey = 'scan_limits_max_concurrent';
+const String _kMaxThreadsKey = 'scan_limits_max_threads';
+
+int _clampInt(int v, int min, int max) {
+  if (v < min) return min;
+  if (v > max) return max;
+  return v;
+}
+
+Future<void> _applyScanLimitsFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  final mc = _clampInt(prefs.getInt(_kMaxConcurrentKey) ?? 1, 1, 4);
+  final mt = _clampInt(prefs.getInt(_kMaxThreadsKey) ?? 0, 0, 16);
+  try {
+    AntivirusBridge().setScanLimits(mc, mt);
+  } catch (_) {}
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DefsUpdateScheduler.init();
@@ -67,6 +85,7 @@ void main() async {
   final currentVersion = '${info.version}+${info.buildNumber}';
 
   final prefs = await SharedPreferences.getInstance();
+  await _applyScanLimitsFromPrefs();
   final lastSeen = prefs.getString('last_seen_app_version');
 
   bool showUpdateLog = false;

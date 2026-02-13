@@ -14,7 +14,6 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -132,12 +131,17 @@
             tools:ignore="Instantiatable" />
 
         <service
-            android:name=".CSVpnService"
+            android:name="com.colourswift.cssecurity.vpn.CSVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="false"
+            android:exported="true"
             android:enabled="true"
-            android:foregroundServiceType="specialUse"
-            tools:ignore="Instantiatable" />
+            android:foregroundServiceType="specialUse">
+
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+
+        </service>
 
         <meta-data
             android:name="flutterEmbedding"

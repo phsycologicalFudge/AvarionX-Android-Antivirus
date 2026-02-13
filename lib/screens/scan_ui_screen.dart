@@ -41,7 +41,7 @@ void fullDeviceScanEntry(List<dynamic> args) {
 
     AntivirusBridge? bridge;
     try {
-      bridge = AntivirusBridge();
+      bridge = AntivirusBridge(enableScanLogs: false);
     } catch (_) {
       bridge = null;
     }
@@ -239,7 +239,7 @@ class ScanWorker {
 
     AntivirusBridge? bridge;
     try {
-      bridge = AntivirusBridge();
+      bridge = AntivirusBridge(enableScanLogs: false);
     } catch (_) {
       bridge = null;
     }
@@ -462,8 +462,6 @@ class _ScanScreenState extends State<ScanScreen>
   void initState() {
     super.initState();
 
-    scanLogSink = LogBuffer.add;
-
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -673,8 +671,6 @@ class _ScanScreenState extends State<ScanScreen>
       currentFile = 'Initializing...';
     });
 
-    enableScanLogs = false;
-
     final ready = ReceivePort();
     final iso = await Isolate.spawn(
       fullDeviceScanEntry,
@@ -777,7 +773,6 @@ class _ScanScreenState extends State<ScanScreen>
 
     if (!mounted || cancelled) return;
 
-    enableScanLogs = true;
     setState(() => state = ScanState.result);
   }
 

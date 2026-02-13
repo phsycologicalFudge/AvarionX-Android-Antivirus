@@ -25,7 +25,8 @@ class ScheduledScanScheduler {
     final timeM = prefs.getInt('scheduled_scan_time_m') ?? 0;
     final mode = prefs.getString('scheduled_scan_mode') ?? 'smart';
 
-    Duration? initialDelay;
+    Duration initialDelay;
+
     if (useTime) {
       final now = DateTime.now();
       var next = DateTime(now.year, now.month, now.day, timeH, timeM);
@@ -33,6 +34,8 @@ class ScheduledScanScheduler {
         next = next.add(const Duration(days: 1));
       }
       initialDelay = next.difference(now);
+    } else {
+      initialDelay = Duration(hours: hours);
     }
 
     await Workmanager().registerPeriodicTask(

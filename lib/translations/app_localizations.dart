@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_ja.dart';
 import 'app_localizations_pl.dart';
 import 'app_localizations_pt.dart';
 
@@ -100,6 +101,7 @@ abstract class AppLocalizations {
     Locale('ar'),
     Locale('en'),
     Locale('es'),
+    Locale('ja'),
     Locale('pl'),
     Locale('pt')
   ];
@@ -163,6 +165,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}'**
   String updateDbVersionLabel(Object version);
+
+  /// No description provided for @exploreMultiThreadingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-Threading'**
+  String get exploreMultiThreadingTitle;
+
+  /// No description provided for @exploreMultiThreadingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental engine control'**
+  String get exploreMultiThreadingSubtitle;
 
   /// No description provided for @updateDbAutoDownloadLabel.
   ///
@@ -788,6 +802,372 @@ abstract class AppLocalizations {
   /// **'Scheduled Scans'**
   String get featureScheduledScans;
 
+  /// No description provided for @networkStatusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get networkStatusDisconnected;
+
+  /// No description provided for @networkStatusConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get networkStatusConnecting;
+
+  /// No description provided for @networkStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get networkStatusConnected;
+
+  /// No description provided for @networkUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage'**
+  String get networkUsageTitle;
+
+  /// No description provided for @networkUsageEnableVpnToView.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable VPN to view usage.'**
+  String get networkUsageEnableVpnToView;
+
+  /// No description provided for @networkUsageUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get networkUsageUnlimited;
+
+  /// No description provided for @networkUsageUsedOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {limit}'**
+  String networkUsageUsedOf(Object used, Object limit);
+
+  /// No description provided for @networkUsageResetsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resets on {y}-{m}-{d}'**
+  String networkUsageResetsOn(Object y, Object m, Object d);
+
+  /// No description provided for @networkUsageUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {hh}:{mm}'**
+  String networkUsageUpdatedAt(Object hh, Object mm);
+
+  /// No description provided for @networkCardStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get networkCardStatusAvailable;
+
+  /// No description provided for @networkCardStatusDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get networkCardStatusDisabled;
+
+  /// No description provided for @networkCardStatusCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get networkCardStatusCustom;
+
+  /// No description provided for @networkCardStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get networkCardStatusReady;
+
+  /// No description provided for @networkCardStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get networkCardStatusOpen;
+
+  /// No description provided for @networkCardStatusComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get networkCardStatusComingSoon;
+
+  /// No description provided for @networkCardBlocklistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocklists'**
+  String get networkCardBlocklistsTitle;
+
+  /// No description provided for @networkCardBlocklistsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filtering controls'**
+  String get networkCardBlocklistsSubtitle;
+
+  /// No description provided for @networkCardUpstreamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upstream'**
+  String get networkCardUpstreamTitle;
+
+  /// No description provided for @networkCardUpstreamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolver selection'**
+  String get networkCardUpstreamSubtitle;
+
+  /// No description provided for @networkCardAppsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps'**
+  String get networkCardAppsTitle;
+
+  /// No description provided for @networkCardAppsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block apps on WiFi'**
+  String get networkCardAppsSubtitle;
+
+  /// No description provided for @networkCardLogsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get networkCardLogsTitle;
+
+  /// No description provided for @networkCardLogsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live DNS events'**
+  String get networkCardLogsSubtitle;
+
+  /// No description provided for @networkCardSpeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get networkCardSpeedTitle;
+
+  /// No description provided for @networkCardSpeedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS test'**
+  String get networkCardSpeedSubtitle;
+
+  /// No description provided for @networkCardAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get networkCardAboutTitle;
+
+  /// No description provided for @networkCardAboutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub'**
+  String get networkCardAboutSubtitle;
+
+  /// No description provided for @networkLogsStatusNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity'**
+  String get networkLogsStatusNoActivity;
+
+  /// No description provided for @networkLogsStatusRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recent'**
+  String networkLogsStatusRecent(Object count);
+
+  /// No description provided for @networkResolverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolver'**
+  String get networkResolverTitle;
+
+  /// No description provided for @networkResolverIpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolver IP'**
+  String get networkResolverIpLabel;
+
+  /// No description provided for @networkResolverIpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 1.1.1.1'**
+  String get networkResolverIpHint;
+
+  /// No description provided for @networkSpeedTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed test'**
+  String get networkSpeedTestTitle;
+
+  /// No description provided for @networkSpeedTestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs a DNS speed tester using your current settings.'**
+  String get networkSpeedTestBody;
+
+  /// No description provided for @networkSpeedTestRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run speed test'**
+  String get networkSpeedTestRun;
+
+  /// No description provided for @networkBlocklistsRecommendedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get networkBlocklistsRecommendedTitle;
+
+  /// No description provided for @networkBlocklistsCsMalwareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ColourSwift Malware'**
+  String get networkBlocklistsCsMalwareTitle;
+
+  /// No description provided for @networkBlocklistsCsAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ColourSwift ads'**
+  String get networkBlocklistsCsAdsTitle;
+
+  /// No description provided for @networkBlocklistsSeeGithub.
+  ///
+  /// In en, this message translates to:
+  /// **'See GitHub for details...'**
+  String get networkBlocklistsSeeGithub;
+
+  /// No description provided for @networkBlocklistsMalwareSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware'**
+  String get networkBlocklistsMalwareSection;
+
+  /// No description provided for @networkBlocklistsMalwareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware blocklist'**
+  String get networkBlocklistsMalwareTitle;
+
+  /// No description provided for @networkBlocklistsMalwareSources.
+  ///
+  /// In en, this message translates to:
+  /// **'HaGeZi TIF • URLHaus • DigitalSide • Spam404'**
+  String get networkBlocklistsMalwareSources;
+
+  /// No description provided for @networkBlocklistsAdsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads'**
+  String get networkBlocklistsAdsSection;
+
+  /// No description provided for @networkBlocklistsAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads blocklist'**
+  String get networkBlocklistsAdsTitle;
+
+  /// No description provided for @networkBlocklistsAdsSources.
+  ///
+  /// In en, this message translates to:
+  /// **'OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard'**
+  String get networkBlocklistsAdsSources;
+
+  /// No description provided for @networkBlocklistsTrackersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackers'**
+  String get networkBlocklistsTrackersSection;
+
+  /// No description provided for @networkBlocklistsTrackersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trackers blocklist'**
+  String get networkBlocklistsTrackersTitle;
+
+  /// No description provided for @networkBlocklistsTrackersSources.
+  ///
+  /// In en, this message translates to:
+  /// **'EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker'**
+  String get networkBlocklistsTrackersSources;
+
+  /// No description provided for @networkBlocklistsGamblingSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Gambling'**
+  String get networkBlocklistsGamblingSection;
+
+  /// No description provided for @networkBlocklistsGamblingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gambling blocklist'**
+  String get networkBlocklistsGamblingTitle;
+
+  /// No description provided for @networkBlocklistsGamblingSources.
+  ///
+  /// In en, this message translates to:
+  /// **'HaGeZi Gambling'**
+  String get networkBlocklistsGamblingSources;
+
+  /// No description provided for @networkBlocklistsSocialSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Social media'**
+  String get networkBlocklistsSocialSection;
+
+  /// No description provided for @networkBlocklistsSocialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Social media blocklist'**
+  String get networkBlocklistsSocialTitle;
+
+  /// No description provided for @networkBlocklistsSocialSources.
+  ///
+  /// In en, this message translates to:
+  /// **'HaGeZi Social'**
+  String get networkBlocklistsSocialSources;
+
+  /// No description provided for @networkBlocklistsAdultSection.
+  ///
+  /// In en, this message translates to:
+  /// **'18+'**
+  String get networkBlocklistsAdultSection;
+
+  /// No description provided for @networkBlocklistsAdultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adult blocklist'**
+  String get networkBlocklistsAdultTitle;
+
+  /// No description provided for @networkBlocklistsAdultSources.
+  ///
+  /// In en, this message translates to:
+  /// **'StevenBlack 18+ • HaGeZi NSFW'**
+  String get networkBlocklistsAdultSources;
+
+  /// No description provided for @networkLiveLogsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live logs'**
+  String get networkLiveLogsTitle;
+
+  /// No description provided for @networkLiveLogsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests yet.'**
+  String get networkLiveLogsEmpty;
+
+  /// No description provided for @networkLiveLogsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get networkLiveLogsBlocked;
+
+  /// No description provided for @networkLiveLogsAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get networkLiveLogsAllowed;
+
   /// No description provided for @recommendedMetaPassDesc.
   ///
   /// In en, this message translates to:
@@ -1316,23 +1696,23 @@ abstract class AppLocalizations {
   /// **'Network Protection'**
   String get networkProtectionTitle;
 
-  /// No description provided for @networkStatusConnected.
+  /// No description provided for @networkStatusConnectedToDns.
   ///
   /// In en, this message translates to:
   /// **'Connected to {dns}'**
-  String networkStatusConnected(Object dns);
+  String networkStatusConnectedToDns(Object dns);
 
-  /// No description provided for @networkStatusVpnConflict.
+  /// No description provided for @networkStatusVpnConflictDetail.
   ///
   /// In en, this message translates to:
   /// **'Another VPN is active'**
-  String get networkStatusVpnConflict;
+  String get networkStatusVpnConflictDetail;
 
-  /// No description provided for @networkStatusOff.
+  /// No description provided for @networkStatusOffDetail.
   ///
   /// In en, this message translates to:
   /// **'Network protection is off'**
-  String get networkStatusOff;
+  String get networkStatusOffDetail;
 
   /// No description provided for @networkModeMalwareTitle.
   ///
@@ -1705,6 +2085,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchase failed: {error}'**
   String settingsPurchaseFailed(Object error);
+
+  /// No description provided for @proActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO activated'**
+  String get proActivated;
+
+  /// No description provided for @proDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO deactivated'**
+  String get proDeactivated;
 
   /// No description provided for @settingsProReset.
   ///
@@ -2389,8 +2781,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en', 'es', 'pl', 'pt'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'ar',
+        'en',
+        'es',
+        'ja',
+        'pl',
+        'pt'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -2405,6 +2803,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
+    case 'ja':
+      return AppLocalizationsJa();
     case 'pl':
       return AppLocalizationsPl();
     case 'pt':

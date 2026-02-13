@@ -28,15 +28,15 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
 import org.json.JSONArray
 import com.colourswift.cssecurity.https.CertService
+import com.colourswift.cssecurity.vpn.CSVpnService
 
 object CsDnsEvents {
-    private const val MAX = 200
+    private const val MAX = 800
 
     private val lock = Any()
     private val buffer = ArrayDeque<Map<String, Any?>>(MAX)
-
+    private val vpnStateChannel = "cs_vpn_lockdown"
     private val main = Handler(Looper.getMainLooper())
-
     private val sinks = LinkedHashSet<EventChannel.EventSink>()
 
     fun addSink(s: EventChannel.EventSink?) {
@@ -107,11 +107,7 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                         Handler(Looper.getMainLooper()).post { result.success(apps) }
                     } catch (t: Throwable) {
                         Handler(Looper.getMainLooper()).post {
-                            result.error(
-                                "ERR",
-                                t.message,
-                                null
-                            )
+                            result.error("ERR", t.message, null)
                         }
                     }
                 }
@@ -133,8 +129,7 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                             drawable.bitmap
                         } else {
                             val w = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 96
-                            val h =
-                                if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 96
+                            val h = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 96
                             val b = android.graphics.Bitmap.createBitmap(
                                 w,
                                 h,
@@ -153,6 +148,48 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                         Handler(Looper.getMainLooper()).post { result.success(bytes) }
                     } catch (_: Throwable) {
                         Handler(Looper.getMainLooper()).post { result.success(null) }
+                    }
+                }
+            }
+
+            "getWifiBlockedPkgs" -> {
+                io.execute {
+                    try {
+                        val set = AppWifiRules.getWifiBlockedPkgs(context).toList().sorted()
+                        Handler(Looper.getMainLooper()).post { result.success(set) }
+                    } catch (t: Throwable) {
+                        Handler(Looper.getMainLooper()).post {
+                            result.error("ERR", t.message, null)
+                        }
+                    }
+                }
+            }
+
+            "setAppWifiBlock" -> {
+                io.execute {
+                    try {
+                        val pkg = call.argument<String>("package") ?: ""
+                        val blocked = call.argument<Boolean>("blocked") ?: false
+                        val ok = AppWifiRules.setWifiBlocked(context, pkg, blocked)
+
+                        try {
+                            val i = Intent(context, CSVpnService::class.java).apply {
+                                action = CSVpnService.ACTION_START
+                                putExtra("dns_mode", "cloud")
+                                putExtra("reload_rules", true)
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                context.startForegroundService(i)
+                            } else {
+                                context.startService(i)
+                            }
+                        } catch (_: Exception) {}
+
+                        Handler(Looper.getMainLooper()).post { result.success(ok) }
+                    } catch (t: Throwable) {
+                        Handler(Looper.getMainLooper()).post {
+                            result.error("ERR", t.message, null)
+                        }
                     }
                 }
             }
@@ -410,11 +447,16 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "cs_dns_events"
         ).setStreamHandler(object : EventChannel.StreamHandler {
+            private var sink: EventChannel.EventSink? = null
+
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                sink = events
                 CsDnsEvents.addSink(events)
             }
 
             override fun onCancel(arguments: Any?) {
+                CsDnsEvents.removeSink(sink)
+                sink = null
             }
         })
 
@@ -453,6 +495,31 @@ class MainActivity : FlutterActivity() {
 
             ed.commit()
             result.success(true)
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "cs_dns_usage"
+        ).setMethodCallHandler { call, result ->
+            if (call.method != "getUsage") {
+                result.notImplemented()
+                return@setMethodCallHandler
+            }
+
+            val prefs = applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
+
+            val used = prefs.getLong("usage_used", 0L).toInt()
+            val limit = prefs.getLong("usage_limit", -1L).toInt().let { if (it <= 0) null else it }
+            val resetMs = prefs.getLong("usage_reset_ms", -1L).let { if (it <= 0L) null else it }
+            val plan = prefs.getString("plan", "free") ?: "free"
+
+            val out = HashMap<String, Any?>()
+            out["used"] = used
+            out["limit"] = limit
+            out["reset_ms"] = resetMs
+            out["plan"] = plan
+
+            result.success(out)
         }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")
@@ -528,6 +595,30 @@ class MainActivity : FlutterActivity() {
                 } else result.notImplemented()
             }
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_lockdown")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getLockdownState" -> {
+                        try {
+                            result.success(CSVpnService.snapshotLockdownState(applicationContext))
+                        } catch (_: Exception) {
+                            result.success(mapOf("always_on" to false, "lockdown" to false, "always_on_pkg" to null))
+                        }
+                    }
+                    "openVpnSettings" -> {
+                        try {
+                            val i = Intent(Settings.ACTION_VPN_SETTINGS)
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(i)
+                            result.success(true)
+                        } catch (_: Exception) {
+                            result.success(false)
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
@@ -556,7 +647,6 @@ class MainActivity : FlutterActivity() {
                 }
             })
     }
-
     private fun startForegroundServiceCompat(title: String, text: String) {
         try {
             val intent = Intent(this, CSForegroundService::class.java)

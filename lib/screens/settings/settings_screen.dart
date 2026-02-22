@@ -20,7 +20,7 @@ import '../../services/purchase_service.dart';
 import '../exclusions/exclusion_manager_screen.dart';
 import 'package:flutter/foundation.dart';
 import '../../constants/build_flags.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../pro/pro_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,7 +33,6 @@ class SettingsScreenState extends State<SettingsScreen> {
   bool isPro = false;
   bool autoUpdateDefs = false;
   bool shizukuWanted = false;
-  bool shizukuCertPresent = false;
   bool shizukuBinderAlive = false;
   bool shizukuPermissionGranted = false;
 
@@ -56,47 +55,6 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   final _secure = const FlutterSecureStorage();
   String? _metaPassword;
-
-  static const String _trialUntilKey = 'pro_trial_until';
-
-  int? _trialUntilMs;
-
-  RewardedAd? _rewardedAd;
-  Timer? _trialExpiryTimer;
-  bool _rewardedLoading = false;
-
-  static const String _rewardedProdAdUnitId = 'ca-app-pub-4198956812643415/2103409684';
-  static const String _rewardedTestAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
-
-  bool get _trialActive {
-    final until = _trialUntilMs;
-    if (until == null) return false;
-    return until > DateTime.now().millisecondsSinceEpoch;
-  }
-
-  bool get _hasProAccess => isPro || _trialActive;
-
-  String _trialRemainingLabel() {
-    final until = _trialUntilMs;
-    if (until == null) return '';
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final remainingMs = until - now;
-    if (remainingMs <= 0) return '';
-    final remaining = Duration(milliseconds: remainingMs);
-    final days = remaining.inDays;
-    if (days >= 1) {
-      return '${days}d';
-    }
-    final hours = remaining.inHours;
-    if (hours >= 1) {
-      return '${hours}h';
-    }
-    final mins = remaining.inMinutes;
-    if (mins >= 1) {
-      return '${mins}m';
-    }
-    return '1m';
-  }
 
   String _languageLabel(String code) {
     final l10n = AppLocalizations.of(context)!;
@@ -126,9 +84,6 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> refresh() async {
     await _loadPro();
-    if (kEnableAds && _rewardedAd == null && !_rewardedLoading) {
-      _loadRewardedAd();
-    }
     if (!mounted) return;
     setState(() {});
   }
@@ -158,9 +113,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     _loadAutoUpdate();
     _loadShizukuState();
     _loadShizukuRuntimeState();
-    if (kEnableAds) {
-      _loadRewardedAd();
-    }
   }
 
   Future<void> _loadMetaPassword() async {
@@ -193,9 +145,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
 
-    await ProGate.setDebugIgnorePaid(true);
+    await ProGate.setDebugIgnorePaid(false);
     await ProGate.clearLocalUnlock();
     await ProGate.clearTrial();
+    await PurchaseService.clearLocalProFlag();
     await prefs.setBool('isPro', false);
 
     await _loadPro();
@@ -203,7 +156,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     if (!mounted) return;
     setState(() {
       isPro = false;
-      _trialUntilMs = null;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -212,101 +164,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _showUpgradeDialog() async {
-    final l10n = AppLocalizations.of(context)!;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.settingsUnlockPro),
-          content: Text(l10n.settingsProSubtitle),
-          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        l10n.metaPassCancel,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context, false);
-                      _showSupportUnlockDialog();
-                    },
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: const Text(
-                        'Code',
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        l10n.metaPassContinue,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProScreen()),
     );
-
-    if (confirmed != true) return;
-
-    try {
-      await PurchaseService.buyPro();
-      await Future.delayed(const Duration(seconds: 100));
-      await PurchaseService.restore();
-
-      final hasPro = await PurchaseService.hasPro();
-
-      if (hasPro) {
-        final prefs = await SharedPreferences.getInstance();
-        await ProGate.clearTrial();
-        await ProGate.sync();
-        await _loadPro();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.settingsProUnlocked)),
-        );
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.settingsPurchaseNotConfirmed)),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.settingsPurchaseFailed(e.toString()))),
-      );
-    }
   }
 
   Future<void> _showSupportUnlockDialog() async {
@@ -413,76 +274,16 @@ class SettingsScreenState extends State<SettingsScreen> {
   static const String _supportUnlockCode = 'CS-SUPPORT-UNLOCK';
 
   Future<void> _loadPro() async {
-    final effective = await ProGate.sync();
-    final until = await ProGate.trialUntilMs();
+    await PurchaseService.restore();
+    final billingPro = await PurchaseService.hasPro();
+    final gatePro = await ProGate.sync();
+    final effective = billingPro || gatePro;
 
     if (!mounted) return;
 
     setState(() {
       isPro = effective;
-      _trialUntilMs = until;
     });
-  }
-
-  void _armTrialExpiryTimer(int untilMs) {
-    _trialExpiryTimer?.cancel();
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final delayMs = untilMs - now;
-    if (delayMs <= 0) return;
-
-    _trialExpiryTimer = Timer(Duration(milliseconds: delayMs), () {
-      if (!mounted) return;
-      setState(() {});
-    });
-  }
-
-  void _loadRewardedAd() {
-    if (_rewardedLoading) return;
-    if (_rewardedAd != null) return;
-
-    _rewardedLoading = true;
-    if (mounted) setState(() {});
-
-    final adUnitId = kDebugMode ? _rewardedTestAdUnitId : _rewardedProdAdUnitId;
-
-    RewardedAd.load(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          _rewardedLoading = false;
-          _rewardedAd = ad;
-
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _rewardedAd = null;
-              _loadRewardedAd();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              ad.dispose();
-              _rewardedAd = null;
-              _loadRewardedAd();
-            },
-          );
-
-          if (!mounted) return;
-          setState(() {});
-        },
-        onAdFailedToLoad: (error) {
-          _rewardedLoading = false;
-          _rewardedAd = null;
-
-          if (!mounted) return;
-          setState(() {});
-
-          Future.delayed(const Duration(seconds: 3), () {
-            if (!mounted) return;
-            _loadRewardedAd();
-          });
-        },
-      ),
-    );
   }
 
   Future<void> _activateTrialPro() async {
@@ -490,33 +291,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     await _loadPro();
   }
 
-
-  Future<void> _watchAdForTrialPro() async {
-    if (_trialActive) return;
-
-    final ad = _rewardedAd;
-    if (ad == null) {
-      _loadRewardedAd();
-      return;
-    }
-
-    ad.show(
-      onUserEarnedReward: (ad, reward) async {
-        await _activateTrialPro();
-      },
-    );
-
-    _rewardedAd = null;
-
-    if (!mounted) return;
-    setState(() {});
-  }
-
   void _showProOptions(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
-    bool hideGoldHeader = prefs.getBool('hideGoldHeader') ?? true;
-    String selectedIcon = prefs.getString('selectedIcon') ?? 'default';
+    bool goldHeaderEnabled = prefs.getBool('goldHeaderEnabled') ?? false;    String selectedIcon = prefs.getString('selectedIcon') ?? 'default';
     final iconChannel = MethodChannel('colourswift/icon_switch');
 
     showModalBottomSheet(
@@ -591,10 +369,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 10),
                           SwitchListTile(
-                            value: hideGoldHeader,
+                            value: goldHeaderEnabled,
                             onChanged: (val) async {
-                              setModalState(() => hideGoldHeader = val);
-                              await prefs.setBool('hideGoldHeader', hideGoldHeader);
+                              setModalState(() => goldHeaderEnabled = val);
+                              await prefs.setBool('goldHeaderEnabled', goldHeaderEnabled);
                             },
                             title: Text(l10n.settingsHideGoldHeader),
                             contentPadding: EdgeInsets.zero,
@@ -689,21 +467,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<bool> _hasShizukuCert() async {
-    if (kDebugMode) {
-      return true;
-    }
-
-    final file = File(
-      '/storage/emulated/0/Android/data/com.colourswift.cssecurity/files/cs_shizuku.cert',
-    );
-    return file.exists();
-  }
-
   Future<void> _loadShizukuState() async {
     final prefs = await SharedPreferences.getInstance();
     shizukuWanted = prefs.getBool('shizuku_enabled') ?? false;
-    shizukuCertPresent = await _hasShizukuCert();
     if (!mounted) return;
     setState(() {});
   }
@@ -1055,9 +821,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       onTap: () {
         Navigator.pop(context);
-        if (isProTheme && !_hasProAccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.settingsThemeRequiresPro)),
+        if (isProTheme && !isPro) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProScreen()),
           );
         } else {
           themeManager.setTheme(value);
@@ -1068,7 +835,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         isProTheme ? '$label (${l10n.proBadge})' : label,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-          color: isProTheme ? (_hasProAccess ? null : Colors.grey) : null,
+          color: isProTheme ? (isPro ? null : Colors.grey) : null,
         ),
       ),
       trailing: isSelected ? const Icon(Icons.check_rounded) : null,
@@ -1086,8 +853,6 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     final themeName = themeManager.themeName;
     final themeLabel = themeName.isEmpty ? themeName : '${themeName[0].toUpperCase()}${themeName.substring(1)}';
-
-    final trialLabel = _trialActive ? _trialRemainingLabel() : '';
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -1151,11 +916,34 @@ class SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 10),
               Column(
                 children: [
-                  if (_hasProAccess)
-                    _buildSponsorCard(
-                      context,
-                      onTap: () => _showProOptions(context),
-                      trialLabel: trialLabel,
+                  if (isPro)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSponsorCard(
+                          context,
+                          onTap: () => _showProOptions(context),
+                          trialLabel: '',
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: _showUpgradeDialog,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+                              child: Text(
+                                'Change plan',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     )
                   else
                     Card.outlined(
@@ -1184,7 +972,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        l10n.settingsProCustomization,
+                                        l10n.settingsUnlockPro,
                                         style: text.titleMedium?.copyWith(
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -1213,7 +1001,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                onPressed: _showUpgradeDialog,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const ProScreen()),
+                                  );
+                                },
                                 child: Text(
                                   l10n.settingsUnlockPro,
                                   style: const TextStyle(
@@ -1227,70 +1020,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
-                  if (kEnableAds && !isPro) ...[
-                    const SizedBox(height: 12),
-                    Card.outlined(
-                      color: scheme.surfaceContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: scheme.primaryContainer,
-                                  child: Icon(
-                                    Icons.timer_rounded,
-                                    color: scheme.onPrimaryContainer,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Temporary Pro',
-                                        style: text.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        'Unlock all Pro features for 1 week',
-                                        style: text.bodySmall?.copyWith(
-                                          color: scheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton(
-                                onPressed: (_rewardedAd == null || _rewardedLoading || _trialActive)
-                                    ? null
-                                    : _watchAdForTrialPro,
-                                child: Text(
-                                  _trialActive
-                                      ? 'Active, $trialLabel left'
-                                      : (_rewardedAd == null ? 'Loading ad…' : 'Watch ad, 1 week Pro'),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
 
@@ -1313,67 +1042,81 @@ class SettingsScreenState extends State<SettingsScreen> {
                     l10n.settingsEnableShizuku,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  subtitle: Text(
-                    !shizukuCertPresent
-                        ? l10n.settingsShizukuRequiresManager
-                        : !shizukuBinderAlive
-                        ? l10n.settingsShizukuNotRunning
-                        : !shizukuPermissionGranted
-                        ? l10n.settingsShizukuPermissionRequired
-                        : l10n.settingsShizukuAvailable,
+                    subtitle: Text(
+                      !shizukuBinderAlive
+                          ? l10n.settingsShizukuNotRunning
+                          : !shizukuPermissionGranted
+                          ? l10n.settingsShizukuPermissionRequired
+                          : l10n.settingsShizukuAvailable,
                     style: text.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
                   value: shizukuWanted,
-                  onChanged: (value) async {
-                    if (!value) {
-                      await _setShizukuWanted(false);
-                      return;
-                    }
+                    onChanged: (value) async {
+                      if (!value) {
+                        await _setShizukuWanted(false);
+                        return;
+                      }
 
-                    await _setShizukuWanted(false);
+                      final prefs = await SharedPreferences.getInstance();
+                      final firstTime = !(prefs.getBool('shizuku_warning_shown') ?? false);
 
-                    final hasCert = await _hasShizukuCert();
-                    if (!hasCert) {
-                      if (!mounted) return;
-                      setState(() => shizukuCertPresent = false);
-
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text(l10n.settingsAdvancedProtectionDialogTitle),
-                            content: Text(l10n.settingsAdvancedProtectionDialogBody),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.ok),
+                      if (firstTime) {
+                        final accepted = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Experimental Features'),
+                              content: const Text(
+                                  'Enabling Shizuku unlocks experimental work-in-progress features:\n\n'
+                                      '• Advanced Ransomware Protection\n'
+                                      '• Cache Cleaner Plus\n\n'
+                                      'These features may change and are still being refined.\n\n'
+                                      'Please read the documentation before enabling.'
                               ),
-                            ],
-                          );
-                        },
-                      );
-                      return;
+                              actions: [
+                                TextButton(
+                                  onPressed: () async {
+                                    final uri = Uri.parse('https://github.com/ColourSwift/AvarionX-Security');
+                                    if (await canLaunchUrl(uri)) {
+                                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                    }
+                                  },
+                                  child: const Text('GitHub'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Enable'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (accepted != true) return;
+
+                        await prefs.setBool('shizuku_warning_shown', true);
+                      }
+
+                      await _loadShizukuRuntimeState();
+
+                      if (!shizukuBinderAlive) return;
+
+                      if (!shizukuPermissionGranted) {
+                        await _shizukuChannel.invokeMethod('requestPermission');
+                        await Future.delayed(const Duration(milliseconds: 300));
+                        await _loadShizukuRuntimeState();
+                      }
+
+                      if (shizukuBinderAlive && shizukuPermissionGranted) {
+                        await _setShizukuWanted(true);
+                      }
                     }
-
-                    await _loadShizukuRuntimeState();
-
-                    if (!shizukuBinderAlive) {
-                      return;
-                    }
-
-                    if (!shizukuPermissionGranted) {
-                      await _shizukuChannel.invokeMethod('requestPermission');
-                    }
-
-                    await Future.delayed(const Duration(milliseconds: 250));
-                    await _loadShizukuRuntimeState();
-
-                    if (shizukuBinderAlive && shizukuPermissionGranted) {
-                      await _setShizukuWanted(true);
-                    }
-                  },
                 ),
               ),
               const SizedBox(height: 10),
@@ -1563,7 +1306,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _trialActive ? 'Trial active, $trialLabel left' : l10n.settingsProSubtitle,
+                      l10n.settingsProSubtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),

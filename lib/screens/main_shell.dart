@@ -15,11 +15,12 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   String _active = 'home';
-  Key _homeKey = UniqueKey();
+
+  final GlobalKey<AvHomeScreenState> _homeKey = GlobalKey<AvHomeScreenState>();
+  final GlobalKey<SettingsScreenState> _settingsKey = GlobalKey<SettingsScreenState>();
+
   Key _exploreKey = UniqueKey();
   Key _quarantineKey = UniqueKey();
-
-  final GlobalKey<SettingsScreenState> _settingsKey = GlobalKey<SettingsScreenState>();
 
   int get _index {
     switch (_active) {
@@ -55,10 +56,15 @@ class _MainShellState extends State<MainShell> {
         onTabChange: (tab) {
           setState(() {
             _active = tab;
-            if (tab == 'home') _homeKey = UniqueKey();
             if (tab == 'explore') _exploreKey = UniqueKey();
             if (tab == 'quarantine') _quarantineKey = UniqueKey();
           });
+
+          if (tab == 'home') {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _homeKey.currentState?.refresh();
+            });
+          }
 
           if (tab == 'settings') {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,7 +72,6 @@ class _MainShellState extends State<MainShell> {
             });
           }
         },
-
       ),
     );
   }

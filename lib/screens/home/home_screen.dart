@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
-import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
+import 'package:colourswift_av/screens/vpn/dns/NetworkProtectionScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +16,7 @@ import '../../constants/build_flags.dart';
 import '../../constants/launch_flag.dart';
 import '../../services/defs_auto_update_service.dart';
 import '../../services/pro_temp_service.dart';
+import '../../services/purchase_service.dart';
 import '../../services/realtime_protection_service.dart';
 import '../../services/scan_scheduler.dart';
 import '../../services/service_manager.dart';
@@ -26,22 +27,28 @@ import '../../widgets/ads/ads_config.dart';
 import '../../widgets/antivirus_bridge.dart';
 import '../link checker/link_check_screen.dart';
 import '../scan_ui_screen.dart';
+import '../vpn/full_vpn_mode_screen.dart';
 import 'av_home_feature_row.dart';
 import 'av_home_primary_control.dart';
 import 'av_home_top_bar.dart';
-
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
 
   @override
-  State<AvHomeScreen> createState() => _AvHomeScreenState();
+  State<AvHomeScreen> createState() => AvHomeScreenState();
 }
 
-class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMixin {
+class AvHomeScreenState extends State<AvHomeScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  Future<void> refresh() async {
+    await _loadProtectionState();
+    await _loadProStatus();
+    await _loadDefsVersion();
+  }
   bool protectionEnabled = false;
   double protectionPercent = 0.0;
-  bool hideGoldHeader = false;
+  bool goldHeaderEnabled = false;
   Timer? _periodicScanTimer;
   Timer? _scheduledEnableTimer;
   bool isPro = false;
@@ -55,6 +62,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   String? remoteVersion;
   String version = '';
   String defsVersion = '';
+
+  static const String _kVpnMode = 'cs_vpn_mode';
+  static const MethodChannel _wgChan = MethodChannel("cs_vpn_control");
+  static const String _kWgConfig = 'cs_wg_config_last';
 
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
@@ -88,7 +99,17 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   Future<void> _loadProStatus() async {
-    final effective = await ProGate.sync();
+    final billingProFast = PurchaseService.isPro;
+    if (mounted) {
+      setState(() => isPro = billingProFast);
+    }
+
+    await PurchaseService.restore();
+
+    final billingPro = await PurchaseService.hasPro();
+    final gatePro = await ProGate.sync();
+    final effective = billingPro || gatePro;
+
     if (!mounted) return;
     setState(() => isPro = effective);
   }
@@ -100,7 +121,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     setState(() => isPro = newStatus);
     final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(newStatus ? l10n.proActivated : l10n.proDeactivated)),
+      SnackBar(
+          content: Text(newStatus ? l10n.proActivated : l10n.proDeactivated)),
     );
   }
 
@@ -113,12 +135,12 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   Future<String> _getDnsModeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final vpnMode = prefs.getString('networkProtectionMode');
+    final mode = prefs.getString(_kVpnMode) ?? 'off';
     final basicMode = prefs.getString('networkDnsMode');
 
-    debugPrint('[CS VPN] _getDnsModeFromPrefs vpnMode=$vpnMode basicMode=$basicMode');
+    debugPrint('[CS VPN] _getDnsModeFromPrefs mode=$mode basicMode=$basicMode');
 
-    if (vpnMode == 'cloud') return 'cloud';
+    if (mode == 'full') return 'full';
     if (basicMode == 'adult') return 'adult';
     return 'malware';
   }
@@ -154,6 +176,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
@@ -223,6 +246,14 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     );
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadProtectionState();
+      _loadProStatus();
+    }
+  }
+
   void _showRtpInfo() {
     showDialog(
       context: context,
@@ -265,6 +296,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     double progress = 0.0;
     bool autoUpdate = false;
     bool mountedSheet = true;
+    bool started = false;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
 
     showModalBottomSheet(
       context: context,
@@ -278,58 +312,67 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            Future.microtask(() async {
-              try {
-                double lastShown = 0;
-
-                final ok = await UpdateService.downloadDatabase(
-                  onProgress: (p) {
-                    if (!mountedSheet) return;
-                    if ((p - lastShown).abs() >= 0.01) {
-                      lastShown = p;
-                      setSheetState(() => progress = p);
-                    }
-                  },
-                );
-
-                if (!ok || !mounted || !mountedSheet) return;
-
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool(_autoUpdateKey, autoUpdate);
-                await UpdateService.setLocalVersion(newRemoteVersion);
-
-                final dir = await getApplicationDocumentsDirectory();
-                final defsPath = '${dir.path}/defs.vxpack';
-                final keyPath = '${dir.path}/defs_key.bin';
-
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
                 try {
-                  AntivirusBridge().reload(defsPath, keyPath);
-                } catch (e) {
-                  debugPrint('[DefsUpdate] Engine reload failed: $e');
-                }
+                  double lastShown = 0;
 
-                Navigator.pop(context);
+                  final ok = await UpdateService.downloadDatabase(
+                    onProgress: (p) {
+                      if (!mountedSheet) return;
+                      if ((p - lastShown).abs() >= 0.01) {
+                        lastShown = p;
+                        setSheetState(() => progress = p);
+                      }
+                    },
+                  );
 
-                setState(() {
-                  hasUpdate = false;
-                  remoteVersion = null;
-                });
+                  if (!ok || !mounted || !mountedSheet) return;
 
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      autoUpdate ? l10n.updateDbUpdatedAutoOn : l10n.updateDbUpdatedSuccess,
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool(_autoUpdateKey, autoUpdate);
+                  await UpdateService.setLocalVersion(newRemoteVersion);
+
+                  final dir = await getApplicationDocumentsDirectory();
+                  final defsPath = '${dir.path}/defs.vxpack';
+                  final keyPath = '${dir.path}/defs_key.bin';
+
+                  try {
+                    AntivirusBridge().reload(defsPath, keyPath);
+                  } catch (e) {
+                    debugPrint('[DefsUpdate] Engine reload failed: $e');
+                  }
+
+                  if (!mounted || !mountedSheet) return;
+
+                  Navigator.of(context, rootNavigator: true).pop();
+
+                  if (!mounted) return;
+
+                  setState(() {
+                    hasUpdate = false;
+                    remoteVersion = null;
+                  });
+
+                  messenger?.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        autoUpdate
+                            ? l10n.updateDbUpdatedAutoOn
+                            : l10n.updateDbUpdatedSuccess,
+                      ),
                     ),
-                  ),
-                );
-              } catch (_) {
-                if (!mounted || !mountedSheet) return;
-                Navigator.pop(context);
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(content: Text(l10n.updateDbUpdateFailed)),
-                );
-              }
-            });
+                  );
+                } catch (_) {
+                  if (!mounted || !mountedSheet) return;
+                  Navigator.of(context, rootNavigator: true).pop();
+                  messenger?.showSnackBar(
+                    SnackBar(content: Text(l10n.updateDbUpdateFailed)),
+                  );
+                }
+              });
+            }
 
             final sheetTheme = Theme.of(context);
 
@@ -380,7 +423,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor: sheetTheme.colorScheme.onSurface.withOpacity(0.12),
+                          backgroundColor: sheetTheme.colorScheme.onSurface
+                              .withOpacity(0.12),
                           valueColor: AlwaysStoppedAnimation(
                             sheetTheme.colorScheme.primary,
                           ),
@@ -429,7 +473,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   Future<void> _loadHeaderPref() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => hideGoldHeader = prefs.getBool('hideGoldHeader') ?? true);
+    setState(
+        () => goldHeaderEnabled = prefs.getBool('goldHeaderEnabled') ?? false);
   }
 
   Future<void> _checkForDatabaseUpdate() async {
@@ -485,28 +530,28 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
       final rtp = prefs.getBool('protectionEnabled') ?? false;
       final netPref = prefs.getBool('networkProtectionEnabled') ?? false;
-
-      bool conflict = false;
-      try {
-        conflict = rtp && netPref ? await _isAnotherVpnActive() : false;
-      } catch (_) {
-        conflict = false;
-      }
+      final mode = prefs.getString(_kVpnMode) ?? 'off';
 
       if (!mounted) return;
 
       setState(() {
         protectionEnabled = rtp;
-        networkEnabled = rtp && netPref && !conflict;
-        vpnConflict = conflict;
-        vpnActive = networkEnabled;
+        vpnConflict = false;
+        vpnActive = false;
+        networkEnabled = false;
 
         if (!rtp) {
           protectionPercent = 0.0;
-        } else if (!networkEnabled || conflict) {
-          protectionPercent = 0.6;
-        } else {
+        } else if (mode == 'full') {
           protectionPercent = 1.0;
+          vpnActive = true;
+          networkEnabled = true;
+        } else if (netPref) {
+          protectionPercent = 1.0;
+          vpnActive = true;
+          networkEnabled = true;
+        } else {
+          protectionPercent = 0.6;
         }
       });
 
@@ -516,6 +561,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         } catch (_) {}
         try {
           await AvServiceManager.stopVpn();
+        } catch (_) {}
+        try {
+          await _wgChan.invokeMethod("stopWireGuard");
         } catch (_) {}
         _stopBackgroundScan();
         _scheduledEnableTimer?.cancel();
@@ -529,6 +577,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         await ScheduledScanScheduler.disable();
         await prefs.setBool('protectionEnabled', false);
         await prefs.setBool('networkProtectionEnabled', false);
+        await prefs.setString(_kVpnMode, 'off');
 
         if (!mounted) return;
 
@@ -544,7 +593,47 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         return;
       }
 
+      if (mode == 'full') {
+        final cfg = prefs.getString(_kWgConfig) ?? '';
+
+        try {
+          await AvServiceManager.stopVpn();
+        } catch (_) {}
+
+        bool ok = false;
+
+        if (cfg.isNotEmpty) {
+          try {
+            await _wgChan.invokeMethod("startWireGuard", {"config": cfg});
+            ok = true;
+          } catch (_) {
+            await prefs.setString(_kVpnMode, 'off');
+            ok = false;
+          }
+        } else {
+          await prefs.setString(_kVpnMode, 'off');
+          ok = false;
+        }
+
+        _startBackgroundScan();
+        _scheduledEnableTimer?.cancel();
+        _scheduledEnableTimer = Timer(const Duration(minutes: 10), () async {
+          await ScheduledScanScheduler.enableFromPrefs();
+        });
+
+        if (!mounted) return;
+        setState(() {
+          networkEnabled = ok;
+          vpnActive = ok;
+          vpnConflict = false;
+          protectionPercent = ok ? 1.0 : 0.6;
+        });
+
+        return;
+      }
+
       bool netEnabled = false;
+      bool conflictFlag = false;
 
       if (netPref) {
         bool conflict2 = false;
@@ -557,13 +646,22 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
         if (!conflict2) {
           try {
             final dnsMode = await _getDnsModeFromPrefs();
-            await AvServiceManager.startVpn(dnsMode: dnsMode);
-            netEnabled = true;
+            if (dnsMode != 'full') {
+              await AvServiceManager.startVpn(dnsMode: dnsMode);
+              await prefs.setString(_kVpnMode, 'dns');
+              netEnabled = true;
+            }
           } catch (_) {
             await prefs.setBool('networkProtectionEnabled', false);
+            await prefs.setString(_kVpnMode, 'off');
             netEnabled = false;
           }
+        } else {
+          conflictFlag = true;
+          await prefs.setString(_kVpnMode, 'off');
         }
+      } else {
+        await prefs.setString(_kVpnMode, 'off');
       }
 
       _startBackgroundScan();
@@ -571,11 +669,12 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       _scheduledEnableTimer = Timer(const Duration(minutes: 10), () async {
         await ScheduledScanScheduler.enableFromPrefs();
       });
+
       if (!mounted) return;
       setState(() {
         networkEnabled = netEnabled;
         vpnActive = netEnabled;
-        vpnConflict = !netEnabled && netPref ? true : false;
+        vpnConflict = conflictFlag;
         protectionPercent = netEnabled ? 1.0 : 0.6;
       });
     } finally {
@@ -589,12 +688,22 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     if (protectionEnabled) {
       _scheduledEnableTimer?.cancel();
       await ScheduledScanScheduler.disable();
-      await AvServiceManager.stopProtection();
-      await AvServiceManager.stopVpn();
+
+      try {
+        await AvServiceManager.stopProtection();
+      } catch (_) {}
+      try {
+        await AvServiceManager.stopVpn();
+      } catch (_) {}
+      try {
+        await _wgChan.invokeMethod("stopWireGuard");
+      } catch (_) {}
+
       _stopBackgroundScan();
 
       await prefs.setBool('protectionEnabled', false);
       await prefs.setBool('networkProtectionEnabled', false);
+      await prefs.setString(_kVpnMode, 'off');
 
       setState(() {
         protectionEnabled = false;
@@ -617,8 +726,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
       return;
     }
 
-    final conflict = await _isAnotherVpnActive();
-
     await AvServiceManager.startProtection();
     _startBackgroundScan();
 
@@ -626,13 +733,54 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     _scheduledEnableTimer = Timer(const Duration(minutes: 10), () async {
       await ScheduledScanScheduler.enableFromPrefs();
     });
+
+    final mode = prefs.getString(_kVpnMode) ?? 'off';
+
+    if (mode == 'full') {
+      final cfg = prefs.getString(_kWgConfig) ?? '';
+
+      try {
+        await AvServiceManager.stopVpn();
+      } catch (_) {}
+
+      bool ok = false;
+      if (cfg.isNotEmpty) {
+        try {
+          await _wgChan.invokeMethod("startWireGuard", {"config": cfg});
+          ok = true;
+        } catch (_) {
+          ok = false;
+        }
+      }
+
+      if (!ok) {
+        await prefs.setString(_kVpnMode, 'off');
+      }
+
+      await prefs.setBool('protectionEnabled', true);
+      await prefs.setBool('networkProtectionEnabled', false);
+
+      setState(() {
+        protectionEnabled = true;
+        networkEnabled = ok;
+        vpnActive = ok;
+        vpnConflict = false;
+        protectionPercent = ok ? 1.0 : 0.6;
+      });
+
+      return;
+    }
+
+    final conflict = await _isAnotherVpnActive();
     bool netEnabled = false;
 
     if (!conflict) {
       try {
         final dnsMode = await _getDnsModeFromPrefs();
-        await AvServiceManager.startVpn(dnsMode: dnsMode);
-        netEnabled = true;
+        if (dnsMode != 'full') {
+          await AvServiceManager.startVpn(dnsMode: dnsMode);
+          netEnabled = true;
+        }
       } catch (_) {
         netEnabled = false;
       }
@@ -640,17 +788,19 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
     await prefs.setBool('protectionEnabled', true);
     await prefs.setBool('networkProtectionEnabled', netEnabled);
+    await prefs.setString(_kVpnMode, netEnabled ? 'dns' : 'off');
 
     setState(() {
       protectionEnabled = true;
       networkEnabled = netEnabled;
       vpnActive = netEnabled;
-      vpnConflict = conflict;
+      vpnConflict = conflict && !netEnabled;
       protectionPercent = netEnabled ? 1.0 : 0.6;
     });
   }
 
   void _startBackgroundScan() => RealtimeProtectionService.start();
+
   void _stopBackgroundScan() => RealtimeProtectionService.stop();
 
   void _openScanDrawer() {
@@ -681,7 +831,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                       l10n.engineReadyBanner,
                       style: text.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -702,7 +855,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(const ScanScreen(startMode: ScanMode.full)),
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.full)),
                         );
                       },
                     ),
@@ -721,7 +875,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(const ScanScreen(startMode: ScanMode.smart)),
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.smart)),
                         );
                       },
                     ),
@@ -740,7 +895,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(const ScanScreen(startMode: ScanMode.rapid)),
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.rapid)),
                         );
                       },
                     ),
@@ -759,7 +915,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(const ScanScreen(startMode: ScanMode.installed)),
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.installed)),
                         );
                       },
                     ),
@@ -778,22 +935,26 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          animatedRoute(const ScanScreen(startMode: ScanMode.single)),
+                          animatedRoute(
+                              const ScanScreen(startMode: ScanMode.single)),
                         );
                       },
                     ),
                     const SizedBox(height: 10),
                     Divider(height: 1, color: theme.colorScheme.outlineVariant),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(l10n.useCloudAssistedScan, style: text.bodyMedium),
+                          Text(l10n.useCloudAssistedScan,
+                              style: text.bodyMedium),
                           Switch(
                             value: localCloudScan,
                             onChanged: (v) async {
-                              final prefs = await SharedPreferences.getInstance();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
                               await prefs.setBool('useCloudScan', v);
                               setSheetState(() => localCloudScan = v);
                               setState(() => useCloudScan = v);
@@ -815,6 +976,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _periodicScanTimer?.cancel();
     _popupController.dispose();
     _pulseController.dispose();
@@ -843,7 +1005,8 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
 
   String _stateLine1(AppLocalizations l10n) {
     if (!protectionEnabled) return l10n.stateOffLine1;
-    if (shizukuRtpEnabled && protectionEnabled) return l10n.stateAdvancedActiveLine1;
+    if (shizukuRtpEnabled && protectionEnabled)
+      return l10n.stateAdvancedActiveLine1;
     if (!networkEnabled || vpnConflict) return l10n.stateFileOnlyLine1;
     return l10n.stateProtectedLine1;
   }
@@ -856,22 +1019,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
   }
 
   LinearGradient _proHeaderGradient(ThemeData theme) {
-    final isPurple = theme.colorScheme.primary.value == const Color(0xFF7C5CFF).value;
-
-    if (isPurple) {
-      return const LinearGradient(
-        colors: [
-          Color(0xFF4A3A6A),
-          Color(0xFF2E2447),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-    }
-
     return const LinearGradient(
       colors: [
-        Color(0xFF8A6A1F),
+        Color(0xFFBFA14A),
+        Color(0xFF8C6B1F),
         Color(0xFF5A4616),
       ],
       begin: Alignment.topLeft,
@@ -915,16 +1066,38 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
               physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
-                  if (isPro && isDark && !hideGoldHeader)
+                  if (isPro && isDark && goldHeaderEnabled)
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: _proHeaderGradient(theme),
                       ),
-                      child: AvHomeTopBar(
-                        title: l10n.appName,
-                        isPro: isPro,
-                        proBadgeText: l10n.proBadge,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      theme.colorScheme.surface,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          AvHomeTopBar(
+                            title: l10n.appName,
+                            isPro: isPro,
+                            proBadgeText: l10n.proBadge,
+                          ),
+                        ],
                       ),
                     )
                   else
@@ -950,13 +1123,16 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                           icon: _stateIcon(),
                           line1: _stateLine1(l10n),
                           line2: _stateLine2(l10n),
-                          defsLine: defsVersion.isEmpty ? l10n.dbUpdating : l10n.dbVersionAutoUpdated(defsVersion),
+                          defsLine: defsVersion.isEmpty
+                              ? l10n.dbUpdating
+                              : l10n.dbVersionAutoUpdated(defsVersion),
                           scanButtonText: l10n.scanButton,
                           onOpenScanDrawer: _openScanDrawer,
                           showPulse: shizukuRtpEnabled && protectionEnabled,
                           pulseController: _pulseController,
                           pulseOpacity: (t) {
-                            final opacity = 0.35 + math.sin(t * math.pi * 2) * 0.25;
+                            final opacity =
+                                0.35 + math.sin(t * math.pi * 2) * 0.25;
                             return opacity.clamp(0.15, 0.6);
                           },
                         ),
@@ -969,20 +1145,21 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                               l10n.recommendedSectionTitle,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.onSurface.withOpacity(0.86),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.86),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 6),
                         AvHomeFeatureRow(
-                          title: l10n.featureNetworkProtection,
-                          description: l10n.recommendedNetworkProtectionDesc,
-                          icon: Icons.public_outlined,
+                          title: "Secure VPN",
+                          description: "Hide your IP and block unwanted content",
+                          icon: Icons.vpn_key_outlined,
                           color: theme.colorScheme.secondaryContainer,
                           onTap: () => Navigator.push(
                             context,
-                            animatedRoute(const NetworkProtectionScreen()),
+                            animatedRoute(const FullVpnModeScreen()),
                           ),
                         ),
                         const SizedBox(height: 12),

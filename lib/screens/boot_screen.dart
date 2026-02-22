@@ -16,6 +16,7 @@ class BootScreen extends StatefulWidget {
 }
 
 class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
+  String _selectedIcon = 'default';
   late AnimationController _pulseController;
   late AnimationController _fadeOutController;
   late Timer _textTimer;
@@ -52,7 +53,15 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
       setState(() => _currentIndex = (_currentIndex + 1) % _messages.length);
     });
 
+    _loadSelectedIcon();
     _initEngine();
+  }
+
+  Future<void> _loadSelectedIcon() async {
+    final prefs = await SharedPreferences.getInstance();
+    final icon = prefs.getString('selectedIcon') ?? 'default';
+    if (!mounted) return;
+    setState(() => _selectedIcon = icon);
   }
 
   Future<void> _initEngine() async {
@@ -115,9 +124,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
                       child: ClipOval(
                         clipBehavior: Clip.antiAlias,
                         child: Image.asset(
-                          (themeName == 'white' || themeName == 'emerald')
-                              ? 'assets/images/logo_light.png'
-                              : 'assets/images/logo_dark.png',
+                          'assets/icons/ic_launcher_$_selectedIcon.png',
                           fit: BoxFit.cover,
                         ),
                       ),

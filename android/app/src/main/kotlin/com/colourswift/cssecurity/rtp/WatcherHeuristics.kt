@@ -1,75 +1,51 @@
-package com.colourswift.cssecurity
-
-enum class WatcherVerdict {
-    IGNORE,
-    ESCALATE,
-    BLOCK
-}
-
-data class ProcessSnapshot(
-    val uid: Int,
-    val pid: Int,
-    val packageName: String,
-    val processName: String,
-    val hasComponentMatch: Boolean,
-    val hasForegroundService: Boolean,
-    val timestampMs: Long
-)
-
-data class HeuristicResult(
-    val verdict: WatcherVerdict,
-    val score: Int,
-    val reasons: List<String>
-)
+package com.colourswift.cssecurity.rtp
 
 object WatcherHeuristics {
 
-    private const val ESCALATE_THRESHOLD = 3
-
-    var logSink: ((String) -> Unit)? = null
-
-    private fun log(line: String) {
-        logSink?.invoke(line)
-    }
-
-    fun evaluate(s: ProcessSnapshot): HeuristicResult {
-        val reasons = mutableListOf<String>()
-        var score = 0
-
-        val now = System.currentTimeMillis()
-        val lifetimeSec = ((now - s.timestampMs) / 1000).coerceAtLeast(0)
-
-        if (!s.hasForegroundService) {
-            score += 1
-            reasons += "background"
-        }
-
-        if (!s.hasComponentMatch) {
-            score += 1
-            reasons += "headless"
-        }
-
-        val verdict =
-            if (score >= ESCALATE_THRESHOLD)
-                WatcherVerdict.ESCALATE
-            else
-                WatcherVerdict.IGNORE
-
-        log(
-            "[WATCHER] " +
-                    "pid=${s.pid} " +
-                    "uid=${s.uid} " +
-                    "pkg=${s.packageName} " +
-                    "proc=${s.processName} " +
-                    "life=${lifetimeSec}s " +
-                    "fg=${s.hasForegroundService} " +
-                    "verdict=$verdict"
+    fun ruleSet(): WatcherRuleSet {
+        val rules = listOf(
+            Rule(
+                id = "rw_like",
+                whenExpr = Expr.Atom(Key.RW_LIKE, negated = false),
+                addScore = 6,
+                reason = "Ransomware-like behavior"
+            ),
+            Rule(
+                id = "burst_write",
+                whenExpr = Expr.Num(NumKey.UID_WRITE_BURST_BYTES, NumOp.GTE, 80_000_000L),
+                addScore = 4,
+                reason = "Heavy sustained writes"
+            ),
+            Rule(
+                id = "burst_syscw",
+                whenExpr = Expr.Num(NumKey.UID_SYSCW_BURST, NumOp.GTE, 1200L),
+                addScore = 3,
+                reason = "High syscall write activity"
+            ),
+            Rule(
+                id = "thread_spike",
+                whenExpr = Expr.And(
+                    Expr.Num(NumKey.THREADS, NumOp.GTE, 40L),
+                    Expr.Num(NumKey.DELTA_CPU_JIFFIES, NumOp.GTE, 150L)
+                ),
+                addScore = 2,
+                reason = "Thread and CPU spike"
+            ),
+            Rule(
+                id = "pid_churn",
+                whenExpr = Expr.And(
+                    Expr.Num(NumKey.UID_PID_CHURN, NumOp.GTE, 6L),
+                    Expr.Num(NumKey.PID_LIFETIME_SEC, NumOp.LTE, 8L)
+                ),
+                addScore = 2,
+                reason = "Rapid process churn"
+            )
         )
 
-        return HeuristicResult(
-            verdict = verdict,
-            score = score,
-            reasons = reasons
+        return WatcherRuleSet(
+            escalateThreshold = 5,
+            blockThreshold = 8,
+            rules = rules
         )
     }
 }

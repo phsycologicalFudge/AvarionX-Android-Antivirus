@@ -1056,10 +1056,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsProCustomization => 'PRO Customization';
 
   @override
-  String get settingsProSubtitle => 'Remove ads and unlock themes and icons';
+  String get settingsProSubtitle =>
+      'Go ad free, unlock unlimited DNS, themes and icons';
 
   @override
-  String get settingsUnlockPro => 'Unlock PRO';
+  String get settingsUnlockPro => 'Unlock Premium';
 
   @override
   String get settingsProUnlocked => 'PRO mode unlocked';
@@ -1085,7 +1086,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsProSheetTitle => 'PRO Customization';
 
   @override
-  String get settingsHideGoldHeader => 'Hide gold header on Home Screen';
+  String get settingsHideGoldHeader =>
+      'Show gold header on Home Screen (dark themes)';
 
   @override
   String get settingsAppIcon => 'App Icon';
@@ -1097,6 +1099,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsSave => 'Save';
+
+  @override
+  String get settingsPremium => 'Premium';
+
+  @override
+  String get settingsUltimateSecurity => 'Ultimate Security';
+
+  @override
+  String get settingsSwitchPlan => 'Switch plan';
+
+  @override
+  String get settingsBestValue => 'Best value';
+
+  @override
+  String get settingsOneTime => 'One time';
+
+  @override
+  String get settingsPlanPriceLoading => 'Price loading...';
+
+  @override
+  String get settingsMonthly => 'Monthly';
+
+  @override
+  String get settingsYearly => 'Yearly';
+
+  @override
+  String get settingsLifetime => 'Lifetime';
+
+  @override
+  String get settingsSubscribeMonthly => 'Subscribe monthly';
+
+  @override
+  String get settingsSubscribeYearly => 'Subscribe yearly';
+
+  @override
+  String get settingsUnlockLifetime => 'Unlock lifetime';
+
+  @override
+  String get settingsProBenefitsTitle => 'Benefits';
+
+  @override
+  String get settingsUnlimitedDnsTitle => 'Unlimited DNS queries';
+
+  @override
+  String get settingsUnlimitedDnsBody =>
+      'Remove query limits and unlock full cloud filtering.';
+
+  @override
+  String get settingsThemesTitle => 'Themes';
+
+  @override
+  String get settingsThemesBody => 'Unlock premium themes and customization.';
+
+  @override
+  String get settingsIconCustomizationTitle => 'App icon customization';
+
+  @override
+  String get settingsIconCustomizationBody =>
+      'Change the app icon to match your style.';
+
+  @override
+  String get settingsScheduledScansTitle => 'Scheduled scans';
+
+  @override
+  String get settingsScheduledScansBody =>
+      'Unlock advanced scheduling and scan customization.';
+
+  @override
+  String get settingsProFinePrint =>
+      'Subscriptions renew unless canceled. You can manage or cancel anytime in Google Play. Lifetime is a one time purchase.';
 
   @override
   String get settingsSectionShizuku => 'Advanced Protection (Shizuku)';

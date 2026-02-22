@@ -1,6 +1,6 @@
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
-import 'package:colourswift_av/screens/vpn/NetworkProtectionScreen.dart';
+import 'package:colourswift_av/screens/vpn/dns/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/build_flags.dart';
@@ -11,6 +11,7 @@ import '../link checker/link_check_screen.dart';
 import '../scan/scan_limits_screen.dart';
 import '../scan/scheduled_scan_screen.dart';
 import '../terminal_screen.dart';
+import '../vpn/full_vpn_mode_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -43,11 +44,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     final items = <_ExploreItem>[
       _ExploreItem(
-        title: l10n.featureNetworkProtection,
-        icon: Icons.public_outlined,
-        subtitle: l10n.recommendedNetworkProtectionDesc,
+        title: "Secure VPN",
+        icon: Icons.vpn_key_outlined,
+        subtitle: "Hide your IP and block unwanted content",
         isProFeature: false,
-        builder: (_) => const NetworkProtectionScreen(),
+        builder: (_) => const FullVpnModeScreen(),
       ),
       _ExploreItem(
         title: l10n.featureLinkChecker,

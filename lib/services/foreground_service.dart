@@ -15,6 +15,12 @@ class ForegroundService {
     } catch (_) {}
   }
 
+  static Future<void> toast({required String text}) async {
+    try {
+      await _channel.invokeMethod('toast', {'text': text});
+    } catch (_) {}
+  }
+
   static Future<void> stop() async {
     try {
       await _channel.invokeMethod('stopService');

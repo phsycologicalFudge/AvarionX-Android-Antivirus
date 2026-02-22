@@ -1,0 +1,5 @@
+threshold escalate=3
+threshold block=6
+
+rule background: if !fg add 1 reason background
+rule headless: if !comp add 1 reason headless

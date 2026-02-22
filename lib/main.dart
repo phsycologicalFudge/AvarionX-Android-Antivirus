@@ -1,4 +1,5 @@
 import 'package:colourswift_av/services/defs_update_scheduler.dart';
+import 'package:colourswift_av/utils/route_observer.dart';
 import 'package:colourswift_av/widgets/antivirus_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -138,6 +139,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorObservers: [loggingRouteObserver],
       title: 'AvarionX Security',
       theme: themeManager.themeData,
       themeMode: themeManager.themeMode,

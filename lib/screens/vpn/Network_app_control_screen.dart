@@ -100,7 +100,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     await showDialog(
       context: context,
       builder: (ctx) {
-        final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && !_alwaysOn);
+        final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && _alwaysOnPkg != 'com.colourswift.cssecurity');
         final msg = other
             ? 'Another VPN is currently selected as Always-on.\n\nTo block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN'
             : 'To block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN';
@@ -224,7 +224,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
       try {
         final bytes = await _chan.invokeMethod('getAppIconPng', {'package': pkg});
         if (bytes == null) return null;
-        return Uint8List.fromList((bytes as Uint8List));
+        return bytes as Uint8List;
       } catch (_) {
         return null;
       }
@@ -236,7 +236,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
 
   Widget _statusBanner(ThemeData theme) {
     final ok = _isReadyForBlocking;
-    final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && !_alwaysOn);
+    final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && _alwaysOnPkg != 'com.colourswift.cssecurity');
 
     final text = ok
         ? 'App blocking is active.'

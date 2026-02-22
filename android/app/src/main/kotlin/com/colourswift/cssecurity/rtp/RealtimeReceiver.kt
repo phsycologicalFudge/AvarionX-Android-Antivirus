@@ -1,4 +1,4 @@
-package com.colourswift.cssecurity
+package com.colourswift.cssecurity.rtp
 
 import android.content.BroadcastReceiver
 import android.content.Context

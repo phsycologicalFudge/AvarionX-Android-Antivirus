@@ -2,8 +2,8 @@ package com.colourswift.cssecurity.vpn
 
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import com.colourswift.cssecurity.AppWifiRules
+import com.colourswift.cssecurity.CsDnsEvents
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.DatagramPacket
@@ -11,9 +11,9 @@ import java.net.DatagramSocket
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import com.colourswift.cssecurity.AppWifiRules
-import com.colourswift.cssecurity.CsDnsEvents
 
 object CsvpnTunnelLoop {
 
@@ -35,7 +35,7 @@ object CsvpnTunnelLoop {
 
         val ctx = service.applicationContext
 
-        while (!shouldStop() && (service as? CoroutineScope)?.isActive != false) {
+        while (!shouldStop() && coroutineContext.isActive) {
             buf.clear()
             val n = try {
                 input.read(buf)
@@ -70,6 +70,9 @@ object CsvpnTunnelLoop {
                     try {
                         dnsSocket.receive(replyPacket)
                     } catch (_: SocketTimeoutException) {
+                        val fail = DnsPacketUtils.buildNxDomain(dnsQuery) ?: return
+                        val rebuilt = DnsPacketUtils.rebuildDnsReply(packet, fail)
+                        output.write(ByteBuffer.wrap(rebuilt))
                         continue
                     }
 
@@ -131,6 +134,9 @@ object CsvpnTunnelLoop {
                 try {
                     dnsSocket.receive(replyPacket)
                 } catch (_: SocketTimeoutException) {
+                    val fail = DnsPacketUtils.buildNxDomain(dnsQuery) ?: return
+                    val rebuilt = DnsPacketUtils.rebuildDnsReply(packet, fail)
+                    output.write(ByteBuffer.wrap(rebuilt))
                     continue
                 }
 

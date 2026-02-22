@@ -179,11 +179,6 @@ class RealtimeProtectionService {
     _scheduledScanRunning = true;
 
     try {
-      await ForegroundService.showScanOngoing(
-        title: 'Scheduled scan running',
-        text: 'Starting...',
-      );
-
       final prefs = await SharedPreferences.getInstance();
       final useCloud = prefs.getBool('useCloudScan') ?? false;
       final mode = _scheduledModeFromPrefs(prefs);
@@ -194,6 +189,7 @@ class RealtimeProtectionService {
       _scheduledIsoPort = rp;
 
       _scheduledCmd = null;
+      _scheduledCancelRequested = false;
 
       _scheduledIso = await Isolate.spawn(
         _scheduledScanEntry,
@@ -206,9 +202,9 @@ class RealtimeProtectionService {
         debugName: 'scheduled_scan',
       );
 
-      int lastScanned = 0;
       int quarantined = 0;
       int quarantineFailed = 0;
+      int threatsSeen = 0;
 
       await for (final msg in rp) {
         if (msg is! Map) continue;
@@ -228,16 +224,8 @@ class RealtimeProtectionService {
           continue;
         }
 
-        if (t == 'progress') {
-          final scanned = (msg['scanned'] as int?) ?? lastScanned;
-          lastScanned = scanned;
-          await ForegroundService.updateScanOngoing(
-            text: 'Scanning... $scanned files',
-          );
-          continue;
-        }
-
         if (t == 'hit') {
+          threatsSeen++;
           final path = msg['path'];
           if (path is String && path.isNotEmpty) {
             try {
@@ -251,27 +239,23 @@ class RealtimeProtectionService {
         }
 
         if (t == 'done') {
-          final threats = (msg['threats'] as int?) ?? 0;
           final cancelled = msg['cancelled'] == true;
 
-          await ForegroundService.hideScanOngoing();
-
           if (cancelled) {
-            await ForegroundService.notify(
-              title: 'Scheduled Scan',
-              text: 'Cancelled',
-            );
+            await ForegroundService.toast(text: 'Scheduled scan cancelled');
           } else {
-            final text = quarantined > 0
-                ? (quarantineFailed > 0
-                ? '$quarantined quarantined, $quarantineFailed failed'
-                : '$quarantined quarantined')
-                : (threats > 0 ? '$threats detected, quarantine failed' : 'No threats detected');
+            if (threatsSeen <= 0) {
+              await ForegroundService.toast(text: 'Scheduled scan, no threats');
+            } else {
+              final text = quarantined > 0
+                  ? (quarantineFailed > 0 ? '$quarantined quarantined, $quarantineFailed failed' : '$quarantined quarantined')
+                  : 'Detected $threatsSeen threats, quarantine failed';
 
-            await ForegroundService.notify(
-              title: 'Scheduled Scan Complete',
-              text: text,
-            );
+              await ForegroundService.notify(
+                title: 'Threat Detected',
+                text: text,
+              );
+            }
           }
 
           break;
@@ -279,22 +263,12 @@ class RealtimeProtectionService {
 
         if (t == 'err') {
           final msgText = (msg['message'] as String?) ?? 'Scan failed to complete';
-          await ForegroundService.hideScanOngoing();
-          await ForegroundService.notify(
-            title: 'Scheduled Scan',
-            text: msgText,
-          );
+          await ForegroundService.toast(text: msgText);
           break;
         }
       }
     } catch (_) {
-      try {
-        await ForegroundService.hideScanOngoing();
-      } catch (_) {}
-      await ForegroundService.notify(
-        title: 'Scheduled Scan',
-        text: 'Scan failed to complete',
-      );
+      await ForegroundService.toast(text: 'Scan failed to complete');
     } finally {
       _scheduledCmd = null;
       _scheduledCancelRequested = false;
@@ -311,6 +285,32 @@ class RealtimeProtectionService {
 
       _scheduledScanRunning = false;
     }
+  }
+
+  static Future<void> cancelScheduledScan() async {
+    if (!_scheduledScanRunning) return;
+
+    _scheduledCancelRequested = true;
+
+    try {
+      _scheduledCmd?.send({'t': 'cancel'});
+    } catch (_) {}
+
+    try {
+      _scheduledIso?.kill(priority: Isolate.immediate);
+    } catch (_) {}
+
+    try {
+      _scheduledIsoPort?.close();
+    } catch (_) {}
+
+    _scheduledCmd = null;
+    _scheduledIsoPort = null;
+    _scheduledIso = null;
+
+    _scheduledScanRunning = false;
+
+    await ForegroundService.toast(text: 'Scheduled scan cancelled');
   }
 
   static ScanMode _scheduledModeFromPrefs(SharedPreferences prefs) {
@@ -353,35 +353,6 @@ class RealtimeProtectionService {
     return false;
   }
 
-  static Future<void> cancelScheduledScan() async {
-    if (!_scheduledScanRunning) return;
-
-    _scheduledCancelRequested = true;
-
-    try {
-      _scheduledCmd?.send({'t': 'cancel'});
-    } catch (_) {}
-
-    try {
-      _scheduledIso?.kill(priority: Isolate.immediate);
-    } catch (_) {}
-
-    try {
-      _scheduledIsoPort?.close();
-    } catch (_) {}
-
-    try {
-      await ForegroundService.hideScanOngoing();
-    } catch (_) {}
-
-    try {
-      await ForegroundService.notify(
-        title: 'Scheduled Scan',
-        text: 'Cancelled',
-      );
-    } catch (_) {}
-  }
-
   static Future<void> _scanSingleFile(String path) async {
     try {
       final f = File(path);
@@ -419,7 +390,13 @@ class RealtimeProtectionService {
         if (!ExclusionsStore.instance.isExcluded(path)) {
           await _handleDetection(path);
         }
+        _seen[path] = mtime;
+        await _saveIndex();
+        return;
       }
+
+      final fileName = p.basename(path);
+      await ForegroundService.toast(text: 'Clean: $fileName');
 
       _seen[path] = mtime;
       await _saveIndex();

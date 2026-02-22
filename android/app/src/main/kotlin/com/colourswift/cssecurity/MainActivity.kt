@@ -29,6 +29,11 @@ import java.util.concurrent.Executors
 import org.json.JSONArray
 import com.colourswift.cssecurity.https.CertService
 import com.colourswift.cssecurity.vpn.CSVpnService
+import com.colourswift.cssecurity.rtp.SystemWatcher
+import com.colourswift.cssecurity.rtp.RealtimeReceiver
+import com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService
+import com.colourswift.cssecurity.vpn.VpnModeSwitcher
+import androidx.core.content.ContextCompat
 
 object CsDnsEvents {
     private const val MAX = 800
@@ -214,6 +219,10 @@ class MainActivity : FlutterActivity() {
     private val SCAN_NOTIF_CHANNEL = "cssecurity_scan_status"
     private val EXTRA_CANCEL_SCHEDULED_SCAN = "cancel_scheduled_scan"
 
+    private val FULLVPN_CHAN = "cs_fullvpn"
+    private val REQ_VPN = 9911
+    private var pendingWgConfig: String? = null
+
     private val VPN_REQ_CODE = 777
     private var pendingVpnPermissionResult: MethodChannel.Result? = null
 
@@ -243,8 +252,18 @@ class MainActivity : FlutterActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQ_VPN) {
+            val cfg = pendingWgConfig
+            pendingWgConfig = null
+            if (resultCode == RESULT_OK && cfg != null) {
+                startWgService(cfg)
+            }
+            return
+        }
+
         if (requestCode != VPN_REQ_CODE) return
-        val ok = VpnService.prepare(this) == null
+        val ok = resultCode == RESULT_OK
         pendingVpnPermissionResult?.success(ok)
         pendingVpnPermissionResult = null
     }
@@ -252,6 +271,36 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         fe = flutterEngine
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, FULLVPN_CHAN).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "connect" -> {
+                    val cfg = call.arguments as? String ?: ""
+                    if (cfg.isBlank()) {
+                        result.error("bad_args", "missing config", null)
+                        return@setMethodCallHandler
+                    }
+
+                    val prep = VpnService.prepare(this)
+                    if (prep != null) {
+                        pendingWgConfig = cfg
+                        startActivityForResult(prep, REQ_VPN)
+                        result.success(mapOf("permission" to true, "started" to false))
+                        return@setMethodCallHandler
+                    }
+
+                    startWgService(cfg)
+                    result.success(mapOf("permission" to false, "started" to true))
+                }
+
+                "disconnect" -> {
+                    stopWgService()
+                    result.success(true)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
@@ -290,6 +339,14 @@ class MainActivity : FlutterActivity() {
                     }
                     "hideScanOngoing" -> {
                         hideScanOngoingNotification()
+                        result.success(true)
+                    }
+                    "toast" -> {
+                        val args = call.arguments as? Map<*, *>
+                        val text = args?.get("text") as? String ?: ""
+                        if (text.isNotBlank()) {
+                            android.widget.Toast.makeText(applicationContext, text, android.widget.Toast.LENGTH_SHORT).show()
+                        }
                         result.success(true)
                     }
                     else -> result.notImplemented()
@@ -417,8 +474,9 @@ class MainActivity : FlutterActivity() {
             }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_control")
-            .setMethodCallHandler { call, result ->
+            .setMethodCallHandler { call: MethodCall, result: MethodChannel.Result ->
                 when (call.method) {
+
                     "startVpn" -> {
                         val dnsMode = call.argument<String>("dns_mode") ?: "malware"
                         val intent = Intent(applicationContext, CSVpnService::class.java).apply {
@@ -430,15 +488,49 @@ class MainActivity : FlutterActivity() {
                         } else {
                             applicationContext.startService(intent)
                         }
-                        Log.i("CSMain", "Starting VPN with dns_mode=$dnsMode")
                         result.success(true)
                     }
+
                     "stopVpn" -> {
                         val intent = Intent(applicationContext, CSVpnService::class.java)
                         intent.action = CSVpnService.ACTION_STOP
                         applicationContext.startService(intent)
                         result.success(true)
                     }
+
+                    "startWireGuard" -> {
+                        val config = call.argument<String>("config") ?: ""
+                        if (config.isBlank()) {
+                            result.error("WG_CONFIG_MISSING", "WireGuard config missing", null)
+                            return@setMethodCallHandler
+                        }
+
+                        VpnModeSwitcher.stopDnsVpn(applicationContext)
+                        VpnModeSwitcher.stopWireGuard(applicationContext)
+
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            VpnModeSwitcher.startWireGuard(applicationContext, config)
+                        }, 650)
+
+                        result.success(true)
+                    }
+
+                    "stopWireGuard" -> {
+                        val intent = Intent(applicationContext, CSWireGuardService::class.java).apply {
+                            action = CSWireGuardService.ACTION_STOP
+                        }
+                        applicationContext.startService(intent)
+                        result.success(true)
+                    }
+
+                    "isWireGuardRunning" -> {
+                        result.success(CSWireGuardService.isRunning)
+                    }
+
+                    "isDnsVpnRunning" -> {
+                        result.success(CSVpnService.isRunning)
+                    }
+
                     else -> result.notImplemented()
                 }
             }
@@ -671,6 +763,26 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    private fun startWgService(cfg: String) {
+        val i = Intent(this, com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService::class.java).apply {
+            action = com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.ACTION_START
+            putExtra(com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.EXTRA_WG_CONFIG, cfg)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(this, i)
+        } else {
+            startService(i)
+        }
+    }
+
+    private fun stopWgService() {
+        val i = Intent(this, com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService::class.java).apply {
+            action = com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.ACTION_STOP
+        }
+        startService(i)
+    }
+
     private fun showNotification(title: String, text: String) {
         val channelId = "cssecurity_realtime_notify"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -682,13 +794,21 @@ class MainActivity : FlutterActivity() {
             channel.setShowBadge(false)
             manager.createNotificationChannel(channel)
         }
+
         val notification = Notification.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
             .build()
-        manager.notify(System.currentTimeMillis().toInt(), notification)
+
+        val id = when (title) {
+            "Scheduled Scan Complete" -> SCAN_NOTIF_ID + 1
+            "Scheduled Scan" -> SCAN_NOTIF_ID + 2
+            else -> System.currentTimeMillis().toInt()
+        }
+
+        manager.notify(id, notification)
     }
 
     private fun ensureScanChannel(mgr: NotificationManager) {
@@ -735,7 +855,7 @@ class MainActivity : FlutterActivity() {
         val n = Notification.Builder(this, SCAN_NOTIF_CHANNEL)
             .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentIntent(scanContentPendingIntent())

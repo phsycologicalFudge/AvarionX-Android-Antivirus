@@ -24,13 +24,31 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
 
   Future<void> _reload() async {
     setState(() => loading = true);
-    final data = await QuarantineService.listAll();
-    if (!mounted) return;
-    setState(() {
-      items = data;
-      selected.clear();
-      loading = false;
-    });
+
+    try {
+      final data = await QuarantineService.listAll()
+          .timeout(const Duration(seconds: 5));
+
+      if (!mounted) return;
+
+      setState(() {
+        items = data;
+        selected.clear();
+        loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        items = [];
+        selected.clear();
+        loading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Quarantine data corrupted. Resetting.')),
+      );
+    }
   }
 
   void _toggleAll() {

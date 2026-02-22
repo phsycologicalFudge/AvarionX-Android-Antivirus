@@ -151,7 +151,7 @@ abstract class AppLocalizations {
   /// No description provided for @proBadge.
   ///
   /// In en, this message translates to:
-  /// **'PRO'**
+  /// **'Premium'**
   String get proBadge;
 
   /// No description provided for @updateDbTitle.
@@ -2059,13 +2059,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsProSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Remove ads and unlock themes and icons'**
+  /// **'Go ad free, unlock unlimited DNS, themes and icons'**
   String get settingsProSubtitle;
 
   /// No description provided for @settingsUnlockPro.
   ///
   /// In en, this message translates to:
-  /// **'Unlock PRO'**
+  /// **'Unlock Premium'**
   String get settingsUnlockPro;
 
   /// No description provided for @settingsProUnlocked.
@@ -2113,7 +2113,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsHideGoldHeader.
   ///
   /// In en, this message translates to:
-  /// **'Hide gold header on Home Screen'**
+  /// **'Show gold header on Home Screen (dark themes)'**
   String get settingsHideGoldHeader;
 
   /// No description provided for @settingsAppIcon.
@@ -2133,6 +2133,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get settingsSave;
+
+  /// No description provided for @settingsPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get settingsPremium;
+
+  /// No description provided for @settingsUltimateSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultimate Security'**
+  String get settingsUltimateSecurity;
+
+  /// No description provided for @settingsSwitchPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch plan'**
+  String get settingsSwitchPlan;
+
+  /// No description provided for @settingsBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get settingsBestValue;
+
+  /// No description provided for @settingsOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'One time'**
+  String get settingsOneTime;
+
+  /// No description provided for @settingsPlanPriceLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Price loading...'**
+  String get settingsPlanPriceLoading;
+
+  /// No description provided for @settingsMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get settingsMonthly;
+
+  /// No description provided for @settingsYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get settingsYearly;
+
+  /// No description provided for @settingsLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get settingsLifetime;
+
+  /// No description provided for @settingsSubscribeMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe monthly'**
+  String get settingsSubscribeMonthly;
+
+  /// No description provided for @settingsSubscribeYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe yearly'**
+  String get settingsSubscribeYearly;
+
+  /// No description provided for @settingsUnlockLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock lifetime'**
+  String get settingsUnlockLifetime;
+
+  /// No description provided for @settingsProBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits'**
+  String get settingsProBenefitsTitle;
+
+  /// No description provided for @settingsUnlimitedDnsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited DNS queries'**
+  String get settingsUnlimitedDnsTitle;
+
+  /// No description provided for @settingsUnlimitedDnsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove query limits and unlock full cloud filtering.'**
+  String get settingsUnlimitedDnsBody;
+
+  /// No description provided for @settingsThemesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Themes'**
+  String get settingsThemesTitle;
+
+  /// No description provided for @settingsThemesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock premium themes and customization.'**
+  String get settingsThemesBody;
+
+  /// No description provided for @settingsIconCustomizationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App icon customization'**
+  String get settingsIconCustomizationTitle;
+
+  /// No description provided for @settingsIconCustomizationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the app icon to match your style.'**
+  String get settingsIconCustomizationBody;
+
+  /// No description provided for @settingsScheduledScansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled scans'**
+  String get settingsScheduledScansTitle;
+
+  /// No description provided for @settingsScheduledScansBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock advanced scheduling and scan customization.'**
+  String get settingsScheduledScansBody;
+
+  /// No description provided for @settingsProFinePrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions renew unless canceled. You can manage or cancel anytime in Google Play. Lifetime is a one time purchase.'**
+  String get settingsProFinePrint;
 
   /// No description provided for @settingsSectionShizuku.
   ///

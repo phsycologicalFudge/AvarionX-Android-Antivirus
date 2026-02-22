@@ -4,8 +4,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-import java.util.Properties
-        import java.io.FileInputStream
+import java.io.FileInputStream
+        import java.util.Properties
+        import org.gradle.api.JavaVersion
 
 val localSigningFile = rootProject.file("local-signing.properties")
 val hasLocalSigning = localSigningFile.exists()
@@ -21,12 +22,13 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
@@ -54,13 +56,11 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
-        }
+        getByName("debug") {}
 
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false
-
             if (hasLocalSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -68,15 +68,18 @@ android {
     }
 }
 
-
 flutter {
     source = "../.."
 }
 
 dependencies {
     implementation("com.android.billingclient:billing-ktx:6.2.0")
-
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.78.1")
     implementation(files("libs/aidl-release.aar"))
     implementation(files("libs/api-release.aar"))
     implementation(files("libs/provider-release.aar"))
+
+    implementation("com.wireguard.android:tunnel:1.0.20260102")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }

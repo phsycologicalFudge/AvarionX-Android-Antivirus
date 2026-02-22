@@ -1456,13 +1456,14 @@ class _ScanScreenState extends State<ScanScreen>
   static bool _isAllowedFile(String ext, int size) {
     const allowed = {
       'apk',
-      'xapk',
-      'apkm',
       'zip',
       'pdf',
-      'txt',
       'md',
       'exe',
+      'js',
+      'dex',
+      'html',
+      'jar',
     };
 
     if (!allowed.contains(ext)) return false;

@@ -35,7 +35,7 @@ object CsvpnNotifications {
             Notification.Builder(CSVpnService.instanceContext, PROTECTION_CHANNEL_ID)
                 .setContentTitle("AVarionX")
                 .setContentText("Protection active")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pi)
                 .setOnlyAlertOnce(true)
                 .setGroup(GROUP_KEY)
@@ -45,7 +45,7 @@ object CsvpnNotifications {
             Notification.Builder(CSVpnService.instanceContext)
                 .setContentTitle("AVarionX")
                 .setContentText("Protection active")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pi)
                 .setOnlyAlertOnce(true)
                 .setGroup(GROUP_KEY)
@@ -55,13 +55,13 @@ object CsvpnNotifications {
     }
 
     private fun buildVpnNotification(pi: PendingIntent): Notification {
-        val title = "Cloud Protection Active"
-        val text = "DNS Protection"
+        val title = "DNS Protection Active"
+        val text = "Device protected"
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(CSVpnService.instanceContext, PROTECTION_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pi)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
@@ -71,7 +71,7 @@ object CsvpnNotifications {
             Notification.Builder(CSVpnService.instanceContext)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pi)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)

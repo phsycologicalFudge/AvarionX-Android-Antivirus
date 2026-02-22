@@ -20,8 +20,12 @@ class QuarantineService {
   static Future<void> init() async {
     if (!Hive.isBoxOpen('quarantine')) {
       await Hive.initFlutter();
-      _box = await Hive.openBox('quarantine');
-    } else {
+      try {
+        _box = await Hive.openBox('quarantine');
+      } catch (_) {
+        await Hive.deleteBoxFromDisk('quarantine');
+        _box = await Hive.openBox('quarantine');
+      }    } else {
       _box = Hive.box('quarantine');
     }
     _key ??= await _loadOrCreateKey();
@@ -148,14 +152,46 @@ class QuarantineService {
 
   static Future<List<Map<String, dynamic>>> listAll() async {
     await init();
-    final keys = _box!.keys.toList();
+
     final out = <Map<String, dynamic>>[];
-    for (final k in keys) {
-      final v = Map<String, dynamic>.from(_box!.get(k));
-      out.add(v);
+
+    try {
+      final keys = _box!.keys.toList();
+
+      for (final k in keys) {
+        try {
+          final raw = _box!.get(k);
+          if (raw == null) continue;
+          if (raw is! Map) continue;
+
+          final v = Map<String, dynamic>.from(raw);
+
+          if (!v.containsKey('date')) continue;
+          if (!v.containsKey('id')) continue;
+
+          out.add(v);
+        } catch (_) {
+          continue;
+        }
+      }
+
+      out.sort((a, b) {
+        try {
+          return DateTime.parse(b['date'])
+              .compareTo(DateTime.parse(a['date']));
+        } catch (_) {
+          return 0;
+        }
+      });
+
+      return out;
+    } catch (_) {
+      try {
+        await _box!.clear();
+      } catch (_) {}
+
+      return [];
     }
-    out.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
-    return out;
   }
 
   static Future<void> restoreMany(Iterable<String> ids) async {

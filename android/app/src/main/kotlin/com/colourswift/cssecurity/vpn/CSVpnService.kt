@@ -24,6 +24,7 @@ class CSVpnService : VpnService() {
         private const val KEY_ALWAYS_ON_LOCKDOWN = "always_on_vpn_lockdown"
 
         @Volatile internal lateinit var instanceContext: Context
+        @Volatile var isRunning: Boolean = false
 
         fun snapshotLockdownState(ctx: Context): Map<String, Any?> {
             return try {
@@ -81,6 +82,7 @@ class CSVpnService : VpnService() {
             return START_NOT_STICKY
         }
 
+        isRunning = true
         CsvpnNotifications.startForegroundNotif(this)
 
         if (tun != null && reloadRules) {
@@ -150,7 +152,7 @@ class CSVpnService : VpnService() {
         tunnelJob = null
 
         try { stopForeground(true) } catch (_: Exception) {}
-
+        isRunning = false
         Log.i("CSVpn", "Tunnel stopped")
     }
 
@@ -163,6 +165,7 @@ class CSVpnService : VpnService() {
         stopTunnel()
         serviceJob.cancel()
         scope.cancel()
+        isRunning = false
         super.onDestroy()
     }
 }

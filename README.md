@@ -7,12 +7,14 @@
 Antivirus for Android, offering the same protection features as mainstream AVs without paid tiers.  
 Available on Google Play and GitHub.
 
-## Important: Ads
+## Important: Ad-Free Policy
 
-Short answer: Github builds do NOT include ads
+AvarionX Security is completely ad-free.
 
-Long answer:
-In order to fund the project, the play store version comes with ads. Users can purchase Pro to unlock additional app customisation features. To maintain balance between ecosystems, GitHub builds do not support Play Store Pro purchases. Sponsor certificates are used instead. However, Github builds will forever remain ad-free.
+Both the Google Play build and GitHub builds provide the same core protection features without advertisements.  
+The goal of the project is to provide strong security tools without intrusive monetisation or tracking.
+
+Optional support options exist for users who want to help fund development, but the core application experience remains the same across all builds.
 
 <br>
 
@@ -60,10 +62,10 @@ The app works fully offline, except when downloading malware definition updates 
 
 AvarionX uses a dual detection model:
 
-- **VX-Titanium**  
+- VX-Titanium  
   The local, on-device scanning engine used for offline detection and analysis.
 
-- **VX-Titanium Threat Intelligence (VTTI/VTTI Cloud)**  
+- VX-Titanium Threat Intelligence (VTTI/VTTI Cloud)  
   A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.  
   No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 
@@ -114,7 +116,7 @@ Supported categories:
 
 ### Plan Tiers
 
-- Free plan is split into two tiers. Github users are not restricted on blocklists, whilst Google play users cannot use the 'ad-block' lists. This was a difficult but needed choice to fund the project.
+- Free plan includes full access to all blocklist categories.
 - Pro plan enables unlimited queries per month.
 - Monthly query caps only apply to the free tier (300,000 queries/pm).
 
@@ -144,11 +146,11 @@ AvarionX makes use of publicly available threat intelligence and research datase
 
 Some external sources used during development and for reference include:
 
-- **OISD**  
+- OISD  
   A well maintained domain blocklists focused on ads, malware, and tracking domains.  
   https://oisd.nl/
 
-- **Malicious Domains (romainmarcoux)**  
+- Malicious Domains (romainmarcoux)  
   A Curated list of known malicious and suspicious domains used for research and validation purposes.  
   https://github.com/romainmarcoux/malicious-domains
 

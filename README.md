@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/1b8aca6b-1605-49d6-b542-76b99fb3438a" width="140" alt="ColourSwift logo">
+<img src="https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/blob/main/assets/icons/ic_launcher_neon.png" width="140" alt="ColourSwift logo">
 
 # AvarionX Security
 
@@ -88,31 +88,8 @@ https://github.com/phsycologicalFudge/ColourSwift_AV/releases
 </div>
 
 ## Network Protection
-
-The Android build includes a DNS-based Network Protection layer powered by VTTI and is hosted on Cloudflare. It works by using Android's VpnService API to intercept DNS queries ONLY.
-
-### How Does It Work?
-
-- No registration required at all.
-- DNS queries are sent to our cloud proxy.
-- The proxy evaluates each request against multiple blocklist categories.
-- Matching is performed using Bloom filters for high-speed, low-memory domain checks.
-- CNAME chain inspection is performed to detect malicious domains.
-- If a domain matches an enabled policy, it is blocked.
-- Otherwise, the query is securely forwarded to an upstream resolver.
-
-### Blocklists
-
-Supported categories:
-
-- Malware domains
-- Phishing
-- Ad domains
-- Tracker domains
-- Adult content
-- Gambling
-- Social media
-- Romain domain set
+The companion app 'AvarionX Secure VPN' can be downloaded here:
+https://github.com/phsycologicalFudge/AvarionX-VPN/
 
 ### Plan Tiers
 

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
-import 'package:colourswift_av/screens/vpn/dns/NetworkProtectionScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constants/build_flags.dart';
 import '../../constants/launch_flag.dart';
 import '../../services/defs_auto_update_service.dart';
@@ -19,15 +19,15 @@ import '../../services/pro_temp_service.dart';
 import '../../services/purchase_service.dart';
 import '../../services/realtime_protection_service.dart';
 import '../../services/scan_scheduler.dart';
+import '../../services/scan_session_service.dart';
 import '../../services/service_manager.dart';
 import '../../services/update_service.dart';
 import '../../translations/app_localizations.dart';
 import '../../utils/animated_route.dart';
-import '../../widgets/ads/ads_config.dart';
 import '../../widgets/antivirus_bridge.dart';
 import '../link checker/link_check_screen.dart';
+import '../pro/pro_screen.dart';
 import '../scan_ui_screen.dart';
-import '../vpn/full_vpn_mode_screen.dart';
 import 'av_home_feature_row.dart';
 import 'av_home_primary_control.dart';
 import 'av_home_top_bar.dart';
@@ -46,6 +46,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
     await _loadProStatus();
     await _loadDefsVersion();
   }
+
   bool protectionEnabled = false;
   double protectionPercent = 0.0;
   bool goldHeaderEnabled = false;
@@ -54,7 +55,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
   bool isPro = false;
   bool hasUpdate = false;
   bool useCloudScan = false;
-  bool networkEnabled = false;
   bool vpnActive = false;
   bool vpnConflict = false;
   bool autoUpdateDefs = false;
@@ -62,10 +62,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
   String? remoteVersion;
   String version = '';
   String defsVersion = '';
-
-  static const String _kVpnMode = 'cs_vpn_mode';
-  static const MethodChannel _wgChan = MethodChannel("cs_vpn_control");
-  static const String _kWgConfig = 'cs_wg_config_last';
 
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
@@ -75,6 +71,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   static const String _autoUpdateKey = 'defs_auto_update_enabled';
 
+  bool _proStatusResolved = false;
   bool _pressed = false;
   bool _loadingProtectionState = false;
   bool _updateLogShown = false;
@@ -99,9 +96,22 @@ class AvHomeScreenState extends State<AvHomeScreen>
   }
 
   Future<void> _loadProStatus() async {
-    final billingProFast = PurchaseService.isPro;
+    final prefs = await SharedPreferences.getInstance();
+
+    final cachedBillingPro = prefs.getBool('billing_is_pro') ?? false;
+    final cachedServerSignedIn =
+        prefs.getBool('billing_server_session_signed_in') ?? false;
+    final cachedServerPro =
+        prefs.getBool('billing_server_session_pro') ?? false;
+
+    final cachedEffective =
+        cachedBillingPro || (cachedServerSignedIn && cachedServerPro);
+
     if (mounted) {
-      setState(() => isPro = billingProFast);
+      setState(() {
+        isPro = cachedEffective;
+        _proStatusResolved = true;
+      });
     }
 
     await PurchaseService.restore();
@@ -111,7 +121,11 @@ class AvHomeScreenState extends State<AvHomeScreen>
     final effective = billingPro || gatePro;
 
     if (!mounted) return;
-    setState(() => isPro = effective);
+
+    setState(() {
+      isPro = effective;
+      _proStatusResolved = true;
+    });
   }
 
   Future<void> _togglePro() async {
@@ -131,40 +145,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
     setState(() {
       autoUpdateDefs = prefs.getBool('defs_auto_update_enabled') ?? false;
     });
-  }
-
-  Future<String> _getDnsModeFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final mode = prefs.getString(_kVpnMode) ?? 'off';
-    final basicMode = prefs.getString('networkDnsMode');
-
-    debugPrint('[CS VPN] _getDnsModeFromPrefs mode=$mode basicMode=$basicMode');
-
-    if (mode == 'full') return 'full';
-    if (basicMode == 'adult') return 'adult';
-    return 'malware';
-  }
-
-  Future<void> _loadCloudToggle() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      useCloudScan = prefs.getBool('useCloudScan') ?? false;
-    });
-  }
-
-  Future<bool> _isAnotherVpnActive() async {
-    final chan = MethodChannel("cs_vpn_state");
-    try {
-      return await chan.invokeMethod<bool>("isAnotherVpnActive") ?? false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestVpnPermission() async {
-    const chan = MethodChannel("cs_vpn_permission");
-    final ok = await chan.invokeMethod<bool>("prepareVpn");
-    return ok == true;
   }
 
   @override
@@ -474,7 +454,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
   Future<void> _loadHeaderPref() async {
     final prefs = await SharedPreferences.getInstance();
     setState(
-        () => goldHeaderEnabled = prefs.getBool('goldHeaderEnabled') ?? false);
+            () => goldHeaderEnabled = prefs.getBool('goldHeaderEnabled') ?? false);
   }
 
   Future<void> _checkForDatabaseUpdate() async {
@@ -521,16 +501,20 @@ class AvHomeScreenState extends State<AvHomeScreen>
     });
   }
 
+  Future<void> _loadCloudToggle() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      useCloudScan = prefs.getBool('useCloudScan') ?? false;
+    });
+  }
+
   Future<void> _loadProtectionState() async {
     if (_loadingProtectionState) return;
     _loadingProtectionState = true;
 
     try {
       final prefs = await SharedPreferences.getInstance();
-
       final rtp = prefs.getBool('protectionEnabled') ?? false;
-      final netPref = prefs.getBool('networkProtectionEnabled') ?? false;
-      final mode = prefs.getString(_kVpnMode) ?? 'off';
 
       if (!mounted) return;
 
@@ -538,32 +522,12 @@ class AvHomeScreenState extends State<AvHomeScreen>
         protectionEnabled = rtp;
         vpnConflict = false;
         vpnActive = false;
-        networkEnabled = false;
-
-        if (!rtp) {
-          protectionPercent = 0.0;
-        } else if (mode == 'full') {
-          protectionPercent = 1.0;
-          vpnActive = true;
-          networkEnabled = true;
-        } else if (netPref) {
-          protectionPercent = 1.0;
-          vpnActive = true;
-          networkEnabled = true;
-        } else {
-          protectionPercent = 0.6;
-        }
+        protectionPercent = rtp ? 1.0 : 0.0;
       });
 
       if (!rtp) {
         try {
           await AvServiceManager.stopProtection();
-        } catch (_) {}
-        try {
-          await AvServiceManager.stopVpn();
-        } catch (_) {}
-        try {
-          await _wgChan.invokeMethod("stopWireGuard");
         } catch (_) {}
         _stopBackgroundScan();
         _scheduledEnableTimer?.cancel();
@@ -576,14 +540,11 @@ class AvHomeScreenState extends State<AvHomeScreen>
       } catch (_) {
         await ScheduledScanScheduler.disable();
         await prefs.setBool('protectionEnabled', false);
-        await prefs.setBool('networkProtectionEnabled', false);
-        await prefs.setString(_kVpnMode, 'off');
 
         if (!mounted) return;
 
         setState(() {
           protectionEnabled = false;
-          networkEnabled = false;
           vpnActive = false;
           vpnConflict = false;
           protectionPercent = 0.0;
@@ -591,77 +552,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
         _stopBackgroundScan();
         return;
-      }
-
-      if (mode == 'full') {
-        final cfg = prefs.getString(_kWgConfig) ?? '';
-
-        try {
-          await AvServiceManager.stopVpn();
-        } catch (_) {}
-
-        bool ok = false;
-
-        if (cfg.isNotEmpty) {
-          try {
-            await _wgChan.invokeMethod("startWireGuard", {"config": cfg});
-            ok = true;
-          } catch (_) {
-            await prefs.setString(_kVpnMode, 'off');
-            ok = false;
-          }
-        } else {
-          await prefs.setString(_kVpnMode, 'off');
-          ok = false;
-        }
-
-        _startBackgroundScan();
-        _scheduledEnableTimer?.cancel();
-        _scheduledEnableTimer = Timer(const Duration(minutes: 10), () async {
-          await ScheduledScanScheduler.enableFromPrefs();
-        });
-
-        if (!mounted) return;
-        setState(() {
-          networkEnabled = ok;
-          vpnActive = ok;
-          vpnConflict = false;
-          protectionPercent = ok ? 1.0 : 0.6;
-        });
-
-        return;
-      }
-
-      bool netEnabled = false;
-      bool conflictFlag = false;
-
-      if (netPref) {
-        bool conflict2 = false;
-        try {
-          conflict2 = await _isAnotherVpnActive();
-        } catch (_) {
-          conflict2 = false;
-        }
-
-        if (!conflict2) {
-          try {
-            final dnsMode = await _getDnsModeFromPrefs();
-            if (dnsMode != 'full') {
-              await AvServiceManager.startVpn(dnsMode: dnsMode);
-              await prefs.setString(_kVpnMode, 'dns');
-              netEnabled = true;
-            }
-          } catch (_) {
-            await prefs.setBool('networkProtectionEnabled', false);
-            await prefs.setString(_kVpnMode, 'off');
-            netEnabled = false;
-          }
-        } else {
-          conflictFlag = true;
-          await prefs.setString(_kVpnMode, 'off');
-        }
-      } else {
-        await prefs.setString(_kVpnMode, 'off');
       }
 
       _startBackgroundScan();
@@ -672,10 +562,9 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
       if (!mounted) return;
       setState(() {
-        networkEnabled = netEnabled;
-        vpnActive = netEnabled;
-        vpnConflict = conflictFlag;
-        protectionPercent = netEnabled ? 1.0 : 0.6;
+        vpnActive = false;
+        vpnConflict = false;
+        protectionPercent = 1.0;
       });
     } finally {
       _loadingProtectionState = false;
@@ -692,22 +581,13 @@ class AvHomeScreenState extends State<AvHomeScreen>
       try {
         await AvServiceManager.stopProtection();
       } catch (_) {}
-      try {
-        await AvServiceManager.stopVpn();
-      } catch (_) {}
-      try {
-        await _wgChan.invokeMethod("stopWireGuard");
-      } catch (_) {}
 
       _stopBackgroundScan();
 
       await prefs.setBool('protectionEnabled', false);
-      await prefs.setBool('networkProtectionEnabled', false);
-      await prefs.setString(_kVpnMode, 'off');
 
       setState(() {
         protectionEnabled = false;
-        networkEnabled = false;
         vpnActive = false;
         vpnConflict = false;
         protectionPercent = 0.0;
@@ -721,11 +601,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
       return;
     }
 
-    final vpnOk = await requestVpnPermission();
-    if (!vpnOk) {
-      return;
-    }
-
     await AvServiceManager.startProtection();
     _startBackgroundScan();
 
@@ -734,74 +609,33 @@ class AvHomeScreenState extends State<AvHomeScreen>
       await ScheduledScanScheduler.enableFromPrefs();
     });
 
-    final mode = prefs.getString(_kVpnMode) ?? 'off';
-
-    if (mode == 'full') {
-      final cfg = prefs.getString(_kWgConfig) ?? '';
-
-      try {
-        await AvServiceManager.stopVpn();
-      } catch (_) {}
-
-      bool ok = false;
-      if (cfg.isNotEmpty) {
-        try {
-          await _wgChan.invokeMethod("startWireGuard", {"config": cfg});
-          ok = true;
-        } catch (_) {
-          ok = false;
-        }
-      }
-
-      if (!ok) {
-        await prefs.setString(_kVpnMode, 'off');
-      }
-
-      await prefs.setBool('protectionEnabled', true);
-      await prefs.setBool('networkProtectionEnabled', false);
-
-      setState(() {
-        protectionEnabled = true;
-        networkEnabled = ok;
-        vpnActive = ok;
-        vpnConflict = false;
-        protectionPercent = ok ? 1.0 : 0.6;
-      });
-
-      return;
-    }
-
-    final conflict = await _isAnotherVpnActive();
-    bool netEnabled = false;
-
-    if (!conflict) {
-      try {
-        final dnsMode = await _getDnsModeFromPrefs();
-        if (dnsMode != 'full') {
-          await AvServiceManager.startVpn(dnsMode: dnsMode);
-          netEnabled = true;
-        }
-      } catch (_) {
-        netEnabled = false;
-      }
-    }
-
     await prefs.setBool('protectionEnabled', true);
-    await prefs.setBool('networkProtectionEnabled', netEnabled);
-    await prefs.setString(_kVpnMode, netEnabled ? 'dns' : 'off');
 
     setState(() {
       protectionEnabled = true;
-      networkEnabled = netEnabled;
-      vpnActive = netEnabled;
-      vpnConflict = conflict && !netEnabled;
-      protectionPercent = netEnabled ? 1.0 : 0.6;
+      vpnActive = false;
+      vpnConflict = false;
+      protectionPercent = 1.0;
     });
   }
 
   void _startBackgroundScan() => RealtimeProtectionService.start();
 
   void _stopBackgroundScan() => RealtimeProtectionService.stop();
+
+  void _handleScanButton() {
+    final session = ScanSessionService.instance;
+
+    if (session.isScanning || session.cancelling) {
+      Navigator.push(
+        context,
+        animatedRoute(const ScanScreen()),
+      );
+      return;
+    }
+
+    _openScanDrawer();
+  }
 
   void _openScanDrawer() {
     final theme = Theme.of(context);
@@ -954,7 +788,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                             value: localCloudScan,
                             onChanged: (v) async {
                               final prefs =
-                                  await SharedPreferences.getInstance();
+                              await SharedPreferences.getInstance();
                               await prefs.setBool('useCloudScan', v);
                               setSheetState(() => localCloudScan = v);
                               setState(() => useCloudScan = v);
@@ -974,6 +808,23 @@ class AvHomeScreenState extends State<AvHomeScreen>
     );
   }
 
+  Future<void> _openVpnAppStoreListing() async {
+    const pkg = 'com.colourswift.avarionxvpn';
+    final market = Uri.parse('market://details?id=$pkg');
+    final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
+
+    final okMarket = await canLaunchUrl(market);
+    if (okMarket) {
+      await launchUrl(market, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    final okWeb = await canLaunchUrl(web);
+    if (okWeb) {
+      await launchUrl(web, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -985,21 +836,17 @@ class AvHomeScreenState extends State<AvHomeScreen>
   }
 
   double _ringValue() {
-    if (!protectionEnabled) return 0.0;
-    if (!networkEnabled || vpnConflict) return 0.6;
-    return 1.0;
+    return protectionEnabled ? 1.0 : 0.0;
   }
 
   Color _stateAccent(ThemeData theme) {
     if (!protectionEnabled) return Colors.redAccent;
-    if (!networkEnabled || vpnConflict) return Colors.orangeAccent;
     return Colors.greenAccent;
   }
 
   IconData _stateIcon() {
     if (!protectionEnabled) return Icons.shield_outlined;
     if (shizukuRtpEnabled) return Icons.gavel_rounded;
-    if (!networkEnabled || vpnConflict) return Icons.shield_moon_rounded;
     return Icons.verified_user;
   }
 
@@ -1007,15 +854,14 @@ class AvHomeScreenState extends State<AvHomeScreen>
     if (!protectionEnabled) return l10n.stateOffLine1;
     if (shizukuRtpEnabled && protectionEnabled)
       return l10n.stateAdvancedActiveLine1;
-    if (!networkEnabled || vpnConflict) return l10n.stateFileOnlyLine1;
-    return l10n.stateProtectedLine1;
+    if (vpnConflict) return l10n.stateVpnConflictLine2;
+    return l10n.stateFileOnlyLine1;
   }
 
   String _stateLine2(AppLocalizations l10n) {
     if (!protectionEnabled) return l10n.stateOffLine2;
-    if (!networkEnabled) return l10n.stateFileOnlyLine2;
     if (vpnConflict) return l10n.stateVpnConflictLine2;
-    return l10n.stateProtectedLine2;
+    return l10n.stateFileOnlyLine2;
   }
 
   LinearGradient _proHeaderGradient(ThemeData theme) {
@@ -1066,46 +912,83 @@ class AvHomeScreenState extends State<AvHomeScreen>
               physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
-                  if (isPro && isDark && goldHeaderEnabled)
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: _proHeaderGradient(theme),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      theme.colorScheme.surface,
-                                    ],
+                  Stack(
+                    children: [
+                      if (isPro && isDark && goldHeaderEnabled)
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: _proHeaderGradient(theme),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          theme.colorScheme.surface,
+                                        ],
+                                      ),
+                                    ),
                                   ),
+                                ),
+                              ),
+                              AvHomeTopBar(
+                                title: l10n.appName,
+                                isPro: isPro,
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        AvHomeTopBar(
+                          title: l10n.appName,
+                          isPro: isPro,
+                        ),
+                      if (_proStatusResolved && !isPro)
+                        Positioned(
+                          top: 10,
+                          right: 12,
+                          child: SizedBox(
+                            height: 34,
+                            child: FilledButton(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFFB8860B),
+                                foregroundColor: Colors.white,
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final res = await Navigator.push(
+                                  context,
+                                  animatedRoute(const ProScreen()),
+                                );
+                                if (res == true) {
+                                  await _loadProStatus();
+                                }
+                              },
+                              child: Text(
+                                l10n.homeUpgrade,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2,
                                 ),
                               ),
                             ),
                           ),
-                          AvHomeTopBar(
-                            title: l10n.appName,
-                            isPro: isPro,
-                            proBadgeText: l10n.proBadge,
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    AvHomeTopBar(
-                      title: l10n.appName,
-                      isPro: isPro,
-                      proBadgeText: l10n.proBadge,
-                    ),
+                        ),
+                    ],
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
                     child: Column(
@@ -1127,7 +1010,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                               ? l10n.dbUpdating
                               : l10n.dbVersionAutoUpdated(defsVersion),
                           scanButtonText: l10n.scanButton,
-                          onOpenScanDrawer: _openScanDrawer,
+                          onOpenScanDrawer: _handleScanButton,
                           showPulse: shizukuRtpEnabled && protectionEnabled,
                           pulseController: _pulseController,
                           pulseOpacity: (t) {
@@ -1153,14 +1036,11 @@ class AvHomeScreenState extends State<AvHomeScreen>
                         ),
                         const SizedBox(height: 6),
                         AvHomeFeatureRow(
-                          title: "Secure VPN",
-                          description: "Hide your IP and block unwanted content",
-                          icon: Icons.vpn_key_outlined,
+                          title: l10n.homeFeatureSecureVpnTitle,
+                          description: l10n.homeFeatureSecureVpnDesc,
+                          icon: Icons.vpn_lock,
                           color: theme.colorScheme.secondaryContainer,
-                          onTap: () => Navigator.push(
-                            context,
-                            animatedRoute(const FullVpnModeScreen()),
-                          ),
+                          onTap: _openVpnAppStoreListing,
                         ),
                         const SizedBox(height: 12),
                         AvHomeFeatureRow(
@@ -1173,12 +1053,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
                             animatedRoute(const CleanerScreen()),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        if (!isPro && kEnableAds)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 8, bottom: 4),
-                            child: AdBanner(),
-                          ),
                       ],
                     ),
                   ),

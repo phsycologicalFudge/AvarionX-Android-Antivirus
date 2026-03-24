@@ -11,140 +11,16 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/cache_manager.dart';
 import '../services/cloud_helper_service.dart';
 import '../services/exclusion_service.dart';
+import '../services/foreground_service.dart';
 import '../services/quarantine_service.dart';
+import '../services/scan api/headless_scan.dart';
+import '../services/scan_session_service.dart';
 import '../utils/hash_cache_worker.dart';
-import '../utils/worker_hash_isolate.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'exclusions/exclusion_manager_screen.dart';
 import 'main_shell.dart';
-
-@pragma('vm:entry-point')
-void fullDeviceScanEntry(List<dynamic> args) {
-  final SendPort root = args[0] as SendPort;
-  final RootIsolateToken? token = args[1] as RootIsolateToken?;
-
-  if (token != null) {
-    BackgroundIsolateBinaryMessenger.ensureInitialized(token);
-  }
-
-  final port = ReceivePort();
-  root.send(port.sendPort);
-
-  port.listen((msg) async {
-    final SendPort ui = msg[0] as SendPort;
-    final String dirPath = msg[1] as String;
-
-    ui.send({'t': 'start', 'path': dirPath});
-
-    AntivirusBridge? bridge;
-    try {
-      bridge = AntivirusBridge(enableScanLogs: false);
-    } catch (_) {
-      bridge = null;
-    }
-
-    final rootDir = Directory(dirPath);
-    int scanned = 0;
-
-    try {
-      await for (final e in rootDir
-          .list(recursive: true, followLinks: false)
-          .handleError((error) {
-        if (error is PathAccessException) return;
-        if (error is FileSystemException) return;
-        throw error;
-      })) {
-        if (e is! File) continue;
-
-        final path = e.path;
-
-        ui.send({'t': 'enum', 'path': path});
-        scanned++;
-
-        if (bridge == null) continue;
-
-        try {
-          final raw = bridge.scanFile(path);
-          final decoded = jsonDecode(raw);
-          final hits = decoded['hits'] as Map?;
-          if (hits == null || hits.isEmpty) continue;
-
-          final signals = <String>[];
-          for (final v in hits.values) {
-            if (v is List) {
-              for (final s in v) {
-                if (s is String) signals.add(s);
-              }
-            }
-          }
-
-          String label = 'Suspicious.Item';
-          double confidence = 0.0;
-
-          if (signals.contains('HashMatch') ||
-              signals.any((s) => s.startsWith('SignerMatch('))) {
-            label = 'Found in malware database';
-            confidence = 1.0;
-          } else {
-            final yara = signals.firstWhere(
-                  (s) =>
-              !s.startsWith('ML_Detection(') &&
-                  s != 'HashMatch' &&
-                  !s.startsWith('SignerMatch('),
-              orElse: () => '',
-            );
-
-            if (yara.isNotEmpty) {
-              label = _normalizeFamily(yara);
-              confidence = 0.95;
-            } else {
-              final ml = signals.firstWhere(
-                    (s) => s.startsWith('ML_Detection('),
-                orElse: () => '',
-              );
-
-              if (ml.isNotEmpty) {
-                label = 'Generic.Suspicious';
-                confidence = 0.80;
-              } else {
-                label = 'Suspicious.Item';
-                confidence = 0.70;
-              }
-            }
-          }
-
-          ui.send({
-            't': 'hit',
-            'path': path,
-            'res': {
-              'label': label,
-              'confidence': confidence,
-              'signals': signals,
-            },
-          });
-        } catch (_) {}
-      }
-    } catch (e) {
-      ui.send({'t': 'err', 'e': e.toString()});
-    } finally {
-      ui.send({'t': 'done', 'count': scanned});
-    }
-  });
-}
-
-String _normalizeFamily(String raw) {
-  final r = raw.toLowerCase();
-  if (r.contains('miner')) return 'Android.Miner';
-  if (r.contains('dropper')) return 'Android.Dropper';
-  if (r.contains('banker')) return 'Android.Banker';
-  if (r.contains('spyware')) return 'Android.Spyware';
-  if (r.contains('adware')) return 'Android.Adware';
-  if (r.contains('sms')) return 'Android.SMS.Fraud';
-  return 'Generic.Malware';
-}
 
 class LogBuffer {
   static final List<String> _messages = [];
@@ -153,7 +29,8 @@ class LogBuffer {
 
   static void add(String msg) {
     final now = DateTime.now();
-    final time = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    final time =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
     _messages.add('[$time] $msg');
     if (_messages.length > 300) _messages.removeAt(0);
 
@@ -212,9 +89,8 @@ DetectionResult _detectionFromRes({
   return DetectionResult(
     name: name,
     label: map['label']?.toString() ?? 'Suspicious.Item',
-    confidence: map['confidence'] is num
-        ? (map['confidence'] as num).toDouble()
-        : 0.0,
+    confidence:
+    map['confidence'] is num ? (map['confidence'] as num).toDouble() : 0.0,
     signals: List<String>.from(map['signals'] ?? const <String>[]),
   );
 }
@@ -358,6 +234,17 @@ class ScanWorker {
   }
 }
 
+String _normalizeFamily(String raw) {
+  final r = raw.toLowerCase();
+  if (r.contains('miner')) return 'Android.Miner';
+  if (r.contains('dropper')) return 'Android.Dropper';
+  if (r.contains('banker')) return 'Android.Banker';
+  if (r.contains('spyware')) return 'Android.Spyware';
+  if (r.contains('adware')) return 'Android.Adware';
+  if (r.contains('sms')) return 'Android.SMS.Fraud';
+  return 'Generic.Malware';
+}
+
 class ScanScreen extends StatefulWidget {
   final ScanMode? startMode;
   const ScanScreen({super.key, this.startMode});
@@ -396,13 +283,18 @@ class _ScanScreenState extends State<ScanScreen>
   List<DetectionResult> infected = [];
   bool? singleResult;
 
-  Isolate? _fullIso;
-  ReceivePort? _fullUiPort;
-
   ScanWorker? _scanWorker;
   Future<ScanWorker>? _scanWorkerFuture;
 
+  bool _headlessCancelRequested = false;
+  bool _headlessDetached = false;
+  Future<void>? _activeScanFuture;
+  final ScanSessionService _session = ScanSessionService.instance;
+  late final VoidCallback _sessionListener;
+
   late AnimationController _pulse;
+  final Stopwatch _uiProgressThrottle = Stopwatch();
+  final Stopwatch _notifProgressThrottle = Stopwatch();
 
   static const MethodChannel _apkFast = MethodChannel("apk_fast");
   static const MethodChannel _fastApps = MethodChannel("cs.fastapps");
@@ -458,6 +350,295 @@ class _ScanScreenState extends State<ScanScreen>
     });
   }
 
+  bool _isHeadlessMultiMode(ScanMode m) {
+    return m == ScanMode.smart ||
+        m == ScanMode.rapid ||
+        m == ScanMode.installed ||
+        m == ScanMode.full;
+  }
+
+  String _notificationText() {
+    if (mode == ScanMode.full) {
+      if (currentFile.isEmpty) return 'Scanned: $scanned items';
+      return 'Scanned: $scanned • $currentFile';
+    }
+
+    if (total > 0) {
+      if (currentFile.isEmpty) return '$scanned / $total';
+      return '$scanned / $total • $currentFile';
+    }
+
+    if (currentFile.isEmpty) return 'Preparing scan...';
+    return currentFile;
+  }
+
+  Future<void> _showOngoingScanNotification() async {
+    await ForegroundService.showScanOngoing(
+      title: _modeTitle(),
+      text: _notificationText(),
+    );
+  }
+
+  Future<void> _updateOngoingScanNotification() async {
+    await ForegroundService.updateScanOngoing(
+      title: _modeTitle(),
+      text: _notificationText(),
+    );
+  }
+
+  Future<void> _finishOngoingScanNotification({
+    required bool hasThreats,
+    required bool wasCancelled,
+  }) async {
+    await ForegroundService.hideScanOngoing();
+
+    if (wasCancelled) {
+      await ForegroundService.toast(text: 'Scan cancelled');
+      return;
+    }
+
+    await ForegroundService.notify(
+      title: 'Scan complete',
+      text: hasThreats
+          ? '${infected.length} suspicious item${infected.length == 1 ? '' : 's'} found'
+          : 'No threats detected',
+    );
+  }
+
+  void _appendScanLog(String line) {
+    LogBuffer.add(line);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _safeScrollToEnd();
+    });
+  }
+
+  void _applyHeadlessEvent(HeadlessScanEvent e) {
+    final name = e.name ?? (e.path?.split('/').last ?? '');
+    final uiUpdateDue = !_uiProgressThrottle.isRunning ||
+        _uiProgressThrottle.elapsedMilliseconds >= 120;
+
+    if (e.type == 'start') {
+      if (!_uiProgressThrottle.isRunning) _uiProgressThrottle.start();
+      if (!_notifProgressThrottle.isRunning) _notifProgressThrottle.start();
+      _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'enumerated' || e.type == 'empty') {
+      final nextTotal = e.total ?? 0;
+
+      total = nextTotal;
+      if (e.type == 'empty') {
+        _appendScanLog('[ENGINE] No readable files found.');
+        if (mounted) {
+          setState(() {
+            state = ScanState.empty;
+          });
+        } else {
+          state = ScanState.empty;
+        }
+      } else {
+        _appendScanLog('[ENGINE] Files enumerated: ${e.total ?? 0}');
+        if (mounted) {
+          setState(() {
+            total = nextTotal;
+          });
+        }
+      }
+      _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'current' || e.type == 'progress') {
+      if (e.scanned != null) scanned = e.scanned!;
+      if (e.total != null) total = e.total!;
+      if (name.isNotEmpty) currentFile = name;
+
+      if (mounted && uiUpdateDue) {
+        _uiProgressThrottle
+          ..reset()
+          ..start();
+        setState(() {});
+      }
+
+      if (!_notifProgressThrottle.isRunning ||
+          _notifProgressThrottle.elapsedMilliseconds >= 700) {
+        _notifProgressThrottle
+          ..reset()
+          ..start();
+        unawaited(_updateOngoingScanNotification());
+      }
+      _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'clean') {
+      if (e.scanned != null) scanned = e.scanned!;
+      if (e.total != null) total = e.total!;
+      if (name.isNotEmpty) currentFile = name;
+
+      if (mode == ScanMode.full) {
+        fullCleanCount++;
+      } else if (name.isNotEmpty) {
+        clean.add(name);
+      }
+
+      _appendScanLog('[CLEAN] $name');
+
+      if (mounted && uiUpdateDue) {
+        _uiProgressThrottle
+          ..reset()
+          ..start();
+        setState(() {});
+      }
+      _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'hit') {
+      if (e.scanned != null) scanned = e.scanned!;
+      if (e.total != null) total = e.total!;
+      if (name.isNotEmpty) currentFile = name;
+
+      infected.add(
+        DetectionResult(
+          name: name,
+          label: e.label ?? 'Suspicious.Item',
+          confidence: e.confidence ?? 0.0,
+          signals: e.signals ?? const [],
+        ),
+      );
+
+      _appendScanLog('[THREAT] Quarantined $name');
+
+      if (mounted) {
+        setState(() {});
+      }
+      _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'err') {
+      final message = e.message ?? 'Unknown error';
+      _appendScanLog('[ERROR] $message');
+      _pushSessionSnapshot();
+      return;
+    }
+  }
+
+  Future<void> _runHeadlessMultiScan(ScanMode m) async {
+    _headlessCancelRequested = false;
+    _headlessDetached = false;
+
+    if (mounted) {
+      setState(() {
+        mode = m;
+        state = ScanState.scanning;
+        scanned = 0;
+        total = 0;
+        fullCleanCount = 0;
+        currentFile = '';
+        clean.clear();
+        infected.clear();
+        singleResult = null;
+        cancellingUi = false;
+      });
+    } else {
+      mode = m;
+      state = ScanState.scanning;
+      scanned = 0;
+      total = 0;
+      fullCleanCount = 0;
+      currentFile = '';
+      clean.clear();
+      infected.clear();
+      singleResult = null;
+      cancellingUi = false;
+    }
+
+    _session.start(modeName: _modeName(m));
+
+    LogBuffer.clear();
+    _appendScanLog('[SCAN INIT] ${m.name}');
+    await _showOngoingScanNotification();
+
+    _uiProgressThrottle
+      ..reset()
+      ..start();
+    _notifProgressThrottle
+      ..reset()
+      ..start();
+
+    _pushSessionSnapshot();
+
+    final future = runHeadlessScan(
+      mode: m,
+      useCloud: useCloudScan,
+      quarantine: true,
+      token: ServicesBinding.rootIsolateToken,
+      isCancelled: () => _headlessCancelRequested,
+      onEvent: _applyHeadlessEvent,
+    );
+
+    _activeScanFuture = future.then((result) async {
+      scanned = result.scanned;
+      if (result.total > 0) total = result.total;
+      if (mode == ScanMode.full) {
+        fullCleanCount = result.clean;
+      }
+
+      await _finishOngoingScanNotification(
+        hasThreats: result.threats > 0,
+        wasCancelled: result.cancelled,
+      );
+
+      if (result.cancelled) {
+        _appendScanLog('[USER] Cancelled');
+        _session.clear();
+        return;
+      }
+
+      _appendScanLog(
+        '[SUMMARY] ${result.threats} suspicious • ${result.clean} clean',
+      );
+
+      if (mounted) {
+        if (result.scanned == 0 && result.threats == 0 && result.clean == 0) {
+          setState(() {
+            state = ScanState.empty;
+          });
+        } else {
+          setState(() {
+            state = ScanState.result;
+          });
+        }
+      } else {
+        if (result.scanned == 0 && result.threats == 0 && result.clean == 0) {
+          state = ScanState.empty;
+        } else {
+          state = ScanState.result;
+        }
+      }
+
+      _pushSessionSnapshot();
+    }).catchError((_) async {
+      await ForegroundService.hideScanOngoing();
+      _appendScanLog('[ERROR] Scan failed to complete');
+      if (mounted) {
+        setState(() {
+          state = ScanState.empty;
+        });
+      } else {
+        state = ScanState.empty;
+      }
+      _pushSessionSnapshot();
+    }).whenComplete(() {
+      _activeScanFuture = null;
+    });
+
+    await _activeScanFuture;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -472,7 +653,15 @@ class _ScanScreenState extends State<ScanScreen>
       apiKey: '23JVO3ojo23oO3O423rrTR',
     );
 
+    _sessionListener = _onSessionChanged;
+    _session.addListener(_sessionListener);
+
     _loadCloud();
+
+    if (_session.isScanning || _session.cancelling) {
+      _pullSessionSnapshot();
+      return;
+    }
 
     if (widget.startMode != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -484,17 +673,13 @@ class _ScanScreenState extends State<ScanScreen>
 
   @override
   void dispose() {
-    _killWorker();
+    _session.removeListener(_sessionListener);
 
-    try {
-      _fullUiPort?.close();
-    } catch (_) {}
-    _fullUiPort = null;
-
-    try {
-      _fullIso?.kill(priority: Isolate.immediate);
-    } catch (_) {}
-    _fullIso = null;
+    if (!_isHeadlessMultiMode(mode) || state != ScanState.scanning) {
+      _killWorker();
+    } else {
+      _headlessDetached = true;
+    }
 
     _pulse.dispose();
     _logScroll.dispose();
@@ -502,6 +687,128 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   double get progress => total == 0 ? 0 : scanned / total;
+
+  String _modeName(ScanMode m) {
+    switch (m) {
+      case ScanMode.smart:
+        return 'smart';
+      case ScanMode.single:
+        return 'single';
+      case ScanMode.rapid:
+        return 'rapid';
+      case ScanMode.installed:
+        return 'installed';
+      case ScanMode.full:
+        return 'full';
+      case ScanMode.none:
+        return 'none';
+    }
+  }
+
+  String _stateName(ScanState s) {
+    switch (s) {
+      case ScanState.idle:
+        return 'idle';
+      case ScanState.scanning:
+        return 'scanning';
+      case ScanState.result:
+        return 'result';
+      case ScanState.empty:
+        return 'empty';
+    }
+  }
+
+  ScanMode _scanModeFromName(String name) {
+    switch (name) {
+      case 'smart':
+        return ScanMode.smart;
+      case 'single':
+        return ScanMode.single;
+      case 'rapid':
+        return ScanMode.rapid;
+      case 'installed':
+        return ScanMode.installed;
+      case 'full':
+        return ScanMode.full;
+      default:
+        return ScanMode.none;
+    }
+  }
+
+  ScanState _scanStateFromName(String name) {
+    switch (name) {
+      case 'scanning':
+        return ScanState.scanning;
+      case 'result':
+        return ScanState.result;
+      case 'empty':
+        return ScanState.empty;
+      default:
+        return ScanState.idle;
+    }
+  }
+
+  List<Map<String, dynamic>> _infectedToSession() {
+    return infected
+        .map((d) => {
+      'name': d.name,
+      'label': d.label,
+      'confidence': d.confidence,
+      'signals': List<String>.from(d.signals),
+    })
+        .toList();
+  }
+
+  List<DetectionResult> _infectedFromSession() {
+    return _session.infected
+        .map(
+          (m) => DetectionResult(
+        name: m['name']?.toString() ?? '',
+        label: m['label']?.toString() ?? 'Suspicious.Item',
+        confidence: m['confidence'] is num
+            ? (m['confidence'] as num).toDouble()
+            : 0.0,
+        signals: List<String>.from(m['signals'] ?? const <String>[]),
+      ),
+    )
+        .toList();
+  }
+
+  void _pushSessionSnapshot() {
+    _session.update(
+      modeName: _modeName(mode),
+      stateName: _stateName(state),
+      scanned: scanned,
+      total: total,
+      fullCleanCount: fullCleanCount,
+      currentFile: currentFile,
+      clean: List<String>.from(clean),
+      infected: _infectedToSession(),
+      singleResult: singleResult,
+      isScanning: state == ScanState.scanning,
+      cancelling: cancellingUi,
+    );
+  }
+
+  void _pullSessionSnapshot() {
+    mode = _scanModeFromName(_session.modeName);
+    state = _scanStateFromName(_session.stateName);
+    scanned = _session.scanned;
+    total = _session.total;
+    fullCleanCount = _session.fullCleanCount;
+    currentFile = _session.currentFile;
+    clean = List<String>.from(_session.clean);
+    infected = _infectedFromSession();
+    singleResult = _session.singleResult;
+    cancellingUi = _session.cancelling;
+  }
+
+  void _onSessionChanged() {
+    if (!mounted) return;
+    setState(() {
+      _pullSessionSnapshot();
+    });
+  }
 
   void _cancelScan() async {
     if (cancelled || cancellingUi) return;
@@ -512,23 +819,23 @@ class _ScanScreenState extends State<ScanScreen>
       setState(() {
         cancellingUi = true;
       });
+    } else {
+      cancellingUi = true;
     }
+
+    _pushSessionSnapshot();
 
     await Future.delayed(const Duration(seconds: 2));
 
-    _killWorker();
-
-    try {
-      _fullUiPort?.close();
-    } catch (_) {}
-    _fullUiPort = null;
-
-    try {
-      _fullIso?.kill(priority: Isolate.immediate);
-    } catch (_) {}
-    _fullIso = null;
+    if (_isHeadlessMultiMode(mode)) {
+      _headlessCancelRequested = true;
+      await ForegroundService.hideScanOngoing();
+    } else {
+      _killWorker();
+    }
 
     LogBuffer.add('[USER] Cancelled');
+    _session.clear();
 
     if (!mounted) return;
 
@@ -539,6 +846,10 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _finishToHome() {
+    if (state != ScanState.scanning) {
+      _session.clear();
+    }
+
     if (!mounted) return;
 
     if (Navigator.of(context).canPop()) {
@@ -578,7 +889,8 @@ class _ScanScreenState extends State<ScanScreen>
         }
       } else {
         final status = await Permission.storage.status;
-        granted = status.isGranted || await Permission.storage.request().isGranted;
+        granted =
+            status.isGranted || await Permission.storage.request().isGranted;
       }
     } else {
       granted = true;
@@ -604,36 +916,9 @@ class _ScanScreenState extends State<ScanScreen>
       return;
     }
 
-    setState(() {
-      mode = m;
-      state = ScanState.scanning;
-      scanned = 0;
-      total = 0;
-      fullCleanCount = 0;
-      currentFile = '';
-      clean.clear();
-      infected.clear();
-      singleResult = null;
-    });
-
-    LogBuffer.clear();
-    LogBuffer.add('[SCAN INIT] ${m.name}');
-
-    switch (m) {
-      case ScanMode.smart:
-        await _runSmartScan();
-        break;
-      case ScanMode.rapid:
-        await _runRapidScan();
-        break;
-      case ScanMode.installed:
-        await _runInstalledScan();
-        break;
-      case ScanMode.full:
-        await _runFullDeviceScan();
-        break;
-      default:
-        break;
+    if (_isHeadlessMultiMode(m)) {
+      await _runHeadlessMultiScan(m);
+      return;
     }
   }
 
@@ -660,192 +945,24 @@ class _ScanScreenState extends State<ScanScreen>
     }
   }
 
-  Future<void> _runFullDeviceScan() async {
-    LogBuffer.add('[ENGINE] Full device scan');
-    LogBuffer.add('[ENGINE] Target: /storage/emulated/0');
-
-    setState(() {
-      state = ScanState.scanning;
-      scanned = 0;
-      total = 0;
-      currentFile = 'Initializing...';
-    });
-
-    final ready = ReceivePort();
-    final iso = await Isolate.spawn(
-      fullDeviceScanEntry,
-      [ready.sendPort, ServicesBinding.rootIsolateToken],
-    );
-    _fullIso = iso;
-
-    final SendPort worker = await ready.first as SendPort;
-
-    final uiPort = ReceivePort();
-    _fullUiPort = uiPort;
-
-    worker.send([uiPort.sendPort, '/storage/emulated/0']);
-
-    int localScanned = 0;
-    int doneCount = -1;
-    final sw = Stopwatch()..start();
-    String lastName = 'Scanning...';
-
-    await for (final msg in uiPort) {
-      if (!mounted || cancelled) break;
-      if (msg is! Map) continue;
-
-      switch (msg['t']) {
-        case 'start':
-          lastName = 'Scanning...';
-          if (mounted) {
-            setState(() {
-              currentFile = lastName;
-            });
-          }
-          break;
-
-        case 'enum':
-          localScanned++;
-          lastName = msg['path'].toString().split('/').last;
-          if (sw.elapsedMilliseconds >= 120) {
-            sw.reset();
-            if (mounted) {
-              setState(() {
-                scanned = localScanned;
-                currentFile = lastName;
-              });
-            }
-          }
-          break;
-
-        case 'hit':
-          infected.add(
-            _detectionFromRes(
-              name: msg['path'].toString().split('/').last,
-              res: msg['res'],
-            ),
-          );
-          try {
-            unawaited(
-              QuarantineService.quarantineFile(
-                msg['path'].toString(),
-              ),
-            );
-          } catch (_) {}
-          break;
-
-        case 'err':
-          LogBuffer.add('[ERROR] ${msg['e']}');
-          break;
-
-        case 'done':
-          final c = msg['count'];
-          if (c is int) doneCount = c;
-          try {
-            uiPort.close();
-          } catch (_) {}
-          break;
-      }
-    }
-
-    try {
-      _fullUiPort?.close();
-    } catch (_) {}
-    _fullUiPort = null;
-
-    try {
-      _fullIso?.kill(priority: Isolate.immediate);
-    } catch (_) {}
-    _fullIso = null;
-
-    if (!mounted || cancelled) return;
-
-    final finalScanned = doneCount >= 0 ? doneCount : localScanned;
-
-    setState(() {
-      scanned = finalScanned;
-      total = finalScanned;
-      fullCleanCount = (finalScanned - infected.length).clamp(0, finalScanned);
-      currentFile = lastName;
-    });
-
-    await CacheManager.clearAll();
-
-    if (!mounted || cancelled) return;
-
-    setState(() => state = ScanState.result);
-  }
-
-  Future<void> _runSmartScan() async {
-    final root = Directory('/storage/emulated/0/');
-    final folders = <String>[];
-
-    await for (final e in root.list(followLinks: false)) {
-      if (e is Directory) {
-        final name = e.path.split('/').last.toLowerCase();
-        if (name == 'android' ||
-            name == 'music' ||
-            name == 'movies' ||
-            name == 'podcasts' ||
-            name == 'ringtones' ||
-            name == 'alarms' ||
-            name == 'notifications') continue;
-        folders.add(e.path);
-      }
-    }
-
-    final files = <String>[];
-    final x = ExclusionService();
-    await x.load();
-
-    for (final dirPath in folders) {
-      if (!mounted || cancelled) break;
-
-      final dir = Directory(dirPath);
-      if (!await dir.exists()) continue;
-
-      await for (final entity in dir.list(recursive: true, followLinks: false)) {
-        if (!mounted || cancelled) break;
-
-        if (entity is File) {
-          if (x.skipFolder(entity.path)) continue;
-
-          final ext = _ext(entity.path);
-          final size = await entity.length();
-          if (!_isAllowedFile(ext, size)) continue;
-          files.add(entity.path);
-        }
-      }
-    }
-
-    files.sort((a, b) {
-      try {
-        return File(a).lengthSync().compareTo(File(b).lengthSync());
-      } catch (_) {
-        return 0;
-      }
-    });
-
-    if (!mounted || cancelled) return;
-
-    if (files.isEmpty) {
-      LogBuffer.add('[ENGINE] No files found.');
-      if (mounted) setState(() => state = ScanState.empty);
-      return;
-    }
-
-    LogBuffer.add('[ENGINE] Smart Scan: ${files.length} files.');
-    await _scanFiles(files);
-  }
-
   Future<void> _runSingleFileScan() async {
-    final picked = await FilePicker.platform.pickFiles(withData: true);
+    final picked = await FilePicker.platform.pickFiles(
+      withData: false,
+      allowMultiple: false,
+    );
     if (picked == null || picked.files.isEmpty) {
       _finishToHome();
       return;
     }
 
     final file = picked.files.single;
+
+    final pickedPath = file.path;
+    if (pickedPath == null || pickedPath.isEmpty) {
+      LogBuffer.add('[ERROR] Could not access file path from picker');
+      _finishToHome();
+      return;
+    }
 
     setState(() {
       state = ScanState.scanning;
@@ -857,22 +974,10 @@ class _ScanScreenState extends State<ScanScreen>
       singleResult = null;
     });
 
-    LogBuffer.add('[SCAN INIT] Single-file -> ${file.path ?? file.name}');
+    LogBuffer.add('[SCAN INIT] Single-file -> $pickedPath');
     await Future.delayed(const Duration(milliseconds: 40));
 
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/${file.name}';
-    String effectivePath = file.path ?? tempPath;
-
-    if (file.path == null) {
-      final bytes = file.bytes;
-      if (bytes == null) {
-        _finishToHome();
-        return;
-      }
-      await File(tempPath).writeAsBytes(bytes, flush: true);
-      effectivePath = tempPath;
-    }
+    final effectivePath = pickedPath;
 
     bool infectedFlag = false;
 
@@ -939,80 +1044,6 @@ class _ScanScreenState extends State<ScanScreen>
       singleResult = infectedFlag;
       state = ScanState.result;
     });
-  }
-
-  Future<void> _runRapidScan() async {
-    final dir = Directory('/storage/emulated/0/Download');
-    final List<String> allPaths = [];
-
-    final x = ExclusionService();
-    await x.load();
-
-    try {
-      if (await dir.exists()) {
-        await for (final entity in dir.list(recursive: true, followLinks: false)) {
-          if (!mounted || cancelled) break;
-
-          if (entity is File) {
-            try {
-              if (x.skipFolder(entity.path)) continue;
-              final ext = _ext(entity.path);
-              final size = await entity.length();
-              if (ext != 'apk') continue;
-              if (size > 200 * 1024 * 1024) continue;
-              allPaths.add(entity.path);
-            } catch (_) {}
-          }
-        }
-      }
-    } catch (e) {
-      LogBuffer.add('[ERROR] Directory access failed: $e');
-    }
-
-    if (!mounted || cancelled) return;
-
-    setState(() => total = allPaths.length);
-    LogBuffer.add('[ENGINE] Files enumerated: $total');
-
-    if (total == 0) {
-      LogBuffer.add('[ENGINE] No readable files found.');
-      if (mounted) setState(() => state = ScanState.empty);
-      return;
-    }
-
-    await _scanFiles(allPaths);
-  }
-
-  Future<void> _runInstalledScan() async {
-    final apps = await _getUserInstalledApps();
-    if (!mounted) return;
-
-    if (apps.isEmpty) {
-      LogBuffer.add('[ENGINE] No user-installed apps found.');
-      setState(() => state = ScanState.empty);
-      return;
-    }
-
-    LogBuffer.add('[ENGINE] Installed apps found: ${apps.length}');
-    LogBuffer.add(useCloudScan ? '[MODE] Cloud-assisted mode' : '[MODE] Offline mode');
-
-    setState(() {
-      state = ScanState.scanning;
-      scanned = 0;
-      total = apps.length;
-      currentFile = '';
-      clean.clear();
-      infected.clear();
-    });
-
-    await _scanAppTargets(apps, cloud: useCloudScan);
-    if (!mounted || cancelled) return;
-
-    await Future.delayed(const Duration(milliseconds: 120));
-    await CacheManager.clearAll();
-    if (!mounted || cancelled) return;
-
-    setState(() => state = ScanState.result);
   }
 
   Future<void> _runSingleScan() async {
@@ -1167,292 +1198,6 @@ class _ScanScreenState extends State<ScanScreen>
     });
   }
 
-  Future<void> _scanAppTargets(List<_AppTarget> apps, {bool cloud = false}) async {
-    if (apps.isEmpty) return;
-
-    final ex = ExclusionService();
-    await ex.load();
-
-    HashCacheWorker? hashWorker;
-    if (cloud) {
-      final dir = await getApplicationDocumentsDirectory();
-      hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
-    }
-
-    final worker = await _ensureWorker();
-
-    scanned = 0;
-    clean.clear();
-    infected.clear();
-
-    final sw = Stopwatch()..start();
-    String lastName = '';
-
-    for (int i = 0; i < apps.length; i++) {
-      if (!mounted || cancelled) break;
-
-      final app = apps[i];
-
-      if (ex.skipFolder(app.path)) {
-        scanned = i + 1;
-        continue;
-      }
-
-      lastName = app.name;
-      if (sw.elapsedMilliseconds >= 120) {
-        sw.reset();
-        if (mounted) {
-          setState(() {
-            currentFile = lastName;
-            scanned = i + 1;
-          });
-        }
-      }
-
-      LogBuffer.add('[SCAN] ${app.name}');
-
-      bool infectedFlag = false;
-
-      if (cloud && hashWorker != null) {
-        try {
-          final hashesByPath = await hashWorker.hashBatch([app.path]);
-          final hashes = hashesByPath[app.path];
-
-          if (hashes != null) {
-            final md5h = hashes['md5'] ?? '';
-            final sha = hashes['sha'] ?? '';
-
-            if (md5h.isNotEmpty || sha.isNotEmpty) {
-              final hits = await cloudScanner.checkBatch([
-                if (md5h.isNotEmpty) md5h,
-                if (sha.isNotEmpty) sha,
-              ]);
-              if (hits.isNotEmpty) {
-                infectedFlag = true;
-                infected.add(
-                  DetectionResult(
-                    name: app.name,
-                    label: 'Found in cloud database',
-                    confidence: 1.0,
-                    signals: const [],
-                  ),
-                );
-                LogBuffer.add('[CLOUD HIT] ${app.name}');
-              }
-            }
-          }
-        } catch (_) {}
-      }
-
-      if (!infectedFlag) {
-        final res = await worker.scan(app.path);
-        if (res is Map) {
-          infectedFlag = true;
-          infected.add(
-            _detectionFromRes(
-              name: app.name,
-              res: res,
-            ),
-          );
-          LogBuffer.add('[THREAT] ${app.name}');
-        }
-      }
-
-      if (!infectedFlag) {
-        clean.add(app.name);
-        LogBuffer.add('[CLEAN] ${app.name}');
-      }
-    }
-
-    if (hashWorker != null) {
-      try {
-        await hashWorker.flush();
-      } catch (_) {}
-    }
-
-    if (!mounted || cancelled) return;
-
-    setState(() {
-      currentFile = lastName;
-      scanned = apps.length;
-    });
-
-    LogBuffer.add('[SUMMARY] ${infected.length} suspicious • ${clean.length} clean');
-  }
-
-  Future<void> _scanFiles(List<String> files) async {
-    total = files.length;
-
-    if (total == 0) {
-      LogBuffer.add('[ENGINE] No readable files found.');
-      if (mounted) setState(() => state = ScanState.empty);
-      return;
-    }
-
-    final ex = ExclusionService();
-    await ex.load();
-
-    final useCloud = useCloudScan;
-
-    final fileHashes = <String, Map<String, String>>{};
-    final cloudDetected = <String>{};
-
-    HashCacheWorker? hashWorker;
-
-    if (useCloud) {
-      final dir = await getApplicationDocumentsDirectory();
-      hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
-
-      LogBuffer.add('[STAGE 1] Getting file hashes (cached)...');
-
-      final hashesByPath = await hashWorker.hashBatch(files);
-
-      for (final entry in hashesByPath.entries) {
-        final path = entry.key;
-        final hashes = entry.value;
-
-        final sha = hashes['sha'] ?? '';
-        if (ex.skipSha(sha)) continue;
-
-        fileHashes[path] = hashes;
-      }
-
-      await hashWorker.flush();
-    }
-
-    if (!mounted || cancelled) return;
-
-    if (useCloud && fileHashes.isNotEmpty) {
-      LogBuffer.add('[STAGE 2] Cloud hash lookup...');
-
-      final toSend = <String>[];
-      for (final hashes in fileHashes.values) {
-        final md5h = hashes['md5'];
-        final sha = hashes['sha'];
-        if (md5h != null && md5h.isNotEmpty) toSend.add(md5h);
-        if (sha != null && sha.isNotEmpty) toSend.add(sha);
-      }
-
-      if (toSend.isNotEmpty) {
-        final hits = await cloudScanner.checkBatch(toSend);
-        for (final h in hits) {
-          cloudDetected.add(h);
-        }
-        if (hits.isNotEmpty) {
-          LogBuffer.add('[CLOUD] ${hits.length} hash hits');
-        }
-      }
-    }
-
-    if (!mounted || cancelled) return;
-
-    LogBuffer.add('[STAGE ${useCloud ? '3' : '1'}] Local scanning files...');
-
-    scanned = 0;
-    clean.clear();
-    infected.clear();
-
-    final worker = await _ensureWorker();
-
-    final sw = Stopwatch()..start();
-    final int flushEvery = mode == ScanMode.rapid ? 1 : 6;
-    final List<String> pendingLogs = [];
-    String lastName = '';
-
-    for (int i = 0; i < files.length; i++) {
-      if (!mounted || cancelled) break;
-
-      final path = files[i];
-      if (ex.skipFolder(path)) continue;
-
-      final name = path.split('/').last;
-      lastName = name;
-
-      if (sw.elapsedMilliseconds >= 120 || i == files.length - 1) {
-        sw.reset();
-        if (mounted) {
-          setState(() {
-            currentFile = lastName;
-            scanned = i + 1;
-          });
-        }
-      }
-
-      pendingLogs.add('[SCAN] $name');
-
-      bool infectedFlag = false;
-
-      if (useCloud) {
-        final hashes = fileHashes[path];
-        if (hashes != null) {
-          final md5h = hashes['md5'] ?? '';
-          final sha = hashes['sha'] ?? '';
-          if ((md5h.isNotEmpty && cloudDetected.contains(md5h)) ||
-              (sha.isNotEmpty && cloudDetected.contains(sha))) {
-            infectedFlag = true;
-
-            infected.add(
-              DetectionResult(
-                name: name,
-                label: 'Found in cloud database',
-                confidence: 1.0,
-                signals: const [],
-              ),
-            );
-
-            pendingLogs.add('[THREAT] Quarantined $name');
-            try {
-              unawaited(QuarantineService.quarantineFile(path));
-            } catch (_) {}
-
-            LogBuffer.add('[CLOUD HIT] $name');
-          }
-        }
-      }
-
-      if (!infectedFlag) {
-        final res = await worker.scan(path);
-
-        if (res is Map) {
-          infectedFlag = true;
-          infected.add(
-            _detectionFromRes(
-              name: name,
-              res: res,
-            ),
-          );
-        }
-      }
-
-      if (infectedFlag) {
-        pendingLogs.add('[THREAT] Quarantined $name');
-        try {
-          unawaited(QuarantineService.quarantineFile(path));
-        } catch (_) {}
-      } else {
-        clean.add(name);
-        pendingLogs.add('[CLEAN] $name');
-      }
-
-      if (pendingLogs.length >= flushEvery || i == files.length - 1) {
-        for (final l in pendingLogs) {
-          LogBuffer.add(l);
-        }
-        pendingLogs.clear();
-        _safeScrollToEnd();
-      }
-    }
-
-    if (!mounted || cancelled) return;
-
-    LogBuffer.add('[SUMMARY] ${infected.length} suspicious • ${clean.length} clean');
-
-    await CacheManager.clearAll();
-
-    if (!mounted || cancelled) return;
-    setState(() => state = ScanState.result);
-  }
-
   static bool _isAllowedFile(String ext, int size) {
     const allowed = {
       'apk',
@@ -1477,7 +1222,6 @@ class _ScanScreenState extends State<ScanScreen>
     super.build(context);
 
     final theme = Theme.of(context);
-    final text = theme.textTheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -1525,7 +1269,8 @@ class _ScanScreenState extends State<ScanScreen>
                               'Cancelling scan…',
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.onSurface.withOpacity(0.9),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.9),
                               ),
                             ),
                           ],
@@ -1639,7 +1384,9 @@ class _ScanScreenState extends State<ScanScreen>
             color: scheme.surfaceContainerHighest,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: scheme.outlineVariant.withOpacity(0.35)),
+              side: BorderSide(
+                color: scheme.outlineVariant.withOpacity(0.35),
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(14),
@@ -1753,7 +1500,8 @@ class _ScanScreenState extends State<ScanScreen>
     final hasThreats = infected.isNotEmpty;
 
     final accent = hasThreats ? scheme.error : _modeAccent(scheme);
-    final headerIcon = hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded;
+    final headerIcon =
+    hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded;
 
     final cleanCount = mode == ScanMode.full ? fullCleanCount : clean.length;
 
@@ -1785,8 +1533,12 @@ class _ScanScreenState extends State<ScanScreen>
               ),
               _pill(
                 context,
-                icon: hasThreats ? Icons.warning_amber_rounded : Icons.check_circle_rounded,
-                label: hasThreats ? 'Suspicious: ${infected.length}' : 'Clean: $cleanCount',
+                icon: hasThreats
+                    ? Icons.warning_amber_rounded
+                    : Icons.check_circle_rounded,
+                label: hasThreats
+                    ? 'Suspicious: ${infected.length}'
+                    : 'Clean: $cleanCount',
                 tint: hasThreats ? scheme.error : scheme.tertiary,
               ),
               if (mode == ScanMode.full)
@@ -1811,7 +1563,9 @@ class _ScanScreenState extends State<ScanScreen>
                 children: [
                   Text(
                     hasThreats
-                        ? (mode == ScanMode.installed ? 'Suspicious apps' : 'Suspicious items')
+                        ? (mode == ScanMode.installed
+                        ? 'Suspicious apps'
+                        : 'Suspicious items')
                         : 'No threats detected',
                     style: text.titleMedium?.copyWith(
                       fontWeight: FontWeight.w900,
@@ -1825,7 +1579,6 @@ class _ScanScreenState extends State<ScanScreen>
                       itemCount: infected.length,
                       itemBuilder: (context, i) {
                         final d = infected[i];
-                        final pct = (d.confidence * 100).round();
 
                         return Theme(
                           data: theme.copyWith(dividerColor: Colors.transparent),
@@ -1833,7 +1586,8 @@ class _ScanScreenState extends State<ScanScreen>
                             tilePadding: EdgeInsets.zero,
                             childrenPadding: const EdgeInsets.only(bottom: 10),
                             dense: true,
-                            visualDensity: const VisualDensity(vertical: -4),
+                            visualDensity:
+                            const VisualDensity(vertical: -4),
                             leading: Icon(
                               Icons.warning_amber_rounded,
                               size: 18,
@@ -1843,7 +1597,8 @@ class _ScanScreenState extends State<ScanScreen>
                               d.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                              style: text.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             subtitle: Text(
                               _displayLabel(d.label),
@@ -1857,7 +1612,8 @@ class _ScanScreenState extends State<ScanScreen>
                                 padding: const EdgeInsets.only(bottom: 6),
                                 child: _pill(
                                   context,
-                                  label: 'Threat level: ${_threatLevel(d.confidence)}',
+                                  label:
+                                  'Threat level: ${_threatLevel(d.confidence)}',
                                   tint: scheme.error,
                                 ),
                               ),

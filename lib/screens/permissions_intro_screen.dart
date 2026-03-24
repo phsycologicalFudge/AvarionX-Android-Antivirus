@@ -149,7 +149,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Row(
-                children: List.generate(4, (i) {
+                children: List.generate(3, (i) {
                   final active = i == _page;
                   return Expanded(
                     child: AnimatedContainer(
@@ -190,22 +190,6 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                     primaryLabel: notifGranted ? 'Granted' : 'Allow notifications',
                     onPrimary: notifGranted ? null : _requestNotifications,
                     footnote: 'Required by Android for RealTime Protection.',
-                  ),
-                  _slide(
-                    context,
-                    icon: Icons.network_check_rounded,
-                    title: 'Network protection',
-                    desc: 'Enables Wi Fi protection using Androids VPN permission.',
-                    granted: vpnGranted,
-                    primaryLabel: vpnGranted ? 'Granted' : 'Allow VPN access',
-                    onPrimary: vpnGranted
-                        ? null
-                        : () async {
-                      final ok = await _requestVpnPermission();
-                      if (!mounted) return;
-                      setState(() => vpnGranted = ok);
-                    },
-                    footnote: 'This is optional but recommended.',
                   ),
                   _finishSlide(context),
                 ],

@@ -17,41 +17,30 @@ class QuarantineService {
   static Directory? _qDir;
   static Box? _box;
 
+  static const _magic = [0x51, 0x53, 0x56, 0x31];
+  static const _ext = 'vqsafe';
+
   static Future<void> init() async {
     if (!Hive.isBoxOpen('quarantine')) {
       await Hive.initFlutter();
       try {
         _box = await Hive.openBox('quarantine');
       } catch (_) {
-        await Hive.deleteBoxFromDisk('quarantine');
+        try {
+          await Hive.deleteBoxFromDisk('quarantine');
+        } catch (_) {}
         _box = await Hive.openBox('quarantine');
-      }    } else {
+      }
+    } else {
       _box = Hive.box('quarantine');
     }
-    _key ??= await _loadOrCreateKey();
+
     _qDir ??= await _ensureQuarantineDir();
     await ExclusionsStore.instance.init();
   }
 
-  static Future<SecretKey> _loadOrCreateKey() async {
-    final k = await _storage.read(key: 'qs_aes256_key');
-    if (k != null) {
-      return SecretKey(base64Decode(k));
-    }
-    final sk = await _algo.newSecretKey();
-    final raw = await sk.extractBytes();
-    await _storage.write(key: 'qs_aes256_key', value: base64Encode(raw));
-    return SecretKey(raw);
-  }
-
-  static Future<List<int>> getRawKey() async {
-    await init();
-    return await _key!.extractBytes();
-  }
-
   static Future<Directory> _ensureQuarantineDir() async {
-    Directory? base = await getExternalStorageDirectory();
-    base ??= await getApplicationSupportDirectory();
+    final base = await getApplicationSupportDirectory();
     final d = Directory(p.join(base.path, 'quarantine'));
     if (!await d.exists()) {
       await d.create(recursive: true);
@@ -67,35 +56,62 @@ class QuarantineService {
     return '${c.toRadixString(16)}_${a.toRadixString(16)}_${b.toRadixString(16)}';
   }
 
+  static Future<SecretKey> _loadOrCreateKey() async {
+    final k = await _storage.read(key: 'qs_aes256_key');
+    if (k != null) {
+      final raw = base64Decode(k);
+      return SecretKey(raw);
+    }
+    final sk = await _algo.newSecretKey();
+    final raw = await sk.extractBytes();
+    await _storage.write(key: 'qs_aes256_key', value: base64Encode(raw));
+    return SecretKey(raw);
+  }
+
+  static Future<List<int>> getRawKey() async {
+    await init();
+    _key ??= await _loadOrCreateKey();
+    return await _key!.extractBytes();
+  }
+
   static Future<Map<String, dynamic>> quarantineFile(String srcPath) async {
     await init();
+
     final f = File(srcPath);
     if (!await f.exists()) {
       throw Exception('Source not found');
     }
+
     final data = await f.readAsBytes();
-    final nonce = _algo.newNonce();
-    final box = await _algo.encrypt(data, secretKey: _key!, nonce: nonce);
-    final out = BytesBuilder();
-    out.add(box.nonce);
-    out.add(box.cipherText);
-    out.add(box.mac.bytes);
+
     final id = _id();
-    final qName = '$id.vqsafe';
+    final qName = '$id.$_ext';
     final qPath = p.join(_qDir!.path, qName);
-    await File(qPath).writeAsBytes(out.toBytes(), flush: true);
-    final meta = {
+
+    final tmpPath = '$qPath.tmp';
+    final out = BytesBuilder();
+    out.add(_magic);
+    out.add(data);
+
+    await File(tmpPath).writeAsBytes(out.toBytes(), flush: true);
+    await File(tmpPath).rename(qPath);
+
+    final meta = <String, dynamic>{
       'id': id,
       'qPath': qPath,
       'name': p.basename(srcPath),
       'originalPath': srcPath,
       'size': data.length,
       'date': DateTime.now().toIso8601String(),
+      'fmt': 1,
     };
+
     try {
       await f.delete();
       if (await f.exists()) {
-        await f.delete(recursive: true);
+        try {
+          await f.delete(recursive: true);
+        } catch (_) {}
         if (await f.exists()) {
           meta['deleteFailed'] = true;
         }
@@ -103,30 +119,78 @@ class QuarantineService {
     } catch (_) {
       meta['deleteFailed'] = true;
     }
+
     await _box!.put(id, meta);
     return meta;
   }
 
-  static Future<void> restore(String id) async {
-    await init();
-    final meta = Map<String, dynamic>.from(_box!.get(id));
-    final qFile = File(meta['qPath']);
-    if (!await qFile.exists()) {
-      throw Exception('Quarantine file missing');
+  static bool _startsWithMagic(Uint8List bytes) {
+    if (bytes.length < 4) return false;
+    return bytes[0] == _magic[0] &&
+        bytes[1] == _magic[1] &&
+        bytes[2] == _magic[2] &&
+        bytes[3] == _magic[3];
+  }
+
+  static Future<Uint8List> _readPlainOrDecryptLegacy(Uint8List all) async {
+    if (_startsWithMagic(all)) {
+      return Uint8List.fromList(all.sublist(4));
     }
-    final all = await qFile.readAsBytes();
+
     if (all.length < 12 + 16) {
       throw Exception('Corrupt package');
     }
+
+    _key ??= await _loadOrCreateKey();
+
     final nonce = all.sublist(0, 12);
     final mac = Mac(all.sublist(all.length - 16));
     final cipher = all.sublist(12, all.length - 16);
-    final plain = await _algo.decrypt(SecretBox(cipher, nonce: nonce, mac: mac), secretKey: _key!);
-    final orig = meta['originalPath'] as String;
+    final plain = await _algo.decrypt(
+      SecretBox(cipher, nonce: nonce, mac: mac),
+      secretKey: _key!,
+    );
+    return Uint8List.fromList(plain);
+  }
+
+  static Future<void> restore(String id) async {
+    await init();
+
+    final rawMeta = _box!.get(id);
+    if (rawMeta is! Map) {
+      try {
+        await _box!.delete(id);
+      } catch (_) {}
+      throw Exception('Quarantine entry missing');
+    }
+
+    final meta = Map<String, dynamic>.from(rawMeta);
+    final qPath = meta['qPath'];
+    final orig = meta['originalPath'];
+
+    if (qPath is! String || orig is! String || qPath.isEmpty || orig.isEmpty) {
+      try {
+        await _box!.delete(id);
+      } catch (_) {}
+      throw Exception('Quarantine entry invalid');
+    }
+
+    final qFile = File(qPath);
+    if (!await qFile.exists()) {
+      try {
+        await _box!.delete(id);
+      } catch (_) {}
+      throw Exception('Quarantine file missing');
+    }
+
+    final all = await qFile.readAsBytes();
+    final plain = await _readPlainOrDecryptLegacy(Uint8List.fromList(all));
+
     final parent = Directory(p.dirname(orig));
     if (!await parent.exists()) {
       await parent.create(recursive: true);
     }
+
     var outPath = orig;
     if (await File(outPath).exists()) {
       final dir = p.dirname(orig);
@@ -134,18 +198,33 @@ class QuarantineService {
       final ext = p.extension(orig);
       outPath = p.join(dir, '${base}_restored$ext');
     }
-    await File(outPath).writeAsBytes(plain, flush: true);
-    await qFile.delete();
+
+    final tmpOut = '$outPath.tmp';
+    await File(tmpOut).writeAsBytes(plain, flush: true);
+    await File(tmpOut).rename(outPath);
+
+    try {
+      await qFile.delete();
+    } catch (_) {}
+
     await _box!.delete(id);
     await ExclusionsStore.instance.addTemporary(outPath, const Duration(hours: 24));
   }
 
   static Future<void> deleteForever(String id) async {
     await init();
-    final meta = Map<String, dynamic>.from(_box!.get(id));
-    final qFile = File(meta['qPath']);
-    if (await qFile.exists()) {
-      await qFile.delete();
+    final rawMeta = _box!.get(id);
+    if (rawMeta is Map) {
+      final meta = Map<String, dynamic>.from(rawMeta);
+      final qPath = meta['qPath'];
+      if (qPath is String && qPath.isNotEmpty) {
+        final qFile = File(qPath);
+        if (await qFile.exists()) {
+          try {
+            await qFile.delete();
+          } catch (_) {}
+        }
+      }
     }
     await _box!.delete(id);
   }
@@ -154,44 +233,65 @@ class QuarantineService {
     await init();
 
     final out = <Map<String, dynamic>>[];
+    final keys = _box!.keys.toList();
 
-    try {
-      final keys = _box!.keys.toList();
-
-      for (final k in keys) {
+    for (final k in keys) {
+      final raw = _box!.get(k);
+      if (raw is! Map) {
         try {
-          final raw = _box!.get(k);
-          if (raw == null) continue;
-          if (raw is! Map) continue;
-
-          final v = Map<String, dynamic>.from(raw);
-
-          if (!v.containsKey('date')) continue;
-          if (!v.containsKey('id')) continue;
-
-          out.add(v);
-        } catch (_) {
-          continue;
-        }
+          await _box!.delete(k);
+        } catch (_) {}
+        continue;
       }
 
-      out.sort((a, b) {
-        try {
-          return DateTime.parse(b['date'])
-              .compareTo(DateTime.parse(a['date']));
-        } catch (_) {
-          return 0;
-        }
-      });
-
-      return out;
-    } catch (_) {
+      Map<String, dynamic> v;
       try {
-        await _box!.clear();
-      } catch (_) {}
+        v = Map<String, dynamic>.from(raw);
+      } catch (_) {
+        try {
+          await _box!.delete(k);
+        } catch (_) {}
+        continue;
+      }
 
-      return [];
+      final id = v['id'];
+      final date = v['date'];
+      final qPath = v['qPath'];
+      final orig = v['originalPath'];
+
+      if (id is! String || id.isEmpty) {
+        try {
+          await _box!.delete(k);
+        } catch (_) {}
+        continue;
+      }
+
+      if (date is! String || date.isEmpty) {
+        try {
+          await _box!.delete(k);
+        } catch (_) {}
+        continue;
+      }
+
+      if (qPath is! String || qPath.isEmpty || orig is! String || orig.isEmpty) {
+        try {
+          await _box!.delete(k);
+        } catch (_) {}
+        continue;
+      }
+
+      out.add(v);
     }
+
+    out.sort((a, b) {
+      try {
+        return DateTime.parse(b['date']).compareTo(DateTime.parse(a['date']));
+      } catch (_) {
+        return 0;
+      }
+    });
+
+    return out;
   }
 
   static Future<void> restoreMany(Iterable<String> ids) async {
@@ -209,7 +309,7 @@ class QuarantineService {
   static Future<int> totalSize() async {
     await init();
     final list = await listAll();
-    return list.fold<int>(0, (s, e) => s + (e['size'] as int));
+    return list.fold<int>(0, (s, e) => s + ((e['size'] as int?) ?? 0));
   }
 
   static Future<void> purgeOlderThan(Duration age) async {
@@ -217,10 +317,12 @@ class QuarantineService {
     final now = DateTime.now();
     final list = await listAll();
     for (final m in list) {
-      final t = DateTime.parse(m['date']);
-      if (now.difference(t) > age) {
-        await deleteForever(m['id']);
-      }
+      try {
+        final t = DateTime.parse(m['date']);
+        if (now.difference(t) > age) {
+          await deleteForever(m['id']);
+        }
+      } catch (_) {}
     }
   }
 
@@ -229,7 +331,7 @@ class QuarantineService {
     final out = <Map<String, dynamic>>[];
     for (final id in ids) {
       final v = _box!.get(id);
-      if (v != null) out.add(Map<String, dynamic>.from(v));
+      if (v is Map) out.add(Map<String, dynamic>.from(v));
     }
     return out;
   }
@@ -242,7 +344,9 @@ class QuarantineService {
     for (final r in result) {
       final id = r['id'] as String;
       final outPath = r['outPath'] as String;
-      await _box!.delete(id);
+      try {
+        await _box!.delete(id);
+      } catch (_) {}
       await ExclusionsStore.instance.addTemporary(outPath, const Duration(hours: 24));
     }
     return result.map<String>((e) => e['outPath'] as String).toList();
@@ -254,21 +358,45 @@ Future<List<Map<String, dynamic>>> _restoreWorker(Map args) async {
   final metas = List<Map<String, dynamic>>.from(args['metas']);
   final key = SecretKey(List<int>.from(args['key']));
   final out = <Map<String, dynamic>>[];
+
+  bool startsWithMagic(Uint8List bytes) {
+    if (bytes.length < 4) return false;
+    return bytes[0] == 0x51 && bytes[1] == 0x53 && bytes[2] == 0x56 && bytes[3] == 0x31;
+  }
+
   for (final m in metas) {
-    final qPath = m['qPath'] as String;
-    final orig = m['originalPath'] as String;
+    final qPath = m['qPath'];
+    final orig = m['originalPath'];
+    final id = m['id'];
+
+    if (qPath is! String || orig is! String || id is! String) continue;
+
     final qFile = File(qPath);
     if (!await qFile.exists()) continue;
-    final all = await qFile.readAsBytes();
-    if (all.length < 12 + 16) continue;
-    final nonce = all.sublist(0, 12);
-    final mac = Mac(all.sublist(all.length - 16));
-    final cipher = all.sublist(12, all.length - 16);
-    final plain = await algo.decrypt(SecretBox(cipher, nonce: nonce, mac: mac), secretKey: key);
+
+    final all = Uint8List.fromList(await qFile.readAsBytes());
+
+    Uint8List plain;
+    try {
+      if (startsWithMagic(all)) {
+        plain = Uint8List.fromList(all.sublist(4));
+      } else {
+        if (all.length < 12 + 16) continue;
+        final nonce = all.sublist(0, 12);
+        final mac = Mac(all.sublist(all.length - 16));
+        final cipher = all.sublist(12, all.length - 16);
+        final ptxt = await algo.decrypt(SecretBox(cipher, nonce: nonce, mac: mac), secretKey: key);
+        plain = Uint8List.fromList(ptxt);
+      }
+    } catch (_) {
+      continue;
+    }
+
     final parent = Directory(p.dirname(orig));
     if (!await parent.exists()) {
       await parent.create(recursive: true);
     }
+
     var outPath = orig;
     if (await File(outPath).exists()) {
       final dir = p.dirname(orig);
@@ -276,9 +404,17 @@ Future<List<Map<String, dynamic>>> _restoreWorker(Map args) async {
       final ext = p.extension(orig);
       outPath = p.join(dir, '${base}_restored$ext');
     }
-    await File(outPath).writeAsBytes(plain, flush: true);
-    await qFile.delete();
-    out.add({'id': m['id'], 'outPath': outPath});
+
+    final tmpOut = '$outPath.tmp';
+    await File(tmpOut).writeAsBytes(plain, flush: true);
+    await File(tmpOut).rename(outPath);
+
+    try {
+      await qFile.delete();
+    } catch (_) {}
+
+    out.add({'id': id, 'outPath': outPath});
   }
+
   return out;
 }

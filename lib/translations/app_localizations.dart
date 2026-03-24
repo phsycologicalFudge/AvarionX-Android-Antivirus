@@ -2086,6 +2086,24 @@ abstract class AppLocalizations {
   /// **'Purchase failed: {error}'**
   String settingsPurchaseFailed(Object error);
 
+  /// No description provided for @homeUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get homeUpgrade;
+
+  /// No description provided for @homeFeatureSecureVpnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX Secure VPN'**
+  String get homeFeatureSecureVpnTitle;
+
+  /// No description provided for @homeFeatureSecureVpnDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide your IP and block unwanted content'**
+  String get homeFeatureSecureVpnDesc;
+
   /// No description provided for @proActivated.
   ///
   /// In en, this message translates to:
@@ -2127,6 +2145,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Icon selected: {icon}'**
   String settingsIconSelected(Object icon);
+
+  /// No description provided for @vpnSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get vpnSignInRequiredTitle;
+
+  /// No description provided for @vpnClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get vpnClose;
+
+  /// No description provided for @vpnSignInRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use Secure VPN.'**
+  String get vpnSignInRequiredBody;
+
+  /// No description provided for @vpnCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get vpnCancel;
+
+  /// No description provided for @vpnSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get vpnSignIn;
+
+  /// No description provided for @vpnUsageLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading usage...'**
+  String get vpnUsageLoading;
+
+  /// No description provided for @vpnUsageNoLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'No data limits'**
+  String get vpnUsageNoLimits;
+
+  /// No description provided for @vpnUsageSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get vpnUsageSyncing;
+
+  /// No description provided for @vpnUsageUsedThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} used this month'**
+  String vpnUsageUsedThisMonth(Object used);
+
+  /// No description provided for @vpnUsageDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Usage'**
+  String get vpnUsageDataTitle;
+
+  /// No description provided for @vpnUsageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage unavailable'**
+  String get vpnUsageUnavailable;
+
+  /// No description provided for @vpnStatusConnectingEllipsis.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get vpnStatusConnectingEllipsis;
+
+  /// No description provided for @vpnStatusConnectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to {country}'**
+  String vpnStatusConnectedTo(Object country);
+
+  /// No description provided for @vpnTitleSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure VPN'**
+  String get vpnTitleSecure;
+
+  /// No description provided for @vpnStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get vpnStatusConnected;
+
+  /// No description provided for @vpnSubtitleEstablishingTunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Establishing tunnel...'**
+  String get vpnSubtitleEstablishingTunnel;
+
+  /// No description provided for @vpnSubtitleFindingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding location...'**
+  String get vpnSubtitleFindingLocation;
+
+  /// No description provided for @vpnStatusProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected'**
+  String get vpnStatusProtected;
+
+  /// No description provided for @vpnStatusNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get vpnStatusNotConnected;
+
+  /// No description provided for @vpnConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
+  String get vpnConnect;
+
+  /// No description provided for @vpnDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get vpnDisconnect;
+
+  /// No description provided for @vpnIpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IP: {ip}'**
+  String vpnIpLabel(Object ip);
+
+  /// No description provided for @vpnServerLoadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{current}/{max}'**
+  String vpnServerLoadLabel(Object current, Object max);
+
+  /// No description provided for @vpnBlocklistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure VPN Blocklists'**
+  String get vpnBlocklistsTitle;
+
+  /// No description provided for @vpnSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get vpnSave;
 
   /// No description provided for @settingsSave.
   ///
@@ -2560,6 +2728,126 @@ abstract class AppLocalizations {
   /// **'Every {hours} hours'**
   String scheduledEveryHours(Object hours);
 
+  /// No description provided for @vpnSettingsPrivacySecurityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get vpnSettingsPrivacySecurityTitle;
+
+  /// No description provided for @vpnSettingsNoLogsPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No logs stored Policy'**
+  String get vpnSettingsNoLogsPolicyTitle;
+
+  /// No description provided for @vpnSettingsNoLogsPolicyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No logs are stored. Connection activity, browsing activity, DNS queries, and traffic content are not recorded or retained.'**
+  String get vpnSettingsNoLogsPolicyBody;
+
+  /// No description provided for @vpnSettingsNoActivityLogsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity logs'**
+  String get vpnSettingsNoActivityLogsTitle;
+
+  /// No description provided for @vpnSettingsNoActivityLogsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your activity is not monitored or tracked while using Secure VPN.'**
+  String get vpnSettingsNoActivityLogsBody;
+
+  /// No description provided for @vpnSettingsWireGuardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VX-Link powered by WireGuard'**
+  String get vpnSettingsWireGuardTitle;
+
+  /// No description provided for @vpnSettingsWireGuardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure VPN uses the WireGuard protocol through VX-Link to provide fast, modern encryption.'**
+  String get vpnSettingsWireGuardBody;
+
+  /// No description provided for @vpnSettingsMalwareProtectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware protection enabled'**
+  String get vpnSettingsMalwareProtectionTitle;
+
+  /// No description provided for @vpnSettingsMalwareProtectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Malicious domains are blocked by default while connected.'**
+  String get vpnSettingsMalwareProtectionBody;
+
+  /// No description provided for @vpnSettingsAdTrackerProtectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional ad and tracker protection'**
+  String get vpnSettingsAdTrackerProtectionTitle;
+
+  /// No description provided for @vpnSettingsAdTrackerProtectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable additional blocking for ads and trackers in the Customisation tab.'**
+  String get vpnSettingsAdTrackerProtectionBody;
+
+  /// No description provided for @vpnSettingsBrandFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Secured by VX-Link'**
+  String get vpnSettingsBrandFooter;
+
+  /// No description provided for @vpnSettingsAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get vpnSettingsAccountTitle;
+
+  /// No description provided for @vpnSettingsSignInToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue'**
+  String get vpnSettingsSignInToContinue;
+
+  /// No description provided for @vpnSettingsAccountSyncBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan and data usage sync to your account.'**
+  String get vpnSettingsAccountSyncBody;
+
+  /// No description provided for @vpnSettingsSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in'**
+  String get vpnSettingsSignedIn;
+
+  /// No description provided for @vpnSettingsPlanUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan: unknown'**
+  String get vpnSettingsPlanUnknown;
+
+  /// No description provided for @vpnSettingsPlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan: {plan}'**
+  String vpnSettingsPlanLabel(Object plan);
+
+  /// No description provided for @vpnSettingsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get vpnSettingsRefresh;
+
+  /// No description provided for @vpnSettingsSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get vpnSettingsSignOut;
+
   /// No description provided for @scheduledChargingOnlyTitle.
   ///
   /// In en, this message translates to:
@@ -2811,6 +3099,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Old photos: {count} • {size}'**
   String cleanerStageOldPhotosProgress(Object count, Object size);
+
+  /// No description provided for @vpnAccountScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get vpnAccountScreenTitle;
+
+  /// No description provided for @vpnAccountSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get vpnAccountSignInRequiredTitle;
+
+  /// No description provided for @vpnAccountSignInManageUsageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage your account and usage.'**
+  String get vpnAccountSignInManageUsageBody;
+
+  /// No description provided for @vpnAccountNotSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in'**
+  String get vpnAccountNotSignedIn;
+
+  /// No description provided for @vpnAccountFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get vpnAccountFree;
+
+  /// No description provided for @vpnAccountUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get vpnAccountUnknown;
+
+  /// No description provided for @vpnAccountStatusSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get vpnAccountStatusSyncing;
+
+  /// No description provided for @vpnAccountStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get vpnAccountStatusActive;
+
+  /// No description provided for @vpnAccountStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get vpnAccountStatusConnected;
+
+  /// No description provided for @vpnAccountStatusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get vpnAccountStatusDisconnected;
+
+  /// No description provided for @vpnAccountStatusUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get vpnAccountStatusUnavailable;
+
+  /// No description provided for @vpnAccountStatusConnectedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected now'**
+  String get vpnAccountStatusConnectedNow;
+
+  /// No description provided for @vpnAccountStatusRefreshToLoadServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh to load server status'**
+  String get vpnAccountStatusRefreshToLoadServer;
+
+  /// No description provided for @vpnAccountUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage'**
+  String get vpnAccountUsageTitle;
+
+  /// No description provided for @vpnAccountUsageLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading usage...'**
+  String get vpnAccountUsageLoading;
+
+  /// No description provided for @vpnAccountUsageSignInToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync usage'**
+  String get vpnAccountUsageSignInToSync;
+
+  /// No description provided for @vpnAccountUsagePullToRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to refresh to sync usage'**
+  String get vpnAccountUsagePullToRefresh;
+
+  /// No description provided for @vpnAccountUsageUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get vpnAccountUsageUnlimited;
+
+  /// No description provided for @vpnAccountUsageUsedThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} used this month'**
+  String vpnAccountUsageUsedThisMonth(Object used);
+
+  /// No description provided for @vpnAccountUsageUsedThisMonthUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} used this month, unlimited'**
+  String vpnAccountUsageUsedThisMonthUnlimited(Object used);
+
+  /// No description provided for @vpnAccountUsageUsedOfLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {limit}'**
+  String vpnAccountUsageUsedOfLimit(Object used, Object limit);
+
+  /// No description provided for @settingsSectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsSectionAccount;
+
+  /// No description provided for @settingsAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccountTitle;
+
+  /// No description provided for @settingsAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in, plan, subscription, and account usage'**
+  String get settingsAccountSubtitle;
+
+  /// No description provided for @exploreSecureVpnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure VPN'**
+  String get exploreSecureVpnTitle;
+
+  /// No description provided for @exploreSecureVpnSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide your IP and block unwanted content'**
+  String get exploreSecureVpnSubtitle;
+
+  /// No description provided for @vpnAccountServerLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Server Load'**
+  String get vpnAccountServerLoadTitle;
+
+  /// No description provided for @vpnAccountServerConnectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{connected}/{cap}'**
+  String vpnAccountServerConnectedCount(Object connected, Object cap);
+
+  /// No description provided for @networkDnsOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to DNS filtering?'**
+  String get networkDnsOffTitle;
+
+  /// No description provided for @networkDnsOffInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is DNS filtering?'**
+  String get networkDnsOffInfoTitle;
+
+  /// No description provided for @networkDnsOffInfoBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS filtering is separate from Secure VPN. It can block known malware, ads across apps, trackers, and unwanted categories before they load.'**
+  String get networkDnsOffInfoBody1;
+
+  /// No description provided for @networkDnsOffInfoBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'It does not encrypt your traffic or hide your IP.'**
+  String get networkDnsOffInfoBody2;
+
+  /// No description provided for @networkDnsOffEnableButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable DNS Filtering'**
+  String get networkDnsOffEnableButton;
+
+  /// No description provided for @vpnAccountServerConnectedCountWithLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{connected}/{cap} connected'**
+  String vpnAccountServerConnectedCountWithLabel(Object connected, Object cap);
+
+  /// No description provided for @vpnAccountIdentityFallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get vpnAccountIdentityFallbackTitle;
+
+  /// No description provided for @vpnAccountMembershipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get vpnAccountMembershipLabel;
+
+  /// No description provided for @vpnAccountMembershipFounderVpnPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Founders · VPN Pro'**
+  String get vpnAccountMembershipFounderVpnPro;
+
+  /// No description provided for @vpnAccountMembershipFounder.
+  ///
+  /// In en, this message translates to:
+  /// **'Founder'**
+  String get vpnAccountMembershipFounder;
+
+  /// No description provided for @vpnAccountMembershipPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get vpnAccountMembershipPro;
+
+  /// No description provided for @vpnAccountSectionAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Status'**
+  String get vpnAccountSectionAccountStatus;
+
+  /// No description provided for @vpnAccountSectionActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get vpnAccountSectionActions;
+
+  /// No description provided for @vpnAccountKvStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get vpnAccountKvStatus;
+
+  /// No description provided for @vpnAccountKvPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get vpnAccountKvPlan;
+
+  /// No description provided for @vpnAccountKvUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage'**
+  String get vpnAccountKvUsage;
+
+  /// No description provided for @vpnAccountKvSelectedServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Server'**
+  String get vpnAccountKvSelectedServer;
+
+  /// No description provided for @vpnAccountKvConnectionState.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection State'**
+  String get vpnAccountKvConnectionState;
+
+  /// No description provided for @vpnAccountActionRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get vpnAccountActionRefresh;
+
+  /// No description provided for @vpnAccountActionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get vpnAccountActionOpen;
+
+  /// No description provided for @vpnAccountFounderThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for supporting ColourSwift'**
+  String get vpnAccountFounderThanks;
+
+  /// No description provided for @vpnAccountFounderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m just one guy, held by the greatest community.'**
+  String get vpnAccountFounderNote;
 
   /// No description provided for @cleanerStageOldVideosProgress.
   ///

@@ -42,12 +42,14 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
-            <intent-filter>
+            <intent-filter android:autoVerify="false">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
-                    android:scheme="colourswift"
+                    android:scheme="colourswift-av"
                     android:host="auth" />
             </intent-filter>
 
@@ -59,7 +61,7 @@
         </receiver>
 
         <receiver
-            android:name=".RealtimeReceiver"
+            android:name="com.colourswift.cssecurity.rtp.RealtimeReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -172,10 +174,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4198956812643415~8113061137" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

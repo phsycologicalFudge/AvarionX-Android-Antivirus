@@ -272,7 +272,10 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         fe = flutterEngine
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, FULLVPN_CHAN).setMethodCallHandler { call, result ->
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            FULLVPN_CHAN
+        ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "connect" -> {
                     val cfg = call.arguments as? String ?: ""
@@ -312,17 +315,26 @@ class MainActivity : FlutterActivity() {
                         startForegroundServiceCompat(title, text)
                         result.success(true)
                     }
+
                     "stopService" -> {
                         stopForegroundService()
                         result.success(true)
                     }
+
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
                         val title = args?.get("title") as? String ?: "AVarionX"
                         val text = args?.get("text") as? String ?: ""
-                        showNotification(title, text)
+                        val autoDismissAfterSeconds = when (val v = args?.get("autoDismissAfterSeconds")) {
+                            is Int -> v
+                            is Long -> v.toInt()
+                            is Double -> v.toInt()
+                            else -> null
+                        }
+                        showNotification(title, text, autoDismissAfterSeconds)
                         result.success(true)
                     }
+
                     "showScanOngoing" -> {
                         val args = call.arguments as? Map<*, *>
                         val title = args?.get("title") as? String ?: "Scheduled scan running"
@@ -330,6 +342,7 @@ class MainActivity : FlutterActivity() {
                         showScanOngoingNotification(title, text)
                         result.success(true)
                     }
+
                     "updateScanOngoing" -> {
                         val args = call.arguments as? Map<*, *>
                         val title = args?.get("title") as? String ?: "Scheduled scan running"
@@ -337,18 +350,25 @@ class MainActivity : FlutterActivity() {
                         updateScanOngoingNotification(title, text)
                         result.success(true)
                     }
+
                     "hideScanOngoing" -> {
                         hideScanOngoingNotification()
                         result.success(true)
                     }
+
                     "toast" -> {
                         val args = call.arguments as? Map<*, *>
                         val text = args?.get("text") as? String ?: ""
                         if (text.isNotBlank()) {
-                            android.widget.Toast.makeText(applicationContext, text, android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(
+                                applicationContext,
+                                text,
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
                         }
                         result.success(true)
                     }
+
                     else -> result.notImplemented()
                 }
             }
@@ -404,6 +424,7 @@ class MainActivity : FlutterActivity() {
                         result.error("CERT_INSTALL_FAILED", e.message, null)
                     }
                 }
+
                 else -> result.notImplemented()
             }
         }
@@ -417,10 +438,12 @@ class MainActivity : FlutterActivity() {
                     SystemWatcher.start(applicationContext)
                     result.success(null)
                 }
+
                 "stop" -> {
                     SystemWatcher.stop()
                     result.success(null)
                 }
+
                 "startLogs" -> {
                     SystemWatcher.enableHeuristicLogs { line ->
                         Handler(Looper.getMainLooper()).post {
@@ -429,10 +452,12 @@ class MainActivity : FlutterActivity() {
                     }
                     result.success(null)
                 }
+
                 "stopLogs" -> {
                     SystemWatcher.disableHeuristicLogs()
                     result.success(null)
                 }
+
                 else -> result.notImplemented()
             }
         }
@@ -455,6 +480,7 @@ class MainActivity : FlutterActivity() {
                                 )
                             )
                     }
+
                     else -> result.notImplemented()
                 }
             }
@@ -466,9 +492,13 @@ class MainActivity : FlutterActivity() {
                         val code = call.argument<Int>("code") ?: 0
                         val r = pendingVpnResult
                         pendingVpnResult = null
-                        try { r?.success(code) } catch (_: Exception) {}
+                        try {
+                            r?.success(code)
+                        } catch (_: Exception) {
+                        }
                         result.success(true)
                     }
+
                     else -> result.notImplemented()
                 }
             }
@@ -516,9 +546,10 @@ class MainActivity : FlutterActivity() {
                     }
 
                     "stopWireGuard" -> {
-                        val intent = Intent(applicationContext, CSWireGuardService::class.java).apply {
-                            action = CSWireGuardService.ACTION_STOP
-                        }
+                        val intent =
+                            Intent(applicationContext, CSWireGuardService::class.java).apply {
+                                action = CSWireGuardService.ACTION_STOP
+                            }
                         applicationContext.startService(intent)
                         result.success(true)
                     }
@@ -568,7 +599,8 @@ class MainActivity : FlutterActivity() {
             val cloudUrl = (args?.get("cloud_url") as? String)?.trim().orEmpty()
             val clientId = (args?.get("client_id") as? String)?.trim().orEmpty()
 
-            val prefs = applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
+            val prefs =
+                applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
             val ed = prefs.edit()
 
             if (enabledLists != null) {
@@ -598,7 +630,8 @@ class MainActivity : FlutterActivity() {
                 return@setMethodCallHandler
             }
 
-            val prefs = applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
+            val prefs =
+                applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
 
             val used = prefs.getLong("usage_used", 0L).toInt()
             val limit = prefs.getLong("usage_limit", -1L).toInt().let { if (it <= 0) null else it }
@@ -694,9 +727,16 @@ class MainActivity : FlutterActivity() {
                         try {
                             result.success(CSVpnService.snapshotLockdownState(applicationContext))
                         } catch (_: Exception) {
-                            result.success(mapOf("always_on" to false, "lockdown" to false, "always_on_pkg" to null))
+                            result.success(
+                                mapOf(
+                                    "always_on" to false,
+                                    "lockdown" to false,
+                                    "always_on_pkg" to null
+                                )
+                            )
                         }
                     }
+
                     "openVpnSettings" -> {
                         try {
                             val i = Intent(Settings.ACTION_VPN_SETTINGS)
@@ -707,6 +747,7 @@ class MainActivity : FlutterActivity() {
                             result.success(false)
                         }
                     }
+
                     else -> result.notImplemented()
                 }
             }
@@ -720,7 +761,8 @@ class MainActivity : FlutterActivity() {
                         unregisterReceiver(receiver)
                         receiver = null
                     }
-                    receiver = RealtimeReceiver(events)
+                    RealtimeReceiver.events = events
+                    receiver = RealtimeReceiver()
                     val filter = IntentFilter("com.colourswift.cssecurity.NEW_FILE_DETECTED")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
@@ -736,9 +778,11 @@ class MainActivity : FlutterActivity() {
                         receiver = null
                         Log.i("CSMain", "RealtimeReceiver unregistered")
                     }
+                    RealtimeReceiver.events = null
                 }
             })
     }
+
     private fun startForegroundServiceCompat(title: String, text: String) {
         try {
             val intent = Intent(this, CSForegroundService::class.java)
@@ -783,12 +827,14 @@ class MainActivity : FlutterActivity() {
         startService(i)
     }
 
-    private fun showNotification(title: String, text: String) {
+    private fun showNotification(title: String, text: String, autoDismissAfterSeconds: Int? = null) {
         val channelId = "cssecurity_realtime_notify"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId, "Realtime Alerts",
+                channelId,
+                "Realtime Alerts",
                 NotificationManager.IMPORTANCE_HIGH
             )
             channel.setShowBadge(false)
@@ -809,6 +855,14 @@ class MainActivity : FlutterActivity() {
         }
 
         manager.notify(id, notification)
+
+        if (autoDismissAfterSeconds != null && autoDismissAfterSeconds > 0) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    manager.cancel(id)
+                } catch (_: Exception) {}
+            }, autoDismissAfterSeconds * 1000L)
+        }
     }
 
     private fun ensureScanChannel(mgr: NotificationManager) {

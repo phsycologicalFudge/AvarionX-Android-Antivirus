@@ -1,39 +1,14 @@
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
-import 'package:colourswift_av/screens/vpn/dns/NetworkProtectionScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../constants/build_flags.dart';
-import '../../services/pro_temp_service.dart';
 import '../../translations/app_localizations.dart';
-import '../../widgets/ads/ads_config.dart';
 import '../link checker/link_check_screen.dart';
 import '../scan/scan_limits_screen.dart';
 import '../scan/scheduled_scan_screen.dart';
 import '../terminal_screen.dart';
-import '../vpn/full_vpn_mode_screen.dart';
 
-class ExploreScreen extends StatefulWidget {
+class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
-
-  @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
-}
-
-class _ExploreScreenState extends State<ExploreScreen> {
-  bool isPro = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProStatus();
-  }
-
-  Future<void> _loadProStatus() async {
-    final effective = await ProGate.sync();
-    if (!mounted) return;
-    setState(() => isPro = effective);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,59 +19,44 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     final items = <_ExploreItem>[
       _ExploreItem(
-        title: "Secure VPN",
-        icon: Icons.vpn_key_outlined,
-        subtitle: "Hide your IP and block unwanted content",
-        isProFeature: false,
-        builder: (_) => const FullVpnModeScreen(),
-      ),
-      _ExploreItem(
         title: l10n.featureLinkChecker,
         icon: Icons.link_outlined,
         subtitle: l10n.recommendedLinkCheckerDesc,
-        isProFeature: false,
         builder: (_) => const LinkCheckScreen(),
       ),
       _ExploreItem(
         title: l10n.featureTerminal,
         icon: Icons.terminal_outlined,
         subtitle: l10n.recommendedTerminalDesc,
-        isProFeature: false,
         builder: (_) => const ConsoleScreen(isActive: true),
       ),
       _ExploreItem(
         title: l10n.featureMetaPass,
         icon: Icons.key_outlined,
         subtitle: l10n.recommendedMetaPassDesc,
-        isProFeature: false,
         builder: (_) => const PasswordTestScreen(),
       ),
       _ExploreItem(
         title: l10n.featureCleanerPro,
         icon: Icons.cleaning_services_outlined,
         subtitle: l10n.recommendedCleanerProDesc,
-        isProFeature: true,
         builder: (_) => const CleanerScreen(),
       ),
       _ExploreItem(
         title: l10n.featureScheduledScans,
         icon: Icons.schedule_rounded,
         subtitle: l10n.recommendedScheduledScansDesc,
-        isProFeature: true,
         builder: (_) => const ScheduledScansScreen(),
       ),
       _ExploreItem(
         title: l10n.exploreMultiThreadingTitle,
         icon: Icons.computer_outlined,
         subtitle: l10n.exploreMultiThreadingSubtitle,
-        isProFeature: true,
         builder: (_) => const ScanLimitsScreen(),
       ),
     ];
 
     Widget tileFor(_ExploreItem item) {
-      final showPro = item.isProFeature && !isPro;
-
       return Padding(
         padding: const EdgeInsets.only(bottom: 6),
         child: Card(
@@ -107,7 +67,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
           clipBehavior: Clip.antiAlias,
           child: ListTile(
-          dense: true,
+            dense: true,
             visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
             leading: Icon(
               item.icon,
@@ -130,7 +90,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 height: 1.15,
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 6,
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -141,7 +104,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
       );
     }
-
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -179,14 +141,12 @@ class _ExploreItem {
   final String title;
   final IconData icon;
   final String? subtitle;
-  final bool isProFeature;
   final WidgetBuilder builder;
 
   const _ExploreItem({
     required this.title,
     required this.icon,
     required this.subtitle,
-    required this.isProFeature,
     required this.builder,
   });
 }

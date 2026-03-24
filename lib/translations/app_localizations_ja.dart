@@ -30,7 +30,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get footerSettings => '設定';
 
   @override
-  String get proBadge => 'PRO';
+  String get proBadge => 'プレミアム';
 
   @override
   String get updateDbTitle => 'データベースを更新中';
@@ -394,7 +394,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get networkStatusConnecting => '接続中';
 
   @override
-  String get networkStatusConnected => 'Connected to null';
+  String get networkStatusConnected => '接続済み';
 
   @override
   String get networkUsageTitle => '使用量';
@@ -820,7 +820,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardingNetworkTitle => 'ネットワーク保護';
 
   @override
-  String get onboardingNetworkDesc => 'AndroidのVPN権限を使用してWi-Fi保護を有効にします。';
+  String get onboardingNetworkDesc => 'AndroidのVPN権限を使用してWi Fi保護を有効にします。';
 
   @override
   String get onboardingNetworkFootnote => '任意ですが推奨です。';
@@ -867,14 +867,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String networkStatusConnectedToDns(Object dns) {
-    return 'Connected to $dns';
+    return '$dns に接続中';
   }
 
   @override
-  String get networkStatusVpnConflictDetail => 'Another VPN is active';
+  String get networkStatusVpnConflictDetail => '別のVPNが有効です';
 
   @override
-  String get networkStatusOffDetail => 'Network protection is off';
+  String get networkStatusOffDetail => 'ネットワーク保護はオフです';
 
   @override
   String get networkModeMalwareTitle => 'マルウェアのみブロック';
@@ -1010,527 +1010,838 @@ class AppLocalizationsJa extends AppLocalizations {
   String get linkCheckerCopied => 'コピーしました';
 
   @override
-  String get settingsSectionAppearance => 'Appearance';
+  String get settingsSectionAppearance => '外観';
 
   @override
-  String get settingsTheme => 'Theme';
+  String get settingsTheme => 'テーマ';
 
   @override
   String settingsThemeCurrent(Object theme) {
-    return 'Current: $theme';
+    return '現在: $theme';
   }
 
   @override
-  String get settingsLanguage => 'Language';
+  String get settingsLanguage => '言語';
 
   @override
   String settingsLanguageCurrent(Object language) {
-    return 'Current: $language';
+    return '現在: $language';
   }
 
   @override
-  String get settingsChooseLanguage => 'Choose Language';
+  String get settingsChooseLanguage => '言語を選択';
 
   @override
-  String get settingsLanguageApplied => 'Language applied';
+  String get settingsLanguageApplied => '言語を適用しました';
 
   @override
-  String get settingsSystemDefault => 'System default';
+  String get settingsSystemDefault => 'システム既定';
 
   @override
-  String get settingsSectionCommunity => 'Join the community!';
+  String get settingsSectionCommunity => 'コミュニティに参加';
 
   @override
   String get settingsDiscord => 'Discord';
 
   @override
-  String get settingsDiscordSubtitle => 'Chat, updates and feedback';
+  String get settingsDiscordSubtitle => 'チャット、更新、フィードバック';
 
   @override
-  String get settingsDiscordOpenFail => 'Unable to open Discord link';
+  String get settingsDiscordOpenFail => 'Discordリンクを開けませんでした';
 
   @override
-  String get settingsSectionPro => 'PRO Features';
+  String get settingsSectionPro => 'プレミアム機能';
 
   @override
-  String get settingsProCustomization => 'PRO Customization';
+  String get settingsProCustomization => 'プレミアム カスタマイズ';
 
   @override
-  String get settingsProSubtitle =>
-      'Go ad free, unlock unlimited DNS, themes and icons';
+  String get settingsProSubtitle => '広告を削除し、無制限DNS、テーマ、アイコンを解放';
 
   @override
-  String get settingsUnlockPro => 'Unlock Premium';
+  String get settingsUnlockPro => 'プレミアムを解除';
 
   @override
-  String get settingsProUnlocked => 'PRO mode unlocked';
+  String get settingsProUnlocked => 'PROモードが解除されました';
 
   @override
-  String get settingsPurchaseNotConfirmed => 'Purchase not confirmed';
+  String get settingsPurchaseNotConfirmed => '購入を確認できませんでした';
 
   @override
   String settingsPurchaseFailed(Object error) {
-    return 'Purchase failed: $error';
+    return '購入エラー: $error';
   }
 
   @override
-  String get proActivated => 'PRO activated';
+  String get homeUpgrade => 'アップグレード';
 
   @override
-  String get proDeactivated => 'PRO deactivated';
+  String get homeFeatureSecureVpnTitle => 'AvarionX VPN';
 
   @override
-  String get settingsProReset => 'PRO reset (debug only)';
+  String get homeFeatureSecureVpnDesc => 'IPを隠し、不要なコンテンツをブロック';
 
   @override
-  String get settingsProSheetTitle => 'PRO Customization';
+  String get proActivated => 'PROを有効化しました';
 
   @override
-  String get settingsHideGoldHeader =>
-      'Show gold header on Home Screen (dark themes)';
+  String get proDeactivated => 'PROを無効化しました';
 
   @override
-  String get settingsAppIcon => 'App Icon';
+  String get settingsProReset => 'PROをリセット（デバッグのみ）';
+
+  @override
+  String get settingsProSheetTitle => 'プレミアム カスタマイズ';
+
+  @override
+  String get settingsHideGoldHeader => 'ホーム画面のゴールドヘッダーを表示（ダークテーマ）';
+
+  @override
+  String get settingsAppIcon => 'アプリアイコン';
 
   @override
   String settingsIconSelected(Object icon) {
-    return 'Icon selected: $icon';
+    return '選択中のアイコン: $icon';
   }
 
   @override
-  String get settingsSave => 'Save';
+  String get vpnSignInRequiredTitle => 'サインインが必要です';
 
   @override
-  String get settingsPremium => 'Premium';
+  String get vpnClose => '閉じる';
 
   @override
-  String get settingsUltimateSecurity => 'Ultimate Security';
+  String get vpnSignInRequiredBody => 'Secure VPNを使うにはサインインしてください。';
 
   @override
-  String get settingsSwitchPlan => 'Switch plan';
+  String get vpnCancel => 'キャンセル';
 
   @override
-  String get settingsBestValue => 'Best value';
+  String get vpnSignIn => 'サインイン';
 
   @override
-  String get settingsOneTime => 'One time';
+  String get vpnUsageLoading => '使用量を読み込み中...';
 
   @override
-  String get settingsPlanPriceLoading => 'Price loading...';
+  String get vpnUsageNoLimits => 'データ制限なし';
 
   @override
-  String get settingsMonthly => 'Monthly';
+  String get vpnUsageSyncing => '同期中';
 
   @override
-  String get settingsYearly => 'Yearly';
+  String vpnUsageUsedThisMonth(Object used) {
+    return '今月の使用量: $used';
+  }
 
   @override
-  String get settingsLifetime => 'Lifetime';
+  String get vpnUsageDataTitle => 'データ使用量';
 
   @override
-  String get settingsSubscribeMonthly => 'Subscribe monthly';
+  String get vpnUsageUnavailable => '使用量を取得できません';
 
   @override
-  String get settingsSubscribeYearly => 'Subscribe yearly';
+  String get vpnStatusConnectingEllipsis => '接続中...';
 
   @override
-  String get settingsUnlockLifetime => 'Unlock lifetime';
+  String vpnStatusConnectedTo(Object country) {
+    return '$country に接続中';
+  }
 
   @override
-  String get settingsProBenefitsTitle => 'Benefits';
+  String get vpnTitleSecure => 'Secure VPN';
 
   @override
-  String get settingsUnlimitedDnsTitle => 'Unlimited DNS queries';
+  String get vpnStatusConnected => '接続済み';
 
   @override
-  String get settingsUnlimitedDnsBody =>
-      'Remove query limits and unlock full cloud filtering.';
+  String get vpnSubtitleEstablishingTunnel => 'トンネルを確立中...';
 
   @override
-  String get settingsThemesTitle => 'Themes';
+  String get vpnSubtitleFindingLocation => '場所を検索中...';
 
   @override
-  String get settingsThemesBody => 'Unlock premium themes and customization.';
+  String get vpnStatusProtected => '保護中';
 
   @override
-  String get settingsIconCustomizationTitle => 'App icon customization';
+  String get vpnStatusNotConnected => '未接続';
 
   @override
-  String get settingsIconCustomizationBody =>
-      'Change the app icon to match your style.';
+  String get vpnConnect => '接続';
 
   @override
-  String get settingsScheduledScansTitle => 'Scheduled scans';
+  String get vpnDisconnect => '切断';
 
   @override
-  String get settingsScheduledScansBody =>
-      'Unlock advanced scheduling and scan customization.';
+  String vpnIpLabel(Object ip) {
+    return 'IP: $ip';
+  }
+
+  @override
+  String vpnServerLoadLabel(Object current, Object max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get vpnBlocklistsTitle => 'Secure VPN ブロックリスト';
+
+  @override
+  String get vpnSave => '保存';
+
+  @override
+  String get settingsSave => '保存';
+
+  @override
+  String get settingsPremium => 'プレミアム';
+
+  @override
+  String get settingsUltimateSecurity => '究極のセキュリティ';
+
+  @override
+  String get settingsSwitchPlan => 'プランを変更';
+
+  @override
+  String get settingsBestValue => '最もお得';
+
+  @override
+  String get settingsOneTime => '買い切り';
+
+  @override
+  String get settingsPlanPriceLoading => '価格を読み込み中...';
+
+  @override
+  String get settingsMonthly => '月額';
+
+  @override
+  String get settingsYearly => '年額';
+
+  @override
+  String get settingsLifetime => '永久';
+
+  @override
+  String get settingsSubscribeMonthly => '月額プランに登録';
+
+  @override
+  String get settingsSubscribeYearly => '年額プランに登録';
+
+  @override
+  String get settingsUnlockLifetime => '永久版を解除';
+
+  @override
+  String get settingsProBenefitsTitle => '特典';
+
+  @override
+  String get settingsUnlimitedDnsTitle => '無制限DNSクエリ';
+
+  @override
+  String get settingsUnlimitedDnsBody => 'クエリ上限を解除し、クラウド側のフルフィルタリングを利用できます。';
+
+  @override
+  String get settingsThemesTitle => 'テーマ';
+
+  @override
+  String get settingsThemesBody => 'プレミアムテーマとカスタマイズを解放します。';
+
+  @override
+  String get settingsIconCustomizationTitle => 'アイコンのカスタマイズ';
+
+  @override
+  String get settingsIconCustomizationBody => '好みに合わせてアプリアイコンを変更できます。';
+
+  @override
+  String get settingsScheduledScansTitle => 'スケジュールスキャン';
+
+  @override
+  String get settingsScheduledScansBody => '高度なスケジュール設定とスキャンのカスタマイズを解放します。';
 
   @override
   String get settingsProFinePrint =>
-      'Subscriptions renew unless canceled. You can manage or cancel anytime in Google Play. Lifetime is a one time purchase.';
+      'サブスクリプションは解約するまで自動更新されます。Google Playでいつでも管理または解約できます。永久版は買い切りです。';
 
   @override
-  String get settingsSectionShizuku => 'Advanced Protection (Shizuku)';
+  String get settingsSectionShizuku => '高度な保護（Shizuku）';
 
   @override
-  String get settingsEnableShizuku => 'Enable Shizuku';
+  String get settingsEnableShizuku => 'Shizukuを有効化';
 
   @override
-  String get settingsShizukuRequiresManager => 'Requires external manager';
+  String get settingsShizukuRequiresManager => '外部マネージャーが必要';
 
   @override
-  String get settingsShizukuNotRunning => 'Shizuku service not running';
+  String get settingsShizukuNotRunning => 'Shizukuサービスが実行されていません';
 
   @override
-  String get settingsShizukuPermissionRequired => 'Permission required';
+  String get settingsShizukuPermissionRequired => '権限が必要';
 
   @override
-  String get settingsShizukuAvailable => 'Advanced system access available';
+  String get settingsShizukuAvailable => '高度なシステムアクセスが利用可能';
 
   @override
-  String get settingsAboutAdvancedProtection => 'About Advanced Protection';
+  String get settingsAboutAdvancedProtection => '高度な保護について';
 
   @override
-  String get settingsAboutAdvancedProtectionSubtitle =>
-      'Learn how advanced protection works';
+  String get settingsAboutAdvancedProtectionSubtitle => '高度な保護の仕組みを学ぶ';
 
   @override
-  String get settingsAdvancedProtectionDialogTitle =>
-      'Advanced system Protection';
+  String get settingsAdvancedProtectionDialogTitle => '高度なシステム保護';
 
   @override
   String get settingsAdvancedProtectionDialogBody =>
-      'Shizuku access requires an external manager intended for advanced users.\n\nThis feature is optional and not recommended for casual protection.';
+      'Shizukuアクセスには上級者向けの外部マネージャーが必要です。\n\nこの機能は任意であり、通常の保護用途には推奨されません。';
 
   @override
-  String get settingsAboutShizukuTitle => 'About Shizuku';
+  String get settingsAboutShizukuTitle => 'Shizukuについて';
 
   @override
   String get settingsAboutShizukuBody =>
-      'AVarionX can integrate with Shizuku to access app processes at the system level.\n\nThis allows the app to:\n• Detect malware that hides from standard scanners\n• Inspect running app processes\n• Disable or contain most active malware\n\nShizuku however, does not grant root access\n\nThis feature is intended for advanced users and is not required for normal protection.\n\nDocumentation:\nhttps://shizuku.rikka.app';
+      'AVarionXはShizukuと連携し、システムレベルでアプリのプロセスへアクセスできます。\n\nこれによりアプリは次のことが可能になります:\n• 標準スキャナから隠れるマルウェアを検出\n• 実行中アプリのプロセスを検査\n• 多くのアクティブなマルウェアを無効化または封じ込め\n\nただし、Shizukuはroot権限を付与しません\n\nこの機能は上級者向けであり、通常の保護には不要です。\n\nドキュメント:\nhttps://shizuku.rikka.app';
 
   @override
-  String get settingsSectionGeneral => 'General';
+  String get settingsSectionGeneral => '一般';
 
   @override
-  String get settingsExclusions => 'Exclusions';
+  String get settingsExclusions => '除外';
 
   @override
-  String get settingsExclusionsSubtitle => 'Manage and add exclusions';
+  String get settingsExclusionsSubtitle => '除外の管理と追加';
 
   @override
-  String get settingsExcludeFolder => 'Exclude a Folder';
+  String get settingsExcludeFolder => 'フォルダを除外';
 
   @override
-  String get settingsExcludeFile => 'Exclude a File';
+  String get settingsExcludeFile => 'ファイルを除外';
 
   @override
-  String get settingsManageExclusions => 'Manage Existing Exclusions';
+  String get settingsManageExclusions => '既存の除外を管理';
 
   @override
-  String get settingsManageExclusionsSubtitle => 'View or remove exclusions';
+  String get settingsManageExclusionsSubtitle => '除外を表示または削除';
 
   @override
-  String get settingsFolderExcluded => 'Folder excluded';
+  String get settingsFolderExcluded => 'フォルダを除外しました';
 
   @override
-  String get settingsFileExcluded => 'File excluded';
+  String get settingsFileExcluded => 'ファイルを除外しました';
 
   @override
-  String get settingsPrivacyPolicy => 'Privacy Policy';
+  String get settingsPrivacyPolicy => 'プライバシーポリシー';
 
   @override
-  String get settingsPrivacyPolicySubtitle => 'View how your data is handled';
+  String get settingsPrivacyPolicySubtitle => 'データの扱い方を確認';
 
   @override
-  String get settingsPrivacyPolicyOpenFail => 'Unable to open privacy policy';
+  String get settingsPrivacyPolicyOpenFail => 'プライバシーポリシーを開けませんでした';
 
   @override
-  String get settingsAboutApp => 'About AVarionX';
+  String get settingsAboutApp => 'AVarionXについて';
 
   @override
-  String get settingsHowThisAppWorks => 'How This App Works';
+  String get settingsHowThisAppWorks => 'このアプリの仕組み';
 
   @override
-  String get settingsHowThisAppWorksSubtitle => 'Learn about protection';
+  String get settingsHowThisAppWorksSubtitle => '保護の仕組みを学ぶ';
 
   @override
-  String get settingsThemePickerTitle => 'Choose Theme';
+  String get settingsThemePickerTitle => 'テーマを選択';
 
   @override
-  String get settingsThemeRequiresPro => 'That theme requires PRO mode';
+  String get settingsThemeRequiresPro => 'このテーマにはPROモードが必要です';
 
   @override
-  String get scheduledScansTitle => 'Scheduled Scans';
+  String get scheduledScansTitle => 'スケジュールスキャン';
 
   @override
-  String get scheduledScansInfoTitle => 'Scheduled Scans';
+  String get scheduledScansInfoTitle => 'スケジュールスキャン';
 
   @override
   String get scheduledScansInfoBody =>
-      'While RTP focuses on downloaded malware, Scheduled Scans will automatically launch your chosen scan mode in the background.\nIt will only run while RTP is enabled.\n\nPRO users can customize scan mode and frequency.';
+      'RTPがダウンロードされたマルウェアに重点を置く一方、スケジュールスキャンは選択したスキャンモードをバックグラウンドで自動開始します。\nRTPが有効な場合にのみ実行されます。\n\nPROユーザーはモードと頻度をカスタマイズできます。';
 
   @override
-  String get scheduledScansHeader => 'Automatic background scans';
+  String get scheduledScansHeader => 'バックグラウンド自動スキャン';
 
   @override
-  String get scheduledScansSubheader =>
-      'While RTP is active, the app will scan your device based on the selected scan mode and frequency.';
+  String get scheduledScansSubheader => 'RTPが有効な間、選択したモードと頻度に従って端末をスキャンします。';
 
   @override
-  String get proRequiredToCustomize => 'PRO required to customize';
+  String get proRequiredToCustomize => 'カスタマイズにはPROが必要です';
 
   @override
-  String get scheduledScansEnabledTitle => 'Enabled';
+  String get scheduledScansEnabledTitle => '有効';
 
   @override
   String get scheduledScansEnabledSubtitle =>
-      'When enabled, a scan runs automatically on your chosen schedule.';
+      '有効時、設定したスケジュールに従って自動でスキャンを実行します。';
 
   @override
-  String get scheduledScansModeTitle => 'Scan mode';
+  String get scheduledScansModeTitle => 'スキャンモード';
 
   @override
   String scheduledScansModeHint(Object mode) {
-    return 'Current mode: $mode';
+    return '現在のモード: $mode';
   }
 
   @override
-  String get scheduledScansFrequencyTitle => 'Frequency';
+  String get scheduledScansFrequencyTitle => '頻度';
 
   @override
   String scheduledScansFrequencyHint(Object freq) {
-    return 'Runs: $freq';
+    return '実行: $freq';
   }
 
   @override
-  String get scheduledEveryDay => 'Every day';
+  String get scheduledEveryDay => '毎日';
 
   @override
-  String get scheduledEvery3Days => 'Every 3 days';
+  String get scheduledEvery3Days => '3日ごと';
 
   @override
-  String get scheduledEveryWeek => 'Every week';
+  String get scheduledEveryWeek => '毎週';
 
   @override
-  String get scheduledEvery2Weeks => 'Every 2 weeks';
+  String get scheduledEvery2Weeks => '2週間ごと';
 
   @override
-  String get scheduledEvery3Weeks => 'Every 3 weeks';
+  String get scheduledEvery3Weeks => '3週間ごと';
 
   @override
-  String get scheduledMonthly => 'Monthly';
+  String get scheduledMonthly => '毎月';
 
   @override
   String scheduledEveryDays(Object days) {
-    return 'Every $days days';
+    return '$days日ごと';
   }
 
   @override
   String scheduledEveryHours(Object hours) {
-    return 'Every $hours hours';
+    return '$hours時間ごと';
   }
 
   @override
-  String get scheduledChargingOnlyTitle => 'Only when charging';
+  String get vpnSettingsPrivacySecurityTitle => 'プライバシーとセキュリティ';
 
   @override
-  String get scheduledChargingOnlySubtitle =>
-      'Run the scheduled scan only while the device is plugged in.';
+  String get vpnSettingsNoLogsPolicyTitle => 'ノーログポリシー';
 
   @override
-  String get scheduledPreferredTimeTitle => 'Preferred time';
+  String get vpnSettingsNoLogsPolicyBody =>
+      'ログは保存されません。接続アクティビティ、閲覧アクティビティ、DNSクエリ、トラフィック内容は記録または保持されません。';
+
+  @override
+  String get vpnSettingsNoActivityLogsTitle => 'アクティビティログなし';
+
+  @override
+  String get vpnSettingsNoActivityLogsBody =>
+      'Secure VPN利用中のアクティビティは監視も追跡もされません。';
+
+  @override
+  String get vpnSettingsWireGuardTitle => 'VX-Link powered by WireGuard';
+
+  @override
+  String get vpnSettingsWireGuardBody =>
+      'Secure VPNはVX-Link経由でWireGuardプロトコルを使用し、高速でモダンな暗号化を提供します。';
+
+  @override
+  String get vpnSettingsMalwareProtectionTitle => 'マルウェア保護が有効';
+
+  @override
+  String get vpnSettingsMalwareProtectionBody =>
+      '接続中は悪意のあるドメインがデフォルトでブロックされます。';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionTitle => '任意の広告・トラッカー保護';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionBody =>
+      '追加の広告およびトラッカーブロックは、カスタマイズタブで有効化できます。';
+
+  @override
+  String get vpnSettingsBrandFooter => 'VX-Link により保護';
+
+  @override
+  String get vpnSettingsAccountTitle => 'アカウント';
+
+  @override
+  String get vpnSettingsSignInToContinue => '続行するにはサインインしてください';
+
+  @override
+  String get vpnSettingsAccountSyncBody => 'プランとデータ使用量はアカウントと同期されます。';
+
+  @override
+  String get vpnSettingsSignedIn => 'サインイン済み';
+
+  @override
+  String get vpnSettingsPlanUnknown => 'プラン: 不明';
+
+  @override
+  String vpnSettingsPlanLabel(Object plan) {
+    return 'プラン: $plan';
+  }
+
+  @override
+  String get vpnSettingsRefresh => '更新';
+
+  @override
+  String get vpnSettingsSignOut => 'サインアウト';
+
+  @override
+  String get scheduledChargingOnlyTitle => '充電中のみ';
+
+  @override
+  String get scheduledChargingOnlySubtitle => '端末が充電中のときのみスケジュールスキャンを実行します。';
+
+  @override
+  String get scheduledPreferredTimeTitle => '希望時刻';
 
   @override
   String get scheduledPreferredTimeSubtitle =>
-      'AVarionX will aim to start around this time. Android may delay it to save battery.';
+      'AVarionXはこの時刻の前後で開始を試みます。Androidが省電力のため遅延させる場合があります。';
 
   @override
-  String get scheduledPickTime => 'Pick time';
+  String get scheduledPickTime => '時刻を選択';
 
   @override
   String get cleanerTitle => 'Cleaner Pro';
 
   @override
-  String get cleanerReadyToScan => 'Ready to Scan';
+  String get cleanerReadyToScan => 'スキャン準備完了';
 
   @override
-  String get cleanerScan => 'Scan';
+  String get cleanerScan => 'スキャン';
 
   @override
-  String get cleanerScanning => 'Scanning…';
+  String get cleanerScanning => 'スキャン中…';
 
   @override
-  String get cleanerReady => 'Ready';
+  String get cleanerReady => '準備完了';
 
   @override
-  String get cleanerStatusReady => 'Ready';
+  String get cleanerStatusReady => '準備完了';
 
   @override
-  String get cleanerStatusStarting => 'Starting…';
+  String get cleanerStatusStarting => '開始中…';
 
   @override
-  String get cleanerStatusFilesScanned => 'Files scanned';
+  String get cleanerStatusFilesScanned => 'ファイルをスキャン済み';
 
   @override
-  String get cleanerStatusFindingUnusedApps => 'Finding unused apps…';
+  String get cleanerStatusFindingUnusedApps => '未使用アプリを検索中…';
 
   @override
-  String get cleanerStatusComplete => 'Complete';
+  String get cleanerStatusComplete => '完了';
 
   @override
-  String get cleanerStatusScanError => 'Scan error';
+  String get cleanerStatusScanError => 'スキャンエラー';
 
   @override
-  String get cleanerStatusScanningApps => 'Scanning apps…';
+  String get cleanerStatusScanningApps => 'アプリをスキャン中…';
 
   @override
-  String get cleanerGrantUsageAccessTitle => 'Grant Usage Access';
+  String get cleanerGrantUsageAccessTitle => '使用状況アクセスを許可';
 
   @override
   String get cleanerGrantUsageAccessBody =>
-      'To detect unused apps, this cleaner requires Usage Access permission. You’ll be redirected to system settings to enable it.';
+      '未使用アプリを検出するには、このクリーナーに使用状況アクセス権限が必要です。有効化のためシステム設定へ移動します。';
 
   @override
-  String get cleanerCancel => 'Cancel';
+  String get cleanerCancel => 'キャンセル';
 
   @override
-  String get cleanerContinue => 'Continue';
+  String get cleanerContinue => '続行';
 
   @override
-  String get cleanerDuplicates => 'Duplicates';
+  String get cleanerDuplicates => '重複';
 
   @override
-  String get cleanerDuplicatesNone => 'No duplicates found';
+  String get cleanerDuplicatesNone => '重複は見つかりませんでした';
 
   @override
   String cleanerDuplicatesSubtitle(Object count, Object size) {
-    return '$count items • reclaim $size';
+    return '$count 件 • $size を回復';
   }
 
   @override
-  String get cleanerOldPhotos => 'Old Photos';
+  String get cleanerOldPhotos => '古い写真';
 
   @override
   String cleanerOldPhotosNone(Object days) {
-    return 'No photos older than $days days';
+    return '$days日を超える写真はありません';
   }
 
   @override
   String cleanerOldPhotosSubtitle(Object count, Object size) {
-    return '$count items • $size';
+    return '$count 件 • $size';
   }
 
   @override
-  String get cleanerOldVideos => 'Old Videos';
+  String get cleanerOldVideos => '古い動画';
 
   @override
   String cleanerOldVideosNone(Object days) {
-    return 'No videos older than $days days';
+    return '$days日を超える動画はありません';
   }
 
   @override
   String cleanerOldVideosSubtitle(Object count, Object size) {
-    return '$count items • $size';
+    return '$count 件 • $size';
   }
 
   @override
-  String get cleanerLargeFiles => 'Large Files';
+  String get cleanerLargeFiles => '大きなファイル';
 
   @override
   String cleanerLargeFilesNone(Object size) {
-    return 'No files ≥ $size';
+    return '≥ $size のファイルはありません';
   }
 
   @override
   String cleanerLargeFilesSubtitle(Object count, Object sizeTotal) {
-    return '$count items • $sizeTotal';
+    return '$count 件 • $sizeTotal';
   }
 
   @override
-  String get cleanerUnusedApps => 'Unused Apps';
+  String get cleanerUnusedApps => '未使用アプリ';
 
   @override
   String cleanerUnusedAppsNone(Object days) {
-    return 'No unused apps (last $days days)';
+    return '未使用アプリはありません（過去 $days 日）';
   }
 
   @override
   String cleanerUnusedAppsCount(Object count) {
-    return '$count apps';
+    return '$count 個のアプリ';
   }
 
   @override
-  String get cleanerStageDuplicates => 'Scanning duplicates…';
+  String get cleanerStageDuplicates => '重複をスキャン中…';
 
   @override
-  String get cleanerStageDuplicatesGrouping => 'Grouping duplicates…';
+  String get cleanerStageDuplicatesGrouping => '重複をグループ化中…';
 
   @override
-  String get cleanerStageOldPhotos => 'Scanning old photos…';
+  String get cleanerStageOldPhotos => '古い写真をスキャン中…';
 
   @override
-  String get cleanerStageOldVideos => 'Scanning old videos…';
+  String get cleanerStageOldVideos => '古い動画をスキャン中…';
 
   @override
-  String get cleanerStageLargeFiles => 'Scanning large files…';
+  String get cleanerStageLargeFiles => '大きなファイルをスキャン中…';
 
   @override
   String cleanerStageOldPhotosProgress(Object count, Object size) {
-    return 'Old photos: $count • $size';
+    return '古い写真: $count • $size';
   }
 
   @override
+  String get vpnAccountScreenTitle => 'アカウント';
+
+  @override
+  String get vpnAccountSignInRequiredTitle => 'サインインが必要です';
+
+  @override
+  String get vpnAccountSignInManageUsageBody => 'アカウントと使用量を管理するにはサインインしてください。';
+
+  @override
+  String get vpnAccountNotSignedIn => '未サインイン';
+
+  @override
+  String get vpnAccountFree => '無料';
+
+  @override
+  String get vpnAccountUnknown => '不明';
+
+  @override
+  String get vpnAccountStatusSyncing => '同期中';
+
+  @override
+  String get vpnAccountStatusActive => '有効';
+
+  @override
+  String get vpnAccountStatusConnected => '接続済み';
+
+  @override
+  String get vpnAccountStatusDisconnected => '未接続';
+
+  @override
+  String get vpnAccountStatusUnavailable => '利用不可';
+
+  @override
+  String get vpnAccountStatusConnectedNow => '現在接続中';
+
+  @override
+  String get vpnAccountStatusRefreshToLoadServer => 'サーバー状態を読み込むには更新してください';
+
+  @override
+  String get vpnAccountUsageTitle => '使用量';
+
+  @override
+  String get vpnAccountUsageLoading => '使用量を読み込み中...';
+
+  @override
+  String get vpnAccountUsageSignInToSync => '同期するにはサインインしてください';
+
+  @override
+  String get vpnAccountUsagePullToRefresh => '下に引いて更新し、使用量を同期';
+
+  @override
+  String get vpnAccountUsageUnlimited => '無制限';
+
+  @override
+  String vpnAccountUsageUsedThisMonth(Object used) {
+    return '今月の使用量: $used';
+  }
+
+  @override
+  String vpnAccountUsageUsedThisMonthUnlimited(Object used) {
+    return '今月の使用量: $used、無制限';
+  }
+
+  @override
+  String vpnAccountUsageUsedOfLimit(Object used, Object limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String get settingsSectionAccount => 'アカウント';
+
+  @override
+  String get settingsAccountTitle => 'アカウント';
+
+  @override
+  String get settingsAccountSubtitle => 'サインイン、プラン、サブスクリプション、アカウント使用量';
+
+  @override
+  String get exploreSecureVpnTitle => 'Secure VPN';
+
+  @override
+  String get exploreSecureVpnSubtitle => 'IPを隠し、不要なコンテンツをブロック';
+
+  @override
+  String get vpnAccountServerLoadTitle => '選択中サーバーの負荷';
+
+  @override
+  String vpnAccountServerConnectedCount(Object connected, Object cap) {
+    return '$connected/$cap';
+  }
+
+  @override
+  String get networkDnsOffTitle => 'DNSフィルタリングに切り替えますか？';
+
+  @override
+  String get networkDnsOffInfoTitle => 'DNSフィルタリングとは？';
+
+  @override
+  String get networkDnsOffInfoBody1 =>
+      'DNSフィルタリングはSecure VPNとは別機能です。既知のマルウェア、アプリ内広告、トラッカー、不要なカテゴリを読み込み前にブロックできます。';
+
+  @override
+  String get networkDnsOffInfoBody2 => '通信を暗号化したり、IPを隠したりはしません。';
+
+  @override
+  String get networkDnsOffEnableButton => 'DNSフィルタリングを有効化';
+
+  @override
+  String vpnAccountServerConnectedCountWithLabel(Object connected, Object cap) {
+    return '$connected/$cap 接続中';
+  }
+
+  @override
+  String get vpnAccountIdentityFallbackTitle => 'アカウント';
+
+  @override
+  String get vpnAccountMembershipLabel => 'メンバーシップ';
+
+  @override
+  String get vpnAccountMembershipFounderVpnPro => 'Founder ・ VPN Pro';
+
+  @override
+  String get vpnAccountMembershipFounder => 'Founder';
+
+  @override
+  String get vpnAccountMembershipPro => 'Pro';
+
+  @override
+  String get vpnAccountSectionAccountStatus => 'アカウント状態';
+
+  @override
+  String get vpnAccountSectionActions => '操作';
+
+  @override
+  String get vpnAccountKvStatus => '状態';
+
+  @override
+  String get vpnAccountKvPlan => 'プラン';
+
+  @override
+  String get vpnAccountKvUsage => '使用量';
+
+  @override
+  String get vpnAccountKvSelectedServer => '選択中サーバー';
+
+  @override
+  String get vpnAccountKvConnectionState => '接続状態';
+
+  @override
+  String get vpnAccountActionRefresh => '更新';
+
+  @override
+  String get vpnAccountActionOpen => '開く';
+
+  @override
+  String get vpnAccountFounderThanks => 'ColourSwiftを支えてくれてありがとうございます';
+
+  @override
+  String get vpnAccountFounderNote => '一人で作っていますが、最高のコミュニティに支えられています。';
+
+  @override
   String cleanerStageOldVideosProgress(Object count, Object size) {
-    return 'Old videos: $count • $size';
+    return '古い動画: $count • $size';
   }
 
   @override
   String cleanerStageLargeFilesProgress(Object count, Object size) {
-    return 'Large files: $count • $size';
+    return '大きなファイル: $count • $size';
   }
 
   @override
-  String get unusedAppsTitle => 'Unused Apps';
+  String get unusedAppsTitle => '未使用アプリ';
 
   @override
   String unusedAppsEmpty(Object days) {
-    return 'No unused apps in last $days days';
+    return '過去 $days 日に未使用アプリはありません';
   }
 
   @override
-  String get quarantineTitle => 'Removed';
+  String get quarantineTitle => '削除済み';
 
   @override
-  String get quarantineSelectAll => 'Select all';
+  String get quarantineSelectAll => 'すべて選択';
 
   @override
-  String get quarantineRefresh => 'Refresh';
+  String get quarantineRefresh => '更新';
 
   @override
-  String get quarantineEmptyTitle => 'No removed files';
+  String get quarantineEmptyTitle => '削除済みファイルはありません';
 
   @override
-  String get quarantineEmptyBody => 'Anything you remove will show up here.';
+  String get quarantineEmptyBody => '削除したものはここに表示されます。';
 
   @override
-  String get quarantineRestore => 'Restore';
+  String get quarantineRestore => '復元';
 
   @override
-  String get quarantineDelete => 'Delete';
+  String get quarantineDelete => '削除';
 
   @override
-  String get quarantineSnackRestored => 'Restored';
+  String get quarantineSnackRestored => '復元しました';
 
   @override
-  String get quarantineSnackDeleted => 'Deleted';
+  String get quarantineSnackDeleted => '削除しました';
 
   @override
-  String get quarantineDeleteDialogTitle => 'Delete selected files?';
+  String get quarantineDeleteDialogTitle => '選択したファイルを削除しますか？';
 
   @override
   String quarantineDeleteDialogBody(Object count, Object plural) {
-    return 'This will permanently delete $count item$plural.';
+    return '$count 件の項目を完全に削除します。';
   }
 }

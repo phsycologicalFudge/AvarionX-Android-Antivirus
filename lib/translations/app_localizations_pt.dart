@@ -30,7 +30,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get footerSettings => 'Configurações';
 
   @override
-  String get proBadge => 'PRO';
+  String get proBadge => 'Premium';
 
   @override
   String get updateDbTitle => 'Atualizando banco de dados';
@@ -1095,20 +1095,20 @@ class AppLocalizationsPt extends AppLocalizations {
       'Não foi possível abrir o link do Discord';
 
   @override
-  String get settingsSectionPro => 'Recursos PRO';
+  String get settingsSectionPro => 'Recursos Premium';
 
   @override
-  String get settingsProCustomization => 'Personalização PRO';
+  String get settingsProCustomization => 'Personalização Premium';
 
   @override
   String get settingsProSubtitle =>
       'Remova anúncios e desbloqueie temas e ícones';
 
   @override
-  String get settingsUnlockPro => 'Desbloquear PRO';
+  String get settingsUnlockPro => 'Desbloquear Premium';
 
   @override
-  String get settingsProUnlocked => 'Modo PRO desbloqueado';
+  String get settingsProUnlocked => 'Modo Premium desbloqueado';
 
   @override
   String get settingsPurchaseNotConfirmed => 'Compra não confirmada';
@@ -1119,16 +1119,26 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get proActivated => 'PRO ativado';
+  String get homeUpgrade => 'Upgrade';
 
   @override
-  String get proDeactivated => 'PRO desativado';
+  String get homeFeatureSecureVpnTitle => 'AvarionX Secure VPN';
 
   @override
-  String get settingsProReset => 'Reset PRO (somente debug)';
+  String get homeFeatureSecureVpnDesc =>
+      'Hide your IP and block unwanted content';
 
   @override
-  String get settingsProSheetTitle => 'Personalização PRO';
+  String get proActivated => 'Premium ativado';
+
+  @override
+  String get proDeactivated => 'Premium desativado';
+
+  @override
+  String get settingsProReset => 'Reset Premium (somente debug)';
+
+  @override
+  String get settingsProSheetTitle => 'Personalização Premium';
 
   @override
   String get settingsHideGoldHeader =>
@@ -1141,6 +1151,89 @@ class AppLocalizationsPt extends AppLocalizations {
   String settingsIconSelected(Object icon) {
     return 'Ícone selecionado: $icon';
   }
+
+  @override
+  String get vpnSignInRequiredTitle => 'Sign in required';
+
+  @override
+  String get vpnClose => 'Close';
+
+  @override
+  String get vpnSignInRequiredBody => 'Sign in to use Secure VPN.';
+
+  @override
+  String get vpnCancel => 'Cancel';
+
+  @override
+  String get vpnSignIn => 'Sign in';
+
+  @override
+  String get vpnUsageLoading => 'Loading usage...';
+
+  @override
+  String get vpnUsageNoLimits => 'No data limits';
+
+  @override
+  String get vpnUsageSyncing => 'Syncing';
+
+  @override
+  String vpnUsageUsedThisMonth(Object used) {
+    return '$used used this month';
+  }
+
+  @override
+  String get vpnUsageDataTitle => 'Data Usage';
+
+  @override
+  String get vpnUsageUnavailable => 'Usage unavailable';
+
+  @override
+  String get vpnStatusConnectingEllipsis => 'Connecting...';
+
+  @override
+  String vpnStatusConnectedTo(Object country) {
+    return 'Connected to $country';
+  }
+
+  @override
+  String get vpnTitleSecure => 'Secure VPN';
+
+  @override
+  String get vpnStatusConnected => 'Connected';
+
+  @override
+  String get vpnSubtitleEstablishingTunnel => 'Establishing tunnel...';
+
+  @override
+  String get vpnSubtitleFindingLocation => 'Finding location...';
+
+  @override
+  String get vpnStatusProtected => 'Protected';
+
+  @override
+  String get vpnStatusNotConnected => 'Not connected';
+
+  @override
+  String get vpnConnect => 'Connect';
+
+  @override
+  String get vpnDisconnect => 'Disconnect';
+
+  @override
+  String vpnIpLabel(Object ip) {
+    return 'IP: $ip';
+  }
+
+  @override
+  String vpnServerLoadLabel(Object current, Object max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get vpnBlocklistsTitle => 'Secure VPN Blocklists';
+
+  @override
+  String get vpnSave => 'Save';
 
   @override
   String get settingsSave => 'Salvar';
@@ -1308,7 +1401,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsThemePickerTitle => 'Escolher tema';
 
   @override
-  String get settingsThemeRequiresPro => 'Esse tema requer modo PRO';
+  String get settingsThemeRequiresPro => 'Esse tema requer modo Premium';
 
   @override
   String get scheduledScansTitle => 'Varreduras agendadas';
@@ -1318,7 +1411,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get scheduledScansInfoBody =>
-      'Enquanto o RTP foca em malware baixado, as Varreduras agendadas iniciarão automaticamente o modo escolhido em segundo plano.\nEle só será executado enquanto o RTP estiver ativado.\n\nUsuários PRO podem personalizar o modo e a frequência.';
+      'Enquanto o RTP foca em malware baixado, as Varreduras agendadas iniciarão automaticamente o modo escolhido em segundo plano.\nEle só será executado enquanto o RTP estiver ativado.\n\nUsuários Premium podem personalizar o modo e a frequência.';
 
   @override
   String get scheduledScansHeader => 'Varreduras automáticas em segundo plano';
@@ -1328,7 +1421,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Enquanto o RTP estiver ativo, o app escaneará seu dispositivo com base no modo e na frequência selecionados.';
 
   @override
-  String get proRequiredToCustomize => 'PRO necessário para personalizar';
+  String get proRequiredToCustomize => 'Premium necessário para personalizar';
 
   @override
   String get scheduledScansEnabledTitle => 'Ativado';
@@ -1380,6 +1473,75 @@ class AppLocalizationsPt extends AppLocalizations {
   String scheduledEveryHours(Object hours) {
     return 'A cada $hours horas';
   }
+
+  @override
+  String get vpnSettingsPrivacySecurityTitle => 'Privacy & Security';
+
+  @override
+  String get vpnSettingsNoLogsPolicyTitle => 'No logs stored Policy';
+
+  @override
+  String get vpnSettingsNoLogsPolicyBody =>
+      'No logs are stored. Connection activity, browsing activity, DNS queries, and traffic content are not recorded or retained.';
+
+  @override
+  String get vpnSettingsNoActivityLogsTitle => 'No activity logs';
+
+  @override
+  String get vpnSettingsNoActivityLogsBody =>
+      'Your activity is not monitored or tracked while using Secure VPN.';
+
+  @override
+  String get vpnSettingsWireGuardTitle => 'VX-Link powered by WireGuard';
+
+  @override
+  String get vpnSettingsWireGuardBody =>
+      'Secure VPN uses the WireGuard protocol through VX-Link to provide fast, modern encryption.';
+
+  @override
+  String get vpnSettingsMalwareProtectionTitle => 'Malware protection enabled';
+
+  @override
+  String get vpnSettingsMalwareProtectionBody =>
+      'Malicious domains are blocked by default while connected.';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionTitle =>
+      'Optional ad and tracker protection';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionBody =>
+      'Enable additional blocking for ads and trackers in the Customisation tab.';
+
+  @override
+  String get vpnSettingsBrandFooter => 'Secured by VX-Link';
+
+  @override
+  String get vpnSettingsAccountTitle => 'Account';
+
+  @override
+  String get vpnSettingsSignInToContinue => 'Sign in to continue';
+
+  @override
+  String get vpnSettingsAccountSyncBody =>
+      'Your plan and data usage sync to your account.';
+
+  @override
+  String get vpnSettingsSignedIn => 'Signed in';
+
+  @override
+  String get vpnSettingsPlanUnknown => 'Plan: unknown';
+
+  @override
+  String vpnSettingsPlanLabel(Object plan) {
+    return 'Plan: $plan';
+  }
+
+  @override
+  String get vpnSettingsRefresh => 'Refresh';
+
+  @override
+  String get vpnSettingsSignOut => 'Sign out';
 
   @override
   String get scheduledChargingOnlyTitle => 'Apenas carregando';
@@ -1529,6 +1691,173 @@ class AppLocalizationsPt extends AppLocalizations {
   String cleanerStageOldPhotosProgress(Object count, Object size) {
     return 'Fotos antigas: $count • $size';
   }
+
+  @override
+  String get vpnAccountScreenTitle => 'Account';
+
+  @override
+  String get vpnAccountSignInRequiredTitle => 'Sign in required';
+
+  @override
+  String get vpnAccountSignInManageUsageBody =>
+      'Sign in to manage your account and usage.';
+
+  @override
+  String get vpnAccountNotSignedIn => 'Not signed in';
+
+  @override
+  String get vpnAccountFree => 'Free';
+
+  @override
+  String get vpnAccountUnknown => 'Unknown';
+
+  @override
+  String get vpnAccountStatusSyncing => 'Syncing';
+
+  @override
+  String get vpnAccountStatusActive => 'Active';
+
+  @override
+  String get vpnAccountStatusConnected => 'Connected';
+
+  @override
+  String get vpnAccountStatusDisconnected => 'Disconnected';
+
+  @override
+  String get vpnAccountStatusUnavailable => 'Unavailable';
+
+  @override
+  String get vpnAccountStatusConnectedNow => 'Connected now';
+
+  @override
+  String get vpnAccountStatusRefreshToLoadServer =>
+      'Refresh to load server status';
+
+  @override
+  String get vpnAccountUsageTitle => 'Usage';
+
+  @override
+  String get vpnAccountUsageLoading => 'Loading usage...';
+
+  @override
+  String get vpnAccountUsageSignInToSync => 'Sign in to sync usage';
+
+  @override
+  String get vpnAccountUsagePullToRefresh => 'Pull to refresh to sync usage';
+
+  @override
+  String get vpnAccountUsageUnlimited => 'Unlimited';
+
+  @override
+  String vpnAccountUsageUsedThisMonth(Object used) {
+    return '$used used this month';
+  }
+
+  @override
+  String vpnAccountUsageUsedThisMonthUnlimited(Object used) {
+    return '$used used this month, unlimited';
+  }
+
+  @override
+  String vpnAccountUsageUsedOfLimit(Object used, Object limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String get settingsSectionAccount => 'Account';
+
+  @override
+  String get settingsAccountTitle => 'Account';
+
+  @override
+  String get settingsAccountSubtitle =>
+      'Sign in, plan, subscription, and account usage';
+
+  @override
+  String get exploreSecureVpnTitle => 'Secure VPN';
+
+  @override
+  String get exploreSecureVpnSubtitle =>
+      'Hide your IP and block unwanted content';
+
+  @override
+  String get vpnAccountServerLoadTitle => 'Selected Server Load';
+
+  @override
+  String vpnAccountServerConnectedCount(Object connected, Object cap) {
+    return '$connected/$cap';
+  }
+
+  @override
+  String get networkDnsOffTitle => 'Switch to DNS filtering?';
+
+  @override
+  String get networkDnsOffInfoTitle => 'What is DNS filtering?';
+
+  @override
+  String get networkDnsOffInfoBody1 =>
+      'DNS filtering is separate from Secure VPN. It can block known malware, ads across apps, trackers, and unwanted categories before they load.';
+
+  @override
+  String get networkDnsOffInfoBody2 =>
+      'It does not encrypt your traffic or hide your IP.';
+
+  @override
+  String get networkDnsOffEnableButton => 'Enable DNS Filtering';
+
+  @override
+  String vpnAccountServerConnectedCountWithLabel(Object connected, Object cap) {
+    return '$connected/$cap connected';
+  }
+
+  @override
+  String get vpnAccountIdentityFallbackTitle => 'Account';
+
+  @override
+  String get vpnAccountMembershipLabel => 'Membership';
+
+  @override
+  String get vpnAccountMembershipFounderVpnPro => 'Founders · VPN Pro';
+
+  @override
+  String get vpnAccountMembershipFounder => 'Founder';
+
+  @override
+  String get vpnAccountMembershipPro => 'Pro';
+
+  @override
+  String get vpnAccountSectionAccountStatus => 'Account Status';
+
+  @override
+  String get vpnAccountSectionActions => 'Actions';
+
+  @override
+  String get vpnAccountKvStatus => 'Status';
+
+  @override
+  String get vpnAccountKvPlan => 'Plan';
+
+  @override
+  String get vpnAccountKvUsage => 'Usage';
+
+  @override
+  String get vpnAccountKvSelectedServer => 'Selected Server';
+
+  @override
+  String get vpnAccountKvConnectionState => 'Connection State';
+
+  @override
+  String get vpnAccountActionRefresh => 'Refresh';
+
+  @override
+  String get vpnAccountActionOpen => 'Open';
+
+  @override
+  String get vpnAccountFounderThanks => 'Thank you for supporting ColourSwift';
+
+  @override
+  String get vpnAccountFounderNote =>
+      'I\'m just one guy, held by the greatest community.';
 
   @override
   String cleanerStageOldVideosProgress(Object count, Object size) {

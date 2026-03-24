@@ -479,6 +479,9 @@
       "error": {}
     }
   },
+  "homeUpgrade": "Upgrade",
+  "homeFeatureSecureVpnTitle": "AvarionX Secure VPN",
+  "homeFeatureSecureVpnDesc": "Hide your IP and block unwanted content",
   "proActivated": "PRO activated",
   "proDeactivated": "PRO deactivated",
   "settingsProReset": "PRO reset (debug only)",
@@ -491,6 +494,47 @@
       "icon": {}
     }
   },
+  "vpnSignInRequiredTitle": "Sign in required",
+  "vpnClose": "Close",
+  "vpnSignInRequiredBody": "Sign in to use Secure VPN.",
+  "vpnCancel": "Cancel",
+  "vpnSignIn": "Sign in",
+  "vpnUsageLoading": "Loading usage...",
+  "vpnUsageNoLimits": "No data limits",
+  "vpnUsageSyncing": "Syncing",
+  "vpnUsageUsedThisMonth": "{used} used this month",
+  "vpnUsageDataTitle": "Data Usage",
+  "vpnUsageUnavailable": "Usage unavailable",
+  "vpnStatusConnectingEllipsis": "Connecting...",
+  "vpnStatusConnectedTo": "Connected to {country}",
+  "@vpnStatusConnectedTo": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "vpnTitleSecure": "Secure VPN",
+  "vpnStatusConnected": "Connected",
+  "vpnSubtitleEstablishingTunnel": "Establishing tunnel...",
+  "vpnSubtitleFindingLocation": "Finding location...",
+  "vpnStatusProtected": "Protected",
+  "vpnStatusNotConnected": "Not connected",
+  "vpnConnect": "Connect",
+  "vpnDisconnect": "Disconnect",
+  "vpnIpLabel": "IP: {ip}",
+  "@vpnIpLabel": {
+    "placeholders": {
+      "ip": {}
+    }
+  },
+  "vpnServerLoadLabel": "{current}/{max}",
+  "@vpnServerLoadLabel": {
+    "placeholders": {
+      "current": {},
+      "max": {}
+    }
+  },
+  "vpnBlocklistsTitle": "Secure VPN Blocklists",
+  "vpnSave": "Save",
   "settingsSave": "Save",
   "settingsPremium": "Premium",
   "settingsUltimateSecurity": "Ultimate Security",
@@ -519,7 +563,6 @@
   "settingsShizukuRequiresManager": "Requires external manager",
   "settingsShizukuNotRunning": "Shizuku service not running",
   "settingsShizukuPermissionRequired": "Permission required",
-
   "settingsShizukuAvailable": "Advanced system access available",
   "settingsAboutAdvancedProtection": "About Advanced Protection",
   "settingsAboutAdvancedProtectionSubtitle": "Learn how advanced protection works",
@@ -584,6 +627,31 @@
       "hours": {}
     }
   },
+  "vpnSettingsPrivacySecurityTitle": "Privacy & Security",
+  "vpnSettingsNoLogsPolicyTitle": "No logs stored Policy",
+  "vpnSettingsNoLogsPolicyBody": "No logs are stored. Connection activity, browsing activity, DNS queries, and traffic content are not recorded or retained.",
+  "vpnSettingsNoActivityLogsTitle": "No activity logs",
+  "vpnSettingsNoActivityLogsBody": "Your activity is not monitored or tracked while using Secure VPN.",
+  "vpnSettingsWireGuardTitle": "VX-Link powered by WireGuard",
+  "vpnSettingsWireGuardBody": "Secure VPN uses the WireGuard protocol through VX-Link to provide fast, modern encryption.",
+  "vpnSettingsMalwareProtectionTitle": "Malware protection enabled",
+  "vpnSettingsMalwareProtectionBody": "Malicious domains are blocked by default while connected.",
+  "vpnSettingsAdTrackerProtectionTitle": "Optional ad and tracker protection",
+  "vpnSettingsAdTrackerProtectionBody": "Enable additional blocking for ads and trackers in the Customisation tab.",
+  "vpnSettingsBrandFooter": "Secured by VX-Link",
+  "vpnSettingsAccountTitle": "Account",
+  "vpnSettingsSignInToContinue": "Sign in to continue",
+  "vpnSettingsAccountSyncBody": "Your plan and data usage sync to your account.",
+  "vpnSettingsSignedIn": "Signed in",
+  "vpnSettingsPlanUnknown": "Plan: unknown",
+  "vpnSettingsPlanLabel": "Plan: {plan}",
+  "@vpnSettingsPlanLabel": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "vpnSettingsRefresh": "Refresh",
+  "vpnSettingsSignOut": "Sign out",
   "scheduledChargingOnlyTitle": "Only when charging",
   "scheduledChargingOnlySubtitle": "Run the scheduled scan only while the device is plugged in.",
   "scheduledPreferredTimeTitle": "Preferred time",
@@ -681,6 +749,84 @@
       "size": {}
     }
   },
+  "vpnAccountScreenTitle": "Account",
+  "vpnAccountSignInRequiredTitle": "Sign in required",
+  "vpnAccountSignInManageUsageBody": "Sign in to manage your account and usage.",
+  "vpnAccountNotSignedIn": "Not signed in",
+  "vpnAccountFree": "Free",
+  "vpnAccountUnknown": "Unknown",
+  "vpnAccountStatusSyncing": "Syncing",
+  "vpnAccountStatusActive": "Active",
+  "vpnAccountStatusConnected": "Connected",
+  "vpnAccountStatusDisconnected": "Disconnected",
+  "vpnAccountStatusUnavailable": "Unavailable",
+  "vpnAccountStatusConnectedNow": "Connected now",
+  "vpnAccountStatusRefreshToLoadServer": "Refresh to load server status",
+  "vpnAccountUsageTitle": "Usage",
+  "vpnAccountUsageLoading": "Loading usage...",
+  "vpnAccountUsageSignInToSync": "Sign in to sync usage",
+  "vpnAccountUsagePullToRefresh": "Pull to refresh to sync usage",
+  "vpnAccountUsageUnlimited": "Unlimited",
+  "vpnAccountUsageUsedThisMonth": "{used} used this month",
+  "@vpnAccountUsageUsedThisMonth": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedThisMonthUnlimited": "{used} used this month, unlimited",
+  "@vpnAccountUsageUsedThisMonthUnlimited": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedOfLimit": "{used} / {limit}",
+  "@vpnAccountUsageUsedOfLimit": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "settingsSectionAccount": "Account",
+  "settingsAccountTitle": "Account",
+  "settingsAccountSubtitle": "Sign in, plan, subscription, and account usage",
+  "exploreSecureVpnTitle": "Secure VPN",
+  "exploreSecureVpnSubtitle": "Hide your IP and block unwanted content",
+  "vpnAccountServerLoadTitle": "Selected Server Load",
+  "vpnAccountServerConnectedCount": "{connected}/{cap}",
+  "@vpnAccountServerConnectedCount": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "networkDnsOffTitle": "Switch to DNS filtering?",
+  "networkDnsOffInfoTitle": "What is DNS filtering?",
+  "networkDnsOffInfoBody1": "DNS filtering is separate from Secure VPN. It can block known malware, ads across apps, trackers, and unwanted categories before they load.",
+  "networkDnsOffInfoBody2": "It does not encrypt your traffic or hide your IP.",
+  "networkDnsOffEnableButton": "Enable DNS Filtering",
+  "vpnAccountServerConnectedCountWithLabel": "{connected}/{cap} connected",
+  "@vpnAccountServerConnectedCountWithLabel": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "vpnAccountIdentityFallbackTitle": "Account",
+  "vpnAccountMembershipLabel": "Membership",
+  "vpnAccountMembershipFounderVpnPro": "Founders · VPN Pro",
+  "vpnAccountMembershipFounder": "Founder",
+  "vpnAccountMembershipPro": "Pro",
+  "vpnAccountSectionAccountStatus": "Account Status",
+  "vpnAccountSectionActions": "Actions",
+  "vpnAccountKvStatus": "Status",
+  "vpnAccountKvPlan": "Plan",
+  "vpnAccountKvUsage": "Usage",
+  "vpnAccountKvSelectedServer": "Selected Server",
+  "vpnAccountKvConnectionState": "Connection State",
+  "vpnAccountActionRefresh": "Refresh",
+  "vpnAccountActionOpen": "Open",
+  "vpnAccountFounderThanks": "Thank you for supporting ColourSwift",
+  "vpnAccountFounderNote": "I'm just one guy, held by the greatest community.",
   "cleanerStageOldVideosProgress": "Old videos: {count} • {size}",
   "@cleanerStageOldVideosProgress": {
     "placeholders": {

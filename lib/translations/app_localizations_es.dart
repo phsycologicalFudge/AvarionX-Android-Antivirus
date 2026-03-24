@@ -30,7 +30,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get footerSettings => 'Ajustes';
 
   @override
-  String get proBadge => 'PRO';
+  String get proBadge => 'Premium';
 
   @override
   String get updateDbTitle => 'Actualizando base de datos';
@@ -857,7 +857,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get onboardingNetworkDesc =>
-      'Activa protección Wi-Fi usando el permiso de VPN de Android.';
+      'Activa protección Wi Fi usando el permiso de VPN de Android.';
 
   @override
   String get onboardingNetworkFootnote => 'Es opcional pero recomendado.';
@@ -992,7 +992,8 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo resolver el destino';
 
   @override
-  String get linkCheckerBlockedUnableVerify => 'No se pudo verificar';
+  String get linkCheckerBlockedUnableVerify =>
+      'No se pudo verificar el destino';
 
   @override
   String get linkCheckerAnalyseCardTitleDefault =>
@@ -1043,7 +1044,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get linkCheckerSuspiciousBanner =>
-      'Enlace sospechoso, puede que no renderice si requiere contenido bloqueado.';
+      'Enlace sospechoso, puede que no se renderice si requiere contenido bloqueado.';
 
   @override
   String get linkCheckerHistorySubtitle =>
@@ -1103,10 +1104,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsProSubtitle =>
-      'Quita anuncios y desbloquea temas e iconos';
+      'Quita anuncios y desbloquea DNS ilimitado, temas e iconos';
 
   @override
-  String get settingsUnlockPro => 'Desbloquear PRO';
+  String get settingsUnlockPro => 'Desbloquear Premium';
 
   @override
   String get settingsProUnlocked => 'Modo PRO desbloqueado';
@@ -1120,20 +1121,30 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get homeUpgrade => 'Mejorar';
+
+  @override
+  String get homeFeatureSecureVpnTitle => 'AvarionX VPN';
+
+  @override
+  String get homeFeatureSecureVpnDesc =>
+      'Oculta tu IP y bloquea contenido no deseado';
+
+  @override
   String get proActivated => 'PRO activado';
 
   @override
   String get proDeactivated => 'PRO desactivado';
 
   @override
-  String get settingsProReset => 'Reset PRO (solo debug)';
+  String get settingsProReset => 'Restablecer PRO (solo depuración)';
 
   @override
   String get settingsProSheetTitle => 'Personalización PRO';
 
   @override
   String get settingsHideGoldHeader =>
-      'Ocultar cabecera dorada en la pantalla de inicio';
+      'Mostrar cabecera dorada en la pantalla de inicio (temas oscuros)';
 
   @override
   String get settingsAppIcon => 'Icono de la app';
@@ -1144,77 +1155,161 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get vpnSignInRequiredTitle => 'Inicio de sesión requerido';
+
+  @override
+  String get vpnClose => 'Cerrar';
+
+  @override
+  String get vpnSignInRequiredBody => 'Inicia sesión para usar Secure VPN.';
+
+  @override
+  String get vpnCancel => 'Cancelar';
+
+  @override
+  String get vpnSignIn => 'Iniciar sesión';
+
+  @override
+  String get vpnUsageLoading => 'Cargando uso...';
+
+  @override
+  String get vpnUsageNoLimits => 'Sin límites de datos';
+
+  @override
+  String get vpnUsageSyncing => 'Sincronizando';
+
+  @override
+  String vpnUsageUsedThisMonth(Object used) {
+    return '$used usados este mes';
+  }
+
+  @override
+  String get vpnUsageDataTitle => 'Uso de datos';
+
+  @override
+  String get vpnUsageUnavailable => 'Uso no disponible';
+
+  @override
+  String get vpnStatusConnectingEllipsis => 'Conectando...';
+
+  @override
+  String vpnStatusConnectedTo(Object country) {
+    return 'Conectado a $country';
+  }
+
+  @override
+  String get vpnTitleSecure => 'Secure VPN';
+
+  @override
+  String get vpnStatusConnected => 'Conectado';
+
+  @override
+  String get vpnSubtitleEstablishingTunnel => 'Estableciendo túnel...';
+
+  @override
+  String get vpnSubtitleFindingLocation => 'Buscando ubicación...';
+
+  @override
+  String get vpnStatusProtected => 'Protegido';
+
+  @override
+  String get vpnStatusNotConnected => 'No conectado';
+
+  @override
+  String get vpnConnect => 'Conectar';
+
+  @override
+  String get vpnDisconnect => 'Desconectar';
+
+  @override
+  String vpnIpLabel(Object ip) {
+    return 'IP: $ip';
+  }
+
+  @override
+  String vpnServerLoadLabel(Object current, Object max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get vpnBlocklistsTitle => 'Listas de bloqueo de Secure VPN';
+
+  @override
+  String get vpnSave => 'Guardar';
+
+  @override
   String get settingsSave => 'Guardar';
 
   @override
   String get settingsPremium => 'Premium';
 
   @override
-  String get settingsUltimateSecurity => 'Ultimate Security';
+  String get settingsUltimateSecurity => 'Seguridad definitiva';
 
   @override
-  String get settingsSwitchPlan => 'Switch plan';
+  String get settingsSwitchPlan => 'Cambiar plan';
 
   @override
-  String get settingsBestValue => 'Best value';
+  String get settingsBestValue => 'Mejor valor';
 
   @override
-  String get settingsOneTime => 'One time';
+  String get settingsOneTime => 'Pago único';
 
   @override
-  String get settingsPlanPriceLoading => 'Price loading...';
+  String get settingsPlanPriceLoading => 'Cargando precio...';
 
   @override
-  String get settingsMonthly => 'Monthly';
+  String get settingsMonthly => 'Mensual';
 
   @override
-  String get settingsYearly => 'Yearly';
+  String get settingsYearly => 'Anual';
 
   @override
-  String get settingsLifetime => 'Lifetime';
+  String get settingsLifetime => 'De por vida';
 
   @override
-  String get settingsSubscribeMonthly => 'Subscribe monthly';
+  String get settingsSubscribeMonthly => 'Suscribirse mensual';
 
   @override
-  String get settingsSubscribeYearly => 'Subscribe yearly';
+  String get settingsSubscribeYearly => 'Suscribirse anual';
 
   @override
-  String get settingsUnlockLifetime => 'Unlock lifetime';
+  String get settingsUnlockLifetime => 'Desbloquear de por vida';
 
   @override
-  String get settingsProBenefitsTitle => 'Benefits';
+  String get settingsProBenefitsTitle => 'Beneficios';
 
   @override
-  String get settingsUnlimitedDnsTitle => 'Unlimited DNS queries';
+  String get settingsUnlimitedDnsTitle => 'Consultas DNS ilimitadas';
 
   @override
   String get settingsUnlimitedDnsBody =>
-      'Remove query limits and unlock full cloud filtering.';
+      'Elimina los límites de consultas y desbloquea el filtrado completo en la nube.';
 
   @override
-  String get settingsThemesTitle => 'Themes';
+  String get settingsThemesTitle => 'Temas';
 
   @override
-  String get settingsThemesBody => 'Unlock premium themes and customization.';
+  String get settingsThemesBody =>
+      'Desbloquea temas premium y personalización.';
 
   @override
-  String get settingsIconCustomizationTitle => 'App icon customization';
+  String get settingsIconCustomizationTitle => 'Personalización del icono';
 
   @override
   String get settingsIconCustomizationBody =>
-      'Change the app icon to match your style.';
+      'Cambia el icono de la app para que combine con tu estilo.';
 
   @override
-  String get settingsScheduledScansTitle => 'Scheduled scans';
+  String get settingsScheduledScansTitle => 'Escaneos programados';
 
   @override
   String get settingsScheduledScansBody =>
-      'Unlock advanced scheduling and scan customization.';
+      'Desbloquea programación avanzada y personalización del escaneo.';
 
   @override
   String get settingsProFinePrint =>
-      'Subscriptions renew unless canceled. You can manage or cancel anytime in Google Play. Lifetime is a one time purchase.';
+      'Las suscripciones se renuevan salvo cancelación. Puedes gestionarlas o cancelarlas en cualquier momento en Google Play. La opción de por vida es un pago único.';
 
   @override
   String get settingsSectionShizuku => 'Protección avanzada (Shizuku)';
@@ -1227,7 +1322,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsShizukuNotRunning =>
-      'Servicio Shizuku no está en ejecución';
+      'El servicio Shizuku no está en ejecución';
 
   @override
   String get settingsShizukuPermissionRequired => 'Permiso requerido';
@@ -1383,6 +1478,77 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get vpnSettingsPrivacySecurityTitle => 'Privacidad y seguridad';
+
+  @override
+  String get vpnSettingsNoLogsPolicyTitle =>
+      'Política de no almacenamiento de registros';
+
+  @override
+  String get vpnSettingsNoLogsPolicyBody =>
+      'No se almacenan registros. La actividad de conexión, la actividad de navegación, las consultas DNS y el contenido del tráfico no se registran ni se conservan.';
+
+  @override
+  String get vpnSettingsNoActivityLogsTitle => 'Sin registros de actividad';
+
+  @override
+  String get vpnSettingsNoActivityLogsBody =>
+      'Tu actividad no se supervisa ni se rastrea mientras usas Secure VPN.';
+
+  @override
+  String get vpnSettingsWireGuardTitle => 'VX-Link con tecnología WireGuard';
+
+  @override
+  String get vpnSettingsWireGuardBody =>
+      'Secure VPN usa el protocolo WireGuard a través de VX-Link para ofrecer cifrado rápido y moderno.';
+
+  @override
+  String get vpnSettingsMalwareProtectionTitle =>
+      'Protección contra malware activada';
+
+  @override
+  String get vpnSettingsMalwareProtectionBody =>
+      'Los dominios maliciosos se bloquean por defecto mientras estás conectado.';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionTitle =>
+      'Protección opcional contra anuncios y rastreadores';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionBody =>
+      'Activa el bloqueo adicional de anuncios y rastreadores en la pestaña de Personalización.';
+
+  @override
+  String get vpnSettingsBrandFooter => 'Protegido por VX-Link';
+
+  @override
+  String get vpnSettingsAccountTitle => 'Cuenta';
+
+  @override
+  String get vpnSettingsSignInToContinue => 'Inicia sesión para continuar';
+
+  @override
+  String get vpnSettingsAccountSyncBody =>
+      'Tu plan y uso de datos se sincronizan con tu cuenta.';
+
+  @override
+  String get vpnSettingsSignedIn => 'Sesión iniciada';
+
+  @override
+  String get vpnSettingsPlanUnknown => 'Plan: desconocido';
+
+  @override
+  String vpnSettingsPlanLabel(Object plan) {
+    return 'Plan: $plan';
+  }
+
+  @override
+  String get vpnSettingsRefresh => 'Actualizar';
+
+  @override
+  String get vpnSettingsSignOut => 'Cerrar sesión';
+
+  @override
   String get scheduledChargingOnlyTitle => 'Solo al cargar';
 
   @override
@@ -1530,6 +1696,174 @@ class AppLocalizationsEs extends AppLocalizations {
   String cleanerStageOldPhotosProgress(Object count, Object size) {
     return 'Fotos antiguas: $count • $size';
   }
+
+  @override
+  String get vpnAccountScreenTitle => 'Cuenta';
+
+  @override
+  String get vpnAccountSignInRequiredTitle => 'Inicio de sesión requerido';
+
+  @override
+  String get vpnAccountSignInManageUsageBody =>
+      'Inicia sesión para gestionar tu cuenta y uso.';
+
+  @override
+  String get vpnAccountNotSignedIn => 'Sesión no iniciada';
+
+  @override
+  String get vpnAccountFree => 'Gratis';
+
+  @override
+  String get vpnAccountUnknown => 'Desconocido';
+
+  @override
+  String get vpnAccountStatusSyncing => 'Sincronizando';
+
+  @override
+  String get vpnAccountStatusActive => 'Activo';
+
+  @override
+  String get vpnAccountStatusConnected => 'Conectado';
+
+  @override
+  String get vpnAccountStatusDisconnected => 'Desconectado';
+
+  @override
+  String get vpnAccountStatusUnavailable => 'No disponible';
+
+  @override
+  String get vpnAccountStatusConnectedNow => 'Conectado ahora';
+
+  @override
+  String get vpnAccountStatusRefreshToLoadServer =>
+      'Actualiza para cargar el estado del servidor';
+
+  @override
+  String get vpnAccountUsageTitle => 'Uso';
+
+  @override
+  String get vpnAccountUsageLoading => 'Cargando uso...';
+
+  @override
+  String get vpnAccountUsageSignInToSync =>
+      'Inicia sesión para sincronizar el uso';
+
+  @override
+  String get vpnAccountUsagePullToRefresh =>
+      'Desliza para actualizar y sincronizar el uso';
+
+  @override
+  String get vpnAccountUsageUnlimited => 'Ilimitado';
+
+  @override
+  String vpnAccountUsageUsedThisMonth(Object used) {
+    return '$used usados este mes';
+  }
+
+  @override
+  String vpnAccountUsageUsedThisMonthUnlimited(Object used) {
+    return '$used usados este mes, ilimitado';
+  }
+
+  @override
+  String vpnAccountUsageUsedOfLimit(Object used, Object limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String get settingsSectionAccount => 'Cuenta';
+
+  @override
+  String get settingsAccountTitle => 'Cuenta';
+
+  @override
+  String get settingsAccountSubtitle =>
+      'Inicio de sesión, plan, suscripción y uso de la cuenta';
+
+  @override
+  String get exploreSecureVpnTitle => 'Secure VPN';
+
+  @override
+  String get exploreSecureVpnSubtitle =>
+      'Oculta tu IP y bloquea contenido no deseado';
+
+  @override
+  String get vpnAccountServerLoadTitle => 'Carga del servidor seleccionado';
+
+  @override
+  String vpnAccountServerConnectedCount(Object connected, Object cap) {
+    return '$connected/$cap';
+  }
+
+  @override
+  String get networkDnsOffTitle => '¿Cambiar a filtrado DNS?';
+
+  @override
+  String get networkDnsOffInfoTitle => '¿Qué es el filtrado DNS?';
+
+  @override
+  String get networkDnsOffInfoBody1 =>
+      'El filtrado DNS es independiente de Secure VPN. Puede bloquear malware conocido, anuncios en apps, rastreadores y categorías no deseadas antes de que carguen.';
+
+  @override
+  String get networkDnsOffInfoBody2 => 'No cifra tu tráfico ni oculta tu IP.';
+
+  @override
+  String get networkDnsOffEnableButton => 'Activar filtrado DNS';
+
+  @override
+  String vpnAccountServerConnectedCountWithLabel(Object connected, Object cap) {
+    return '$connected/$cap conectados';
+  }
+
+  @override
+  String get vpnAccountIdentityFallbackTitle => 'Cuenta';
+
+  @override
+  String get vpnAccountMembershipLabel => 'Membresía';
+
+  @override
+  String get vpnAccountMembershipFounderVpnPro => 'Fundadores · VPN Pro';
+
+  @override
+  String get vpnAccountMembershipFounder => 'Fundador';
+
+  @override
+  String get vpnAccountMembershipPro => 'Pro';
+
+  @override
+  String get vpnAccountSectionAccountStatus => 'Estado de la cuenta';
+
+  @override
+  String get vpnAccountSectionActions => 'Acciones';
+
+  @override
+  String get vpnAccountKvStatus => 'Estado';
+
+  @override
+  String get vpnAccountKvPlan => 'Plan';
+
+  @override
+  String get vpnAccountKvUsage => 'Uso';
+
+  @override
+  String get vpnAccountKvSelectedServer => 'Servidor seleccionado';
+
+  @override
+  String get vpnAccountKvConnectionState => 'Estado de conexión';
+
+  @override
+  String get vpnAccountActionRefresh => 'Actualizar';
+
+  @override
+  String get vpnAccountActionOpen => 'Abrir';
+
+  @override
+  String get vpnAccountFounderThanks => 'Gracias por apoyar a ColourSwift';
+
+  @override
+  String get vpnAccountFounderNote =>
+      'Soy solo una persona, apoyada por la mejor comunidad.';
 
   @override
   String cleanerStageOldVideosProgress(Object count, Object size) {

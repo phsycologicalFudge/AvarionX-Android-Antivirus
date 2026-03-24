@@ -7,7 +7,7 @@
   "footerExplore": "Explorar",
   "footerRemoved": "Eliminados",
   "footerSettings": "Ajustes",
-  "proBadge": "PRO",
+  "proBadge": "Premium",
   "updateDbTitle": "Actualizando base de datos",
   "updateDbVersionLabel": "Versión {version}",
   "@updateDbVersionLabel": {
@@ -379,7 +379,7 @@
   "onboardingNotificationsDesc": "Se usan para alertas en tiempo real, estado del escaneo y actualizaciones de cuarentena.",
   "onboardingNotificationsFootnote": "Requerido por Android para la protección en tiempo real.",
   "onboardingNetworkTitle": "Protección de red",
-  "onboardingNetworkDesc": "Activa protección Wi-Fi usando el permiso de VPN de Android.",
+  "onboardingNetworkDesc": "Activa protección Wi Fi usando el permiso de VPN de Android.",
   "onboardingNetworkFootnote": "Es opcional pero recomendado.",
   "onboardingGranted": "Concedido",
   "onboardingNotGranted": "No concedido",
@@ -426,7 +426,7 @@
   "linkCheckerBlockedUnsupportedType": "Tipo de enlace no compatible",
   "linkCheckerBlockedInvalidDestination": "Destino inválido",
   "linkCheckerBlockedUnableResolve": "No se pudo resolver el destino",
-  "linkCheckerBlockedUnableVerify": "No se pudo verificar",
+  "linkCheckerBlockedUnableVerify": "No se pudo verificar el destino",
   "linkCheckerAnalyseCardTitleDefault": "Comprueba la página en busca de contenido sospechoso",
   "linkCheckerAnalyseCardDetailDefault": "Pega una URL y ejecuta un análisis.",
   "linkCheckerAnalyseCardTitleEngineNotReady": "Motor no listo",
@@ -441,7 +441,7 @@
   "linkCheckerViewPage": "Ver página",
   "linkCheckerClose": "Cerrar",
   "linkCheckerBlockedBody": "Esta página se detuvo antes de que pudiera cargar.",
-  "linkCheckerSuspiciousBanner": "Enlace sospechoso, puede que no renderice si requiere contenido bloqueado.",
+  "linkCheckerSuspiciousBanner": "Enlace sospechoso, puede que no se renderice si requiere contenido bloqueado.",
   "linkCheckerHistorySubtitle": "Toca una entrada para copiar el enlace.",
   "linkCheckerHistoryEmpty": "Aún no hay comprobaciones.",
   "linkCheckerCopied": "Copiado",
@@ -469,8 +469,8 @@
   "settingsDiscordOpenFail": "No se pudo abrir el enlace de Discord",
   "settingsSectionPro": "Funciones PRO",
   "settingsProCustomization": "Personalización PRO",
-  "settingsProSubtitle": "Quita anuncios y desbloquea temas e iconos",
-  "settingsUnlockPro": "Desbloquear PRO",
+  "settingsProSubtitle": "Quita anuncios y desbloquea DNS ilimitado, temas e iconos",
+  "settingsUnlockPro": "Desbloquear Premium",
   "settingsProUnlocked": "Modo PRO desbloqueado",
   "settingsPurchaseNotConfirmed": "Compra no confirmada",
   "settingsPurchaseFailed": "Error de compra: {error}",
@@ -479,11 +479,14 @@
       "error": {}
     }
   },
+  "homeUpgrade": "Mejorar",
+  "homeFeatureSecureVpnTitle": "AvarionX VPN",
+  "homeFeatureSecureVpnDesc": "Oculta tu IP y bloquea contenido no deseado",
   "proActivated": "PRO activado",
   "proDeactivated": "PRO desactivado",
-  "settingsProReset": "Reset PRO (solo debug)",
+  "settingsProReset": "Restablecer PRO (solo depuración)",
   "settingsProSheetTitle": "Personalización PRO",
-  "settingsHideGoldHeader": "Ocultar cabecera dorada en la pantalla de inicio",
+  "settingsHideGoldHeader": "Mostrar cabecera dorada en la pantalla de inicio (temas oscuros)",
   "settingsAppIcon": "Icono de la app",
   "settingsIconSelected": "Icono seleccionado: {icon}",
   "@settingsIconSelected": {
@@ -491,11 +494,74 @@
       "icon": {}
     }
   },
+  "vpnSignInRequiredTitle": "Inicio de sesión requerido",
+  "vpnClose": "Cerrar",
+  "vpnSignInRequiredBody": "Inicia sesión para usar Secure VPN.",
+  "vpnCancel": "Cancelar",
+  "vpnSignIn": "Iniciar sesión",
+  "vpnUsageLoading": "Cargando uso...",
+  "vpnUsageNoLimits": "Sin límites de datos",
+  "vpnUsageSyncing": "Sincronizando",
+  "vpnUsageUsedThisMonth": "{used} usados este mes",
+  "vpnUsageDataTitle": "Uso de datos",
+  "vpnUsageUnavailable": "Uso no disponible",
+  "vpnStatusConnectingEllipsis": "Conectando...",
+  "vpnStatusConnectedTo": "Conectado a {country}",
+  "@vpnStatusConnectedTo": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "vpnTitleSecure": "Secure VPN",
+  "vpnStatusConnected": "Conectado",
+  "vpnSubtitleEstablishingTunnel": "Estableciendo túnel...",
+  "vpnSubtitleFindingLocation": "Buscando ubicación...",
+  "vpnStatusProtected": "Protegido",
+  "vpnStatusNotConnected": "No conectado",
+  "vpnConnect": "Conectar",
+  "vpnDisconnect": "Desconectar",
+  "vpnIpLabel": "IP: {ip}",
+  "@vpnIpLabel": {
+    "placeholders": {
+      "ip": {}
+    }
+  },
+  "vpnServerLoadLabel": "{current}/{max}",
+  "@vpnServerLoadLabel": {
+    "placeholders": {
+      "current": {},
+      "max": {}
+    }
+  },
+  "vpnBlocklistsTitle": "Listas de bloqueo de Secure VPN",
+  "vpnSave": "Guardar",
   "settingsSave": "Guardar",
+  "settingsPremium": "Premium",
+  "settingsUltimateSecurity": "Seguridad definitiva",
+  "settingsSwitchPlan": "Cambiar plan",
+  "settingsBestValue": "Mejor valor",
+  "settingsOneTime": "Pago único",
+  "settingsPlanPriceLoading": "Cargando precio...",
+  "settingsMonthly": "Mensual",
+  "settingsYearly": "Anual",
+  "settingsLifetime": "De por vida",
+  "settingsSubscribeMonthly": "Suscribirse mensual",
+  "settingsSubscribeYearly": "Suscribirse anual",
+  "settingsUnlockLifetime": "Desbloquear de por vida",
+  "settingsProBenefitsTitle": "Beneficios",
+  "settingsUnlimitedDnsTitle": "Consultas DNS ilimitadas",
+  "settingsUnlimitedDnsBody": "Elimina los límites de consultas y desbloquea el filtrado completo en la nube.",
+  "settingsThemesTitle": "Temas",
+  "settingsThemesBody": "Desbloquea temas premium y personalización.",
+  "settingsIconCustomizationTitle": "Personalización del icono",
+  "settingsIconCustomizationBody": "Cambia el icono de la app para que combine con tu estilo.",
+  "settingsScheduledScansTitle": "Escaneos programados",
+  "settingsScheduledScansBody": "Desbloquea programación avanzada y personalización del escaneo.",
+  "settingsProFinePrint": "Las suscripciones se renuevan salvo cancelación. Puedes gestionarlas o cancelarlas en cualquier momento en Google Play. La opción de por vida es un pago único.",
   "settingsSectionShizuku": "Protección avanzada (Shizuku)",
   "settingsEnableShizuku": "Activar Shizuku",
   "settingsShizukuRequiresManager": "Requiere gestor externo",
-  "settingsShizukuNotRunning": "Servicio Shizuku no está en ejecución",
+  "settingsShizukuNotRunning": "El servicio Shizuku no está en ejecución",
   "settingsShizukuPermissionRequired": "Permiso requerido",
   "settingsShizukuAvailable": "Acceso avanzado al sistema disponible",
   "settingsAboutAdvancedProtection": "Acerca de la protección avanzada",
@@ -561,6 +627,31 @@
       "hours": {}
     }
   },
+  "vpnSettingsPrivacySecurityTitle": "Privacidad y seguridad",
+  "vpnSettingsNoLogsPolicyTitle": "Política de no almacenamiento de registros",
+  "vpnSettingsNoLogsPolicyBody": "No se almacenan registros. La actividad de conexión, la actividad de navegación, las consultas DNS y el contenido del tráfico no se registran ni se conservan.",
+  "vpnSettingsNoActivityLogsTitle": "Sin registros de actividad",
+  "vpnSettingsNoActivityLogsBody": "Tu actividad no se supervisa ni se rastrea mientras usas Secure VPN.",
+  "vpnSettingsWireGuardTitle": "VX-Link con tecnología WireGuard",
+  "vpnSettingsWireGuardBody": "Secure VPN usa el protocolo WireGuard a través de VX-Link para ofrecer cifrado rápido y moderno.",
+  "vpnSettingsMalwareProtectionTitle": "Protección contra malware activada",
+  "vpnSettingsMalwareProtectionBody": "Los dominios maliciosos se bloquean por defecto mientras estás conectado.",
+  "vpnSettingsAdTrackerProtectionTitle": "Protección opcional contra anuncios y rastreadores",
+  "vpnSettingsAdTrackerProtectionBody": "Activa el bloqueo adicional de anuncios y rastreadores en la pestaña de Personalización.",
+  "vpnSettingsBrandFooter": "Protegido por VX-Link",
+  "vpnSettingsAccountTitle": "Cuenta",
+  "vpnSettingsSignInToContinue": "Inicia sesión para continuar",
+  "vpnSettingsAccountSyncBody": "Tu plan y uso de datos se sincronizan con tu cuenta.",
+  "vpnSettingsSignedIn": "Sesión iniciada",
+  "vpnSettingsPlanUnknown": "Plan: desconocido",
+  "vpnSettingsPlanLabel": "Plan: {plan}",
+  "@vpnSettingsPlanLabel": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "vpnSettingsRefresh": "Actualizar",
+  "vpnSettingsSignOut": "Cerrar sesión",
   "scheduledChargingOnlyTitle": "Solo al cargar",
   "scheduledChargingOnlySubtitle": "Ejecuta el escaneo programado solo mientras el dispositivo esté conectado.",
   "scheduledPreferredTimeTitle": "Hora preferida",
@@ -658,6 +749,84 @@
       "size": {}
     }
   },
+  "vpnAccountScreenTitle": "Cuenta",
+  "vpnAccountSignInRequiredTitle": "Inicio de sesión requerido",
+  "vpnAccountSignInManageUsageBody": "Inicia sesión para gestionar tu cuenta y uso.",
+  "vpnAccountNotSignedIn": "Sesión no iniciada",
+  "vpnAccountFree": "Gratis",
+  "vpnAccountUnknown": "Desconocido",
+  "vpnAccountStatusSyncing": "Sincronizando",
+  "vpnAccountStatusActive": "Activo",
+  "vpnAccountStatusConnected": "Conectado",
+  "vpnAccountStatusDisconnected": "Desconectado",
+  "vpnAccountStatusUnavailable": "No disponible",
+  "vpnAccountStatusConnectedNow": "Conectado ahora",
+  "vpnAccountStatusRefreshToLoadServer": "Actualiza para cargar el estado del servidor",
+  "vpnAccountUsageTitle": "Uso",
+  "vpnAccountUsageLoading": "Cargando uso...",
+  "vpnAccountUsageSignInToSync": "Inicia sesión para sincronizar el uso",
+  "vpnAccountUsagePullToRefresh": "Desliza para actualizar y sincronizar el uso",
+  "vpnAccountUsageUnlimited": "Ilimitado",
+  "vpnAccountUsageUsedThisMonth": "{used} usados este mes",
+  "@vpnAccountUsageUsedThisMonth": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedThisMonthUnlimited": "{used} usados este mes, ilimitado",
+  "@vpnAccountUsageUsedThisMonthUnlimited": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedOfLimit": "{used} / {limit}",
+  "@vpnAccountUsageUsedOfLimit": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "settingsSectionAccount": "Cuenta",
+  "settingsAccountTitle": "Cuenta",
+  "settingsAccountSubtitle": "Inicio de sesión, plan, suscripción y uso de la cuenta",
+  "exploreSecureVpnTitle": "Secure VPN",
+  "exploreSecureVpnSubtitle": "Oculta tu IP y bloquea contenido no deseado",
+  "vpnAccountServerLoadTitle": "Carga del servidor seleccionado",
+  "vpnAccountServerConnectedCount": "{connected}/{cap}",
+  "@vpnAccountServerConnectedCount": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "networkDnsOffTitle": "¿Cambiar a filtrado DNS?",
+  "networkDnsOffInfoTitle": "¿Qué es el filtrado DNS?",
+  "networkDnsOffInfoBody1": "El filtrado DNS es independiente de Secure VPN. Puede bloquear malware conocido, anuncios en apps, rastreadores y categorías no deseadas antes de que carguen.",
+  "networkDnsOffInfoBody2": "No cifra tu tráfico ni oculta tu IP.",
+  "networkDnsOffEnableButton": "Activar filtrado DNS",
+  "vpnAccountServerConnectedCountWithLabel": "{connected}/{cap} conectados",
+  "@vpnAccountServerConnectedCountWithLabel": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "vpnAccountIdentityFallbackTitle": "Cuenta",
+  "vpnAccountMembershipLabel": "Membresía",
+  "vpnAccountMembershipFounderVpnPro": "Fundadores · VPN Pro",
+  "vpnAccountMembershipFounder": "Fundador",
+  "vpnAccountMembershipPro": "Pro",
+  "vpnAccountSectionAccountStatus": "Estado de la cuenta",
+  "vpnAccountSectionActions": "Acciones",
+  "vpnAccountKvStatus": "Estado",
+  "vpnAccountKvPlan": "Plan",
+  "vpnAccountKvUsage": "Uso",
+  "vpnAccountKvSelectedServer": "Servidor seleccionado",
+  "vpnAccountKvConnectionState": "Estado de conexión",
+  "vpnAccountActionRefresh": "Actualizar",
+  "vpnAccountActionOpen": "Abrir",
+  "vpnAccountFounderThanks": "Gracias por apoyar a ColourSwift",
+  "vpnAccountFounderNote": "Soy solo una persona, apoyada por la mejor comunidad.",
   "cleanerStageOldVideosProgress": "Vídeos antiguos: {count} • {size}",
   "@cleanerStageOldVideosProgress": {
     "placeholders": {

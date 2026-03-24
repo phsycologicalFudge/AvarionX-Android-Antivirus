@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:colourswift_av/translations/app_localizations.dart';
 
 class AvHomeTopBar extends StatelessWidget {
   final String title;
   final bool isPro;
-  final String proBadgeText;
 
   const AvHomeTopBar({
     super.key,
     required this.title,
     required this.isPro,
-    required this.proBadgeText,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
@@ -42,7 +42,7 @@ class AvHomeTopBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(7),
                     ),
                     child: Text(
-                      proBadgeText,
+                      loc.proBadge,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,

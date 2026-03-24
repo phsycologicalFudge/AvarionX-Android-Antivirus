@@ -1,16 +1,13 @@
 {
   "@@locale": "ja",
-
   "appName": "AVarionX Security",
   "ok": "OK",
   "cancel": "キャンセル",
-
   "footerHome": "ホーム",
   "footerExplore": "探索",
   "footerRemoved": "削除済み",
   "footerSettings": "設定",
-  "proBadge": "PRO",
-
+  "proBadge": "プレミアム",
   "updateDbTitle": "データベースを更新中",
   "updateDbVersionLabel": "バージョン {version}",
   "@updateDbVersionLabel": {
@@ -18,19 +15,14 @@
       "version": {}
     }
   },
-
   "exploreMultiThreadingTitle": "マルチスレッド",
   "exploreMultiThreadingSubtitle": "実験的なエンジン制御",
-
   "updateDbAutoDownloadLabel": "今後の更新を自動でダウンロード",
   "updateDbUpdatedAutoOn": "データベース更新済み • 自動更新が有効",
   "updateDbUpdatedSuccess": "データベースを更新しました",
   "updateDbUpdateFailed": "データベースの更新に失敗しました",
-
   "engineReadyBanner": "エンジン準備完了 • VX-TITANIUM-v7",
-
   "scanButton": "スキャン",
-
   "scanModeFullTitle": "端末全体スキャン",
   "scanModeFullSubtitle": "読み取り可能なストレージ内の全ファイルをスキャンします。",
   "scanModeSmartTitle": "スマートスキャン [推奨]",
@@ -41,9 +33,7 @@
   "scanModeInstalledSubtitle": "インストール済みアプリを脅威スキャンします。",
   "scanModeSingleTitle": "ファイル / アプリ スキャン",
   "scanModeSingleSubtitle": "スキャンするファイルまたはアプリを選択します。",
-
   "useCloudAssistedScan": "クラウド支援スキャンを使用",
-
   "protectionTitle": "保護",
   "stateOffLine1": "端末保護はオフです",
   "stateOffLine2": "タップしてオンにする",
@@ -53,7 +43,6 @@
   "stateVpnConflictLine2": "別のVPNが有効です",
   "stateProtectedLine1": "端末は保護されています",
   "stateProtectedLine2": "タップしてオフにする",
-
   "dbUpdating": "データベース更新中",
   "dbVersionAutoUpdated": "データベース v{version} • 自動更新",
   "@dbVersionAutoUpdated": {
@@ -61,20 +50,16 @@
       "version": {}
     }
   },
-
   "rtpInfoTitle": "リアルタイム保護",
   "rtpInfoBody": "RTPは、意図的（またはマルウェア）にダウンロードされた疑わしいファイルをブロックするだけでなく、ローカルVPNを使用してシステム全体で悪意のあるドメインをブロックします。\n\n有効化すると、ネットワークフィルタリングは次の場合を除き有効のままです:\n• ターミナルから手動で無効化\n• 別のVPNに置き換え\n\nRTPが有効な限り、ファイル保護は継続されます。",
-
   "scanTitleDefault": "スキャン",
   "scanTitleSmart": "スマートスキャン",
   "scanTitleRapid": "クイックスキャン",
   "scanTitleInstalled": "インストール済みアプリをスキャン",
   "scanTitleFull": "端末全体スキャン",
   "scanTitleSingle": "単体スキャン",
-
   "cancellingScan": "スキャンをキャンセル中…",
   "cancelScan": "スキャンをキャンセル",
-
   "scanProgressZero": "進捗: 0%",
   "scanProgressWithPct": "進捗: {pct}% ({scanned} / {total})",
   "@scanProgressWithPct": {
@@ -84,22 +69,17 @@
       "total": {}
     }
   },
-
   "scanProgressFullItems": "スキャン済み: {count} 件",
   "@scanProgressFullItems": {
     "placeholders": {
       "count": {}
     }
   },
-
   "initializing": "初期化中...",
   "scanningEllipsis": "スキャン中...",
-
   "fullScanInfoTitle": "端末全体スキャン",
   "fullScanInfoBody": "このモードはストレージ内の読み取り可能な全ファイルを、フィルタなしでスキャンします。\n\nこのモードではクラウド支援スキャンおよびアプリスキャンは使用されません。",
-
   "scanComplete": "スキャン完了",
-
   "pillSuspiciousCount": "疑わしい: {count}",
   "@pillSuspiciousCount": {
     "placeholders": {
@@ -118,36 +98,29 @@
       "count": {}
     }
   },
-
   "resultNoThreatsTitle": "脅威は検出されませんでした",
   "resultNoThreatsBody": "スキャンした項目で脅威は検出されませんでした。",
   "resultSuspiciousAppsTitle": "疑わしいアプリ",
   "resultSuspiciousItemsTitle": "疑わしい項目",
   "returnHome": "ホームに戻る",
-
   "emptyTitle": "スキャン対象のファイルがありません",
   "emptyBody": "スキャン条件に一致するファイルが見つかりませんでした。",
-
   "knownMalware": "既知のマルウェア",
   "suspiciousActivityDetected": "疑わしい活動を検出",
   "maliciousActivityDetected": "悪意のある活動を検出",
-
   "androidBankingTrojan": "Android 銀行型トロイの木馬",
   "androidSpyware": "Android スパイウェア",
   "androidAdware": "Android アドウェア",
   "androidSmsFraud": "Android SMS 不正",
-
   "threatLevelConfirmed": "確認済み",
   "threatLevelHigh": "高",
   "threatLevelMedium": "中",
-
   "threatLevelLabel": "脅威レベル: {level}",
   "@threatLevelLabel": {
     "placeholders": {
       "level": {}
     }
   },
-
   "explainFoundInCloud": "この項目はColourSwiftのクラウド脅威データベースに登録されています。",
   "explainFoundInOffline": "この項目は端末内のオフラインマルウェアデータベースに登録されています。",
   "explainBanker": "金融情報を盗む目的で作られ、オーバーレイ、キー入力の記録、通信の傍受などを行うことがあります。",
@@ -156,14 +129,11 @@
   "explainSmsFraud": "同意なくSMS送信やSMS関連の操作を試み、予期しない課金につながる可能性があります。",
   "explainGenericMalware": "特定のファミリに一致しない場合でも、悪意の強い兆候が検出されました。",
   "explainSuspiciousDefault": "疑わしい挙動の兆候が検出されました。マルウェアで見られるパターンを含む場合がありますが、誤検知の可能性もあります。",
-
   "singleChoiceScanFile": "ファイルをスキャン",
   "singleChoiceScanInstalledApp": "インストール済みアプリをスキャン",
   "singleChoiceManageExclusions": "除外を管理",
-
   "labelKnownMalwareDb": "マルウェアDBに登録",
   "labelFoundInCloudDb": "クラウドDBに登録",
-
   "logEngineFullDeviceScan": "[ENGINE] 端末全体スキャン",
   "logEngineTargetStorage": "[ENGINE] 対象: /storage/emulated/0",
   "logEngineNoFilesFound": "[ENGINE] ファイルが見つかりません。",
@@ -180,10 +150,8 @@
       "count": {}
     }
   },
-
   "logModeCloudAssisted": "[MODE] クラウド支援モード",
   "logModeOffline": "[MODE] オフラインモード",
-
   "logStageHashing": "[STAGE 1] ファイルハッシュ取得（キャッシュ）...",
   "logStageCloudLookup": "[STAGE 2] クラウドでハッシュ照合...",
   "logStageLocalScanning": "[STAGE {stage}] ローカルでファイルをスキャン中...",
@@ -192,14 +160,12 @@
       "stage": {}
     }
   },
-
   "logCloudHashHits": "[CLOUD] ハッシュ一致: {count}",
   "@logCloudHashHits": {
     "placeholders": {
       "count": {}
     }
   },
-
   "logSummary": "[SUMMARY] 疑わしい {suspicious} • 安全 {clean}",
   "@logSummary": {
     "placeholders": {
@@ -207,48 +173,56 @@
       "clean": {}
     }
   },
-
   "logErrorPrefix": "[ERROR] {message}",
   "@logErrorPrefix": {
     "placeholders": {
       "message": {}
     }
   },
-
   "genericUnknownAppName": "不明",
   "genericUnknownFileName": "不明",
-
   "featuresDrawerTitle": "機能",
   "recommendedSectionTitle": "おすすめ",
-
   "featureNetworkProtection": "ネットワーク保護",
   "featureLinkChecker": "リンクチェッカー",
   "featureMetaPass": "MetaPass",
   "featureCleanerPro": "Cleaner Pro",
   "featureTerminal": "ターミナル",
   "featureScheduledScans": "スケジュールスキャン",
-
   "networkStatusDisconnected": "未接続",
   "networkStatusConnecting": "接続中",
   "networkStatusConnected": "接続済み",
-
   "networkUsageTitle": "使用量",
   "networkUsageEnableVpnToView": "使用量を表示するにはVPNを有効にしてください。",
   "networkUsageUnlimited": "無制限",
   "networkUsageUsedOf": "{used} / {limit}",
   "networkUsageResetsOn": "{y}-{m}-{d} にリセット",
   "networkUsageUpdatedAt": "{hh}:{mm} に更新",
-  "@networkUsageUsedOf": { "placeholders": { "used": {}, "limit": {} } },
-  "@networkUsageResetsOn": { "placeholders": { "y": {}, "m": {}, "d": {} } },
-  "@networkUsageUpdatedAt": { "placeholders": { "hh": {}, "mm": {} } },
-
+  "@networkUsageUsedOf": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "@networkUsageResetsOn": {
+    "placeholders": {
+      "y": {},
+      "m": {},
+      "d": {}
+    }
+  },
+  "@networkUsageUpdatedAt": {
+    "placeholders": {
+      "hh": {},
+      "mm": {}
+    }
+  },
   "networkCardStatusAvailable": "利用可能",
   "networkCardStatusDisabled": "無効",
   "networkCardStatusCustom": "カスタム",
   "networkCardStatusReady": "準備完了",
   "networkCardStatusOpen": "開く",
   "networkCardStatusComingSoon": "近日公開",
-
   "networkCardBlocklistsTitle": "ブロックリスト",
   "networkCardBlocklistsSubtitle": "フィルタ設定",
   "networkCardUpstreamTitle": "Upstream",
@@ -261,60 +235,51 @@
   "networkCardSpeedSubtitle": "DNSテスト",
   "networkCardAboutTitle": "情報",
   "networkCardAboutSubtitle": "GitHub",
-
   "networkLogsStatusNoActivity": "アクティビティなし",
   "networkLogsStatusRecent": "最近 {count} 件",
-  "@networkLogsStatusRecent": { "placeholders": { "count": {} } },
-
+  "@networkLogsStatusRecent": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "networkResolverTitle": "リゾルバ",
   "networkResolverIpLabel": "リゾルバIP",
   "networkResolverIpHint": "例: 1.1.1.1",
-
   "networkSpeedTestTitle": "速度テスト",
   "networkSpeedTestBody": "現在の設定でDNS速度テスターを実行します。",
   "networkSpeedTestRun": "速度テストを実行",
-
   "networkBlocklistsRecommendedTitle": "おすすめ",
   "networkBlocklistsCsMalwareTitle": "ColourSwift Malware",
   "networkBlocklistsCsAdsTitle": "ColourSwift ads",
   "networkBlocklistsSeeGithub": "詳細はGitHubを参照...",
-
   "networkBlocklistsMalwareSection": "マルウェア",
   "networkBlocklistsMalwareTitle": "マルウェア ブロックリスト",
   "networkBlocklistsMalwareSources": "HaGeZi TIF • URLHaus • DigitalSide • Spam404",
-
   "networkBlocklistsAdsSection": "広告",
   "networkBlocklistsAdsTitle": "広告 ブロックリスト",
   "networkBlocklistsAdsSources": "OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard",
-
   "networkBlocklistsTrackersSection": "トラッカー",
   "networkBlocklistsTrackersTitle": "トラッカー ブロックリスト",
   "networkBlocklistsTrackersSources": "EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker",
-
   "networkBlocklistsGamblingSection": "ギャンブル",
   "networkBlocklistsGamblingTitle": "ギャンブル ブロックリスト",
   "networkBlocklistsGamblingSources": "HaGeZi Gambling",
-
   "networkBlocklistsSocialSection": "ソーシャルメディア",
   "networkBlocklistsSocialTitle": "ソーシャルメディア ブロックリスト",
   "networkBlocklistsSocialSources": "HaGeZi Social",
-
   "networkBlocklistsAdultSection": "18+",
   "networkBlocklistsAdultTitle": "アダルト ブロックリスト",
   "networkBlocklistsAdultSources": "StevenBlack 18+ • HaGeZi NSFW",
-
   "networkLiveLogsTitle": "ライブログ",
   "networkLiveLogsEmpty": "リクエストはまだありません。",
   "networkLiveLogsBlocked": "ブロック",
   "networkLiveLogsAllowed": "許可",
-
   "recommendedMetaPassDesc": "安全なオフラインパスワードを生成します。",
   "recommendedCleanerProDesc": "重複、古いメディア、未使用アプリを見つけて自動的に容量を回復します。",
   "recommendedLinkCheckerDesc": "セーフビュー機能で疑わしいリンクを安全にチェックします。",
   "recommendedNetworkProtectionDesc": "マルウェアからインターネット接続を守ります。",
   "recommendedTerminalDesc": "Shizuku向けの高度な機能",
   "recommendedScheduledScansDesc": "バックグラウンドで自動スキャンします。",
-
   "metaPassTitle": "MetaPass",
   "metaPassHowItWorks": "MetaPassの仕組み",
   "metaPassOk": "OK",
@@ -385,7 +350,6 @@
     }
   },
   "metaPassInfoBody": "パスワードは保存されません。\n\n各エントリは次からパスワードを導出します:\n• メタパスワード\n• ラベル（名前）\n• バージョンと長さ\n\n同じメタパスワードとラベルでアプリを再インストールすると、同じパスワードが再生成されます。",
-
   "passwordSettingsTitle": "パスワード設定",
   "passwordSettingsSectionMetaPass": "MetaPass",
   "passwordSettingsMetaPasswordTitle": "メタパスワード",
@@ -406,7 +370,6 @@
   "passwordSettingsRestore": "復元",
   "passwordSettingsVaultRestored": "保管庫を復元しました",
   "passwordSettingsFooterInfo": "パスワードは保存されません。\n\n復元コードには構造データのみが含まれます。MetaPassと組み合わせることで保管庫を再構築します。",
-
   "onboardingAppName": "AVarionX Security",
   "onboardingStorageTitle": "ストレージアクセス",
   "onboardingStorageDesc": "この権限は端末内ファイルをスキャンするために必要です。今すぐ付与するか後で付与できます。",
@@ -416,7 +379,7 @@
   "onboardingNotificationsDesc": "リアルタイムアラート、スキャン状況、隔離の更新に使用されます。",
   "onboardingNotificationsFootnote": "リアルタイム保護のためにAndroidが要求します。",
   "onboardingNetworkTitle": "ネットワーク保護",
-  "onboardingNetworkDesc": "AndroidのVPN権限を使用してWi-Fi保護を有効にします。",
+  "onboardingNetworkDesc": "AndroidのVPN権限を使用してWi Fi保護を有効にします。",
   "onboardingNetworkFootnote": "任意ですが推奨です。",
   "onboardingGranted": "付与済み",
   "onboardingNotGranted": "未付与",
@@ -430,29 +393,23 @@
   "onboardingSetupCompleteDesc": "端末全体スキャンの実行を推奨します（現時点ではインストール済みアプリはスキャンしません）。またはホーム画面へ移動してください。",
   "onboardingRunFullScan": "端末全体スキャンを実行",
   "onboardingGoHome": "ホームへ",
-
   "networkProtectionTitle": "ネットワーク保護",
-
-  "networkStatusConnected": "Connected to {dns}",
-  "@networkStatusConnected": {
+  "networkStatusConnectedToDns": "{dns} に接続中",
+  "@networkStatusConnectedToDns": {
     "placeholders": {
       "dns": {}
     }
   },
-  "networkStatusVpnConflict": "別のVPNが有効です",
-  "networkStatusOff": "ネットワーク保護はオフです",
-
+  "networkStatusVpnConflictDetail": "別のVPNが有効です",
+  "networkStatusOffDetail": "ネットワーク保護はオフです",
   "networkModeMalwareTitle": "マルウェアのみブロック",
   "networkModeMalwareSubtitle": "1.1.1.2 を使用",
   "networkModeMalwareDescription": "AVarionXのローカルマルウェアDBとCloudflareのオンライン脅威インテリジェンスを組み合わせ、最大限のマルウェア保護を提供します。",
-
   "networkModeAdultTitle": "マルウェア + アダルトコンテンツ",
   "networkModeAdultSubtitle": "1.1.1.3 を使用",
   "networkModeAdultDescription": "AVarionXのオフラインマルウェアDBを使用し、アダルトコンテンツのフィルタを追加します。このモードではクラウドのマルウェアインテリジェンスは無効です。",
-
   "networkInfoTitle": "ネットワーク保護とは？",
   "networkInfoBody": "一部の脅威は悪意のあるサーバーへ接続したり、通信をリダイレクトしたりして動作します。\nネットワーク保護はローカルVPNを使用して、既知の危険ドメインや一般的な広告をブロックします。\n\nAVarionX Securityはデータを収集しません。",
-
   "linkCheckerTitle": "リンクチェッカー",
   "linkCheckerTabAnalyse": "解析",
   "linkCheckerTabView": "表示",
@@ -487,5 +444,425 @@
   "linkCheckerSuspiciousBanner": "疑わしいリンクです。ブロックされた要素が必要な場合、正しく表示されない可能性があります。",
   "linkCheckerHistorySubtitle": "項目をタップしてリンクをコピー。",
   "linkCheckerHistoryEmpty": "まだ履歴がありません。",
-  "linkCheckerCopied": "コピーしました"
+  "linkCheckerCopied": "コピーしました",
+  "settingsSectionAppearance": "外観",
+  "settingsTheme": "テーマ",
+  "settingsThemeCurrent": "現在: {theme}",
+  "@settingsThemeCurrent": {
+    "placeholders": {
+      "theme": {}
+    }
+  },
+  "settingsLanguage": "言語",
+  "settingsLanguageCurrent": "現在: {language}",
+  "@settingsLanguageCurrent": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "settingsChooseLanguage": "言語を選択",
+  "settingsLanguageApplied": "言語を適用しました",
+  "settingsSystemDefault": "システム既定",
+  "settingsSectionCommunity": "コミュニティに参加",
+  "settingsDiscord": "Discord",
+  "settingsDiscordSubtitle": "チャット、更新、フィードバック",
+  "settingsDiscordOpenFail": "Discordリンクを開けませんでした",
+  "settingsSectionPro": "プレミアム機能",
+  "settingsProCustomization": "プレミアム カスタマイズ",
+  "settingsProSubtitle": "広告を削除し、無制限DNS、テーマ、アイコンを解放",
+  "settingsUnlockPro": "プレミアムを解除",
+  "settingsProUnlocked": "PROモードが解除されました",
+  "settingsPurchaseNotConfirmed": "購入を確認できませんでした",
+  "settingsPurchaseFailed": "購入エラー: {error}",
+  "@settingsPurchaseFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "homeUpgrade": "アップグレード",
+  "homeFeatureSecureVpnTitle": "AvarionX VPN",
+  "homeFeatureSecureVpnDesc": "IPを隠し、不要なコンテンツをブロック",
+  "proActivated": "PROを有効化しました",
+  "proDeactivated": "PROを無効化しました",
+  "settingsProReset": "PROをリセット（デバッグのみ）",
+  "settingsProSheetTitle": "プレミアム カスタマイズ",
+  "settingsHideGoldHeader": "ホーム画面のゴールドヘッダーを表示（ダークテーマ）",
+  "settingsAppIcon": "アプリアイコン",
+  "settingsIconSelected": "選択中のアイコン: {icon}",
+  "@settingsIconSelected": {
+    "placeholders": {
+      "icon": {}
+    }
+  },
+  "vpnSignInRequiredTitle": "サインインが必要です",
+  "vpnClose": "閉じる",
+  "vpnSignInRequiredBody": "Secure VPNを使うにはサインインしてください。",
+  "vpnCancel": "キャンセル",
+  "vpnSignIn": "サインイン",
+  "vpnUsageLoading": "使用量を読み込み中...",
+  "vpnUsageNoLimits": "データ制限なし",
+  "vpnUsageSyncing": "同期中",
+  "vpnUsageUsedThisMonth": "今月の使用量: {used}",
+  "vpnUsageDataTitle": "データ使用量",
+  "vpnUsageUnavailable": "使用量を取得できません",
+  "vpnStatusConnectingEllipsis": "接続中...",
+  "vpnStatusConnectedTo": "{country} に接続中",
+  "@vpnStatusConnectedTo": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "vpnTitleSecure": "Secure VPN",
+  "vpnStatusConnected": "接続済み",
+  "vpnSubtitleEstablishingTunnel": "トンネルを確立中...",
+  "vpnSubtitleFindingLocation": "場所を検索中...",
+  "vpnStatusProtected": "保護中",
+  "vpnStatusNotConnected": "未接続",
+  "vpnConnect": "接続",
+  "vpnDisconnect": "切断",
+  "vpnIpLabel": "IP: {ip}",
+  "@vpnIpLabel": {
+    "placeholders": {
+      "ip": {}
+    }
+  },
+  "vpnServerLoadLabel": "{current}/{max}",
+  "@vpnServerLoadLabel": {
+    "placeholders": {
+      "current": {},
+      "max": {}
+    }
+  },
+  "vpnBlocklistsTitle": "Secure VPN ブロックリスト",
+  "vpnSave": "保存",
+  "settingsSave": "保存",
+  "settingsPremium": "プレミアム",
+  "settingsUltimateSecurity": "究極のセキュリティ",
+  "settingsSwitchPlan": "プランを変更",
+  "settingsBestValue": "最もお得",
+  "settingsOneTime": "買い切り",
+  "settingsPlanPriceLoading": "価格を読み込み中...",
+  "settingsMonthly": "月額",
+  "settingsYearly": "年額",
+  "settingsLifetime": "永久",
+  "settingsSubscribeMonthly": "月額プランに登録",
+  "settingsSubscribeYearly": "年額プランに登録",
+  "settingsUnlockLifetime": "永久版を解除",
+  "settingsProBenefitsTitle": "特典",
+  "settingsUnlimitedDnsTitle": "無制限DNSクエリ",
+  "settingsUnlimitedDnsBody": "クエリ上限を解除し、クラウド側のフルフィルタリングを利用できます。",
+  "settingsThemesTitle": "テーマ",
+  "settingsThemesBody": "プレミアムテーマとカスタマイズを解放します。",
+  "settingsIconCustomizationTitle": "アイコンのカスタマイズ",
+  "settingsIconCustomizationBody": "好みに合わせてアプリアイコンを変更できます。",
+  "settingsScheduledScansTitle": "スケジュールスキャン",
+  "settingsScheduledScansBody": "高度なスケジュール設定とスキャンのカスタマイズを解放します。",
+  "settingsProFinePrint": "サブスクリプションは解約するまで自動更新されます。Google Playでいつでも管理または解約できます。永久版は買い切りです。",
+  "settingsSectionShizuku": "高度な保護（Shizuku）",
+  "settingsEnableShizuku": "Shizukuを有効化",
+  "settingsShizukuRequiresManager": "外部マネージャーが必要",
+  "settingsShizukuNotRunning": "Shizukuサービスが実行されていません",
+  "settingsShizukuPermissionRequired": "権限が必要",
+  "settingsShizukuAvailable": "高度なシステムアクセスが利用可能",
+  "settingsAboutAdvancedProtection": "高度な保護について",
+  "settingsAboutAdvancedProtectionSubtitle": "高度な保護の仕組みを学ぶ",
+  "settingsAdvancedProtectionDialogTitle": "高度なシステム保護",
+  "settingsAdvancedProtectionDialogBody": "Shizukuアクセスには上級者向けの外部マネージャーが必要です。\n\nこの機能は任意であり、通常の保護用途には推奨されません。",
+  "settingsAboutShizukuTitle": "Shizukuについて",
+  "settingsAboutShizukuBody": "AVarionXはShizukuと連携し、システムレベルでアプリのプロセスへアクセスできます。\n\nこれによりアプリは次のことが可能になります:\n• 標準スキャナから隠れるマルウェアを検出\n• 実行中アプリのプロセスを検査\n• 多くのアクティブなマルウェアを無効化または封じ込め\n\nただし、Shizukuはroot権限を付与しません\n\nこの機能は上級者向けであり、通常の保護には不要です。\n\nドキュメント:\nhttps://shizuku.rikka.app",
+  "settingsSectionGeneral": "一般",
+  "settingsExclusions": "除外",
+  "settingsExclusionsSubtitle": "除外の管理と追加",
+  "settingsExcludeFolder": "フォルダを除外",
+  "settingsExcludeFile": "ファイルを除外",
+  "settingsManageExclusions": "既存の除外を管理",
+  "settingsManageExclusionsSubtitle": "除外を表示または削除",
+  "settingsFolderExcluded": "フォルダを除外しました",
+  "settingsFileExcluded": "ファイルを除外しました",
+  "settingsPrivacyPolicy": "プライバシーポリシー",
+  "settingsPrivacyPolicySubtitle": "データの扱い方を確認",
+  "settingsPrivacyPolicyOpenFail": "プライバシーポリシーを開けませんでした",
+  "settingsAboutApp": "AVarionXについて",
+  "settingsHowThisAppWorks": "このアプリの仕組み",
+  "settingsHowThisAppWorksSubtitle": "保護の仕組みを学ぶ",
+  "settingsThemePickerTitle": "テーマを選択",
+  "settingsThemeRequiresPro": "このテーマにはPROモードが必要です",
+  "scheduledScansTitle": "スケジュールスキャン",
+  "scheduledScansInfoTitle": "スケジュールスキャン",
+  "scheduledScansInfoBody": "RTPがダウンロードされたマルウェアに重点を置く一方、スケジュールスキャンは選択したスキャンモードをバックグラウンドで自動開始します。\nRTPが有効な場合にのみ実行されます。\n\nPROユーザーはモードと頻度をカスタマイズできます。",
+  "scheduledScansHeader": "バックグラウンド自動スキャン",
+  "scheduledScansSubheader": "RTPが有効な間、選択したモードと頻度に従って端末をスキャンします。",
+  "proRequiredToCustomize": "カスタマイズにはPROが必要です",
+  "scheduledScansEnabledTitle": "有効",
+  "scheduledScansEnabledSubtitle": "有効時、設定したスケジュールに従って自動でスキャンを実行します。",
+  "scheduledScansModeTitle": "スキャンモード",
+  "scheduledScansModeHint": "現在のモード: {mode}",
+  "@scheduledScansModeHint": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "scheduledScansFrequencyTitle": "頻度",
+  "scheduledScansFrequencyHint": "実行: {freq}",
+  "@scheduledScansFrequencyHint": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
+  "scheduledEveryDay": "毎日",
+  "scheduledEvery3Days": "3日ごと",
+  "scheduledEveryWeek": "毎週",
+  "scheduledEvery2Weeks": "2週間ごと",
+  "scheduledEvery3Weeks": "3週間ごと",
+  "scheduledMonthly": "毎月",
+  "scheduledEveryDays": "{days}日ごと",
+  "@scheduledEveryDays": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "scheduledEveryHours": "{hours}時間ごと",
+  "@scheduledEveryHours": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "vpnSettingsPrivacySecurityTitle": "プライバシーとセキュリティ",
+  "vpnSettingsNoLogsPolicyTitle": "ノーログポリシー",
+  "vpnSettingsNoLogsPolicyBody": "ログは保存されません。接続アクティビティ、閲覧アクティビティ、DNSクエリ、トラフィック内容は記録または保持されません。",
+  "vpnSettingsNoActivityLogsTitle": "アクティビティログなし",
+  "vpnSettingsNoActivityLogsBody": "Secure VPN利用中のアクティビティは監視も追跡もされません。",
+  "vpnSettingsWireGuardTitle": "VX-Link powered by WireGuard",
+  "vpnSettingsWireGuardBody": "Secure VPNはVX-Link経由でWireGuardプロトコルを使用し、高速でモダンな暗号化を提供します。",
+  "vpnSettingsMalwareProtectionTitle": "マルウェア保護が有効",
+  "vpnSettingsMalwareProtectionBody": "接続中は悪意のあるドメインがデフォルトでブロックされます。",
+  "vpnSettingsAdTrackerProtectionTitle": "任意の広告・トラッカー保護",
+  "vpnSettingsAdTrackerProtectionBody": "追加の広告およびトラッカーブロックは、カスタマイズタブで有効化できます。",
+  "vpnSettingsBrandFooter": "VX-Link により保護",
+  "vpnSettingsAccountTitle": "アカウント",
+  "vpnSettingsSignInToContinue": "続行するにはサインインしてください",
+  "vpnSettingsAccountSyncBody": "プランとデータ使用量はアカウントと同期されます。",
+  "vpnSettingsSignedIn": "サインイン済み",
+  "vpnSettingsPlanUnknown": "プラン: 不明",
+  "vpnSettingsPlanLabel": "プラン: {plan}",
+  "@vpnSettingsPlanLabel": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "vpnSettingsRefresh": "更新",
+  "vpnSettingsSignOut": "サインアウト",
+  "scheduledChargingOnlyTitle": "充電中のみ",
+  "scheduledChargingOnlySubtitle": "端末が充電中のときのみスケジュールスキャンを実行します。",
+  "scheduledPreferredTimeTitle": "希望時刻",
+  "scheduledPreferredTimeSubtitle": "AVarionXはこの時刻の前後で開始を試みます。Androidが省電力のため遅延させる場合があります。",
+  "scheduledPickTime": "時刻を選択",
+  "cleanerTitle": "Cleaner Pro",
+  "cleanerReadyToScan": "スキャン準備完了",
+  "cleanerScan": "スキャン",
+  "cleanerScanning": "スキャン中…",
+  "cleanerReady": "準備完了",
+  "cleanerStatusReady": "準備完了",
+  "cleanerStatusStarting": "開始中…",
+  "cleanerStatusFilesScanned": "ファイルをスキャン済み",
+  "cleanerStatusFindingUnusedApps": "未使用アプリを検索中…",
+  "cleanerStatusComplete": "完了",
+  "cleanerStatusScanError": "スキャンエラー",
+  "cleanerStatusScanningApps": "アプリをスキャン中…",
+  "cleanerGrantUsageAccessTitle": "使用状況アクセスを許可",
+  "cleanerGrantUsageAccessBody": "未使用アプリを検出するには、このクリーナーに使用状況アクセス権限が必要です。有効化のためシステム設定へ移動します。",
+  "cleanerCancel": "キャンセル",
+  "cleanerContinue": "続行",
+  "cleanerDuplicates": "重複",
+  "cleanerDuplicatesNone": "重複は見つかりませんでした",
+  "cleanerDuplicatesSubtitle": "{count} 件 • {size} を回復",
+  "@cleanerDuplicatesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerOldPhotos": "古い写真",
+  "cleanerOldPhotosNone": "{days}日を超える写真はありません",
+  "@cleanerOldPhotosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldPhotosSubtitle": "{count} 件 • {size}",
+  "@cleanerOldPhotosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerOldVideos": "古い動画",
+  "cleanerOldVideosNone": "{days}日を超える動画はありません",
+  "@cleanerOldVideosNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerOldVideosSubtitle": "{count} 件 • {size}",
+  "@cleanerOldVideosSubtitle": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerLargeFiles": "大きなファイル",
+  "cleanerLargeFilesNone": "≥ {size} のファイルはありません",
+  "@cleanerLargeFilesNone": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "cleanerLargeFilesSubtitle": "{count} 件 • {sizeTotal}",
+  "@cleanerLargeFilesSubtitle": {
+    "placeholders": {
+      "count": {},
+      "sizeTotal": {}
+    }
+  },
+  "cleanerUnusedApps": "未使用アプリ",
+  "cleanerUnusedAppsNone": "未使用アプリはありません（過去 {days} 日）",
+  "@cleanerUnusedAppsNone": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "cleanerUnusedAppsCount": "{count} 個のアプリ",
+  "@cleanerUnusedAppsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cleanerStageDuplicates": "重複をスキャン中…",
+  "cleanerStageDuplicatesGrouping": "重複をグループ化中…",
+  "cleanerStageOldPhotos": "古い写真をスキャン中…",
+  "cleanerStageOldVideos": "古い動画をスキャン中…",
+  "cleanerStageLargeFiles": "大きなファイルをスキャン中…",
+  "cleanerStageOldPhotosProgress": "古い写真: {count} • {size}",
+  "@cleanerStageOldPhotosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "vpnAccountScreenTitle": "アカウント",
+  "vpnAccountSignInRequiredTitle": "サインインが必要です",
+  "vpnAccountSignInManageUsageBody": "アカウントと使用量を管理するにはサインインしてください。",
+  "vpnAccountNotSignedIn": "未サインイン",
+  "vpnAccountFree": "無料",
+  "vpnAccountUnknown": "不明",
+  "vpnAccountStatusSyncing": "同期中",
+  "vpnAccountStatusActive": "有効",
+  "vpnAccountStatusConnected": "接続済み",
+  "vpnAccountStatusDisconnected": "未接続",
+  "vpnAccountStatusUnavailable": "利用不可",
+  "vpnAccountStatusConnectedNow": "現在接続中",
+  "vpnAccountStatusRefreshToLoadServer": "サーバー状態を読み込むには更新してください",
+  "vpnAccountUsageTitle": "使用量",
+  "vpnAccountUsageLoading": "使用量を読み込み中...",
+  "vpnAccountUsageSignInToSync": "同期するにはサインインしてください",
+  "vpnAccountUsagePullToRefresh": "下に引いて更新し、使用量を同期",
+  "vpnAccountUsageUnlimited": "無制限",
+  "vpnAccountUsageUsedThisMonth": "今月の使用量: {used}",
+  "@vpnAccountUsageUsedThisMonth": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedThisMonthUnlimited": "今月の使用量: {used}、無制限",
+  "@vpnAccountUsageUsedThisMonthUnlimited": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedOfLimit": "{used} / {limit}",
+  "@vpnAccountUsageUsedOfLimit": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "settingsSectionAccount": "アカウント",
+  "settingsAccountTitle": "アカウント",
+  "settingsAccountSubtitle": "サインイン、プラン、サブスクリプション、アカウント使用量",
+  "exploreSecureVpnTitle": "Secure VPN",
+  "exploreSecureVpnSubtitle": "IPを隠し、不要なコンテンツをブロック",
+  "vpnAccountServerLoadTitle": "選択中サーバーの負荷",
+  "vpnAccountServerConnectedCount": "{connected}/{cap}",
+  "@vpnAccountServerConnectedCount": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "networkDnsOffTitle": "DNSフィルタリングに切り替えますか？",
+  "networkDnsOffInfoTitle": "DNSフィルタリングとは？",
+  "networkDnsOffInfoBody1": "DNSフィルタリングはSecure VPNとは別機能です。既知のマルウェア、アプリ内広告、トラッカー、不要なカテゴリを読み込み前にブロックできます。",
+  "networkDnsOffInfoBody2": "通信を暗号化したり、IPを隠したりはしません。",
+  "networkDnsOffEnableButton": "DNSフィルタリングを有効化",
+  "vpnAccountServerConnectedCountWithLabel": "{connected}/{cap} 接続中",
+  "@vpnAccountServerConnectedCountWithLabel": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "vpnAccountIdentityFallbackTitle": "アカウント",
+  "vpnAccountMembershipLabel": "メンバーシップ",
+  "vpnAccountMembershipFounderVpnPro": "Founder ・ VPN Pro",
+  "vpnAccountMembershipFounder": "Founder",
+  "vpnAccountMembershipPro": "Pro",
+  "vpnAccountSectionAccountStatus": "アカウント状態",
+  "vpnAccountSectionActions": "操作",
+  "vpnAccountKvStatus": "状態",
+  "vpnAccountKvPlan": "プラン",
+  "vpnAccountKvUsage": "使用量",
+  "vpnAccountKvSelectedServer": "選択中サーバー",
+  "vpnAccountKvConnectionState": "接続状態",
+  "vpnAccountActionRefresh": "更新",
+  "vpnAccountActionOpen": "開く",
+  "vpnAccountFounderThanks": "ColourSwiftを支えてくれてありがとうございます",
+  "vpnAccountFounderNote": "一人で作っていますが、最高のコミュニティに支えられています。",
+  "cleanerStageOldVideosProgress": "古い動画: {count} • {size}",
+  "@cleanerStageOldVideosProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerStageLargeFilesProgress": "大きなファイル: {count} • {size}",
+  "@cleanerStageLargeFilesProgress": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "unusedAppsTitle": "未使用アプリ",
+  "unusedAppsEmpty": "過去 {days} 日に未使用アプリはありません",
+  "@unusedAppsEmpty": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "quarantineTitle": "削除済み",
+  "quarantineSelectAll": "すべて選択",
+  "quarantineRefresh": "更新",
+  "quarantineEmptyTitle": "削除済みファイルはありません",
+  "quarantineEmptyBody": "削除したものはここに表示されます。",
+  "quarantineRestore": "復元",
+  "quarantineDelete": "削除",
+  "quarantineSnackRestored": "復元しました",
+  "quarantineSnackDeleted": "削除しました",
+  "quarantineDeleteDialogTitle": "選択したファイルを削除しますか？",
+  "quarantineDeleteDialogBody": "{count} 件の項目を完全に削除します。",
+  "@quarantineDeleteDialogBody": {
+    "placeholders": {
+      "count": {},
+      "plural": {}
+    }
+  }
 }

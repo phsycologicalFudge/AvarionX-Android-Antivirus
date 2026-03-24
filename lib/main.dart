@@ -13,7 +13,6 @@ import 'screens/quarantine/quarantine_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:colourswift_av/services/purchase_service.dart';
 import 'constants/launch_flag.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'translations/app_localizations.dart';
 
@@ -61,15 +60,6 @@ Future<void> _applyScanLimitsFromPrefs() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DefsUpdateScheduler.init();
-  if (kEnableAds) {
-    MobileAds.instance.updateRequestConfiguration(
-      RequestConfiguration(
-        testDeviceIds: ['8ED98C0895705131B2697FBAC479C616'],
-      ),
-    );
-    await MobileAds.instance.initialize();
-  }
-
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.immersiveSticky,
   );
@@ -130,6 +120,7 @@ Future<void> _ensureNotificationPermission() async {
 
 class MyApp extends StatelessWidget {
   final bool openQuarantine;
+
   const MyApp({super.key, required this.openQuarantine});
 
   @override
@@ -145,6 +136,17 @@ class MyApp extends StatelessWidget {
       themeMode: themeManager.themeMode,
       locale: languageManager.locale,
       supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        if (deviceLocale == null) return supportedLocales.first;
+
+        for (final locale in supportedLocales) {
+          if (locale.languageCode == deviceLocale.languageCode) {
+            return locale;
+          }
+        }
+
+        return supportedLocales.first;
+      },
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

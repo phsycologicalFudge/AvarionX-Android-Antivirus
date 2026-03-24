@@ -30,7 +30,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get footerSettings => 'Ustawienia';
 
   @override
-  String get proBadge => 'PRO';
+  String get proBadge => 'Premium';
 
   @override
   String get updateDbTitle => 'Aktualizowanie bazy danych';
@@ -41,10 +41,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get exploreMultiThreadingTitle => 'Multi-Threading';
+  String get exploreMultiThreadingTitle => 'Wielowątkowość';
 
   @override
-  String get exploreMultiThreadingSubtitle => 'Experimental engine control';
+  String get exploreMultiThreadingSubtitle =>
+      'Eksperymentalna kontrola silnika';
 
   @override
   String get updateDbAutoDownloadLabel =>
@@ -52,7 +53,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get updateDbUpdatedAutoOn =>
-      'Baza zaktualizowana • Auto-aktualizacje włączone';
+      'Baza zaktualizowana • Automatyczne aktualizacje włączone';
 
   @override
   String get updateDbUpdatedSuccess => 'Baza danych zaktualizowana pomyślnie';
@@ -93,7 +94,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scanModeInstalledSubtitle =>
-      'Skanuje aplikacje pod kątem zagrożeń.';
+      'Skanuje zainstalowane aplikacje pod kątem zagrożeń.';
 
   @override
   String get scanModeSingleTitle => 'Skanowanie pliku / aplikacji';
@@ -133,11 +134,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get stateProtectedLine2 => 'Dotknij, aby wyłączyć';
 
   @override
-  String get dbUpdating => 'Aktualizowanie bazy...';
+  String get dbUpdating => 'Aktualizowanie bazy danych';
 
   @override
   String dbVersionAutoUpdated(Object version) {
-    return 'Baza v$version • Auto-aktualizacja';
+    return 'Baza v$version • Zaktualizowano automatycznie';
   }
 
   @override
@@ -145,7 +146,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get rtpInfoBody =>
-      'Oprócz blokowania podejrzanych plików pobranych celowo (lub przez malware), ochrona RTP używa lokalnego VPN do blokowania złośliwych domen w całym systemie.\n\nPo włączeniu filtrowanie sieci pozostaje aktywne, chyba że:\n• Zostanie wyłączone ręcznie w Terminalu\n• Zostanie zastąpione przez inny VPN\n\nOchrona plików kontynuuje działanie, dopóki RTP jest włączone.';
+      'Oprócz blokowania podejrzanych plików pobranych celowo (lub przez malware), RTP używa lokalnego VPN do blokowania złośliwych domen w całym systemie.\n\nPo włączeniu filtrowanie sieci pozostaje aktywne, chyba że:\n• Zostanie wyłączone ręcznie w Terminalu\n• Zostanie zastąpione przez inny VPN\n\nOchrona plików działa nadal, o ile RTP jest włączone.';
 
   @override
   String get scanTitleDefault => 'Skanuj';
@@ -195,7 +196,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fullScanInfoBody =>
-      'Ten tryb skanuje każdy czytelny plik w pamięci, bez filtrowania.\n\nSkanowanie wspomagane chmurą oraz skanowanie aplikacji nie są używane w tym trybie.';
+      'Ten tryb skanuje każdy czytelny plik w pamięci, bez filtrowania.\n\nSkanowanie wspomagane chmurą i skanowanie aplikacji nie są używane w tym trybie.';
 
   @override
   String get scanComplete => 'Skanowanie zakończone';
@@ -220,7 +221,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get resultNoThreatsBody =>
-      'Nie wykryto zagrożeń w skanowanych elementach.';
+      'Nie wykryto zagrożeń w przeskanowanych elementach.';
 
   @override
   String get resultSuspiciousAppsTitle => 'Podejrzane aplikacje';
@@ -248,16 +249,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get maliciousActivityDetected => 'Wykryto złośliwą aktywność';
 
   @override
-  String get androidBankingTrojan => 'Trojan bankowy (Android)';
+  String get androidBankingTrojan => 'Trojan bankowy Android';
 
   @override
-  String get androidSpyware => 'Spyware (Android)';
+  String get androidSpyware => 'Spyware Android';
 
   @override
-  String get androidAdware => 'Adware (Android)';
+  String get androidAdware => 'Adware Android';
 
   @override
-  String get androidSmsFraud => 'Oszustwo SMS (Android)';
+  String get androidSmsFraud => 'Oszustwo SMS Android';
 
   @override
   String get threatLevelConfirmed => 'Potwierdzone';
@@ -279,19 +280,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get explainFoundInOffline =>
-      'Ten element znajduje się w lokalnej bazie złośliwego oprogramowania na urządzeniu.';
+      'Ten element znajduje się w lokalnej bazie malware na urządzeniu.';
 
   @override
   String get explainBanker =>
-      'Zaprojektowany do kradzieży danych finansowych, często przy użyciu nakładek, rejestrowania klawiszy lub przechwytywania ruchu.';
+      'Zaprojektowany do kradzieży danych finansowych, często przy użyciu nakładek, keyloggera lub przechwytywania ruchu.';
 
   @override
   String get explainSpyware =>
-      'Dyskretnie monitoruje aktywność lub zbiera dane osobowe, takie jak wiadomości, lokalizacja czy identyfikatory urządzenia.';
+      'Po cichu monitoruje aktywność lub zbiera dane osobowe, takie jak wiadomości, lokalizacja lub identyfikatory urządzenia.';
 
   @override
   String get explainAdware =>
-      'Wyświetla natrętne reklamy, wykonuje przekierowania lub generuje nieuczciwy ruch reklamowy.';
+      'Wyświetla natrętne reklamy, wykonuje przekierowania lub generuje fałszywy ruch reklamowy.';
 
   @override
   String get explainSmsFraud =>
@@ -299,11 +300,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get explainGenericMalware =>
-      'Wykryto silne wskaźniki złośliwego działania, mimo że element nie pasuje do żadnej nazwanej rodziny.';
+      'Wykryto silne wskaźniki złośliwego działania, mimo że element nie pasuje do nazwanej rodziny.';
 
   @override
   String get explainSuspiciousDefault =>
-      'Wykryto wskaźniki podejrzanego zachowania. Może to obejmować wzorce spotykane w malware, ale może to być również fałszywy alarm (false positive).';
+      'Wykryto wskaźniki podejrzanego zachowania. Może to obejmować wzorce spotykane w malware, ale może to być też fałszywy alarm.';
 
   @override
   String get singleChoiceScanFile => 'Skanuj plik';
@@ -351,10 +352,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get logStageHashing =>
-      '[ETAP 1] Pobieranie skrótów plików (z bufora)...';
+      '[ETAP 1] Pobieranie skrótów plików (z cache)...';
 
   @override
-  String get logStageCloudLookup => '[ETAP 2] Sprawdzanie skrótów w chmurze...';
+  String get logStageCloudLookup =>
+      '[ETAP 2] Wyszukiwanie skrótów w chmurze...';
 
   @override
   String logStageLocalScanning(Object stage) {
@@ -407,22 +409,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get featureScheduledScans => 'Planowane skanowania';
 
   @override
-  String get networkStatusDisconnected => 'Disconnected';
+  String get networkStatusDisconnected => 'Rozłączono';
 
   @override
-  String get networkStatusConnecting => 'Connecting';
+  String get networkStatusConnecting => 'Łączenie';
 
   @override
-  String get networkStatusConnected => 'Połączono z null';
+  String get networkStatusConnected => 'Połączono';
 
   @override
-  String get networkUsageTitle => 'Usage';
+  String get networkUsageTitle => 'Użycie';
 
   @override
-  String get networkUsageEnableVpnToView => 'Enable VPN to view usage.';
+  String get networkUsageEnableVpnToView => 'Włącz VPN, aby zobaczyć użycie.';
 
   @override
-  String get networkUsageUnlimited => 'Unlimited';
+  String get networkUsageUnlimited => 'Bez limitu';
 
   @override
   String networkUsageUsedOf(Object used, Object limit) {
@@ -431,151 +433,152 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String networkUsageResetsOn(Object y, Object m, Object d) {
-    return 'Resets on $y-$m-$d';
+    return 'Reset dnia $y-$m-$d';
   }
 
   @override
   String networkUsageUpdatedAt(Object hh, Object mm) {
-    return 'Updated $hh:$mm';
+    return 'Zaktualizowano $hh:$mm';
   }
 
   @override
-  String get networkCardStatusAvailable => 'Available';
+  String get networkCardStatusAvailable => 'Dostępne';
 
   @override
-  String get networkCardStatusDisabled => 'Disabled';
+  String get networkCardStatusDisabled => 'Wyłączone';
 
   @override
-  String get networkCardStatusCustom => 'Custom';
+  String get networkCardStatusCustom => 'Własne';
 
   @override
-  String get networkCardStatusReady => 'Ready';
+  String get networkCardStatusReady => 'Gotowe';
 
   @override
-  String get networkCardStatusOpen => 'Open';
+  String get networkCardStatusOpen => 'Otwórz';
 
   @override
-  String get networkCardStatusComingSoon => 'Coming soon';
+  String get networkCardStatusComingSoon => 'Wkrótce';
 
   @override
-  String get networkCardBlocklistsTitle => 'Blocklists';
+  String get networkCardBlocklistsTitle => 'Listy blokowania';
 
   @override
-  String get networkCardBlocklistsSubtitle => 'Filtering controls';
+  String get networkCardBlocklistsSubtitle => 'Kontrola filtrowania';
 
   @override
   String get networkCardUpstreamTitle => 'Upstream';
 
   @override
-  String get networkCardUpstreamSubtitle => 'Resolver selection';
+  String get networkCardUpstreamSubtitle => 'Wybór resolvera';
 
   @override
-  String get networkCardAppsTitle => 'Apps';
+  String get networkCardAppsTitle => 'Aplikacje';
 
   @override
-  String get networkCardAppsSubtitle => 'Block apps on WiFi';
+  String get networkCardAppsSubtitle => 'Blokuj aplikacje w WiFi';
 
   @override
-  String get networkCardLogsTitle => 'Logs';
+  String get networkCardLogsTitle => 'Logi';
 
   @override
-  String get networkCardLogsSubtitle => 'Live DNS events';
+  String get networkCardLogsSubtitle => 'Zdarzenia DNS na żywo';
 
   @override
-  String get networkCardSpeedTitle => 'Speed';
+  String get networkCardSpeedTitle => 'Prędkość';
 
   @override
-  String get networkCardSpeedSubtitle => 'DNS test';
+  String get networkCardSpeedSubtitle => 'Test DNS';
 
   @override
-  String get networkCardAboutTitle => 'About';
+  String get networkCardAboutTitle => 'O projekcie';
 
   @override
   String get networkCardAboutSubtitle => 'GitHub';
 
   @override
-  String get networkLogsStatusNoActivity => 'No activity';
+  String get networkLogsStatusNoActivity => 'Brak aktywności';
 
   @override
   String networkLogsStatusRecent(Object count) {
-    return '$count recent';
+    return '$count ostatnich';
   }
 
   @override
   String get networkResolverTitle => 'Resolver';
 
   @override
-  String get networkResolverIpLabel => 'Resolver IP';
+  String get networkResolverIpLabel => 'IP resolvera';
 
   @override
-  String get networkResolverIpHint => 'Example: 1.1.1.1';
+  String get networkResolverIpHint => 'Przykład: 1.1.1.1';
 
   @override
-  String get networkSpeedTestTitle => 'Speed test';
+  String get networkSpeedTestTitle => 'Test prędkości';
 
   @override
   String get networkSpeedTestBody =>
-      'Runs a DNS speed tester using your current settings.';
+      'Uruchamia tester prędkości DNS z bieżącymi ustawieniami.';
 
   @override
-  String get networkSpeedTestRun => 'Run speed test';
+  String get networkSpeedTestRun => 'Uruchom test prędkości';
 
   @override
-  String get networkBlocklistsRecommendedTitle => 'Recommended';
+  String get networkBlocklistsRecommendedTitle => 'Zalecane';
 
   @override
   String get networkBlocklistsCsMalwareTitle => 'ColourSwift Malware';
 
   @override
-  String get networkBlocklistsCsAdsTitle => 'ColourSwift ads';
+  String get networkBlocklistsCsAdsTitle => 'Reklamy ColourSwift';
 
   @override
-  String get networkBlocklistsSeeGithub => 'See GitHub for details...';
+  String get networkBlocklistsSeeGithub => 'Zobacz szczegóły na GitHub...';
 
   @override
   String get networkBlocklistsMalwareSection => 'Malware';
 
   @override
-  String get networkBlocklistsMalwareTitle => 'Malware blocklist';
+  String get networkBlocklistsMalwareTitle => 'Lista blokowania malware';
 
   @override
   String get networkBlocklistsMalwareSources =>
       'HaGeZi TIF • URLHaus • DigitalSide • Spam404';
 
   @override
-  String get networkBlocklistsAdsSection => 'Ads';
+  String get networkBlocklistsAdsSection => 'Reklamy';
 
   @override
-  String get networkBlocklistsAdsTitle => 'Ads blocklist';
+  String get networkBlocklistsAdsTitle => 'Lista blokowania reklam';
 
   @override
   String get networkBlocklistsAdsSources =>
       'OISD • AdAway • Yoyo • AnudeepND • Firebog AdGuard';
 
   @override
-  String get networkBlocklistsTrackersSection => 'Trackers';
+  String get networkBlocklistsTrackersSection => 'Trackery';
 
   @override
-  String get networkBlocklistsTrackersTitle => 'Trackers blocklist';
+  String get networkBlocklistsTrackersTitle => 'Lista blokowania trackerów';
 
   @override
   String get networkBlocklistsTrackersSources =>
       'EasyPrivacy • Disconnect • Frogeye • Perflyst • WindowsSpyBlocker';
 
   @override
-  String get networkBlocklistsGamblingSection => 'Gambling';
+  String get networkBlocklistsGamblingSection => 'Hazard';
 
   @override
-  String get networkBlocklistsGamblingTitle => 'Gambling blocklist';
+  String get networkBlocklistsGamblingTitle => 'Lista blokowania hazardu';
 
   @override
   String get networkBlocklistsGamblingSources => 'HaGeZi Gambling';
 
   @override
-  String get networkBlocklistsSocialSection => 'Social media';
+  String get networkBlocklistsSocialSection => 'Media społecznościowe';
 
   @override
-  String get networkBlocklistsSocialTitle => 'Social media blocklist';
+  String get networkBlocklistsSocialTitle =>
+      'Lista blokowania mediów społecznościowych';
 
   @override
   String get networkBlocklistsSocialSources => 'HaGeZi Social';
@@ -584,22 +587,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String get networkBlocklistsAdultSection => '18+';
 
   @override
-  String get networkBlocklistsAdultTitle => 'Adult blocklist';
+  String get networkBlocklistsAdultTitle =>
+      'Lista blokowania treści dla dorosłych';
 
   @override
   String get networkBlocklistsAdultSources => 'StevenBlack 18+ • HaGeZi NSFW';
 
   @override
-  String get networkLiveLogsTitle => 'Live logs';
+  String get networkLiveLogsTitle => 'Logi na żywo';
 
   @override
-  String get networkLiveLogsEmpty => 'No requests yet.';
+  String get networkLiveLogsEmpty => 'Brak żądań.';
 
   @override
-  String get networkLiveLogsBlocked => 'Blocked';
+  String get networkLiveLogsBlocked => 'Zablokowano';
 
   @override
-  String get networkLiveLogsAllowed => 'Allowed';
+  String get networkLiveLogsAllowed => 'Dozwolone';
 
   @override
   String get recommendedMetaPassDesc => 'Generuj bezpieczne hasła offline.';
@@ -610,11 +614,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get recommendedLinkCheckerDesc =>
-      'Sprawdzaj podejrzane linki dzięki funkcji bezpiecznego widoku, bez ryzyka.';
+      'Sprawdzaj podejrzane linki dzięki bezpiecznemu widokowi, bez ryzyka.';
 
   @override
   String get recommendedNetworkProtectionDesc =>
-      'Chroń swoje połączenie internetowe przed złośliwym oprogramowaniem.';
+      'Chroń swoje połączenie internetowe przed malware.';
 
   @override
   String get recommendedTerminalDesc => 'Zaawansowana funkcja dla Shizuku';
@@ -713,7 +717,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get metaPassChangingMetaWarning =>
-      'Zmiana hasła meta w przyszłości spowoduje zmianę wszystkich haseł. Użycie tego samego hasła przywróci je.';
+      'Zmiana tego później zmieni wszystkie generowane hasła. Użycie tego samego hasła meta przywróci je.';
 
   @override
   String get metaPassRemoveEntryTitle => 'Usuń wpis';
@@ -753,7 +757,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get metaPassInfoBody =>
-      'Hasła nie są nigdzie przechowywane.\n\nKażdy wpis generuje hasło na podstawie:\n• Twojego hasła meta\n• Etykiety (nazwy)\n• Wersji i długości\n\nPonowna instalacja aplikacji z tym samym hasłem meta i tymi samymi etykietami wygeneruje identyczne hasła.';
+      'Hasła nigdy nie są przechowywane.\n\nKażdy wpis generuje hasło na podstawie:\n• Twojego hasła meta\n• Etykiety (nazwy)\n• Wersji i długości\n\nPonowna instalacja aplikacji z tym samym hasłem meta i tymi samymi etykietami wygeneruje identyczne hasła.';
 
   @override
   String get passwordSettingsTitle => 'Ustawienia haseł';
@@ -782,7 +786,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passwordSettingsChangingAltersAll =>
-      'Zmiana tego hasła zmienia wszystkie hasła wyjściowe.\nUżycie pierwotnego MetaPass przywróci je.';
+      'Zmiana tego zmienia wszystkie hasła.\nUżycie tego samego MetaPass przywróci je.';
 
   @override
   String get passwordSettingsCancel => 'Anuluj';
@@ -816,47 +820,46 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passwordSettingsFooterInfo =>
-      'Hasła nigdy nie są przechowywane.\n\nKod odzyskiwania zawiera tylko strukturę danych. W połączeniu z hasłem MetaPass pozwala odbudować Twój sejf.';
+      'Hasła nigdy nie są przechowywane.\n\nKod odzyskiwania zawiera tylko dane struktury. W połączeniu z Twoim MetaPass odtworzy sejf.';
 
   @override
   String get onboardingAppName => 'AVarionX Security';
 
   @override
-  String get onboardingStorageTitle => 'Dostęp do plików';
+  String get onboardingStorageTitle => 'Dostęp do pamięci';
 
   @override
   String get onboardingStorageDesc =>
-      'To uprawnienie jest wymagane do skanowania plików na Twoim urządzeniu. Możesz je nadać teraz lub później.';
+      'To uprawnienie jest wymagane do skanowania plików na urządzeniu. Możesz je nadać teraz lub później.';
 
   @override
   String get onboardingStorageFootnote =>
-      'Możesz to pominąć, ale zostaniesz o to zapytany ponownie przy wyborze trybu skanowania.';
+      'Możesz to pominąć, ale zostaniesz o to poproszony ponownie przy wyborze trybu skanowania.';
 
   @override
   String get onboardingStorageSnack =>
-      'Uprawnienie do plików jest wymagane do skanowania.';
+      'Uprawnienie do pamięci jest wymagane do skanowania.';
 
   @override
   String get onboardingNotificationsTitle => 'Powiadomienia';
 
   @override
   String get onboardingNotificationsDesc =>
-      'Używane do alertów w czasie rzeczywistym, statusu skanowania i powiadomień o kwarantannie.';
+      'Używane do alertów w czasie rzeczywistym, statusu skanowania i aktualizacji kwarantanny.';
 
   @override
   String get onboardingNotificationsFootnote =>
-      'Wymagane przez system Android dla poprawnego działania RTP.';
+      'Wymagane przez Androida dla ochrony w czasie rzeczywistym.';
 
   @override
   String get onboardingNetworkTitle => 'Ochrona sieci';
 
   @override
   String get onboardingNetworkDesc =>
-      'Umożliwia ochronę Wi-Fi za pomocą uprawnienia VPN systemu Android.';
+      'Włącza ochronę Wi Fi przy użyciu uprawnienia VPN Androida.';
 
   @override
-  String get onboardingNetworkFootnote =>
-      'To działanie jest opcjonalne, ale zalecane.';
+  String get onboardingNetworkFootnote => 'To opcjonalne, ale zalecane.';
 
   @override
   String get onboardingGranted => 'Przyznano';
@@ -887,27 +890,27 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get onboardingSetupCompleteDesc =>
-      'Zalecamy uruchomienie Pełnego skanu urządzenia (obecnie nie obejmuje skanowania zainstalowanych aplikacji) lub przejście prosto do ekranu głównego.';
+      'Zalecamy uruchomienie pełnego skanu urządzenia (obecnie nie skanuje zainstalowanych aplikacji) albo przejście od razu do ekranu głównego.';
 
   @override
-  String get onboardingRunFullScan => 'Uruchom pełny skan';
+  String get onboardingRunFullScan => 'Uruchom pełny skan urządzenia';
 
   @override
-  String get onboardingGoHome => 'Przejdź do strony głównej';
+  String get onboardingGoHome => 'Przejdź do ekranu głównego';
 
   @override
   String get networkProtectionTitle => 'Ochrona sieci';
 
   @override
   String networkStatusConnectedToDns(Object dns) {
-    return 'Connected to $dns';
+    return 'Połączono z $dns';
   }
 
   @override
-  String get networkStatusVpnConflictDetail => 'Another VPN is active';
+  String get networkStatusVpnConflictDetail => 'Inny VPN jest aktywny';
 
   @override
-  String get networkStatusOffDetail => 'Network protection is off';
+  String get networkStatusOffDetail => 'Ochrona sieci jest wyłączona';
 
   @override
   String get networkModeMalwareTitle => 'Tylko blokowanie malware';
@@ -917,7 +920,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get networkModeMalwareDescription =>
-      'Łączy lokalną bazę malware AVarionX z chmurową inteligencją Cloudflare dla maksymalnej ochrony przed zagrożeniami.';
+      'Łączy lokalną bazę malware AvarionX z chmurową analizą zagrożeń Cloudflare dla maksymalnej ochrony przed malware.';
 
   @override
   String get networkModeAdultTitle => 'Malware i treści dla dorosłych';
@@ -927,20 +930,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get networkModeAdultDescription =>
-      'Używa lokalnej bazy malware AVarionX i dodaje filtrowanie treści dla dorosłych. Inteligencja chmurowa jest wyłączona w tym trybie.';
+      'Używa lokalnej bazy malware AvarionX i dodaje filtrowanie treści dla dorosłych. Chmurowa analiza malware jest wyłączona w tym trybie.';
 
   @override
   String get networkInfoTitle => 'Czym jest Ochrona sieci?';
 
   @override
   String get networkInfoBody =>
-      'Niektóre zagrożenia działają poprzez łączenie się ze złośliwymi serwerami lub przekierowywanie ruchu internetowego.\nOchrona sieci blokuje znane niebezpieczne domeny i typowe reklamy przy użyciu lokalnego połączenia VPN.\n\nAVarionX Security nie gromadzi żadnych danych.';
+      'Niektóre zagrożenia działają przez łączenie się ze złośliwymi serwerami lub przekierowywanie ruchu internetowego.\nOchrona sieci blokuje znane niebezpieczne domeny i typowe reklamy przy użyciu lokalnego VPN.\n\nAVarionX Security nie zbiera żadnych danych.';
 
   @override
   String get linkCheckerTitle => 'Skaner linków';
 
   @override
-  String get linkCheckerTabAnalyse => 'Analizuj';
+  String get linkCheckerTabAnalyse => 'Analiza';
 
   @override
   String get linkCheckerTabView => 'Widok';
@@ -950,13 +953,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkCheckerAnalyseSubtitle =>
-      'Sprawdź stronę pod kątem malware lub podejrzanych treści';
+      'Sprawdź stronę pod kątem malware lub podejrzanej treści';
 
   @override
   String get linkCheckerUrlLabel => 'URL';
 
   @override
-  String get linkCheckerUrlHint => 'https://przykład.pl';
+  String get linkCheckerUrlHint => 'https://przyklad.pl';
 
   @override
   String get linkCheckerButtonAnalyse => 'Analizuj';
@@ -965,7 +968,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkCheckerButtonChecking => 'Sprawdzanie';
 
   @override
-  String get linkCheckerEngineNotReadySnack => 'Silnik niegotowy';
+  String get linkCheckerEngineNotReadySnack => 'Silnik nie jest gotowy';
 
   @override
   String get linkCheckerStatusVerifyingLink => 'Weryfikowanie linku…';
@@ -980,24 +983,28 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkCheckerBlockedUnsupportedType => 'Nieobsługiwany typ linku';
 
   @override
-  String get linkCheckerBlockedInvalidDestination => 'Nieprawidłowy cel';
+  String get linkCheckerBlockedInvalidDestination =>
+      'Nieprawidłowy adres docelowy';
 
   @override
-  String get linkCheckerBlockedUnableResolve => 'Nie można rozwiązać celu';
+  String get linkCheckerBlockedUnableResolve =>
+      'Nie można rozwiązać adresu docelowego';
 
   @override
-  String get linkCheckerBlockedUnableVerify => 'Nie można zweryfikować celu';
+  String get linkCheckerBlockedUnableVerify =>
+      'Nie można zweryfikować adresu docelowego';
 
   @override
   String get linkCheckerAnalyseCardTitleDefault =>
-      'Sprawdź stronę pod kątem podejrzanych treści';
+      'Sprawdź stronę pod kątem podejrzanej treści';
 
   @override
   String get linkCheckerAnalyseCardDetailDefault =>
-      'Wklej adres URL i uruchom analizę.';
+      'Wklej URL i uruchom analizę.';
 
   @override
-  String get linkCheckerAnalyseCardTitleEngineNotReady => 'Silnik niegotowy';
+  String get linkCheckerAnalyseCardTitleEngineNotReady =>
+      'Silnik nie jest gotowy';
 
   @override
   String get linkCheckerAnalyseCardDetailEngineNotReady => 'błąd 1001.';
@@ -1006,28 +1013,28 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkCheckerAnalyseCardTitleChecking => 'Sprawdzanie';
 
   @override
-  String get linkCheckerVerdictClean => 'Bezpieczny';
+  String get linkCheckerVerdictClean => 'Czysta';
 
   @override
   String get linkCheckerVerdictCleanDetail =>
-      'Ta strona wydaje się być bezpieczna.';
+      'Ta strona wygląda na bezpieczną.';
 
   @override
-  String get linkCheckerVerdictSuspicious => 'Podejrzany';
+  String get linkCheckerVerdictSuspicious => 'Podejrzana';
 
   @override
   String get linkCheckerVerdictSuspiciousDetail =>
-      'Ta strona zawiera podejrzane treści.';
+      'Ta strona zawiera podejrzaną treść.';
 
   @override
   String get linkCheckerViewLockedBody =>
-      'Najpierw przeprowadź analizę, aby umożliwić podgląd.';
+      'Najpierw uruchom analizę, aby włączyć podgląd.';
 
   @override
-  String get linkCheckerViewSubtitle => 'Wyświetl stronę bezpiecznie';
+  String get linkCheckerViewSubtitle => 'Przeglądaj stronę bezpiecznie';
 
   @override
-  String get linkCheckerViewPage => 'Wyświetl stronę';
+  String get linkCheckerViewPage => 'Otwórz stronę';
 
   @override
   String get linkCheckerClose => 'Zamknij';
@@ -1038,13 +1045,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkCheckerSuspiciousBanner =>
-      'Podejrzany link, strona może nie renderować się poprawnie ze względu na blokadę treści.';
+      'Podejrzany link, strona może nie renderować się poprawnie, jeśli wymaga zablokowanej treści.';
 
   @override
   String get linkCheckerHistorySubtitle => 'Dotknij wpisu, aby skopiować link.';
 
   @override
-  String get linkCheckerHistoryEmpty => 'Brak historii sprawdzeń.';
+  String get linkCheckerHistoryEmpty => 'Brak sprawdzeń.';
 
   @override
   String get linkCheckerCopied => 'Skopiowano';
@@ -1072,10 +1079,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsChooseLanguage => 'Wybierz język';
 
   @override
-  String get settingsLanguageApplied => 'Język został zmieniony';
+  String get settingsLanguageApplied => 'Zastosowano język';
 
   @override
-  String get settingsSystemDefault => 'Systemowy';
+  String get settingsSystemDefault => 'Domyślny systemowy';
 
   @override
   String get settingsSectionCommunity => 'Dołącz do społeczności!';
@@ -1090,19 +1097,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsDiscordOpenFail => 'Nie można otworzyć linku Discord';
 
   @override
-  String get settingsSectionPro => 'Funkcje PRO';
+  String get settingsSectionPro => 'Funkcje Premium';
 
   @override
-  String get settingsProCustomization => 'Personalizacja PRO';
+  String get settingsProCustomization => 'Personalizacja Premium';
 
   @override
-  String get settingsProSubtitle => 'Usuń reklamy i odblokuj motywy oraz ikony';
+  String get settingsProSubtitle =>
+      'Usuń reklamy, odblokuj nielimitowany DNS, motywy i ikony';
 
   @override
-  String get settingsUnlockPro => 'Odblokuj PRO';
+  String get settingsUnlockPro => 'Odblokuj Premium';
 
   @override
-  String get settingsProUnlocked => 'Tryb PRO odblokowany';
+  String get settingsProUnlocked => 'Tryb Premium odblokowany';
 
   @override
   String get settingsPurchaseNotConfirmed => 'Zakup nie został potwierdzony';
@@ -1113,20 +1121,30 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get proActivated => 'PRO activated';
+  String get homeUpgrade => 'Ulepsz';
 
   @override
-  String get proDeactivated => 'PRO deactivated';
+  String get homeFeatureSecureVpnTitle => 'AvarionX VPN';
 
   @override
-  String get settingsProReset => 'Reset PRO (tylko debug)';
+  String get homeFeatureSecureVpnDesc =>
+      'Ukryj swój IP i blokuj niechciane treści';
 
   @override
-  String get settingsProSheetTitle => 'Personalizacja PRO';
+  String get proActivated => 'Premium aktywowane';
+
+  @override
+  String get proDeactivated => 'Premium wyłączone';
+
+  @override
+  String get settingsProReset => 'Reset Premium (tylko debug)';
+
+  @override
+  String get settingsProSheetTitle => 'Personalizacja Premium';
 
   @override
   String get settingsHideGoldHeader =>
-      'Ukryj złoty nagłówek na ekranie głównym';
+      'Pokaż złoty nagłówek na ekranie głównym (ciemne motywy)';
 
   @override
   String get settingsAppIcon => 'Ikona aplikacji';
@@ -1137,77 +1155,161 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get vpnSignInRequiredTitle => 'Wymagane logowanie';
+
+  @override
+  String get vpnClose => 'Zamknij';
+
+  @override
+  String get vpnSignInRequiredBody =>
+      'Zaloguj się, aby korzystać z Bezpiecznego VPN.';
+
+  @override
+  String get vpnCancel => 'Anuluj';
+
+  @override
+  String get vpnSignIn => 'Zaloguj się';
+
+  @override
+  String get vpnUsageLoading => 'Ładowanie użycia...';
+
+  @override
+  String get vpnUsageNoLimits => 'Brak limitów danych';
+
+  @override
+  String get vpnUsageSyncing => 'Synchronizacja';
+
+  @override
+  String vpnUsageUsedThisMonth(Object used) {
+    return '$used użyto w tym miesiącu';
+  }
+
+  @override
+  String get vpnUsageDataTitle => 'Użycie danych';
+
+  @override
+  String get vpnUsageUnavailable => 'Użycie niedostępne';
+
+  @override
+  String get vpnStatusConnectingEllipsis => 'Łączenie...';
+
+  @override
+  String vpnStatusConnectedTo(Object country) {
+    return 'Połączono z $country';
+  }
+
+  @override
+  String get vpnTitleSecure => 'Bezpieczny VPN';
+
+  @override
+  String get vpnStatusConnected => 'Połączono';
+
+  @override
+  String get vpnSubtitleEstablishingTunnel => 'Tworzenie tunelu...';
+
+  @override
+  String get vpnSubtitleFindingLocation => 'Wyszukiwanie lokalizacji...';
+
+  @override
+  String get vpnStatusProtected => 'Chronione';
+
+  @override
+  String get vpnStatusNotConnected => 'Niepołączono';
+
+  @override
+  String get vpnConnect => 'Połącz';
+
+  @override
+  String get vpnDisconnect => 'Rozłącz';
+
+  @override
+  String vpnIpLabel(Object ip) {
+    return 'IP: $ip';
+  }
+
+  @override
+  String vpnServerLoadLabel(Object current, Object max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get vpnBlocklistsTitle => 'Listy blokowania Bezpiecznego VPN';
+
+  @override
+  String get vpnSave => 'Zapisz';
+
+  @override
   String get settingsSave => 'Zapisz';
 
   @override
   String get settingsPremium => 'Premium';
 
   @override
-  String get settingsUltimateSecurity => 'Ultimate Security';
+  String get settingsUltimateSecurity => 'Najwyższa ochrona';
 
   @override
-  String get settingsSwitchPlan => 'Switch plan';
+  String get settingsSwitchPlan => 'Zmień plan';
 
   @override
-  String get settingsBestValue => 'Best value';
+  String get settingsBestValue => 'Najlepsza oferta';
 
   @override
-  String get settingsOneTime => 'One time';
+  String get settingsOneTime => 'Jednorazowo';
 
   @override
-  String get settingsPlanPriceLoading => 'Price loading...';
+  String get settingsPlanPriceLoading => 'Ładowanie ceny...';
 
   @override
-  String get settingsMonthly => 'Monthly';
+  String get settingsMonthly => 'Miesięcznie';
 
   @override
-  String get settingsYearly => 'Yearly';
+  String get settingsYearly => 'Rocznie';
 
   @override
-  String get settingsLifetime => 'Lifetime';
+  String get settingsLifetime => 'Dożywotnio';
 
   @override
-  String get settingsSubscribeMonthly => 'Subscribe monthly';
+  String get settingsSubscribeMonthly => 'Subskrybuj miesięcznie';
 
   @override
-  String get settingsSubscribeYearly => 'Subscribe yearly';
+  String get settingsSubscribeYearly => 'Subskrybuj rocznie';
 
   @override
-  String get settingsUnlockLifetime => 'Unlock lifetime';
+  String get settingsUnlockLifetime => 'Odblokuj dożywotnio';
 
   @override
-  String get settingsProBenefitsTitle => 'Benefits';
+  String get settingsProBenefitsTitle => 'Korzyści';
 
   @override
-  String get settingsUnlimitedDnsTitle => 'Unlimited DNS queries';
+  String get settingsUnlimitedDnsTitle => 'Nielimitowane zapytania DNS';
 
   @override
   String get settingsUnlimitedDnsBody =>
-      'Remove query limits and unlock full cloud filtering.';
+      'Usuń limity zapytań i odblokuj pełne filtrowanie chmurowe.';
 
   @override
-  String get settingsThemesTitle => 'Themes';
+  String get settingsThemesTitle => 'Motywy';
 
   @override
-  String get settingsThemesBody => 'Unlock premium themes and customization.';
+  String get settingsThemesBody => 'Odblokuj motywy premium i personalizację.';
 
   @override
-  String get settingsIconCustomizationTitle => 'App icon customization';
+  String get settingsIconCustomizationTitle => 'Personalizacja ikony aplikacji';
 
   @override
   String get settingsIconCustomizationBody =>
-      'Change the app icon to match your style.';
+      'Zmień ikonę aplikacji, aby pasowała do Twojego stylu.';
 
   @override
-  String get settingsScheduledScansTitle => 'Scheduled scans';
+  String get settingsScheduledScansTitle => 'Planowane skanowania';
 
   @override
   String get settingsScheduledScansBody =>
-      'Unlock advanced scheduling and scan customization.';
+      'Odblokuj zaawansowane harmonogramy i personalizację skanowania.';
 
   @override
   String get settingsProFinePrint =>
-      'Subscriptions renew unless canceled. You can manage or cancel anytime in Google Play. Lifetime is a one time purchase.';
+      'Subskrypcje odnawiają się automatycznie, jeśli nie zostaną anulowane. Możesz nimi zarządzać lub anulować je w Google Play. Wersja dożywotnia to zakup jednorazowy.';
 
   @override
   String get settingsSectionShizuku => 'Zaawansowana ochrona (Shizuku)';
@@ -1241,14 +1343,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsAdvancedProtectionDialogBody =>
-      'Dostęp Shizuku wymaga zewnętrznego menedżera i jest przeznaczony dla zaawansowanych użytkowników.\n\nTa funkcja jest opcjonalna i nie jest zalecana do standardowej ochrony.';
+      'Dostęp Shizuku wymaga zewnętrznego menedżera przeznaczonego dla zaawansowanych użytkowników.\n\nTa funkcja jest opcjonalna i nie jest zalecana do codziennej ochrony.';
 
   @override
   String get settingsAboutShizukuTitle => 'O Shizuku';
 
   @override
   String get settingsAboutShizukuBody =>
-      'AVarionX może zintegrować się z Shizuku, aby uzyskać dostęp do procesów aplikacji na poziomie systemowym.\n\nPozwala to aplikacji na:\n• Wykrywanie malware ukrywającego się przed standardowymi skanerami\n• Inspekcję uruchomionych procesów aplikacji\n• Wyłączanie lub izolowanie aktywnego malware\n\nShizuku nie nadaje jednak pełnego dostępu Root.\n\nTa funkcja jest przeznaczona dla zaawansowanych użytkowników i nie jest wymagana do normalnej ochrony.\n\nDokumentacja:\nhttps://shizuku.rikka.app';
+      'AVarionX może integrować się z Shizuku, aby uzyskać dostęp do procesów aplikacji na poziomie systemowym.\n\nPozwala to aplikacji:\n• Wykrywać malware ukrywające się przed standardowymi skanerami\n• Analizować uruchomione procesy aplikacji\n• Wyłączać lub izolować większość aktywnego malware\n\nShizuku nie daje jednak dostępu root\n\nTa funkcja jest przeznaczona dla zaawansowanych użytkowników i nie jest wymagana do normalnej ochrony.\n\nDokumentacja:\nhttps://shizuku.rikka.app';
 
   @override
   String get settingsSectionGeneral => 'Ogólne';
@@ -1257,8 +1359,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsExclusions => 'Wykluczenia';
 
   @override
-  String get settingsExclusionsSubtitle =>
-      'Zarządzaj wykluczeniami i dodawaj nowe';
+  String get settingsExclusionsSubtitle => 'Zarządzaj i dodawaj wykluczenia';
 
   @override
   String get settingsExcludeFolder => 'Wyklucz folder';
@@ -1291,20 +1392,19 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie można otworzyć polityki prywatności';
 
   @override
-  String get settingsAboutApp => 'O aplikacji AVarionX';
+  String get settingsAboutApp => 'O AVarionX';
 
   @override
   String get settingsHowThisAppWorks => 'Jak działa ta aplikacja';
 
   @override
-  String get settingsHowThisAppWorksSubtitle =>
-      'Dowiedz się więcej o mechanizmach ochrony';
+  String get settingsHowThisAppWorksSubtitle => 'Dowiedz się o ochronie';
 
   @override
   String get settingsThemePickerTitle => 'Wybierz motyw';
 
   @override
-  String get settingsThemeRequiresPro => 'Ten motyw wymaga trybu PRO';
+  String get settingsThemeRequiresPro => 'Ten motyw wymaga trybu Premium';
 
   @override
   String get scheduledScansTitle => 'Planowane skanowania';
@@ -1314,24 +1414,24 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scheduledScansInfoBody =>
-      'Podczas gdy RTP skupia się na nowo pobranym malware, planowane skanowania automatycznie uruchomią wybrany tryb skanowania w tle.\nFunkcja działa tylko wtedy, gdy RTP jest włączone.\n\nUżytkownicy PRO mogą dostosować tryb i częstotliwość skanowania.';
+      'Podczas gdy RTP skupia się na pobranym malware, planowane skanowania automatycznie uruchomią wybrany tryb skanowania w tle.\nZadziałają tylko wtedy, gdy RTP jest włączone.\n\nUżytkownicy Premium mogą dostosować tryb i częstotliwość skanowania.';
 
   @override
   String get scheduledScansHeader => 'Automatyczne skanowania w tle';
 
   @override
   String get scheduledScansSubheader =>
-      'Gdy ochrona RTP jest aktywna, aplikacja będzie skanować urządzenie zgodnie z wybranym trybem i harmonogramem.';
+      'Gdy RTP jest aktywne, aplikacja będzie skanować urządzenie zgodnie z wybranym trybem i częstotliwością.';
 
   @override
-  String get proRequiredToCustomize => 'Wymagane PRO do personalizacji';
+  String get proRequiredToCustomize => 'Wymagane Premium do personalizacji';
 
   @override
   String get scheduledScansEnabledTitle => 'Włączone';
 
   @override
   String get scheduledScansEnabledSubtitle =>
-      'Gdy włączone, skanowanie odbywa się automatycznie zgodnie z harmonogramem.';
+      'Gdy włączone, skanowanie uruchamia się automatycznie według harmonogramu.';
 
   @override
   String get scheduledScansModeTitle => 'Tryb skanowania';
@@ -1365,7 +1465,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get scheduledEvery3Weeks => 'Co 3 tygodnie';
 
   @override
-  String get scheduledMonthly => 'Raz w miesiącu';
+  String get scheduledMonthly => 'Co miesiąc';
 
   @override
   String scheduledEveryDays(Object days) {
@@ -1374,8 +1474,78 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String scheduledEveryHours(Object hours) {
-    return 'Co $hours godz.';
+    return 'Co $hours godzin';
   }
+
+  @override
+  String get vpnSettingsPrivacySecurityTitle => 'Prywatność i bezpieczeństwo';
+
+  @override
+  String get vpnSettingsNoLogsPolicyTitle => 'Polityka braku logów';
+
+  @override
+  String get vpnSettingsNoLogsPolicyBody =>
+      'Nie są przechowywane żadne logi. Aktywność połączeń, przeglądania, zapytań DNS i treść ruchu nie są rejestrowane ani zatrzymywane.';
+
+  @override
+  String get vpnSettingsNoActivityLogsTitle => 'Brak logów aktywności';
+
+  @override
+  String get vpnSettingsNoActivityLogsBody =>
+      'Twoja aktywność nie jest monitorowana ani śledzona podczas korzystania z Bezpiecznego VPN.';
+
+  @override
+  String get vpnSettingsWireGuardTitle => 'VX-Link oparty na WireGuard';
+
+  @override
+  String get vpnSettingsWireGuardBody =>
+      'Bezpieczny VPN używa protokołu WireGuard przez VX-Link, aby zapewnić szybkie, nowoczesne szyfrowanie.';
+
+  @override
+  String get vpnSettingsMalwareProtectionTitle =>
+      'Ochrona przed malware włączona';
+
+  @override
+  String get vpnSettingsMalwareProtectionBody =>
+      'Złośliwe domeny są domyślnie blokowane podczas połączenia.';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionTitle =>
+      'Opcjonalna ochrona reklam i trackerów';
+
+  @override
+  String get vpnSettingsAdTrackerProtectionBody =>
+      'Włącz dodatkowe blokowanie reklam i trackerów w karcie Personalizacja.';
+
+  @override
+  String get vpnSettingsBrandFooter => 'Zabezpieczone przez VX-Link';
+
+  @override
+  String get vpnSettingsAccountTitle => 'Konto';
+
+  @override
+  String get vpnSettingsSignInToContinue => 'Zaloguj się, aby kontynuować';
+
+  @override
+  String get vpnSettingsAccountSyncBody =>
+      'Twój plan i użycie danych synchronizują się z kontem.';
+
+  @override
+  String get vpnSettingsSignedIn => 'Zalogowano';
+
+  @override
+  String get vpnSettingsPlanUnknown => 'Plan: nieznany';
+
+  @override
+  String vpnSettingsPlanLabel(Object plan) {
+    return 'Plan: $plan';
+  }
+
+  @override
+  String get vpnSettingsRefresh => 'Odśwież';
+
+  @override
+  String get vpnSettingsSignOut => 'Wyloguj';
 
   @override
   String get scheduledChargingOnlyTitle => 'Tylko podczas ładowania';
@@ -1389,7 +1559,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scheduledPreferredTimeSubtitle =>
-      'AVarionX spróbuje uruchomić skanowanie o tej porze. System Android może opóźnić start, aby oszczędzać baterię.';
+      'AVarionX spróbuje uruchomić skanowanie około tej godziny. Android może opóźnić start, aby oszczędzać baterię.';
 
   @override
   String get scheduledPickTime => 'Wybierz czas';
@@ -1432,11 +1602,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get cleanerStatusScanningApps => 'Skanowanie aplikacji…';
 
   @override
-  String get cleanerGrantUsageAccessTitle => 'Nadaj dostęp do użycia';
+  String get cleanerGrantUsageAccessTitle => 'Przyznaj dostęp do użycia';
 
   @override
   String get cleanerGrantUsageAccessBody =>
-      'Aby wykryć nieużywane aplikacje, Cleaner wymaga uprawnienia „Dostęp do danych o użyciu”. Zostaniesz przekierowany do ustawień systemowych, aby je włączyć.';
+      'Aby wykrywać nieużywane aplikacje, ten cleaner wymaga uprawnienia Dostęp do użycia. Zostaniesz przekierowany do ustawień systemowych, aby je włączyć.';
 
   @override
   String get cleanerCancel => 'Anuluj';
@@ -1528,6 +1698,175 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get vpnAccountScreenTitle => 'Konto';
+
+  @override
+  String get vpnAccountSignInRequiredTitle => 'Wymagane logowanie';
+
+  @override
+  String get vpnAccountSignInManageUsageBody =>
+      'Zaloguj się, aby zarządzać kontem i użyciem.';
+
+  @override
+  String get vpnAccountNotSignedIn => 'Niezalogowano';
+
+  @override
+  String get vpnAccountFree => 'Darmowy';
+
+  @override
+  String get vpnAccountUnknown => 'Nieznany';
+
+  @override
+  String get vpnAccountStatusSyncing => 'Synchronizacja';
+
+  @override
+  String get vpnAccountStatusActive => 'Aktywny';
+
+  @override
+  String get vpnAccountStatusConnected => 'Połączono';
+
+  @override
+  String get vpnAccountStatusDisconnected => 'Rozłączono';
+
+  @override
+  String get vpnAccountStatusUnavailable => 'Niedostępne';
+
+  @override
+  String get vpnAccountStatusConnectedNow => 'Połączono teraz';
+
+  @override
+  String get vpnAccountStatusRefreshToLoadServer =>
+      'Odśwież, aby wczytać status serwera';
+
+  @override
+  String get vpnAccountUsageTitle => 'Użycie';
+
+  @override
+  String get vpnAccountUsageLoading => 'Ładowanie użycia...';
+
+  @override
+  String get vpnAccountUsageSignInToSync =>
+      'Zaloguj się, aby zsynchronizować użycie';
+
+  @override
+  String get vpnAccountUsagePullToRefresh =>
+      'Przeciągnij, aby odświeżyć i zsynchronizować użycie';
+
+  @override
+  String get vpnAccountUsageUnlimited => 'Bez limitu';
+
+  @override
+  String vpnAccountUsageUsedThisMonth(Object used) {
+    return '$used użyto w tym miesiącu';
+  }
+
+  @override
+  String vpnAccountUsageUsedThisMonthUnlimited(Object used) {
+    return '$used użyto w tym miesiącu, bez limitu';
+  }
+
+  @override
+  String vpnAccountUsageUsedOfLimit(Object used, Object limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String get settingsSectionAccount => 'Konto';
+
+  @override
+  String get settingsAccountTitle => 'Konto';
+
+  @override
+  String get settingsAccountSubtitle =>
+      'Logowanie, plan, subskrypcja i użycie konta';
+
+  @override
+  String get exploreSecureVpnTitle => 'Bezpieczny VPN';
+
+  @override
+  String get exploreSecureVpnSubtitle =>
+      'Ukryj swój IP i blokuj niechciane treści';
+
+  @override
+  String get vpnAccountServerLoadTitle => 'Obciążenie wybranego serwera';
+
+  @override
+  String vpnAccountServerConnectedCount(Object connected, Object cap) {
+    return '$connected/$cap';
+  }
+
+  @override
+  String get networkDnsOffTitle => 'Przełączyć na filtrowanie DNS?';
+
+  @override
+  String get networkDnsOffInfoTitle => 'Czym jest filtrowanie DNS?';
+
+  @override
+  String get networkDnsOffInfoBody1 =>
+      'Filtrowanie DNS działa niezależnie od Bezpiecznego VPN. Może blokować znane malware, reklamy w aplikacjach, trackery i niechciane kategorie zanim się załadują.';
+
+  @override
+  String get networkDnsOffInfoBody2 =>
+      'Nie szyfruje ruchu i nie ukrywa Twojego IP.';
+
+  @override
+  String get networkDnsOffEnableButton => 'Włącz filtrowanie DNS';
+
+  @override
+  String vpnAccountServerConnectedCountWithLabel(Object connected, Object cap) {
+    return '$connected/$cap połączonych';
+  }
+
+  @override
+  String get vpnAccountIdentityFallbackTitle => 'Konto';
+
+  @override
+  String get vpnAccountMembershipLabel => 'Członkostwo';
+
+  @override
+  String get vpnAccountMembershipFounderVpnPro => 'Founders · VPN Pro';
+
+  @override
+  String get vpnAccountMembershipFounder => 'Founder';
+
+  @override
+  String get vpnAccountMembershipPro => 'Pro';
+
+  @override
+  String get vpnAccountSectionAccountStatus => 'Status konta';
+
+  @override
+  String get vpnAccountSectionActions => 'Akcje';
+
+  @override
+  String get vpnAccountKvStatus => 'Status';
+
+  @override
+  String get vpnAccountKvPlan => 'Plan';
+
+  @override
+  String get vpnAccountKvUsage => 'Użycie';
+
+  @override
+  String get vpnAccountKvSelectedServer => 'Wybrany serwer';
+
+  @override
+  String get vpnAccountKvConnectionState => 'Stan połączenia';
+
+  @override
+  String get vpnAccountActionRefresh => 'Odśwież';
+
+  @override
+  String get vpnAccountActionOpen => 'Otwórz';
+
+  @override
+  String get vpnAccountFounderThanks => 'Dziękuję za wspieranie ColourSwift';
+
+  @override
+  String get vpnAccountFounderNote =>
+      'Jestem tylko jedną osobą, wspieraną przez najlepszą społeczność.';
+
+  @override
   String cleanerStageOldVideosProgress(Object count, Object size) {
     return 'Stare filmy: $count • $size';
   }
@@ -1542,7 +1881,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String unusedAppsEmpty(Object days) {
-    return 'Brak nieużywanych aplikacji w ciągu ostatnich $days dni';
+    return 'Brak nieużywanych aplikacji w ostatnich $days dniach';
   }
 
   @override
@@ -1558,8 +1897,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get quarantineEmptyTitle => 'Brak usuniętych plików';
 
   @override
-  String get quarantineEmptyBody =>
-      'Wszystkie pliki, które usuniesz, pojawią się tutaj.';
+  String get quarantineEmptyBody => 'Wszystko, co usuniesz, pojawi się tutaj.';
 
   @override
   String get quarantineRestore => 'Przywróć';

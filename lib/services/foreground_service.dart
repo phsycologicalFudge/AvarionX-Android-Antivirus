@@ -30,11 +30,13 @@ class ForegroundService {
   static Future<void> notify({
     required String title,
     required String text,
+    int? autoDismissAfterSeconds,
   }) async {
     try {
       await _channel.invokeMethod('showNotification', {
         'title': title,
         'text': text,
+        'autoDismissAfterSeconds': autoDismissAfterSeconds,
       });
     } catch (_) {}
   }

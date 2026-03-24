@@ -5,6 +5,8 @@ import 'home/home_screen.dart';
 import 'scan_ui_screen.dart';
 import 'settings/settings_screen.dart';
 import 'quarantine/quarantine_screen.dart';
+import 'package:app_links/app_links.dart';
+import 'dart:async';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -18,7 +20,8 @@ class _MainShellState extends State<MainShell> {
 
   final GlobalKey<AvHomeScreenState> _homeKey = GlobalKey<AvHomeScreenState>();
   final GlobalKey<SettingsScreenState> _settingsKey = GlobalKey<SettingsScreenState>();
-
+  late final AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSub;
   Key _exploreKey = UniqueKey();
   Key _quarantineKey = UniqueKey();
 
@@ -36,6 +39,17 @@ class _MainShellState extends State<MainShell> {
       default:
         return 0;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _linkSub?.cancel();
+    super.dispose();
   }
 
   @override

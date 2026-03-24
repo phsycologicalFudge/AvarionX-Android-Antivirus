@@ -32,6 +32,7 @@ bool scanFileIsolate(String path) {
 class RealtimeProtectionService {
   static bool _running = false;
   static Map<String, int> _seen = {};
+  static final Set<String> _inFlight = <String>{};
   static StreamSubscription? _eventSub;
   static Timer? _shizukuLoop;
   static bool _watcherRunning = false;
@@ -354,6 +355,9 @@ class RealtimeProtectionService {
   }
 
   static Future<void> _scanSingleFile(String path) async {
+    if (_inFlight.contains(path)) return;
+    _inFlight.add(path);
+
     try {
       final f = File(path);
       if (!await f.exists()) return;
@@ -370,6 +374,9 @@ class RealtimeProtectionService {
       final seenMtime = _seen[path];
       if (seenMtime != null && mtime <= seenMtime) return;
 
+      _seen[path] = mtime;
+      unawaited(_saveIndex());
+
       await Future.delayed(const Duration(milliseconds: 180));
 
       final bytes = await f.readAsBytes();
@@ -380,8 +387,6 @@ class RealtimeProtectionService {
         if (!ExclusionsStore.instance.isExcluded(path)) {
           await _handleDetection(path);
         }
-        _seen[path] = mtime;
-        await _saveIndex();
         return;
       }
 
@@ -390,30 +395,40 @@ class RealtimeProtectionService {
         if (!ExclusionsStore.instance.isExcluded(path)) {
           await _handleDetection(path);
         }
-        _seen[path] = mtime;
-        await _saveIndex();
         return;
       }
 
       final fileName = p.basename(path);
       await ForegroundService.toast(text: 'Clean: $fileName');
-
-      _seen[path] = mtime;
-      await _saveIndex();
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      _inFlight.remove(path);
+    }
   }
 
   static Future<void> _handleDetection(String path) async {
     try {
       await QuarantineService.quarantineFile(path);
+      final prefs = await SharedPreferences.getInstance();
+      final autoDismissSeconds =
+          prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
+
       await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'A file was quarantined: ${path.split('/').last}',
+        autoDismissAfterSeconds:
+        autoDismissSeconds > 0 ? autoDismissSeconds : null,
       );
     } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      final autoDismissSeconds =
+          prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
+
       await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'Failed to quarantine: ${path.split('/').last}',
+        autoDismissAfterSeconds:
+        autoDismissSeconds > 0 ? autoDismissSeconds : null,
       );
     }
   }

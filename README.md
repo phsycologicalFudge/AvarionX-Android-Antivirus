@@ -69,6 +69,8 @@ AvarionX uses a dual detection model:
   A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.  
   No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 
+Current Titanium Version : VX-TITANIUM V7
+
 ## Download
 
 Get the latest APK from GitHub Releases:

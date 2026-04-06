@@ -31,12 +31,14 @@ class ForegroundService {
     required String title,
     required String text,
     int? autoDismissAfterSeconds,
+    bool openQuarantineOnClick = false,
   }) async {
     try {
       await _channel.invokeMethod('showNotification', {
         'title': title,
         'text': text,
         'autoDismissAfterSeconds': autoDismissAfterSeconds,
+        'openQuarantine': openQuarantineOnClick,
       });
     } catch (_) {}
   }

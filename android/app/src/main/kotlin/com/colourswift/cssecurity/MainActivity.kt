@@ -34,6 +34,7 @@ import com.colourswift.cssecurity.rtp.RealtimeReceiver
 import com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService
 import com.colourswift.cssecurity.vpn.VpnModeSwitcher
 import androidx.core.content.ContextCompat
+import com.colourswift.cssecurity.apkanalyser.ApkAnalyserBridge
 
 object CsDnsEvents {
     private const val MAX = 800
@@ -237,8 +238,18 @@ class MainActivity : FlutterActivity() {
         handleIntent(intent)
     }
 
+    private val ROUTING_CHANNEL = "colourswift/routing"
+
     private fun handleIntent(i: Intent?) {
         if (i == null) return
+
+        if (i.getBooleanExtra("open_quarantine", false)) {
+            fe?.let { engine ->
+                MethodChannel(engine.dartExecutor.binaryMessenger, ROUTING_CHANNEL).invokeMethod("pushQuarantine", null)
+                i.removeExtra("open_quarantine")
+            }
+        }
+
         val cancel = i.getBooleanExtra(EXTRA_CANCEL_SCHEDULED_SCAN, false)
         if (!cancel) return
         try {
@@ -331,8 +342,15 @@ class MainActivity : FlutterActivity() {
                             is Double -> v.toInt()
                             else -> null
                         }
-                        showNotification(title, text, autoDismissAfterSeconds)
+                        val openQuarantine = args?.get("openQuarantine") as? Boolean ?: false
+                        showNotification(title, text, autoDismissAfterSeconds, openQuarantine)
                         result.success(true)
+                    }
+
+                    "getLaunchExtras" -> {
+                        val openQ = intent?.getBooleanExtra("open_quarantine", false) ?: false
+                        intent?.removeExtra("open_quarantine")
+                        result.success(mapOf("open_quarantine" to openQ))
                     }
 
                     "showScanOngoing" -> {
@@ -752,6 +770,7 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
+        ApkAnalyserBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
@@ -827,7 +846,7 @@ class MainActivity : FlutterActivity() {
         startService(i)
     }
 
-    private fun showNotification(title: String, text: String, autoDismissAfterSeconds: Int? = null) {
+    private fun showNotification(title: String, text: String, autoDismissAfterSeconds: Int? = null, openQuarantine: Boolean = false) {
         val channelId = "cssecurity_realtime_notify"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -841,11 +860,26 @@ class MainActivity : FlutterActivity() {
             manager.createNotificationChannel(channel)
         }
 
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            if (openQuarantine) {
+                putExtra("open_quarantine", true)
+            }
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val notification = Notification.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
             .build()
 
         val id = when (title) {

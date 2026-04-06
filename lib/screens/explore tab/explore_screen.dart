@@ -2,6 +2,7 @@ import 'package:colourswift_av/screens/password%20manager/password_manager_scree
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:flutter/material.dart';
 import '../../translations/app_localizations.dart';
+import '../apkAnalyser/apk_analyser.dart';
 import '../link checker/link_check_screen.dart';
 import '../scan/scan_limits_screen.dart';
 import '../scan/scheduled_scan_screen.dart';
@@ -18,6 +19,12 @@ class ExploreScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final items = <_ExploreItem>[
+      _ExploreItem(
+        title: 'APK Analyser',
+        icon: Icons.android_rounded,
+        subtitle: 'Create a detailed analysis on any APK',
+        builder: (_) => const ApkAnalyserScreen(),
+      ),
       _ExploreItem(
         title: l10n.featureLinkChecker,
         icon: Icons.link_outlined,

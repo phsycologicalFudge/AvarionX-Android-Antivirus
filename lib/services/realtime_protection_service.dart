@@ -418,6 +418,7 @@ class RealtimeProtectionService {
         text: 'A file was quarantined: ${path.split('/').last}',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
+        openQuarantineOnClick: true,
       );
     } catch (_) {
       final prefs = await SharedPreferences.getInstance();
@@ -429,6 +430,7 @@ class RealtimeProtectionService {
         text: 'Failed to quarantine: ${path.split('/').last}',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
+        openQuarantineOnClick: true,
       );
     }
   }

@@ -16,6 +16,8 @@ import 'constants/launch_flag.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'translations/app_localizations.dart';
 
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
 class LanguageManager extends ChangeNotifier {
   String _code = 'system';
 
@@ -63,6 +65,15 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.immersiveSticky,
   );
+
+  const routingChannel = MethodChannel('colourswift/routing');
+  routingChannel.setMethodCallHandler((call) async {
+    if (call.method == 'pushQuarantine') {
+      appNavigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const QuarantineScreen()),
+      );
+    }
+  });
 
   final themeManager = ThemeManager();
   await themeManager.init();
@@ -129,6 +140,7 @@ class MyApp extends StatelessWidget {
     final languageManager = Provider.of<LanguageManager>(context);
 
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       debugShowCheckedModeBanner: false,
       navigatorObservers: [loggingRouteObserver],
       title: 'AvarionX Security',

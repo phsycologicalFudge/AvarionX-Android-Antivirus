@@ -145,5 +145,9 @@ If you like the project and want to support continued development, you can buy m
 </div>
 PLEASE DM ME IF YOU BUY ME A COFFEE
 
+### Fun fact!
+The engine naming scheme comes from my W.I.P book. If your into fantasy, time travel or Light Novels:
+[The Mistress of Time: COTV](https://www.royalroad.com/author-dashboard/dashboard/129155)
+
 ## Join the discord!
 https://discord.gg/VYubQJfcYM

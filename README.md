@@ -36,7 +36,6 @@ Optional support options exist for users who want to help fund development, but 
 
 <br>
 
-<!-- Store + Support -->
 <a href="https://play.google.com/store/apps/details?id=com.colourswift.cssecurity">
   <img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png" height="80">
 </a>
@@ -68,8 +67,7 @@ AvarionX uses a dual detection model:
   A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.  
   No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
 
-Current Titanium Version : VX-TITANIUM V7
-
+Current Titanium Version : VX-TITANIUM V8
 ## Download
 
 Get the latest APK from GitHub Releases:

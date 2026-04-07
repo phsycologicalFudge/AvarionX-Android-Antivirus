@@ -54,7 +54,6 @@ AvarionX helps you scan files and apps on your device for known malware using a 
 - Analyzes installed APKs  
 - Uses local detection via VX-Titanium  
 - Optional cloud assistance via VX-Titanium Threat Intelligence (VTTI) using file hashes  
-- No accounts required  
 
 The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
 

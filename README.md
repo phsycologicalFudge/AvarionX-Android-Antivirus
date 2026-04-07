@@ -104,7 +104,7 @@ https://github.com/phsycologicalFudge/AvarionX-VPN/
 
 - No personal data collection  
 - Files are never uploaded as cloud checks use hashes only  
-- No user accounts  
+- Accounts can be made with Anonymous private keys 
 - No tracking or analytics
 
 ## Open source status

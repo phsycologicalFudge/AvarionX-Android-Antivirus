@@ -116,21 +116,6 @@ A trimmed reference file is provided for transparency:
 
 https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/main/jniLibs/trimmed_Engine.rs
 
-## Data sources
-
-AvarionX makes use of publicly available threat intelligence and research datasets to complement internal detection systems.
-
-Some external sources used during development and for reference include:
-
-- OISD  
-  A well maintained domain blocklists focused on ads, malware, and tracking domains.  
-  https://oisd.nl/
-
-- Malicious Domains (romainmarcoux)  
-  A Curated list of known malicious and suspicious domains used for research and validation purposes.  
-  https://github.com/romainmarcoux/malicious-domains
-
-
 ## Support me
 
 If you like the project and want to support continued development, you can buy me a coffee here:

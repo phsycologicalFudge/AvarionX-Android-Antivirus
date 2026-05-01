@@ -1,135 +1,128 @@
-<div align="center">
-
-<img src="https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/blob/main/assets/icons/ic_launcher_neon.png" width="140" alt="ColourSwift logo">
+<p>
+  <img src="assets/icons/ic_launcher_ax.png" width="92" alt="AvarionX Security logo">
+</p>
 
 # AvarionX Security
 
-Antivirus for Android, offering the same protection features as mainstream AVs without paid tiers.  
-Available on Google Play and GitHub.
+### Android malware protection without ads, tracking, or locked core features.
 
-## Important: Ad-Free Policy
+AvarionX combines local malware scanning, optional hash-based cloud intelligence, download monitoring, DNS filtering, APK analysis, and Guardian Mode for ransomware-style behaviour detection.
 
-AvarionX Security is completely ad-free.
+<p>
+  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/AvarionX-Android-Antivirus?style=for-the-badge&logo=github&label=Release&color=6366f1" alt="Release">
+  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/AvarionX-Android-Antivirus/total?style=for-the-badge&logo=github&label=Downloads&color=10b981" alt="Downloads">
+  <img src="https://img.shields.io/github/license/phsycologicalFudge/AvarionX-Android-Antivirus?style=for-the-badge&label=License&color=64748b" alt="License">
+</p>
 
-Both the Google Play build and GitHub builds provide the same core protection features without advertisements.  
-The goal of the project is to provide strong security tools without intrusive monetisation or tracking.
+<p>
+  <img src="https://img.shields.io/badge/VX--TITANIUM-V8-111827?style=for-the-badge&labelColor=020617&color=7c3aed" alt="VX-TITANIUM V8">
+  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?style=for-the-badge&label=VXPack&color=0ea5e9" alt="VXPack">
+  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?style=for-the-badge&label=VXPack%20downloads&color=f97316" alt="VXPack downloads">
+</p>
 
-Optional support options exist for users who want to help fund development, but the core application experience remains the same across all builds.
+<p>
+  <a href="https://buymeacoffee.com/ryanfromcolourswift">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="48" alt="Buy me a coffee">
+  </a>
+</p>
 
-<br>
+---
 
-<!-- Stats -->
-<img src="https://img.shields.io/github/downloads/phsycologicalFudge/ColourSwift_AV/total?label=App%20downloads">
-<img src="https://img.shields.io/github/v/release/phsycologicalFudge/ColourSwift_AV?label=App%20release">
-<img src="https://img.shields.io/github/license/phsycologicalFudge/ColourSwift_AV">
+## What is AvarionX?
 
-<br>
+AvarionX Security is an Android antivirus built around local protection first.
 
-<img src="https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?label=VXPack">
-<img src="https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?label=VXPack%20downloads">
+It can scan files and APKs directly on your device, monitor new downloads, check known malicious domains, and use optional cloud intelligence for hash lookups. The app does not use ads, analytics, or paid protection tiers.
 
-<br>
+Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, not the file contents.
 
-<a href="https://buymeacoffee.com/ryanfromcolourswift">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="60" alt="Buy me a coffee">
-</a>
+---
 
-<br>
+## Protection layers
 
-<a href="https://play.google.com/store/apps/details?id=com.colourswift.cssecurity">
-  <img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png" height="80">
-</a>
+| Layer | What it does |
+|---|---|
+| **VX-TITANIUM** | Local malware scanning engine for files and APKs. |
+| **VTTI Cloud** | Cloud Intelligence Platform, including hash checking |
+| **Real-Time Protection** | Monitors new downloads and recently added files. |
+| **Guardian Mode** | Watches for ransomware-style file behaviour. |
+| **APK analysis** | Checks installed or selected APKs for suspicious indicators. and creates a detailed report |
 
-</div>
+---
 
+## Guardian Mode
 
-## Overview
+By utilizing shizuku, Guardian Mode can monitor app behaviour that android would normally keep out of reach. When an app starts changing files, AvarionX monitors it, assessing the likelihood on destructive behaviour.
+Guardian Mode is currently focused on ransomware-style behaviour. More behaviour categories will be added in future updates.
 
-AvarionX helps you scan files and apps on your device for known malware using a local scanning engine and optional cloud-assisted threat intelligence.
-
-- Scans files stored on your phone
-- Real-Time Protection for the downloads folder
-- Offline DNS filter for known bad domains
-- Analyzes installed APKs  
-- Uses local detection via VX-Titanium  
-- Optional cloud assistance via VX-Titanium Threat Intelligence (VTTI) using file hashes  
-
-The app works fully offline, except when downloading malware definition updates or using optional cloud checks.
-
-### Detection model
-
-AvarionX uses a dual detection model:
-
-- VX-Titanium  
-  The local, on-device scanning engine used for offline detection and analysis.
-
-- VX-Titanium Threat Intelligence (VTTI/VTTI Cloud)  
-  A cloud-assisted threat intelligence service used for hash-based malware lookups and classification.  
-  No file contents are uploaded, only cryptographic hashes when cloud checks are enabled.
-
-Current Titanium Version : VX-TITANIUM V8
-## Download
-
-Get the latest APK from GitHub Releases:
-
-https://github.com/phsycologicalFudge/ColourSwift_AV/releases
+---
 
 ## Screenshots
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/1.jpg" width="220">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/2.jpg" width="220">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/3.jpg" width="220">
-  <br><br>
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/4.jpg" width="220">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/5.jpg" width="220">
-  <img src="https://raw.githubusercontent.com/phsycologicalFudge/ColourSwift_AV/main/assets/gitImages/6.jpg" width="220">
-</div>
+<table>
+  <tr>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/1.jpg" width="190" alt="AvarionX protection menu"><br>
+      <sub><strong>Protection Menu</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
+      <sub><strong>Home</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
+      <sub><strong>Cleaner Pro</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
+      <sub><strong>Smart Scan</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/5.jpg" width="190" alt="AvarionX dark mode"><br>
+      <sub><strong>Dark Mode</strong></sub>
+    </td>
+  </tr>
+</table>
 
-## Network Protection
-The companion app 'AvarionX Secure VPN' can be downloaded here:
-https://github.com/phsycologicalFudge/AvarionX-VPN/
+---
 
-### Plan Tiers
+## Privacy model
 
-- Free plan includes full access to all blocklist categories.
-- Pro plan enables unlimited queries per month.
-- Monthly query caps only apply to the free tier (300,000 queries/pm).
+AvarionX is designed to avoid unnecessary data collection.
 
-### Privacy
-
-- No HTTPS traffic is decrypted.
-- No content inspection is performed.
-- Only DNS query names and user filtering settings (blocklists, resolver preference) are sent to the proxy.
-
-- No personal data collection  
-- Files are never uploaded as cloud checks use hashes only  
-- Accounts can be made with Anonymous private keys 
+- No advertisements
 - No tracking or analytics
+- No HTTPS traffic decryption
+- No content inspection
+- No file uploads for cloud checks
+- Hash-only cloud lookups when VTTI is enabled
+- Local scanning works offline
 
-## Open source status
+---
 
-This repository contains the full source code for the Android client and user interface.
+## Project links
 
-The malware scanning engine however, is distributed as a prebuilt native library and is not open source.  
-A trimmed reference file is provided for transparency:
-
-https://github.com/phsycologicalFudge/ColourSwift_AV/blob/main/android/app/src/main/jniLibs/trimmed_Engine.rs
-
-## Support me
-
-If you like the project and want to support continued development, you can buy me a coffee here:
-
-<div align="center">
-  <a href="https://buymeacoffee.com/ryanfromcolourswift">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="50" alt="Buy me a coffee">
+<p>
+  <a href="https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus">
+    <img src="https://img.shields.io/badge/Source%20Code-181717?style=for-the-badge&logo=github&logoColor=white" alt="Source Code">
   </a>
-</div>
-PLEASE DM ME IF YOU BUY ME A COFFEE
+  <a href="https://play.google.com/store/apps/details?id=com.colourswift.cssecurity">
+    <img src="https://img.shields.io/badge/Get%20it%20on-Google%20Play-34A853?style=for-the-badge&logo=googleplay&logoColor=white" alt="Google Play">
+  </a>
+  <a href="https://github.com/phsycologicalFudge/AVDatabase">
+    <img src="https://img.shields.io/badge/Threat%20Database-VXPack-7c3aed?style=for-the-badge&logo=github&logoColor=white" alt="VXPack Database">
+  </a>
+  <a href="https://github.com/phsycologicalFudge/AvarionX-VPN">
+    <img src="https://img.shields.io/badge/Companion%20App-AvarionX%20VPN-0ea5e9?style=for-the-badge&logo=github&logoColor=white" alt="AvarionX VPN">
+  </a>
+  <a href="https://discord.gg/VYubQJfcYM">
+    <img src="https://img.shields.io/badge/Community-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+  </a>
+</p>
 
-### Fun fact!
-The engine naming scheme comes from my W.I.P book. If your into fantasy, time travel or Light Novels:
-[The Mistress of Time: COTV](https://www.royalroad.com/fiction/129155/the-mistress-of-time-children-of-the-void-book)
+## VX-TITANIUM
 
-## Join the discord!
-https://discord.gg/VYubQJfcYM
+Current engine version:
+
+```text
+VX-TITANIUM V8

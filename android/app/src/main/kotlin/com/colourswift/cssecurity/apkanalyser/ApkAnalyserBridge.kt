@@ -103,7 +103,9 @@ class ApkAnalyserBridge(
                 "signing_info" to signingInfoMap(packageInfo),
                 "file_info" to mapOf(
                     "apk_size_bytes" to file.length(),
-                    "sha256" to sha256(file)
+                    "sha256" to sha256(file),
+                    "md5" to md5(file),
+                    "dex_hashes" to deepSignals["dex_hashes"].orEmpty()
                 ),
                 "raw_android_info" to mapOf(
                     "split_names" to packageInfo.splitNames?.toList().orEmpty(),
@@ -116,33 +118,65 @@ class ApkAnalyserBridge(
         )
     }
 
-    private fun extractDeepSignals(apkPath: String): Map<String, List<String>> {
+    private fun extractDeepSignals(apkPath: String): Map<String, List<Any>> {
         val interestingStrings = mutableSetOf<String>()
         val packageFrequencies = mutableMapOf<String, Int>()
+        val dexHashes = mutableListOf<Map<String, String>>()
+
+        val urlRegex = "https?://[a-zA-Z0-9.-]+(?:/[a-zA-Z0-9&%_./-~-]*)?".toRegex()
+        val packageRegex = "(?:com|net|org|io)\\.[a-z0-9_]+\\.[a-z0-9_]+".toRegex()
 
         try {
             ZipFile(File(apkPath)).use { zipFile ->
                 val dexEntries = zipFile.entries().asSequence().filter { it.name.endsWith(".dex") }
 
-                val urlRegex = "https?://[a-zA-Z0-9.-]+(?:/[a-zA-Z0-9&%_./-~-]*)?".toRegex()
-                val packageRegex = "(?:com|net|org|io)\\.[a-z0-9_]+\\.[a-z0-9_]+".toRegex()
-
                 for (entry in dexEntries) {
-                    zipFile.getInputStream(entry).bufferedReader(Charsets.ISO_8859_1).useLines { lines ->
-                        lines.forEach { line ->
-                            urlRegex.findAll(line).take(15).forEach {
-                                interestingStrings.add(it.value.take(150))
+                    val sha256Digest = MessageDigest.getInstance("SHA-256")
+                    val md5Digest = MessageDigest.getInstance("MD5")
+                    val carry = StringBuilder(512)
+                    val chunk = ByteArray(65536)
+
+                    zipFile.getInputStream(entry).use { input ->
+                        while (true) {
+                            val read = input.read(chunk)
+                            if (read <= 0) break
+
+                            sha256Digest.update(chunk, 0, read)
+                            md5Digest.update(chunk, 0, read)
+
+                            for (i in 0 until read) {
+                                val b = chunk[i].toInt() and 0xFF
+                                if (b in 32..126) {
+                                    carry.append(b.toChar())
+                                } else {
+                                    if (carry.length >= 8) {
+                                        flushCarry(carry.toString(), urlRegex, packageRegex, interestingStrings, packageFrequencies)
+                                    }
+                                    carry.clear()
+                                }
                             }
 
-                            packageRegex.findAll(line).forEach { match ->
-                                val pkg = match.value
-                                packageFrequencies[pkg] = packageFrequencies.getOrDefault(pkg, 0) + 1
+                            if (carry.length > 512) {
+                                flushCarry(carry.toString(), urlRegex, packageRegex, interestingStrings, packageFrequencies)
+                                carry.delete(0, carry.length - 150)
                             }
                         }
                     }
+
+                    if (carry.length >= 8) {
+                        flushCarry(carry.toString(), urlRegex, packageRegex, interestingStrings, packageFrequencies)
+                    }
+
+                    dexHashes.add(
+                        mapOf(
+                            "name" to entry.name,
+                            "sha256" to sha256Digest.digest().joinToString("") { "%02x".format(it) },
+                            "md5" to md5Digest.digest().joinToString("") { "%02x".format(it) }
+                        )
+                    )
                 }
             }
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
         }
 
         val filteredPackages = packageFrequencies.entries
@@ -161,8 +195,20 @@ class ApkAnalyserBridge(
 
         return mapOf(
             "detected_packages" to filteredPackages,
-            "embedded_endpoints" to interestingStrings.toList()
+            "embedded_endpoints" to interestingStrings.toList(),
+            "dex_hashes" to dexHashes
         )
+    }
+
+    private fun flushCarry(
+        s: String,
+        urlRegex: Regex,
+        packageRegex: Regex,
+        urlSink: MutableSet<String>,
+        pkgSink: MutableMap<String, Int>
+    ) {
+        urlRegex.findAll(s).take(5).forEach { urlSink.add(it.value.take(150)) }
+        packageRegex.findAll(s).forEach { pkgSink[it.value] = (pkgSink[it.value] ?: 0) + 1 }
     }
 
     private fun archiveFlags(): Long {
@@ -254,7 +300,8 @@ class ApkAnalyserBridge(
             @Suppress("DEPRECATION")
             val signatures = packageInfo.signatures?.map { sig ->
                 mapOf(
-                    "sha256" to sha256(sig.toByteArray())
+                    "sha256" to sha256(sig.toByteArray()),
+                    "md5" to md5(sig.toByteArray())
                 )
             }.orEmpty()
             return mapOf(
@@ -278,27 +325,35 @@ class ApkAnalyserBridge(
             "has_multiple_signers" to signingInfo.hasMultipleSigners(),
             "certificates" to signers.map { sig ->
                 mapOf(
-                    "sha256" to sha256(sig.toByteArray())
+                    "sha256" to sha256(sig.toByteArray()),
+                    "md5" to md5(sig.toByteArray())
                 )
             }
         )
     }
 
-    private fun sha256(file: File): String {
+    private fun sha256(file: File): String = hashFile(file, "SHA-256")
+    private fun md5(file: File): String = hashFile(file, "MD5")
+
+    private fun hashFile(file: File, algorithm: String): String {
+        val digest = MessageDigest.getInstance(algorithm)
         FileInputStream(file).use { input ->
-            val digest = MessageDigest.getInstance("SHA-256")
             val buffer = ByteArray(8192)
             while (true) {
                 val read = input.read(buffer)
                 if (read <= 0) break
                 digest.update(buffer, 0, read)
             }
-            return digest.digest().joinToString("") { "%02x".format(it) }
         }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
-    private fun sha256(bytes: ByteArray): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        return digest.digest(bytes).joinToString("") { "%02x".format(it) }
+    private fun sha256(bytes: ByteArray): String = hash(bytes, "SHA-256")
+    private fun md5(bytes: ByteArray): String = hash(bytes, "MD5")
+
+    private fun hash(bytes: ByteArray, algorithm: String): String {
+        return MessageDigest.getInstance(algorithm)
+            .digest(bytes)
+            .joinToString("") { "%02x".format(it) }
     }
 }

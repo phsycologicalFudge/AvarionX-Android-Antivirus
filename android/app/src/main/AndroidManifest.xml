@@ -15,8 +15,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
     <application
         android:name=".App"
@@ -144,35 +142,6 @@
             android:stopWithTask="false"
             android:foregroundServiceType="specialUse"
             tools:ignore="Instantiatable" />
-
-        <service
-            android:name="com.colourswift.cssecurity.vpn.CSVpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="true"
-            android:enabled="true"
-            android:foregroundServiceType="specialUse">
-
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-
-        </service>
-
-        <service
-            android:name=".vpn.wireguard.CSWireGuardService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="com.wireguard.android.backend.GoBackend$VpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="false"
-            android:foregroundServiceType="specialUse" />
 
         <meta-data
             android:name="flutterEmbedding"

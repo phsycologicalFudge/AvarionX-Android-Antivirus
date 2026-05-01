@@ -21,7 +21,7 @@
   "updateDbUpdatedAutoOn": "データベース更新済み • 自動更新が有効",
   "updateDbUpdatedSuccess": "データベースを更新しました",
   "updateDbUpdateFailed": "データベースの更新に失敗しました",
-  "engineReadyBanner": "エンジン準備完了 • VX-TITANIUM-v7",
+  "engineReadyBanner": "VX-TITANIUM-v8",
   "scanButton": "スキャン",
   "scanModeFullTitle": "端末全体スキャン",
   "scanModeFullSubtitle": "読み取り可能なストレージ内の全ファイルをスキャンします。",

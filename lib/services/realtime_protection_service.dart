@@ -12,6 +12,7 @@ import '../screens/scan_ui_screen.dart';
 import '../utils/exclusions_store.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
+import 'update_service.dart';
 import 'cloud_helper_service.dart';
 import 'foreground_service.dart';
 import 'quarantine_service.dart';
@@ -45,6 +46,8 @@ class RealtimeProtectionService {
   static ReceivePort? _scheduledIsoPort;
   static SendPort? _scheduledCmd;
   static bool _scheduledCancelRequested = false;
+  static Timer? _defsSyncTimer;
+  static bool _defsSyncRunning = false;
   static final CloudScanner _cloud = CloudScanner(
     endpoint: 'https://efkou1u21ooih2hko.colourswift.com',
     apiKey: '23JVO3ojo23oO3O423rrTR',
@@ -64,22 +67,53 @@ class RealtimeProtectionService {
   };
   static const _maxSize = 100 * 1024 * 1024;
 
+  static Future<Map<String, dynamic>> ensureDefsReady({
+    bool forceServerCheck = false,
+  }) async {
+    if (_defsSyncRunning) {
+      return {
+        'checked': false,
+        'downloaded': false,
+      };
+    }
+
+    _defsSyncRunning = true;
+
+    try {
+      final result = await UpdateService.ensureDatabaseReady(
+        forceServerCheck: forceServerCheck,
+        minCheckInterval: const Duration(minutes: 30),
+      );
+
+      if (result['downloaded'] == true) {
+        final paths = await UpdateService.getLocalPaths();
+        try {
+          AntivirusBridge().reload(
+            paths['defsPath']!,
+            paths['keyPath']!,
+          );
+        } catch (_) {}
+      }
+
+      return result;
+    } catch (_) {
+      return {
+        'checked': false,
+        'downloaded': false,
+      };
+    } finally {
+      _defsSyncRunning = false;
+    }
+  }
+
   static Future<void> _reconcileShizuku() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final enabled = prefs.getBool('shizuku_enabled') ?? false;
 
-      if (!enabled) {
-        if (_watcherRunning) {
-          await _watcherChannel.invokeMethod('stop');
-          _watcherRunning = false;
-        }
-        return;
-      }
-
-      if (!_watcherRunning) {
-        await _watcherChannel.invokeMethod('start');
-        _watcherRunning = true;
+      if (!enabled && _watcherRunning) {
+        await _watcherChannel.invokeMethod('stop');
+        _watcherRunning = false;
       }
     } catch (_) {
       if (_watcherRunning) {
@@ -96,8 +130,8 @@ class RealtimeProtectionService {
 
     _watcherStateSub = _watcherStateChannel.receiveBroadcastStream().listen((event) async {
       final alive = event == true;
+      _watcherRunning = alive;
       if (!alive) {
-        _watcherRunning = false;
         await _reconcileShizuku();
       }
     }, onError: (_) {});
@@ -108,10 +142,12 @@ class RealtimeProtectionService {
     _running = true;
     _rootToken ??= RootIsolateToken.instance;
 
+    await ensureDefsReady(forceServerCheck: true);
     await _loadIndex();
     await ExclusionsStore.instance.init();
     await AvEngine.ensureInitialized();
     await ForegroundService.start(title: 'AVarionX', text: 'Protection active');
+
     if (!_fgHandlerAttached) {
       _fgHandlerAttached = true;
       _fgChannel.setMethodCallHandler((call) async {
@@ -120,7 +156,14 @@ class RealtimeProtectionService {
         }
       });
     }
+
     await _startScheduledScans();
+
+    _defsSyncTimer?.cancel();
+    _defsSyncTimer = Timer.periodic(
+      const Duration(minutes: 30),
+          (_) => unawaited(ensureDefsReady()),
+    );
 
     await _reconcileShizuku();
     _attachWatcherStateStream();
@@ -151,10 +194,16 @@ class RealtimeProtectionService {
     _watcherStateSub = null;
     _eventSub = null;
     _running = false;
+
     _shizukuLoop?.cancel();
     _shizukuLoop = null;
+
     _scheduledScanTimer?.cancel();
     _scheduledScanTimer = null;
+
+    _defsSyncTimer?.cancel();
+    _defsSyncTimer = null;
+
     await _saveIndex();
     await ForegroundService.stop();
   }

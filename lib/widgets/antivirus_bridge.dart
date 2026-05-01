@@ -16,7 +16,18 @@ typedef AvReloadDart = int Function(Pointer<Utf8>, Pointer<Utf8>);
 
 typedef NetIocInitNative = Int32 Function(Pointer<Utf8>);
 typedef NetIocInitDart = int Function(Pointer<Utf8>);
-
+typedef WatcherEvalNative = Int32 Function(
+    Int32, Int32, Int32, Int32, Int32,
+    Int32, Int32,
+    Int64, Int64, Int64,
+    Int64, Int64, Int64,
+    );
+typedef WatcherEvalDart = int Function(
+    int, int, int, int, int,
+    int, int,
+    int, int, int,
+    int, int, int,
+    );
 typedef NetCheckNative = Int32 Function(
     Pointer<Utf8>,
     Pointer<Utf8>,
@@ -96,6 +107,7 @@ class AntivirusBridge {
   late final SetScanCbDart _setScanCallback;
   late final RestoreEncodeDart _restoreEncode;
   late final RestoreDecodeDart _restoreDecode;
+  late final WatcherEvalDart _watcherEval;
   SetScanLimitsDart? _setScanLimits;
 
   final bool enableScanLogs;
@@ -145,7 +157,19 @@ class AntivirusBridge {
       _scanLogPtr = Pointer.fromFunction<ScanCbNative>(_scanLogCallback);
       _setScanCallback(_scanLogPtr!);
     }
+
+    _watcherEval = _lib.lookupFunction<WatcherEvalNative, WatcherEvalDart>('watcher_evaluate');
   }
+
+  int watcherEvaluate({
+    required int uid, required int pid, required int lifetimeSec,
+    required int threads, required int pidChurn, required int fg, required int comp,
+    required int deltaWrite, required int deltaSyscw, required int deltaCpu,
+    required int burstWrite, required int burstSyscw, required int burstCpu,
+  }) => _watcherEval(uid, pid, lifetimeSec, threads, pidChurn, fg, comp,
+      deltaWrite, deltaSyscw, deltaCpu, burstWrite, burstSyscw, burstCpu);
+
+  static int unpackVerdict(int r) => r;
 
   int init(String defsPath, String keyPath) {
     final defs = defsPath.toNativeUtf8();

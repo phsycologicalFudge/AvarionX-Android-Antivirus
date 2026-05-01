@@ -62,9 +62,25 @@ class AvHomePrimaryControl extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                width: 212,
+                height: 212,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      accent.withOpacity(ring > 0 ? 0.16 : 0.0),
+                      accent.withOpacity(0.0),
+                    ],
+                    stops: const [0.35, 1.0],
+                  ),
+                ),
+              ),
               CircularPercentIndicator(
-                radius: 86,
-                lineWidth: 12,
+                radius: 96,
+                lineWidth: 14,
                 percent: ring.clamp(0.0, 1.0),
                 animation: true,
                 animateFromLastPercent: true,
@@ -76,7 +92,7 @@ class AvHomePrimaryControl extends StatelessWidget {
                   scale: pressed ? 0.94 : 1.0,
                   child: Icon(
                     icon,
-                    size: 60,
+                    size: 64,
                     color: accent,
                   ),
                 ),
@@ -84,8 +100,8 @@ class AvHomePrimaryControl extends StatelessWidget {
               if (showPulse)
                 IgnorePointer(
                   child: SizedBox(
-                    width: 172,
-                    height: 172,
+                    width: 192,
+                    height: 192,
                     child: AnimatedBuilder(
                       animation: pulseController,
                       builder: (_, __) {
@@ -95,7 +111,7 @@ class AvHomePrimaryControl extends StatelessWidget {
                         return CustomPaint(
                           painter: RingPulsePainter(
                             color: accent.withOpacity(opacity),
-                            strokeWidth: 12,
+                            strokeWidth: 14,
                           ),
                         );
                       },
@@ -141,11 +157,13 @@ class AvHomePrimaryControl extends StatelessWidget {
             },
             onTapUp: (_) => onPressedChanged(false),
             onTapCancel: () => onPressedChanged(false),
-            child: OutlinedButton.icon(
+            child: FilledButton.icon(
               onPressed: onOpenScanDrawer,
               icon: const Icon(Icons.search_rounded, size: 18),
               label: Text(scanButtonText),
-              style: OutlinedButton.styleFrom(
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),

@@ -21,7 +21,7 @@
   "updateDbUpdatedAutoOn": "Baza zaktualizowana • Automatyczne aktualizacje włączone",
   "updateDbUpdatedSuccess": "Baza danych zaktualizowana pomyślnie",
   "updateDbUpdateFailed": "Aktualizacja bazy danych nie powiodła się",
-  "engineReadyBanner": "SILNIK GOTOWY • VX-TITANIUM-v7",
+  "engineReadyBanner": "VX-TITANIUM-v8",
   "scanButton": "Skanuj",
   "scanModeFullTitle": "Pełny skan urządzenia",
   "scanModeFullSubtitle": "Skanuje wszystkie czytelne pliki w pamięci.",

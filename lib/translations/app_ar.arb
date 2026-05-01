@@ -21,7 +21,7 @@
   "updateDbUpdatedAutoOn": "تم تحديث قاعدة البيانات • التحديثات التلقائية مفعلة",
   "updateDbUpdatedSuccess": "تم تحديث قاعدة البيانات بنجاح",
   "updateDbUpdateFailed": "فشل تحديث قاعدة البيانات",
-  "engineReadyBanner": "المحرك جاهز • VX-TITANIUM-v7",
+  "engineReadyBanner": "VX-TITANIUM-v8",
   "scanButton": "فحص",
   "scanModeFullTitle": "فحص كامل للجهاز",
   "scanModeFullSubtitle": "يفحص كل الملفات القابلة للقراءة في التخزين.",

@@ -1,0 +1,3 @@
+﻿-keep class com.colourswift.vxtitanium.** { *; }
+-keep class com.sun.jna.** { *; }
+-dontwarn com.sun.jna.**

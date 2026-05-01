@@ -41,6 +41,12 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get companionAppsSectionTitle => 'More from AvarionX';
+
+  @override
+  String get cleanerReclaimableLabel => 'Can be freed';
+
+  @override
   String get exploreMultiThreadingTitle => 'Multi-threading';
 
   @override
@@ -61,7 +67,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get updateDbUpdateFailed => 'Falha ao atualizar o banco de dados';
 
   @override
-  String get engineReadyBanner => 'MOTOR PRONTO • VX-TITANIUM-v7';
+  String get engineReadyBanner => 'VX-TITANIUM-v8';
 
   @override
   String get scanButton => 'Escanear';
@@ -1125,8 +1131,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeFeatureSecureVpnTitle => 'AvarionX Secure VPN';
 
   @override
-  String get homeFeatureSecureVpnDesc =>
-      'Hide your IP and block unwanted content';
+  String get homeFeatureSecureVpnDesc => 'Hide your IP and block unwanted ads';
 
   @override
   String get proActivated => 'Premium ativado';

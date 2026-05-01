@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -26,64 +25,10 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
-import org.json.JSONArray
 import com.colourswift.cssecurity.https.CertService
-import com.colourswift.cssecurity.vpn.CSVpnService
 import com.colourswift.cssecurity.rtp.SystemWatcher
 import com.colourswift.cssecurity.rtp.RealtimeReceiver
-import com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService
-import com.colourswift.cssecurity.vpn.VpnModeSwitcher
-import androidx.core.content.ContextCompat
 import com.colourswift.cssecurity.apkanalyser.ApkAnalyserBridge
-
-object CsDnsEvents {
-    private const val MAX = 800
-
-    private val lock = Any()
-    private val buffer = ArrayDeque<Map<String, Any?>>(MAX)
-    private val vpnStateChannel = "cs_vpn_lockdown"
-    private val main = Handler(Looper.getMainLooper())
-    private val sinks = LinkedHashSet<EventChannel.EventSink>()
-
-    fun addSink(s: EventChannel.EventSink?) {
-        if (s == null) return
-
-        val snapshot: List<Map<String, Any?>> = synchronized(lock) {
-            sinks.add(s)
-            buffer.toList()
-        }
-
-        main.post {
-            for (e in snapshot) {
-                try { s.success(e) } catch (_: Exception) {}
-            }
-        }
-    }
-
-    fun removeSink(s: EventChannel.EventSink?) {
-        if (s == null) return
-        synchronized(lock) {
-            sinks.remove(s)
-        }
-    }
-
-    fun emit(map: Map<String, Any?>) {
-        val targets: List<EventChannel.EventSink>
-        synchronized(lock) {
-            if (buffer.size >= MAX) buffer.removeFirst()
-            buffer.addLast(map)
-            targets = sinks.toList()
-        }
-
-        if (targets.isEmpty()) return
-
-        main.post {
-            for (t in targets) {
-                try { t.success(map) } catch (_: Exception) {}
-            }
-        }
-    }
-}
 
 class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     private val channel = MethodChannel(messenger, "cs.fastapps")
@@ -158,48 +103,6 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                 }
             }
 
-            "getWifiBlockedPkgs" -> {
-                io.execute {
-                    try {
-                        val set = AppWifiRules.getWifiBlockedPkgs(context).toList().sorted()
-                        Handler(Looper.getMainLooper()).post { result.success(set) }
-                    } catch (t: Throwable) {
-                        Handler(Looper.getMainLooper()).post {
-                            result.error("ERR", t.message, null)
-                        }
-                    }
-                }
-            }
-
-            "setAppWifiBlock" -> {
-                io.execute {
-                    try {
-                        val pkg = call.argument<String>("package") ?: ""
-                        val blocked = call.argument<Boolean>("blocked") ?: false
-                        val ok = AppWifiRules.setWifiBlocked(context, pkg, blocked)
-
-                        try {
-                            val i = Intent(context, CSVpnService::class.java).apply {
-                                action = CSVpnService.ACTION_START
-                                putExtra("dns_mode", "cloud")
-                                putExtra("reload_rules", true)
-                            }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                context.startForegroundService(i)
-                            } else {
-                                context.startService(i)
-                            }
-                        } catch (_: Exception) {}
-
-                        Handler(Looper.getMainLooper()).post { result.success(ok) }
-                    } catch (t: Throwable) {
-                        Handler(Looper.getMainLooper()).post {
-                            result.error("ERR", t.message, null)
-                        }
-                    }
-                }
-            }
-
             else -> result.notImplemented()
         }
     }
@@ -210,22 +113,15 @@ class MainActivity : FlutterActivity() {
     private val EVENT_CHANNEL = "colourswift/realtime_stream"
     private var receiver: RealtimeReceiver? = null
 
-    private var pendingVpnResult: MethodChannel.Result? = null
     private var heuristicEvents: EventChannel.EventSink? = null
     private var watcherStateEvents: EventChannel.EventSink? = null
     private var processEvents: EventChannel.EventSink? = null
     private var fe: FlutterEngine? = null
+    private var pollEvents: EventChannel.EventSink? = null
 
     private val SCAN_NOTIF_ID = 201
     private val SCAN_NOTIF_CHANNEL = "cssecurity_scan_status"
     private val EXTRA_CANCEL_SCHEDULED_SCAN = "cancel_scheduled_scan"
-
-    private val FULLVPN_CHAN = "cs_fullvpn"
-    private val REQ_VPN = 9911
-    private var pendingWgConfig: String? = null
-
-    private val VPN_REQ_CODE = 777
-    private var pendingVpnPermissionResult: MethodChannel.Result? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -263,58 +159,11 @@ class MainActivity : FlutterActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQ_VPN) {
-            val cfg = pendingWgConfig
-            pendingWgConfig = null
-            if (resultCode == RESULT_OK && cfg != null) {
-                startWgService(cfg)
-            }
-            return
-        }
-
-        if (requestCode != VPN_REQ_CODE) return
-        val ok = resultCode == RESULT_OK
-        pendingVpnPermissionResult?.success(ok)
-        pendingVpnPermissionResult = null
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         fe = flutterEngine
-
-        MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            FULLVPN_CHAN
-        ).setMethodCallHandler { call, result ->
-            when (call.method) {
-                "connect" -> {
-                    val cfg = call.arguments as? String ?: ""
-                    if (cfg.isBlank()) {
-                        result.error("bad_args", "missing config", null)
-                        return@setMethodCallHandler
-                    }
-
-                    val prep = VpnService.prepare(this)
-                    if (prep != null) {
-                        pendingWgConfig = cfg
-                        startActivityForResult(prep, REQ_VPN)
-                        result.success(mapOf("permission" to true, "started" to false))
-                        return@setMethodCallHandler
-                    }
-
-                    startWgService(cfg)
-                    result.success(mapOf("permission" to false, "started" to true))
-                }
-
-                "disconnect" -> {
-                    stopWgService()
-                    result.success(true)
-                }
-
-                else -> result.notImplemented()
-            }
-        }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
@@ -453,7 +302,6 @@ class MainActivity : FlutterActivity() {
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "start" -> {
-                    SystemWatcher.start(applicationContext)
                     result.success(null)
                 }
 
@@ -480,203 +328,24 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_channel")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "checkConnection" -> {
-                        pendingVpnResult = result
-                        val ip = call.argument<String>("ip") ?: ""
-                        val sni = call.argument<String>("sni") ?: ""
-                        val port = call.argument<Int>("port") ?: 443
-                        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_callback")
-                            .invokeMethod(
-                                "checkConnection",
-                                mapOf(
-                                    "ip" to ip,
-                                    "sni" to sni,
-                                    "port" to port
-                                )
-                            )
-                    }
-
-                    else -> result.notImplemented()
-                }
-            }
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_callback")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "replyCheckConnection" -> {
-                        val code = call.argument<Int>("code") ?: 0
-                        val r = pendingVpnResult
-                        pendingVpnResult = null
-                        try {
-                            r?.success(code)
-                        } catch (_: Exception) {
-                        }
-                        result.success(true)
-                    }
-
-                    else -> result.notImplemented()
-                }
-            }
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_control")
-            .setMethodCallHandler { call: MethodCall, result: MethodChannel.Result ->
-                when (call.method) {
-
-                    "startVpn" -> {
-                        val dnsMode = call.argument<String>("dns_mode") ?: "malware"
-                        val intent = Intent(applicationContext, CSVpnService::class.java).apply {
-                            action = CSVpnService.ACTION_START
-                            putExtra("dns_mode", dnsMode)
-                        }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            applicationContext.startForegroundService(intent)
-                        } else {
-                            applicationContext.startService(intent)
-                        }
-                        result.success(true)
-                    }
-
-                    "stopVpn" -> {
-                        val intent = Intent(applicationContext, CSVpnService::class.java)
-                        intent.action = CSVpnService.ACTION_STOP
-                        applicationContext.startService(intent)
-                        result.success(true)
-                    }
-
-                    "startWireGuard" -> {
-                        val config = call.argument<String>("config") ?: ""
-                        if (config.isBlank()) {
-                            result.error("WG_CONFIG_MISSING", "WireGuard config missing", null)
-                            return@setMethodCallHandler
-                        }
-
-                        VpnModeSwitcher.stopDnsVpn(applicationContext)
-                        VpnModeSwitcher.stopWireGuard(applicationContext)
-
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            VpnModeSwitcher.startWireGuard(applicationContext, config)
-                        }, 650)
-
-                        result.success(true)
-                    }
-
-                    "stopWireGuard" -> {
-                        val intent =
-                            Intent(applicationContext, CSWireGuardService::class.java).apply {
-                                action = CSWireGuardService.ACTION_STOP
-                            }
-                        applicationContext.startService(intent)
-                        result.success(true)
-                    }
-
-                    "isWireGuardRunning" -> {
-                        result.success(CSWireGuardService.isRunning)
-                    }
-
-                    "isDnsVpnRunning" -> {
-                        result.success(CSVpnService.isRunning)
-                    }
-
-                    else -> result.notImplemented()
-                }
-            }
-
         EventChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "cs_dns_events"
+            "colourswift/process_logs"
         ).setStreamHandler(object : EventChannel.StreamHandler {
-            private var sink: EventChannel.EventSink? = null
-
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                sink = events
-                CsDnsEvents.addSink(events)
+                processEvents = events
+                SystemWatcher.enablePollLogs { line ->
+                    Handler(Looper.getMainLooper()).post {
+                        processEvents?.success(line)
+                    }
+                }
             }
 
             override fun onCancel(arguments: Any?) {
-                CsDnsEvents.removeSink(sink)
-                sink = null
+                processEvents = null
+                SystemWatcher.disablePollLogs()
             }
         })
-
-        MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            "cs_dns_settings"
-        ).setMethodCallHandler { call, result ->
-            if (call.method != "setCloudSettings") {
-                result.notImplemented()
-                return@setMethodCallHandler
-            }
-
-            val args = call.arguments as? Map<*, *>
-            val enabledLists = args?.get("enabled_lists") as? List<*>
-            val resolver = (args?.get("resolver") as? String)?.trim().orEmpty()
-            val plan = (args?.get("plan") as? String)?.trim()?.lowercase().orEmpty()
-            val cloudUrl = (args?.get("cloud_url") as? String)?.trim().orEmpty()
-            val clientId = (args?.get("client_id") as? String)?.trim().orEmpty()
-
-            val prefs =
-                applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
-            val ed = prefs.edit()
-
-            if (enabledLists != null) {
-                val arr = JSONArray()
-                enabledLists.forEach { v ->
-                    val s = v?.toString()?.trim().orEmpty()
-                    if (s.isNotEmpty()) arr.put(s)
-                }
-                ed.putString("enabled_lists_json", arr.toString())
-            }
-
-            if (resolver.isNotEmpty()) ed.putString("resolver", resolver)
-            if (plan == "pro" || plan == "free") ed.putString("plan", plan)
-            if (cloudUrl.isNotEmpty()) ed.putString("cloud_url", cloudUrl)
-            if (clientId.isNotEmpty()) ed.putString("client_id", clientId)
-
-            ed.commit()
-            result.success(true)
-        }
-
-        MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            "cs_dns_usage"
-        ).setMethodCallHandler { call, result ->
-            if (call.method != "getUsage") {
-                result.notImplemented()
-                return@setMethodCallHandler
-            }
-
-            val prefs =
-                applicationContext.getSharedPreferences("cs_dns_cloud", Context.MODE_PRIVATE)
-
-            val used = prefs.getLong("usage_used", 0L).toInt()
-            val limit = prefs.getLong("usage_limit", -1L).toInt().let { if (it <= 0) null else it }
-            val resetMs = prefs.getLong("usage_reset_ms", -1L).let { if (it <= 0L) null else it }
-            val plan = prefs.getString("plan", "free") ?: "free"
-
-            val out = HashMap<String, Any?>()
-            out["used"] = used
-            out["limit"] = limit
-            out["reset_ms"] = resetMs
-            out["plan"] = plan
-
-            result.success(out)
-        }
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")
-            .setMethodCallHandler { call, result ->
-                if (call.method == "prepareVpn") {
-                    val intent = VpnService.prepare(this)
-                    if (intent != null) {
-                        pendingVpnPermissionResult = result
-                        startActivityForResult(intent, VPN_REQ_CODE)
-                    } else {
-                        result.success(true)
-                    }
-                } else result.notImplemented()
-            }
 
         EventChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -691,25 +360,6 @@ class MainActivity : FlutterActivity() {
             }
         })
 
-        EventChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            "colourswift/process_logs"
-        ).setStreamHandler(object : EventChannel.StreamHandler {
-            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                processEvents = events
-                SystemWatcher.start(applicationContext)
-                SystemWatcher.enableProcessLogs { line ->
-                    Handler(Looper.getMainLooper()).post {
-                        processEvents?.success(line)
-                    }
-                }
-            }
-
-            override fun onCancel(arguments: Any?) {
-                processEvents = null
-                SystemWatcher.disableProcessLogs()
-            }
-        })
 
         EventChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -729,46 +379,6 @@ class MainActivity : FlutterActivity() {
                 SystemWatcher.clearStateSink()
             }
         })
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_state")
-            .setMethodCallHandler { call, result ->
-                if (call.method == "isAnotherVpnActive") {
-                    val active = VpnService.prepare(applicationContext) != null
-                    result.success(active)
-                } else result.notImplemented()
-            }
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_lockdown")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "getLockdownState" -> {
-                        try {
-                            result.success(CSVpnService.snapshotLockdownState(applicationContext))
-                        } catch (_: Exception) {
-                            result.success(
-                                mapOf(
-                                    "always_on" to false,
-                                    "lockdown" to false,
-                                    "always_on_pkg" to null
-                                )
-                            )
-                        }
-                    }
-
-                    "openVpnSettings" -> {
-                        try {
-                            val i = Intent(Settings.ACTION_VPN_SETTINGS)
-                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(i)
-                            result.success(true)
-                        } catch (_: Exception) {
-                            result.success(false)
-                        }
-                    }
-
-                    else -> result.notImplemented()
-                }
-            }
 
         ApkAnalyserBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
@@ -824,26 +434,6 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             Log.e("CSMain", "Failed to stop service: ${e.message}")
         }
-    }
-
-    private fun startWgService(cfg: String) {
-        val i = Intent(this, com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService::class.java).apply {
-            action = com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.ACTION_START
-            putExtra(com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.EXTRA_WG_CONFIG, cfg)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(this, i)
-        } else {
-            startService(i)
-        }
-    }
-
-    private fun stopWgService() {
-        val i = Intent(this, com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService::class.java).apply {
-            action = com.colourswift.cssecurity.vpn.wireguard.CSWireGuardService.ACTION_STOP
-        }
-        startService(i)
     }
 
     private fun showNotification(title: String, text: String, autoDismissAfterSeconds: Int? = null, openQuarantine: Boolean = false) {

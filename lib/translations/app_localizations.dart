@@ -166,6 +166,18 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String updateDbVersionLabel(Object version);
 
+  /// No description provided for @companionAppsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More from AvarionX'**
+  String get companionAppsSectionTitle;
+
+  /// No description provided for @cleanerReclaimableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be freed'**
+  String get cleanerReclaimableLabel;
+
   /// No description provided for @exploreMultiThreadingTitle.
   ///
   /// In en, this message translates to:
@@ -205,7 +217,7 @@ abstract class AppLocalizations {
   /// No description provided for @engineReadyBanner.
   ///
   /// In en, this message translates to:
-  /// **'ENGINE READY • VX-TITANIUM-v7'**
+  /// **'VX-TITANIUM-v8'**
   String get engineReadyBanner;
 
   /// No description provided for @scanButton.
@@ -307,7 +319,7 @@ abstract class AppLocalizations {
   /// No description provided for @stateFileOnlyLine1.
   ///
   /// In en, this message translates to:
-  /// **'File Protection Only'**
+  /// **'File Protection active'**
   String get stateFileOnlyLine1;
 
   /// No description provided for @stateFileOnlyLine2.
@@ -2101,7 +2113,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeFeatureSecureVpnDesc.
   ///
   /// In en, this message translates to:
-  /// **'Hide your IP and block unwanted content'**
+  /// **'Hide your IP and block unwanted ads'**
   String get homeFeatureSecureVpnDesc;
 
   /// No description provided for @proActivated.

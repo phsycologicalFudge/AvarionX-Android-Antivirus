@@ -41,6 +41,12 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get companionAppsSectionTitle => 'More from AvarionX';
+
+  @override
+  String get cleanerReclaimableLabel => 'Can be freed';
+
+  @override
   String get exploreMultiThreadingTitle => 'マルチスレッド';
 
   @override
@@ -59,7 +65,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get updateDbUpdateFailed => 'データベースの更新に失敗しました';
 
   @override
-  String get engineReadyBanner => 'エンジン準備完了 • VX-TITANIUM-v7';
+  String get engineReadyBanner => 'VX-TITANIUM-v8';
 
   @override
   String get scanButton => 'スキャン';

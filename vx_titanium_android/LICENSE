@@ -1,0 +1,92 @@
+VX-TITANIUM SDK License
+
+Copyright (c) 2026 ColourSwift. All rights reserved.
+
+This software package, including the VX-TITANIUM scanner engine, native libraries,
+Dart bridge files, documentation, and related runtime files, is proprietary
+software owned by ColourSwift.
+
+1. Permission to Use
+
+You are granted permission to use the VX-TITANIUM SDK as a dependency or
+embedded module inside your own Android application or compatible software
+project.
+
+You may use the SDK in free, paid, commercial, internal, or public applications.
+
+You may charge users for your own application, including applications that use
+the VX-TITANIUM SDK as a component.
+
+2. Redistribution Inside Applications
+
+You may distribute the VX-TITANIUM SDK only as part of your own compiled
+application or software product.
+
+You may not distribute the VX-TITANIUM SDK as a standalone product, package,
+library, archive, engine, scanner, or competing SDK without written permission
+from ColourSwift.
+
+3. Restrictions
+
+You may not:
+
+- modify, adapt, translate, decompile, disassemble, reverse engineer, or create
+  derivative works of the VX-TITANIUM scanner engine or native libraries;
+- sell, rent, lease, sublicense, repackage, or commercially redistribute the
+  VX-TITANIUM SDK as a standalone product;
+- remove or alter copyright notices, license text, branding, or attribution
+  included with the SDK;
+- claim ownership of the VX-TITANIUM engine, scanner technology, detection
+  logic, models, signatures, VXPack format, or related runtime components;
+- use the SDK to build or distribute a directly competing scanner SDK, malware
+  scanning engine, or detection runtime without written permission from
+  ColourSwift.
+
+4. Updates and Definitions
+
+The SDK may require definition files, VXPack files, reputation data, or runtime
+updates to function correctly.
+
+Access to update services, cloud reputation services, VXPack downloads, or
+related backend systems may be limited, changed, rate-limited, or discontinued
+by ColourSwift.
+
+5. Ownership
+
+ColourSwift retains all rights, title, and interest in and to the VX-TITANIUM
+SDK, including all scanner logic, native libraries, embedded models, detection
+systems, signatures, documentation, and related intellectual property.
+
+No ownership rights are transferred by this license.
+
+6. Third-Party Components
+
+The SDK may include or depend on third-party runtime components, including
+TensorFlow Lite or other libraries. Those components remain subject to their
+own license terms.
+
+7. Warranty Disclaimer
+
+The VX-TITANIUM SDK is provided "as is" without warranties of any kind, whether
+express, implied, statutory, or otherwise, including warranties of
+merchantability, fitness for a particular purpose, and non-infringement.
+
+ColourSwift does not guarantee that the SDK will detect all malicious,
+unwanted, unsafe, or harmful files.
+
+8. Limitation of Liability
+
+To the maximum extent permitted by law, ColourSwift shall not be liable for any
+direct, indirect, incidental, special, consequential, exemplary, or punitive
+damages arising from the use of, inability to use, or reliance on the
+VX-TITANIUM SDK.
+
+9. Termination
+
+This license terminates automatically if you violate its terms. Upon
+termination, you must stop using and distributing the VX-TITANIUM SDK.
+
+10. Written Permission
+
+Any use not expressly allowed by this license requires prior written permission
+from ColourSwift.

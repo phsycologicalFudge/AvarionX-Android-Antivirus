@@ -182,6 +182,7 @@ class TerminalController {
         matches: (i) => i == 'log on',
         run: (_, __, emit) async {
           const chan = MethodChannel('colourswift/system_watcher');
+          await chan.invokeMethod('start');
           await chan.invokeMethod('startLogs');
           emit('[LOG] heuristic logging enabled');
         },
@@ -191,6 +192,7 @@ class TerminalController {
         matches: (i) => i == 'log off',
         run: (_, __, emit) async {
           const chan = MethodChannel('colourswift/system_watcher');
+          await chan.invokeMethod('stop');
           await chan.invokeMethod('stopLogs');
           emit('[LOG] heuristic logging disabled');
         },

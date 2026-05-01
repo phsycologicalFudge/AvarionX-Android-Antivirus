@@ -1,10 +1,8 @@
 package com.colourswift.cssecurity
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import com.colourswift.cssecurity.vpn.CSVpnService
 
 object AppWifiRules {
     private const val PREFS = "cs_app_rules"
@@ -23,28 +21,6 @@ object AppWifiRules {
         val next = HashSet(cur)
         if (blocked) next.add(p) else next.remove(p)
         return prefs.edit().putStringSet(KEY, next).commit()
-    }
-
-    fun applyToBuilderIfWifiAndLockdown(ctx: Context, builder: android.net.VpnService.Builder) {
-        if (!isWifi(ctx)) return
-
-        val state = try {
-            CSVpnService.snapshotLockdownState(ctx)
-        } catch (_: Exception) {
-            mapOf("always_on" to false, "lockdown" to false)
-        }
-
-        val lockdown = (state["lockdown"] as? Boolean) == true
-        if (!lockdown) return
-
-        val blocked = getWifiBlockedPkgs(ctx)
-        if (blocked.isEmpty()) return
-
-        for (pkg in blocked) {
-            try {
-                builder.addDisallowedApplication(pkg)
-            } catch (_: Exception) {}
-        }
     }
 
     fun isWifi(ctx: Context): Boolean {

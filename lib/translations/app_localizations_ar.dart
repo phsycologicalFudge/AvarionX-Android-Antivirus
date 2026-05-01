@@ -41,6 +41,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get companionAppsSectionTitle => 'More from AvarionX';
+
+  @override
+  String get cleanerReclaimableLabel => 'Can be freed';
+
+  @override
   String get exploreMultiThreadingTitle => 'تعدد الخيوط';
 
   @override
@@ -60,7 +66,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get updateDbUpdateFailed => 'فشل تحديث قاعدة البيانات';
 
   @override
-  String get engineReadyBanner => 'المحرك جاهز • VX-TITANIUM-v7';
+  String get engineReadyBanner => 'VX-TITANIUM-v8';
 
   @override
   String get scanButton => 'فحص';
@@ -1105,8 +1111,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeFeatureSecureVpnTitle => 'AvarionX Secure VPN';
 
   @override
-  String get homeFeatureSecureVpnDesc =>
-      'Hide your IP and block unwanted content';
+  String get homeFeatureSecureVpnDesc => 'Hide your IP and block unwanted ads';
 
   @override
   String get proActivated => 'تم تفعيل PRO';

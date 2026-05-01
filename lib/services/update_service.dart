@@ -12,6 +12,8 @@ class UpdateService {
   static const String keyUrl =
       'https://github.com/phsycologicalfudge/AVDatabase/releases/latest/download/defs_key.bin';
 
+  static const String _lastServerCheckKey = 'defs_last_server_check_ms';
+
   static Future<Map<String, dynamic>?> checkServerVersion() async {
     try {
       final response = await http.get(
@@ -38,6 +40,90 @@ class UpdateService {
     await prefs.setString('defs_version', version);
   }
 
+  static Future<bool> hasLocalDatabaseFiles() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final defsFile = File('${dir.path}/defs.vxpack');
+    final keyFile = File('${dir.path}/defs_key.bin');
+    return await defsFile.exists() && await keyFile.exists();
+  }
+
+  static Future<Map<String, String>> getLocalPaths() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return {
+      'defsPath': '${dir.path}/defs.vxpack',
+      'keyPath': '${dir.path}/defs_key.bin',
+    };
+  }
+
+  static Future<Map<String, dynamic>> ensureDatabaseReady({
+    bool forceServerCheck = false,
+    Duration minCheckInterval = const Duration(minutes: 30),
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasFiles = await hasLocalDatabaseFiles();
+    final localVersion = await getLocalVersion();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lastCheck = prefs.getInt(_lastServerCheckKey) ?? 0;
+
+    final shouldCheckServer = forceServerCheck ||
+        !hasFiles ||
+        localVersion == '0.0.0' ||
+        now - lastCheck >= minCheckInterval.inMilliseconds;
+
+    if (!shouldCheckServer) {
+      return {
+        'checked': false,
+        'downloaded': false,
+        'hasFiles': hasFiles,
+        'localVersion': localVersion,
+        'remoteVersion': null,
+      };
+    }
+
+    await prefs.setInt(_lastServerCheckKey, now);
+
+    final remote = await checkServerVersion();
+    final remoteVersion = (remote?['version'] ?? '0.0.0').toString();
+    final needsDownload =
+        !hasFiles || localVersion == '0.0.0' || localVersion != remoteVersion;
+
+    if (!needsDownload) {
+      return {
+        'checked': true,
+        'downloaded': false,
+        'hasFiles': hasFiles,
+        'localVersion': localVersion,
+        'remoteVersion': remoteVersion,
+      };
+    }
+
+    final ok = await downloadDatabase(
+      onProgress: (_) {},
+    );
+
+    if (!ok) {
+      return {
+        'checked': true,
+        'downloaded': false,
+        'hasFiles': hasFiles,
+        'localVersion': localVersion,
+        'remoteVersion': remoteVersion,
+      };
+    }
+
+    if (remoteVersion != '0.0.0') {
+      await setLocalVersion(remoteVersion);
+    }
+
+    return {
+      'checked': true,
+      'downloaded': true,
+      'hasFiles': true,
+      'localVersion': remoteVersion != '0.0.0' ? remoteVersion : localVersion,
+      'remoteVersion': remoteVersion,
+    };
+  }
+
   static Future<bool> downloadDatabase({
     required void Function(double) onProgress,
   }) async {
@@ -51,7 +137,9 @@ class UpdateService {
         {'url': defsUrl, 'path': defsPath},
         {'url': keyUrl, 'path': keyPath},
       ]) {
-        final uri = Uri.parse('${entry['url']}?t=${DateTime.now().millisecondsSinceEpoch}');
+        final uri = Uri.parse(
+          '${entry['url']}?t=${DateTime.now().millisecondsSinceEpoch}',
+        );
         final res = await client.get(uri);
         if (res.statusCode != 200) throw 'HTTP ${res.statusCode}';
 

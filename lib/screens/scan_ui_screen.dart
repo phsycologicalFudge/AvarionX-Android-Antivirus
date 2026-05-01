@@ -1107,17 +1107,9 @@ class _ScanScreenState extends State<ScanScreen>
 
     final app = await showModalBottomSheet<_AppTarget>(
       context: context,
-      builder: (_) {
-        return ListView(
-          children: apps.map((a) {
-            return ListTile(
-              leading: const Icon(Icons.apps_rounded),
-              title: Text(a.name),
-              onTap: () => Navigator.pop(context, a),
-            );
-          }).toList(),
-        );
-      },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ScanInstalledAppSheet(apps: apps),
     );
 
     if (app == null) {
@@ -1809,6 +1801,219 @@ class _ScanScreenState extends State<ScanScreen>
           ),
         );
       },
+    );
+  }
+}
+
+class _ScanInstalledAppSheet extends StatefulWidget {
+  final List<_AppTarget> apps;
+
+  const _ScanInstalledAppSheet({required this.apps});
+
+  @override
+  State<_ScanInstalledAppSheet> createState() => _ScanInstalledAppSheetState();
+}
+
+class _ScanInstalledAppSheetState extends State<_ScanInstalledAppSheet> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _query = _searchController.text.trim().toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    final filtered = _query.isEmpty
+        ? widget.apps
+        : widget.apps.where((a) {
+      return a.name.toLowerCase().contains(_query) ||
+          a.package.toLowerCase().contains(_query);
+    }).toList();
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.45,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (ctx, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Installed Apps',
+                      style: text.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search apps...',
+                        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                        filled: true,
+                        fillColor: theme.colorScheme.surfaceContainerHigh,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: filtered.isEmpty
+                    ? Center(
+                  child: Text(
+                    'No apps found.',
+                    style: text.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                  ),
+                )
+                    : ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  itemCount: filtered.length,
+                  itemBuilder: (ctx, i) {
+                    final app = filtered[i];
+                    return _ScanAppListTile(
+                      app: app,
+                      onTap: () => Navigator.pop(context, app),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ScanAppListTile extends StatefulWidget {
+  final _AppTarget app;
+  final VoidCallback onTap;
+
+  const _ScanAppListTile({required this.app, required this.onTap});
+
+  @override
+  State<_ScanAppListTile> createState() => _ScanAppListTileState();
+}
+
+class _ScanAppListTileState extends State<_ScanAppListTile> {
+  static const _channel = MethodChannel('cs.fastapps');
+  Uint8List? _iconBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIcon();
+  }
+
+  Future<void> _loadIcon() async {
+    try {
+      final bytes = await _channel.invokeMethod<Uint8List>(
+        'getAppIconPng',
+        {'package': widget.app.package},
+      );
+      if (mounted) setState(() => _iconBytes = bytes);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: widget.onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 42,
+                height: 42,
+                child: _iconBytes != null
+                    ? Image.memory(_iconBytes!, fit: BoxFit.cover)
+                    : Container(
+                  color: theme.colorScheme.surfaceContainerHigh,
+                  child: Icon(
+                    Icons.android_rounded,
+                    size: 24,
+                    color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.app.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    widget.app.package,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.45),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              size: 20,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

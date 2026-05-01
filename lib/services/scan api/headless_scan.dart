@@ -485,7 +485,7 @@ Future<HeadlessScanResult> runHeadlessScan({
 
     detections.add(detection);
 
-    if (quarantine) {
+    if (quarantine && QuarantineService.canQuarantinePath(path)) {
       try {
         await QuarantineService.quarantineFile(path);
       } catch (e) {
@@ -708,7 +708,7 @@ Future<HeadlessScanResult> runHeadlessScan({
 
     detections.add(detection);
 
-    if (quarantine) {
+    if (quarantine && QuarantineService.canQuarantinePath(target.path)) {
       try {
         await QuarantineService.quarantineFile(target.path);
       } catch (e) {

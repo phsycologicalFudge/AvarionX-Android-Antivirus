@@ -40,7 +40,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => SettingsScreenState();
 }
 
-class SettingsScreenState extends State<SettingsScreen> {
+class SettingsScreenState extends State<SettingsScreen>
+    with SingleTickerProviderStateMixin {
   bool isPro = false;
   bool autoUpdateDefs = false;
   int _rtpNotificationAutoDismissSeconds = 0;
@@ -63,10 +64,17 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   String _language = 'system';
   String? _metaPassword;
+  bool _signingOut = false;
+  late final AnimationController _signOutSpinController;
 
   @override
   void initState() {
     super.initState();
+    _signOutSpinController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+
     _loadLanguage();
     _loadPro();
     _loadMetaPassword();
@@ -83,6 +91,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     _closing = true;
     _linkSub?.cancel();
     _linkSub = null;
+    _signOutSpinController.dispose();
     super.dispose();
   }
 
@@ -196,6 +205,10 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     if (_authToken.isNotEmpty) {
       await _loadAccountInfo(_authToken);
+      await _loadPro();
+    } else {
+      await PurchaseService.clearServerAccountEntitlement();
+      await _loadPro();
     }
   }
 
@@ -226,8 +239,10 @@ class SettingsScreenState extends State<SettingsScreen> {
       });
 
       unawaited(PurchaseService.syncCachedPurchaseToServer());
-      unawaited(_loadPro());
-      unawaited(_loadAccountInfo(token));
+      unawaited(() async {
+        await _loadAccountInfo(token);
+        await _loadPro();
+      }());
     }
 
     try {
@@ -324,7 +339,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                         } catch (_) {}
                       },
                       child: Text(
-                        expected == null ? 'Pick Certificate' : 'Certificate loaded',
+                        expected == null
+                            ? 'Pick Certificate'
+                            : 'Certificate loaded',
                       ),
                     ),
                   ),
@@ -386,6 +403,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     await ProGate.clearLocalUnlock();
     await ProGate.clearTrial();
     await PurchaseService.clearLocalProFlag();
+    await PurchaseService.clearServerAccountEntitlement();
     await prefs.setBool('isPro', false);
     await prefs.remove('billing_vpn_entitled');
     await prefs.remove('billing_server_plan');
@@ -447,7 +465,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           title: Text('AvarionX Security'),
           content: Text(
             'AvarionX is a mobile security suite created by ColourSwift Tech, based in Birmingham, UK.\n\n'
-                'Contact: support@colourswift.com',
+            'Contact: support@colourswift.com',
           ),
         );
       },
@@ -488,6 +506,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     final token = (overrideToken ?? _authToken).trim();
 
     if (token.isEmpty) {
+      await PurchaseService.clearServerAccountEntitlement();
       if (!mounted) return;
       setState(() {
         _signedIn = false;
@@ -504,26 +523,41 @@ class SettingsScreenState extends State<SettingsScreen> {
       _accountLoading = true;
     });
 
+    final client = HttpClient();
+
     try {
-      final client = HttpClient();
-      final req = await client.getUrl(Uri.parse('https://api.colourswift.com/me'));
+      final req =
+          await client.getUrl(Uri.parse('https://api.colourswift.com/me'));
       req.headers.set('authorization', 'Bearer $token');
       final res = await req.close();
 
       if (res.statusCode == 200) {
         final body = await res.transform(utf8.decoder).join();
         final json = jsonDecode(body) as Map<String, dynamic>;
-        final user =
-        (json['user'] is Map ? json['user'] as Map : json).cast<String, dynamic>();
+        final user = (json['user'] is Map ? json['user'] as Map : json)
+            .cast<String, dynamic>();
 
         final email = (user['email'] ?? '').toString().trim();
         final id = (user['accountId'] ??
-            user['account_id'] ??
-            user['id'] ??
-            user['uid'] ??
-            '')
+                user['account_id'] ??
+                user['id'] ??
+                user['uid'] ??
+                '')
             .toString()
             .trim();
+
+        final plan = (user['plan'] ?? '').toString();
+        final rawExp = user['planExpiresAt'] ?? user['plan_expires_at'];
+
+        final int? exp = rawExp is num
+            ? rawExp.toInt()
+            : int.tryParse((rawExp ?? '').toString());
+
+        await PurchaseService.applyServerAccountEntitlement(
+          signedIn: true,
+          plan: plan,
+          planExpiresAt: exp,
+        );
 
         if (!mounted) return;
         setState(() {
@@ -534,7 +568,28 @@ class SettingsScreenState extends State<SettingsScreen> {
         });
         return;
       }
-    } catch (_) {}
+
+      if (res.statusCode == 401) {
+        await PurchaseService.clearServerAccountEntitlement();
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('cs_auth_token');
+        _authToken = '';
+
+        if (!mounted) return;
+        setState(() {
+          _signedIn = false;
+          _accountEmail = null;
+          _accountId = null;
+          _accountLoading = false;
+        });
+        return;
+      }
+    } catch (_) {
+      await PurchaseService.clearServerAccountEntitlement();
+    } finally {
+      client.close(force: true);
+    }
 
     if (!mounted) return;
     setState(() {
@@ -552,18 +607,35 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _signOutAccount() async {
-    _authToken = '';
+    if (_signingOut) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('cs_auth_token');
+    if (mounted) {
+      setState(() {
+        _signingOut = true;
+      });
+    }
 
-    if (!mounted) return;
-    setState(() {
-      _signedIn = false;
-      _accountEmail = null;
-      _accountId = null;
-      _accountLoading = false;
-    });
+    try {
+      _authToken = '';
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('cs_auth_token');
+      await PurchaseService.clearServerAccountEntitlement();
+      await _loadPro();
+
+      if (!mounted) return;
+      setState(() {
+        _signedIn = false;
+        _accountEmail = null;
+        _accountId = null;
+        _accountLoading = false;
+      });
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _signingOut = false;
+      });
+    }
   }
 
   Future<void> _showMetaPasswordDialog() async {
@@ -653,10 +725,10 @@ class SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Experimental Features'),
             content: const Text(
               'Enabling Shizuku unlocks experimental work-in-progress features:\n\n'
-                  '• Advanced Ransomware Protection\n'
-                  '• Cache Cleaner Plus\n\n'
-                  'These features may change frequently.\n\n'
-                  'Please read the documentation before enabling.',
+              '• Advanced Ransomware Protection\n'
+              '• Cache Cleaner Plus\n\n'
+              'These features may change frequently.\n\n'
+              'Please read the documentation before enabling.',
             ),
             actions: [
               TextButton(
@@ -703,6 +775,64 @@ class SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Widget _buildSigningOutLoader(ThemeData theme) {
+    return Container(
+      color: theme.colorScheme.surface.withOpacity(0.88),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 92,
+              width: 92,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  RotationTransition(
+                    turns: _signOutSpinController,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: SweepGradient(
+                          colors: [
+                            theme.colorScheme.primary.withOpacity(0.1),
+                            theme.colorScheme.primary,
+                          ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: theme.colorScheme.surface,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.logout_rounded,
+                    size: 34,
+                    color: theme.colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Signing out...',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -733,264 +863,278 @@ class SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              SettingsAccountCard(
-                signedIn: _signedIn,
-                accountLoading: _accountLoading,
-                accountEmail: _accountEmail,
-                accountId: _accountId,
-                onSignIn: _startAvLoginInBrowser,
-                onDashboard: _openAccountDashboard,
-                onSignOut: _signOutAccount,
-              ),
-              const SizedBox(height: 18),
-              SettingsSectionHeader(title: l10n.settingsSectionAppearance),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.color_lens_rounded,
-                title: l10n.settingsTheme,
-                subtitle: l10n.settingsThemeCurrent(themeLabel),
-                onTap: () {
-                  showSettingsThemeSheet(
-                    context: context,
-                    isPro: isPro,
-                    currentTheme: themeManager.themeName,
-                    onSelectTheme: (value) async {
-                      final manager = Provider.of<ThemeManager>(context, listen: false);
-                      manager.setTheme(value);
-                    },
-                    onOpenPro: _showUpgradeDialog,
-                  );
-                },
-              ),
-              SettingsSettingTile(
-                icon: Icons.language_rounded,
-                title: l10n.settingsLanguage,
-                subtitle: l10n.settingsLanguageCurrent(
-                  _languageLabel(_language),
-                ),
-                onTap: () {
-                  showSettingsLanguageSheet(
-                    context: context,
-                    currentLanguage: _language,
-                    onSelectLanguage: _setLanguage,
-                  );
-                },
-              ),
-              SettingsSectionHeader(title: l10n.settingsSectionCommunity),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.chat_rounded,
-                title: l10n.settingsDiscord,
-                subtitle: l10n.settingsDiscordSubtitle,
-                onTap: () async {
-                  final uri = Uri.parse('https://discord.gg/VYubQJfcYM');
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  } else {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.settingsDiscordOpenFail)),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 18),
-              SettingsSectionHeader(title: l10n.settingsSectionPro),
-              const SizedBox(height: 10),
-              SettingsProCard(
-                isPro: isPro,
-                onOpenProOptions: () {
-                  showSettingsProOptionsSheet(
-                    context: context,
-                    onChanged: () {
-                      if (!mounted) return;
-                      setState(() {});
-                    },
-                  );
-                },
-                onOpenUpgrade: _showUpgradeDialog,
-                onRestorePurchases: _restorePurchasesNow,
-                proSubtitle: l10n.settingsProSubtitle,
-                unlockProLabel: l10n.settingsUnlockPro,
-                proCustomizationLabel: l10n.settingsProCustomization,
-              ),
-              const SizedBox(height: 18),
-              const SettingsSectionHeader(title: 'Realtime Protection'),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.notifications_active_rounded,
-                title: 'Auto-clear notifications',
-                subtitle: _rtpNotificationSettingLabel(
-                  l10n,
-                  _rtpNotificationAutoDismissSeconds,
-                ),
-                onTap: () {
-                  showSettingsRtpNotificationSheet(
-                    context: context,
-                    currentSeconds: _rtpNotificationAutoDismissSeconds,
-                    onSelect: _setRtpNotificationSetting,
-                  );
-                },
-              ),
-              SettingsSectionHeader(title: l10n.settingsSectionShizuku),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.developer_mode_rounded,
-                title: l10n.settingsEnableShizuku,
-                subtitle: !shizukuBinderAlive
-                    ? l10n.settingsShizukuNotRunning
-                    : !shizukuPermissionGranted
-                    ? l10n.settingsShizukuPermissionRequired
-                    : l10n.settingsShizukuAvailable,
-                trailing: Transform.scale(
-                  scale: 0.92,
-                  child: IgnorePointer(
-                    child: Switch(
-                      value: shizukuWanted,
-                      onChanged: (_) {},
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  SettingsAccountCard(
+                    signedIn: _signedIn,
+                    accountLoading: _accountLoading,
+                    accountEmail: _accountEmail,
+                    accountId: _accountId,
+                    onSignIn: _startAvLoginInBrowser,
+                    onDashboard: _openAccountDashboard,
+                    onSignOut: _signOutAccount,
                   ),
-                ),
-                onTap: _handleShizukuTap,
-              ),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.info_outline_rounded,
-                title: l10n.settingsAboutAdvancedProtection,
-                subtitle: l10n.settingsAboutAdvancedProtectionSubtitle,
-                onTap: _showShizukuInfo,
-              ),
-              const SizedBox(height: 18),
-              SettingsSectionHeader(title: l10n.settingsSectionGeneral),
-              const SizedBox(height: 10),
-              SettingsSettingTile(
-                icon: Icons.lock_outline_rounded,
-                title: l10n.passwordSettingsMetaPasswordTitle,
-                subtitle: _metaPassword == null
-                    ? l10n.passwordSettingsMetaNotSet
-                    : l10n.passwordSettingsMetaStoredSecurely,
-                onTap: _showMetaPasswordDialog,
-              ),
-              SettingsSettingTile(
-                icon: Icons.rule_folder_rounded,
-                title: l10n.settingsExclusions,
-                subtitle: l10n.settingsExclusionsSubtitle,
-                onTap: () {
-                  showSettingsExclusionsSheet(
-                    context: context,
-                    onExcludeFolder: () async {
-                      final result =
-                      await FilePicker.platform.getDirectoryPath();
-                      if (result != null) {
-                        final ex = ExclusionService();
-                        await ex.load();
-                        await ex.addFolder(result);
+                  const SizedBox(height: 18),
+                  SettingsSectionHeader(title: l10n.settingsSectionAppearance),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.color_lens_rounded,
+                    title: l10n.settingsTheme,
+                    subtitle: l10n.settingsThemeCurrent(themeLabel),
+                    onTap: () {
+                      showSettingsThemeSheet(
+                        context: context,
+                        isPro: isPro,
+                        currentTheme: themeManager.themeName,
+                        onSelectTheme: (value) async {
+                          final manager =
+                              Provider.of<ThemeManager>(context, listen: false);
+                          manager.setTheme(value);
+                        },
+                        onOpenPro: _showUpgradeDialog,
+                      );
+                    },
+                  ),
+                  SettingsSettingTile(
+                    icon: Icons.language_rounded,
+                    title: l10n.settingsLanguage,
+                    subtitle: l10n.settingsLanguageCurrent(
+                      _languageLabel(_language),
+                    ),
+                    onTap: () {
+                      showSettingsLanguageSheet(
+                        context: context,
+                        currentLanguage: _language,
+                        onSelectLanguage: _setLanguage,
+                      );
+                    },
+                  ),
+                  SettingsSectionHeader(title: l10n.settingsSectionCommunity),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.chat_rounded,
+                    title: l10n.settingsDiscord,
+                    subtitle: l10n.settingsDiscordSubtitle,
+                    onTap: () async {
+                      final uri = Uri.parse('https://discord.gg/VYubQJfcYM');
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      } else {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.settingsFolderExcluded)),
+                          SnackBar(content: Text(l10n.settingsDiscordOpenFail)),
                         );
                       }
                     },
-                    onExcludeFile: () async {
-                      final r = await FilePicker.platform.pickFiles();
-                      if (r != null && r.files.isNotEmpty) {
-                        final path = r.files.single.path;
-                        if (path == null) return;
+                  ),
+                  const SizedBox(height: 18),
+                  SettingsSectionHeader(title: l10n.settingsSectionPro),
+                  const SizedBox(height: 10),
+                  SettingsProCard(
+                    isPro: isPro,
+                    onOpenProOptions: () {
+                      showSettingsProOptionsSheet(
+                        context: context,
+                        onChanged: () {
+                          if (!mounted) return;
+                          setState(() {});
+                        },
+                      );
+                    },
+                    onOpenUpgrade: _showUpgradeDialog,
+                    onRestorePurchases: _restorePurchasesNow,
+                    proSubtitle: l10n.settingsProSubtitle,
+                    unlockProLabel: l10n.settingsUnlockPro,
+                    proCustomizationLabel: l10n.settingsProCustomization,
+                  ),
+                  const SizedBox(height: 18),
+                  const SettingsSectionHeader(title: 'Realtime Protection'),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.notifications_active_rounded,
+                    title: 'Auto-clear notifications',
+                    subtitle: _rtpNotificationSettingLabel(
+                      l10n,
+                      _rtpNotificationAutoDismissSeconds,
+                    ),
+                    onTap: () {
+                      showSettingsRtpNotificationSheet(
+                        context: context,
+                        currentSeconds: _rtpNotificationAutoDismissSeconds,
+                        onSelect: _setRtpNotificationSetting,
+                      );
+                    },
+                  ),
+                  SettingsSectionHeader(title: l10n.settingsSectionShizuku),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.developer_mode_rounded,
+                    title: l10n.settingsEnableShizuku,
+                    subtitle: !shizukuBinderAlive
+                        ? l10n.settingsShizukuNotRunning
+                        : !shizukuPermissionGranted
+                            ? l10n.settingsShizukuPermissionRequired
+                            : l10n.settingsShizukuAvailable,
+                    trailing: Transform.scale(
+                      scale: 0.92,
+                      child: IgnorePointer(
+                        child: Switch(
+                          value: shizukuWanted,
+                          onChanged: (_) {},
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ),
+                    onTap: _handleShizukuTap,
+                  ),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.info_outline_rounded,
+                    title: l10n.settingsAboutAdvancedProtection,
+                    subtitle: l10n.settingsAboutAdvancedProtectionSubtitle,
+                    onTap: _showShizukuInfo,
+                  ),
+                  const SizedBox(height: 18),
+                  SettingsSectionHeader(title: l10n.settingsSectionGeneral),
+                  const SizedBox(height: 10),
+                  SettingsSettingTile(
+                    icon: Icons.lock_outline_rounded,
+                    title: l10n.passwordSettingsMetaPasswordTitle,
+                    subtitle: _metaPassword == null
+                        ? l10n.passwordSettingsMetaNotSet
+                        : l10n.passwordSettingsMetaStoredSecurely,
+                    onTap: _showMetaPasswordDialog,
+                  ),
+                  SettingsSettingTile(
+                    icon: Icons.rule_folder_rounded,
+                    title: l10n.settingsExclusions,
+                    subtitle: l10n.settingsExclusionsSubtitle,
+                    onTap: () {
+                      showSettingsExclusionsSheet(
+                        context: context,
+                        onExcludeFolder: () async {
+                          final result =
+                              await FilePicker.platform.getDirectoryPath();
+                          if (result != null) {
+                            final ex = ExclusionService();
+                            await ex.load();
+                            await ex.addFolder(result);
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(l10n.settingsFolderExcluded)),
+                            );
+                          }
+                        },
+                        onExcludeFile: () async {
+                          final r = await FilePicker.platform.pickFiles();
+                          if (r != null && r.files.isNotEmpty) {
+                            final path = r.files.single.path;
+                            if (path == null) return;
 
-                        final bytes = File(path).readAsBytesSync();
-                        final sha = sha256.convert(bytes).toString();
+                            final bytes = File(path).readAsBytesSync();
+                            final sha = sha256.convert(bytes).toString();
 
-                        final ex = ExclusionService();
-                        await ex.load();
-                        await ex.addSha(sha);
+                            final ex = ExclusionService();
+                            await ex.load();
+                            await ex.addSha(sha);
 
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(l10n.settingsFileExcluded)),
+                            );
+                          }
+                        },
+                        onManage: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ExclusionManagerScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  SettingsSettingTile(
+                    icon: Icons.security_rounded,
+                    title: l10n.settingsPrivacyPolicy,
+                    subtitle: l10n.settingsPrivacyPolicySubtitle,
+                    onTap: () async {
+                      final uri = Uri.parse(
+                        'https://colourswift.com/Policies/Private-Policy',
+                      );
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      } else {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.settingsFileExcluded)),
+                          SnackBar(
+                            content: Text(l10n.settingsPrivacyPolicyOpenFail),
+                          ),
                         );
                       }
                     },
-                    onManage: () {
+                  ),
+                  SettingsSettingTile(
+                    icon: Icons.info_outline_rounded,
+                    title: l10n.settingsAboutApp,
+                    subtitle: 'v3.0.7',
+                    onTap: _showAboutAvarionXPopup,
+                  ),
+                  if (kDebugMode)
+                    SettingsSettingTile(
+                      icon: Icons.bug_report_rounded,
+                      title: l10n.settingsProReset,
+                      subtitle: l10n.settingsProReset,
+                      onTap: _resetProForDebug,
+                    ),
+                  if (kDebugMode)
+                    SettingsSettingTile(
+                      icon: Icons.verified_rounded,
+                      title: 'Enable Pro (debug)',
+                      subtitle: 'Local unlock for UI testing',
+                      onTap: _enableProForDebug,
+                    ),
+                  if (kDebugMode)
+                    SettingsSettingTile(
+                      icon: Icons.restore_rounded,
+                      title: 'Restore purchases',
+                      subtitle: 'Re-check Play Billing',
+                      onTap: _restorePurchasesNow,
+                    ),
+                  SettingsSettingTile(
+                    icon: Icons.help_outline_rounded,
+                    title: l10n.settingsHowThisAppWorks,
+                    subtitle: l10n.settingsHowThisAppWorksSubtitle,
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ExclusionManagerScreen(),
+                          builder: (_) => const HowThisAppWorksScreen(),
                         ),
                       );
                     },
-                  );
-                },
+                  ),
+                ],
               ),
-              SettingsSettingTile(
-                icon: Icons.security_rounded,
-                title: l10n.settingsPrivacyPolicy,
-                subtitle: l10n.settingsPrivacyPolicySubtitle,
-                onTap: () async {
-                  final uri = Uri.parse(
-                    'https://colourswift.com/Policies/Private-Policy',
-                  );
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  } else {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.settingsPrivacyPolicyOpenFail),
-                      ),
-                    );
-                  }
-                },
+            ),
+            if (_signingOut)
+              Positioned.fill(
+                child: _buildSigningOutLoader(theme),
               ),
-              SettingsSettingTile(
-                icon: Icons.info_outline_rounded,
-                title: l10n.settingsAboutApp,
-                subtitle: 'v3.0.7',
-                onTap: _showAboutAvarionXPopup,
-              ),
-              if (kDebugMode)
-                SettingsSettingTile(
-                  icon: Icons.bug_report_rounded,
-                  title: l10n.settingsProReset,
-                  subtitle: l10n.settingsProReset,
-                  onTap: _resetProForDebug,
-                ),
-              if (kDebugMode)
-                SettingsSettingTile(
-                  icon: Icons.verified_rounded,
-                  title: 'Enable Pro (debug)',
-                  subtitle: 'Local unlock for UI testing',
-                  onTap: _enableProForDebug,
-                ),
-              if (kDebugMode)
-                SettingsSettingTile(
-                  icon: Icons.restore_rounded,
-                  title: 'Restore purchases',
-                  subtitle: 'Re-check Play Billing',
-                  onTap: _restorePurchasesNow,
-                ),
-              SettingsSettingTile(
-                icon: Icons.help_outline_rounded,
-                title: l10n.settingsHowThisAppWorks,
-                subtitle: l10n.settingsHowThisAppWorksSubtitle,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const HowThisAppWorksScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

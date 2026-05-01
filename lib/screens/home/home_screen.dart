@@ -62,6 +62,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
   String? remoteVersion;
   String version = '';
   String defsVersion = '';
+  bool _defsSyncing = false;
 
   late AnimationController _popupController;
   late Animation<Offset> _popupAnimation;
@@ -92,6 +93,44 @@ class AvHomeScreenState extends State<AvHomeScreen>
     final v = await UpdateService.getLocalVersion();
     if (mounted) {
       setState(() => defsVersion = v);
+    }
+  }
+
+  Future<void> _syncDefsOnForeground({
+    bool forceServerCheck = false,
+  }) async {
+    if (_defsSyncing) return;
+    _defsSyncing = true;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rtpEnabled = prefs.getBool('protectionEnabled') ?? false;
+
+      if (rtpEnabled) {
+        await RealtimeProtectionService.ensureDefsReady(
+          forceServerCheck: forceServerCheck,
+        );
+      } else {
+        final result = await UpdateService.ensureDatabaseReady(
+          forceServerCheck: forceServerCheck,
+          minCheckInterval: const Duration(minutes: 15),
+        );
+
+        if (result['downloaded'] == true) {
+          final paths = await UpdateService.getLocalPaths();
+          try {
+            AntivirusBridge().reload(
+              paths['defsPath']!,
+              paths['keyPath']!,
+            );
+          } catch (_) {}
+        }
+      }
+
+      await _loadDefsVersion();
+      await _refreshUpdateState();
+    } finally {
+      _defsSyncing = false;
     }
   }
 
@@ -187,6 +226,11 @@ class AvHomeScreenState extends State<AvHomeScreen>
     _loadDefsVersion();
     _loadShizukuRtpState();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _syncDefsOnForeground(forceServerCheck: true);
+    });
+
     DefsAutoUpdateService.maybeRun().then((_) async {
       if (!mounted) return;
       await _loadDefsVersion();
@@ -231,6 +275,8 @@ class AvHomeScreenState extends State<AvHomeScreen>
     if (state == AppLifecycleState.resumed) {
       _loadProtectionState();
       _loadProStatus();
+      _loadDefsVersion();
+      _syncDefsOnForeground(forceServerCheck: true);
     }
   }
 
@@ -1036,14 +1082,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
                         ),
                         const SizedBox(height: 6),
                         AvHomeFeatureRow(
-                          title: l10n.homeFeatureSecureVpnTitle,
-                          description: l10n.homeFeatureSecureVpnDesc,
-                          icon: Icons.vpn_lock,
-                          color: theme.colorScheme.secondaryContainer,
-                          onTap: _openVpnAppStoreListing,
-                        ),
-                        const SizedBox(height: 12),
-                        AvHomeFeatureRow(
                           title: l10n.featureCleanerPro,
                           description: l10n.recommendedCleanerProDesc,
                           icon: Icons.cleaning_services_rounded,
@@ -1052,6 +1090,28 @@ class AvHomeScreenState extends State<AvHomeScreen>
                             context,
                             animatedRoute(const CleanerScreen()),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 0, 2, 10),
+                            child: Text(
+                              l10n.companionAppsSectionTitle,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.86),
+                              ),
+                            ),
+                          ),
+                        ),
+                        AvHomeFeatureRow(
+                          title: l10n.homeFeatureSecureVpnTitle,
+                          description: l10n.homeFeatureSecureVpnDesc,
+                          icon: Icons.vpn_lock,
+                          color: theme.colorScheme.secondaryContainer,
+                          onTap: _openVpnAppStoreListing,
                         ),
                       ],
                     ),

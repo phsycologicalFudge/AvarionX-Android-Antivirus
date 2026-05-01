@@ -74,8 +74,28 @@ class QuarantineService {
     return await _key!.extractBytes();
   }
 
+  static bool canQuarantinePath(String srcPath) {
+    final normalized = srcPath.replaceAll('\\', '/').toLowerCase();
+    final name = p.basename(normalized);
+
+    if (name == 'base.apk' || name == 'base.apks') {
+      return false;
+    }
+
+    if (normalized.contains('/data/app/') ||
+        normalized.contains('/data/app-private/')) {
+      return false;
+    }
+
+    return true;
+  }
+
   static Future<Map<String, dynamic>> quarantineFile(String srcPath) async {
     await init();
+
+    if (!canQuarantinePath(srcPath)) {
+      throw Exception('Installed package files cannot be quarantined');
+    }
 
     final f = File(srcPath);
     if (!await f.exists()) {

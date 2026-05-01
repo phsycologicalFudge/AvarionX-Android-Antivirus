@@ -41,6 +41,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get companionAppsSectionTitle => 'More from AvarionX';
+
+  @override
+  String get cleanerReclaimableLabel => 'Can be freed';
+
+  @override
   String get exploreMultiThreadingTitle => 'Wielowątkowość';
 
   @override
@@ -63,7 +69,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Aktualizacja bazy danych nie powiodła się';
 
   @override
-  String get engineReadyBanner => 'SILNIK GOTOWY • VX-TITANIUM-v7';
+  String get engineReadyBanner => 'VX-TITANIUM-v8';
 
   @override
   String get scanButton => 'Skanuj';

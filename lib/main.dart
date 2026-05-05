@@ -15,6 +15,11 @@ import 'package:colourswift_av/services/purchase_service.dart';
 import 'constants/launch_flag.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'translations/app_localizations.dart';
+import 'dart:async';
+import 'dart:ui';
+import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'services/realtime_protection_service.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -185,4 +190,20 @@ void vpnMain() {
     }
     return 0;
   });
+}
+
+@pragma('vm:entry-point')
+Future<void> rtpBackgroundMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  final enabled = prefs.getBool('protectionEnabled') ?? false;
+
+  if (!enabled) return;
+
+  await RealtimeProtectionService.start();
+
+  final keepAlive = Completer<void>();
+  await keepAlive.future;
 }

@@ -383,33 +383,6 @@ class MainActivity : FlutterActivity() {
         ApkAnalyserBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
 
-        EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
-            .setStreamHandler(object : EventChannel.StreamHandler {
-                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                    if (receiver != null) {
-                        unregisterReceiver(receiver)
-                        receiver = null
-                    }
-                    RealtimeReceiver.events = events
-                    receiver = RealtimeReceiver()
-                    val filter = IntentFilter("com.colourswift.cssecurity.NEW_FILE_DETECTED")
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-                    } else {
-                        registerReceiver(receiver, filter)
-                    }
-                    Log.i("CSMain", "RealtimeReceiver registered")
-                }
-
-                override fun onCancel(arguments: Any?) {
-                    if (receiver != null) {
-                        unregisterReceiver(receiver)
-                        receiver = null
-                        Log.i("CSMain", "RealtimeReceiver unregistered")
-                    }
-                    RealtimeReceiver.events = null
-                }
-            })
     }
 
     private fun startForegroundServiceCompat(title: String, text: String) {

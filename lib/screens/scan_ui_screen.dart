@@ -1911,6 +1911,7 @@ class _ScanInstalledAppSheetState extends State<_ScanInstalledAppSheet> {
                   itemBuilder: (ctx, i) {
                     final app = filtered[i];
                     return _ScanAppListTile(
+                      key: ValueKey(app.package),
                       app: app,
                       onTap: () => Navigator.pop(context, app),
                     );
@@ -1929,7 +1930,11 @@ class _ScanAppListTile extends StatefulWidget {
   final _AppTarget app;
   final VoidCallback onTap;
 
-  const _ScanAppListTile({required this.app, required this.onTap});
+  const _ScanAppListTile({
+    super.key,
+    required this.app,
+    required this.onTap,
+  });
 
   @override
   State<_ScanAppListTile> createState() => _ScanAppListTileState();
@@ -1943,6 +1948,16 @@ class _ScanAppListTileState extends State<_ScanAppListTile> {
   void initState() {
     super.initState();
     _loadIcon();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ScanAppListTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.app.package != widget.app.package) {
+      _iconBytes = null;
+      _loadIcon();
+    }
   }
 
   Future<void> _loadIcon() async {

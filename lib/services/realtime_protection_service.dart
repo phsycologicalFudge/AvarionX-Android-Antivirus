@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:io';
+import 'dart:ui';
 import 'package:colourswift_av/services/scan%20api/headless_scan.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -128,13 +130,23 @@ class RealtimeProtectionService {
   static void _attachWatcherStateStream() {
     if (_watcherStateSub != null) return;
 
-    _watcherStateSub = _watcherStateChannel.receiveBroadcastStream().listen((event) async {
-      final alive = event == true;
-      _watcherRunning = alive;
-      if (!alive) {
-        await _reconcileShizuku();
-      }
-    }, onError: (_) {});
+    try {
+      _watcherStateSub = _watcherStateChannel.receiveBroadcastStream().listen(
+            (event) async {
+          final alive = event == true;
+          _watcherRunning = alive;
+
+          if (!alive) {
+            await _reconcileShizuku();
+          }
+        },
+        onError: (_) {
+          _watcherRunning = false;
+        },
+      );
+    } catch (_) {
+      _watcherRunning = false;
+    }
   }
 
   static Future<void> start() async {
@@ -165,13 +177,20 @@ class RealtimeProtectionService {
           (_) => unawaited(ensureDefsReady()),
     );
 
-    await _reconcileShizuku();
-    _attachWatcherStateStream();
+    final prefs = await SharedPreferences.getInstance();
+    final shizukuEnabled = prefs.getBool('shizuku_enabled') ?? false;
 
-    _shizukuLoop = Timer.periodic(
-      const Duration(seconds: 2),
-          (_) => _reconcileShizuku(),
-    );
+    if (shizukuEnabled) {
+      await _reconcileShizuku();
+      _attachWatcherStateStream();
+
+      _shizukuLoop = Timer.periodic(
+        const Duration(seconds: 2),
+            (_) => _reconcileShizuku(),
+      );
+    } else {
+      _watcherRunning = false;
+    }
 
     _eventSub = _eventChannel.receiveBroadcastStream().listen(
           (dynamic event) async {
@@ -509,6 +528,22 @@ class RealtimeProtectionService {
       await f.writeAsString(jsonEncode(_seen));
     } catch (_) {}
   }
+}
+
+@pragma('vm:entry-point')
+Future<void> rtpBackgroundMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  final enabled = prefs.getBool('protectionEnabled') ?? false;
+
+  if (!enabled) return;
+
+  await RealtimeProtectionService.start();
+
+  final keepAlive = Completer<void>();
+  await keepAlive.future;
 }
 
 @pragma('vm:entry-point')

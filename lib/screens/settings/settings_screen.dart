@@ -465,7 +465,7 @@ class SettingsScreenState extends State<SettingsScreen>
           title: Text('AvarionX Security'),
           content: Text(
             'AvarionX is a mobile security suite created by ColourSwift Tech, based in Birmingham, UK.\n\n'
-            'Contact: support@colourswift.com',
+                'Contact: support@colourswift.com',
           ),
         );
       },
@@ -527,7 +527,7 @@ class SettingsScreenState extends State<SettingsScreen>
 
     try {
       final req =
-          await client.getUrl(Uri.parse('https://api.colourswift.com/me'));
+      await client.getUrl(Uri.parse('https://api.colourswift.com/me'));
       req.headers.set('authorization', 'Bearer $token');
       final res = await req.close();
 
@@ -539,10 +539,10 @@ class SettingsScreenState extends State<SettingsScreen>
 
         final email = (user['email'] ?? '').toString().trim();
         final id = (user['accountId'] ??
-                user['account_id'] ??
-                user['id'] ??
-                user['uid'] ??
-                '')
+            user['account_id'] ??
+            user['id'] ??
+            user['uid'] ??
+            '')
             .toString()
             .trim();
 
@@ -725,10 +725,12 @@ class SettingsScreenState extends State<SettingsScreen>
             title: const Text('Experimental Features'),
             content: const Text(
               'Enabling Shizuku unlocks experimental work-in-progress features:\n\n'
-              '• Advanced Ransomware Protection\n'
-              '• Cache Cleaner Plus\n\n'
-              'These features may change frequently.\n\n'
-              'Please read the documentation before enabling.',
+                  '• Advanced Ransomware Protection\n'
+                  '• Cache Cleaner Plus\n\n'
+                  'Experimental warning:\n'
+                  'These features use advanced system access and may behave differently across devices, Android versions, and Shizuku setups. Some actions may affect running apps, files, or cache data more directly than normal scanning.\n\n'
+                  'Only enable this if you understand Shizuku, accept that the feature is still being tested, and have backed up anything important.\n\n'
+                  'Please read the documentation before enabling.',
             ),
             actions: [
               TextButton(
@@ -895,7 +897,7 @@ class SettingsScreenState extends State<SettingsScreen>
                         currentTheme: themeManager.themeName,
                         onSelectTheme: (value) async {
                           final manager =
-                              Provider.of<ThemeManager>(context, listen: false);
+                          Provider.of<ThemeManager>(context, listen: false);
                           manager.setTheme(value);
                         },
                         onOpenPro: _showUpgradeDialog,
@@ -981,8 +983,8 @@ class SettingsScreenState extends State<SettingsScreen>
                     subtitle: !shizukuBinderAlive
                         ? l10n.settingsShizukuNotRunning
                         : !shizukuPermissionGranted
-                            ? l10n.settingsShizukuPermissionRequired
-                            : l10n.settingsShizukuAvailable,
+                        ? l10n.settingsShizukuPermissionRequired
+                        : l10n.settingsShizukuAvailable,
                     trailing: Transform.scale(
                       scale: 0.92,
                       child: IgnorePointer(
@@ -990,7 +992,7 @@ class SettingsScreenState extends State<SettingsScreen>
                           value: shizukuWanted,
                           onChanged: (_) {},
                           materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                          MaterialTapTargetSize.shrinkWrap,
                         ),
                       ),
                     ),
@@ -1023,7 +1025,7 @@ class SettingsScreenState extends State<SettingsScreen>
                         context: context,
                         onExcludeFolder: () async {
                           final result =
-                              await FilePicker.platform.getDirectoryPath();
+                          await FilePicker.platform.getDirectoryPath();
                           if (result != null) {
                             final ex = ExclusionService();
                             await ex.load();

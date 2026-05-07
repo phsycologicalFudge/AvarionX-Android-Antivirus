@@ -55,23 +55,23 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
   <tr>
     <td width="20%" align="center">
       <img src="assets/gitImages/1.jpg" width="190" alt="AvarionX protection menu"><br>
-      <sub><strong>Home</strong></sub>
+      <sub><strong>Home screen</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
-      <sub><strong>Features</strong></sub>
+      <sub><strong>Features list</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
-      <sub><strong>Scanning</strong></sub>
+      <sub><strong>Scanning mode</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
-      <sub><strong>Smart Scan</strong></sub>
+      <sub><strong>APK Analyser</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/5.jpg" width="190" alt="AvarionX dark mode"><br>
-      <sub><strong>APK Analyser</strong></sub>
+      <sub><strong>Settings Screen</strong></sub>
     </td>
   </tr>
 </table>

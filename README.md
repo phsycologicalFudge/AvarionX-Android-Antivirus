@@ -63,7 +63,7 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
-      <sub><strong>Scan Pro</strong></sub>
+      <sub><strong>Scanning</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
@@ -71,7 +71,7 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/5.jpg" width="190" alt="AvarionX dark mode"><br>
-      <sub><strong>Dark Mode</strong></sub>
+      <sub><strong>APK Analyser</strong></sub>
     </td>
   </tr>
 </table>

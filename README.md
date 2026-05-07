@@ -55,15 +55,15 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
   <tr>
     <td width="20%" align="center">
       <img src="assets/gitImages/1.jpg" width="190" alt="AvarionX protection menu"><br>
-      <sub><strong>Protection Menu</strong></sub>
-    </td>
-    <td width="20%" align="center">
-      <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
       <sub><strong>Home</strong></sub>
     </td>
     <td width="20%" align="center">
+      <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
+      <sub><strong>Features</strong></sub>
+    </td>
+    <td width="20%" align="center">
       <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
-      <sub><strong>Cleaner Pro</strong></sub>
+      <sub><strong>Scan Pro</strong></sub>
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>

@@ -28,7 +28,7 @@ AvarionX combines local malware scanning, optional hash-based cloud intelligence
 
 ## What is AvarionX?
 
-AvarionX Security is an Android antivirus built around local protection first.
+AvarionX Security is an Android antivirus built around user privacy.
 
 It can scan files and APKs directly on your device, monitor new downloads, check known malicious domains, and use optional cloud intelligence for hash lookups. The app does not use ads, analytics, or paid protection tiers.
 
@@ -39,7 +39,7 @@ Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, 
 | Layer | What it does |
 |---|---|
 | **VX-TITANIUM** | Local malware scanning engine for files and APKs. |
-| **VTTI Cloud** | Cloud Intelligence Platform, including hash checking |
+| **VTTI Cloud** | Proprietary cloud Intelligence Platform, including hash checking |
 | **Real-Time Protection** | Monitors new downloads and recently added files. |
 | **Guardian Mode** | Watches for ransomware-style file behaviour. |
 | **APK analysis** | Checks installed or selected APKs for suspicious indicators. and creates a detailed report |

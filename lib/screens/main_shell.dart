@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/footer_nav.dart';
 import 'explore tab/explore_screen.dart';
 import 'home/home_screen.dart';
 import 'scan_ui_screen.dart';
@@ -41,6 +40,26 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
+  void _setActiveTab(String tab) {
+    setState(() {
+      _active = tab;
+      if (tab == 'explore') _exploreKey = UniqueKey();
+      if (tab == 'quarantine') _quarantineKey = UniqueKey();
+    });
+
+    if (tab == 'home') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _homeKey.currentState?.refresh();
+      });
+    }
+
+    if (tab == 'settings') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _settingsKey.currentState?.refresh();
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +74,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: IndexedStack(
         index: _index,
         children: [
@@ -64,28 +84,6 @@ class _MainShellState extends State<MainShell> {
           QuarantineScreen(key: _quarantineKey),
           SettingsScreen(key: _settingsKey),
         ],
-      ),
-      bottomNavigationBar: FooterNav(
-        active: _active,
-        onTabChange: (tab) {
-          setState(() {
-            _active = tab;
-            if (tab == 'explore') _exploreKey = UniqueKey();
-            if (tab == 'quarantine') _quarantineKey = UniqueKey();
-          });
-
-          if (tab == 'home') {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _homeKey.currentState?.refresh();
-            });
-          }
-
-          if (tab == 'settings') {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _settingsKey.currentState?.refresh();
-            });
-          }
-        },
       ),
     );
   }

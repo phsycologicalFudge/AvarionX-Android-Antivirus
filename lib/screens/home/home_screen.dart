@@ -21,16 +21,26 @@ import '../../services/realtime_protection_service.dart';
 import '../../services/scan_scheduler.dart';
 import '../../services/scan_session_service.dart';
 import '../../services/service_manager.dart';
+import '../../services/theme/theme_manager.dart';
 import '../../services/update_service.dart';
 import '../../translations/app_localizations.dart';
 import '../../utils/animated_route.dart';
 import '../../widgets/antivirus_bridge.dart';
+import '../../widgets/mesh_background.dart';
 import '../link checker/link_check_screen.dart';
 import '../pro/pro_screen.dart';
+import '../quarantine/quarantine_screen.dart';
 import '../scan_ui_screen.dart';
+import 'av_home_drawer.dart';
 import 'av_home_feature_row.dart';
 import 'av_home_primary_control.dart';
 import 'av_home_top_bar.dart';
+import 'device_security_screen.dart';
+import 'security_report_screen.dart';
+import '../apkAnalyser/apk_analyser.dart';
+import '../scan/scan_limits_screen.dart';
+import '../settings/settings_screen.dart';
+import '../terminal_screen.dart';
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -76,6 +86,56 @@ class AvHomeScreenState extends State<AvHomeScreen>
   bool _pressed = false;
   bool _loadingProtectionState = false;
   bool _updateLogShown = false;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void _handleDrawerItem(String tag) {
+    switch (tag) {
+      case 'scan':
+        _handleScanButton();
+        break;
+      case 'apk_analyser':
+        Navigator.push(context, animatedRoute(const ApkAnalyserScreen()));
+        break;
+      case 'link_check':
+        Navigator.push(context, animatedRoute(const LinkCheckScreen()));
+        break;
+      case 'password_manager':
+        Navigator.push(context, animatedRoute(const PasswordTestScreen()));
+        break;
+      case 'scheduled_scan':
+        Navigator.push(context, animatedRoute(const ScheduledScansScreen()));
+        break;
+      case 'cleaner':
+        Navigator.push(context, animatedRoute(const CleanerScreen()));
+        break;
+      case 'terminal':
+        Navigator.push(context, animatedRoute(const ConsoleScreen(isActive: true)));
+        break;
+      case 'scan_limits':
+        Navigator.push(context, animatedRoute(const ScanLimitsScreen()));
+        break;
+      case 'settings':
+        Navigator.push(context, animatedRoute(const SettingsScreen()));
+        break;
+      case 'quarantine':
+        Navigator.push(context, animatedRoute(const QuarantineScreen()));
+        break;
+      case 'upgrade_pro':
+        Navigator.push(context, animatedRoute(const ProScreen())).then((res) {
+          if (res == true) _loadProStatus();
+        });
+        break;
+      case 'security_report':
+        Navigator.push(context, animatedRoute(const SecurityReportScreen()));
+        break;
+      case 'protection':
+        _showRtpInfo();
+        break;
+      default:
+        break;
+    }
+  }
 
   Future<void> _loadShizukuRtpState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -669,7 +729,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   void _stopBackgroundScan() => RealtimeProtectionService.stop();
 
-  void _handleScanButton() {
+  Future<void> _handleScanButton() async {
     final session = ScanSessionService.instance;
 
     if (session.isScanning || session.cancelling) {
@@ -680,177 +740,34 @@ class AvHomeScreenState extends State<AvHomeScreen>
       return;
     }
 
-    _openScanDrawer();
+    final prefs = await SharedPreferences.getInstance();
+    final showScanModePicker =
+        prefs.getBool('show_scan_mode_picker') ?? false;
+
+    if (showScanModePicker) {
+      _openScanDrawer();
+      return;
+    }
+
+    Navigator.push(
+      context,
+      animatedRoute(const ScanScreen(startMode: ScanMode.smart)),
+    );
   }
 
   void _openScanDrawer() {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-      ),
-      backgroundColor: theme.colorScheme.surfaceContainerHigh,
-      builder: (context) {
-        bool localCloudScan = useCloudScan;
-        final l10n = AppLocalizations.of(context)!;
-
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.80,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 14),
-                    Text(
-                      l10n.engineReadyBanner,
-                      style: text.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.7),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
-                    ListTile(
-                      leading: const Icon(Icons.storage_rounded),
-                      title: Text(l10n.scanModeFullTitle),
-                      subtitle: Text(
-                        l10n.scanModeFullSubtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: text.bodySmall?.color?.withOpacity(0.65),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.full)),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.manage_search_rounded),
-                      title: Text(l10n.scanModeSmartTitle),
-                      subtitle: Text(
-                        l10n.scanModeSmartSubtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: text.bodySmall?.color?.withOpacity(0.65),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.smart)),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.bolt_rounded),
-                      title: Text(l10n.scanModeRapidTitle),
-                      subtitle: Text(
-                        l10n.scanModeRapidSubtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: text.bodySmall?.color?.withOpacity(0.65),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.rapid)),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.apps_rounded),
-                      title: Text(l10n.scanModeInstalledTitle),
-                      subtitle: Text(
-                        l10n.scanModeInstalledSubtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: text.bodySmall?.color?.withOpacity(0.65),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.installed)),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.insert_drive_file_rounded),
-                      title: Text(l10n.scanModeSingleTitle),
-                      subtitle: Text(
-                        l10n.scanModeSingleSubtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          color: text.bodySmall?.color?.withOpacity(0.65),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          animatedRoute(
-                              const ScanScreen(startMode: ScanMode.single)),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    Divider(height: 1, color: theme.colorScheme.outlineVariant),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(l10n.useCloudAssistedScan,
-                              style: text.bodyMedium),
-                          Switch(
-                            value: localCloudScan,
-                            onChanged: (v) async {
-                              final prefs =
-                              await SharedPreferences.getInstance();
-                              await prefs.setBool('useCloudScan', v);
-                              setSheetState(() => localCloudScan = v);
-                              setState(() => useCloudScan = v);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                  ],
-                ),
-              ),
-            );
+    Navigator.push(
+      context,
+      animatedRoute(
+        ScanModesScreen(
+          useCloudScan: useCloudScan,
+          onCloudScanChanged: (value) {
+            setState(() {
+              useCloudScan = value;
+            });
           },
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -898,16 +815,8 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   String _stateLine1(AppLocalizations l10n) {
     if (!protectionEnabled) return l10n.stateOffLine1;
-    if (shizukuRtpEnabled && protectionEnabled)
-      return l10n.stateAdvancedActiveLine1;
-    if (vpnConflict) return l10n.stateVpnConflictLine2;
-    return l10n.stateFileOnlyLine1;
-  }
-
-  String _stateLine2(AppLocalizations l10n) {
-    if (!protectionEnabled) return l10n.stateOffLine2;
-    if (vpnConflict) return l10n.stateVpnConflictLine2;
-    return l10n.stateFileOnlyLine2;
+    if (shizukuRtpEnabled) return l10n.stateAdvancedActiveLine1;
+    return 'Real-Time Protection';
   }
 
   LinearGradient _proHeaderGradient(ThemeData theme) {
@@ -929,16 +838,17 @@ class AvHomeScreenState extends State<AvHomeScreen>
     final l10n = AppLocalizations.of(context)!;
 
     final accent = _stateAccent(theme);
-    final ring = _ringValue();
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      key: _scaffoldKey,
+      backgroundColor: Colors.transparent,
+      drawer: AvHomeDrawer(
+        isPro: isPro,
+        onItemTap: _handleDrawerItem,
+      ),
       body: SafeArea(
         child: Stack(
           children: [
-            Container(
-              color: theme.colorScheme.surface,
-            ),
             if (shizukuRtpEnabled && protectionEnabled)
               IgnorePointer(
                 child: Container(
@@ -989,6 +899,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                               AvHomeTopBar(
                                 title: l10n.appName,
                                 isPro: isPro,
+                                onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                               ),
                             ],
                           ),
@@ -997,6 +908,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                         AvHomeTopBar(
                           title: l10n.appName,
                           isPro: isPro,
+                          onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                         ),
                       if (_proStatusResolved && !isPro)
                         Positioned(
@@ -1046,73 +958,59 @@ class AvHomeScreenState extends State<AvHomeScreen>
                             HapticFeedback.lightImpact();
                             _toggleProtection();
                           },
-                          ring: ring,
                           accent: accent,
                           isDark: isDark,
                           icon: _stateIcon(),
                           line1: _stateLine1(l10n),
-                          line2: _stateLine2(l10n),
                           defsLine: defsVersion.isEmpty
                               ? l10n.dbUpdating
                               : l10n.dbVersionAutoUpdated(defsVersion),
-                          scanButtonText: l10n.scanButton,
-                          onOpenScanDrawer: _handleScanButton,
-                          showPulse: shizukuRtpEnabled && protectionEnabled,
-                          pulseController: _pulseController,
-                          pulseOpacity: (t) {
-                            final opacity =
-                                0.35 + math.sin(t * math.pi * 2) * 0.25;
-                            return opacity.clamp(0.15, 0.6);
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2, 10, 2, 10),
-                            child: Text(
-                              l10n.recommendedSectionTitle,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.86),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        AvHomeFeatureRow(
-                          title: l10n.featureCleanerPro,
-                          description: l10n.recommendedCleanerProDesc,
-                          icon: Icons.cleaning_services_rounded,
-                          color: Colors.blueAccent,
-                          onTap: () => Navigator.push(
-                            context,
-                            animatedRoute(const CleanerScreen()),
-                          ),
                         ),
                         const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2, 0, 2, 10),
-                            child: Text(
-                              l10n.companionAppsSectionTitle,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.86),
-                              ),
-                            ),
+                        AvHomeFeatureRow(
+                          title: 'Scan Now',
+                          description: 'Manually check your device for malware',
+                          icon: Icons.search_rounded,
+                          color: theme.colorScheme.primary,
+                          onTap: _handleScanButton,
+                        ),
+                        const SizedBox(height: 8),
+                        FutureBuilder<DeviceSecuritySummary>(
+                          future: DeviceSecurityScreen.loadSummary(),
+                          builder: (context, snapshot) {
+                            final summary =
+                                snapshot.data ?? const DeviceSecuritySummary.empty();
+
+                            return AvHomeFeatureRow(
+                              title: 'Device Security',
+                              description: summary.homeLabel,
+                              icon: Icons.security_rounded,
+                              color: summary.hasRisk
+                                  ? Colors.redAccent
+                                  : Colors.blueAccent,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  animatedRoute(const DeviceSecurityScreen()),
+                                ).then((_) {
+                                  if (!mounted) return;
+                                  setState(() {});
+                                });
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _SecurityOverviewPreview(
+                          protectionEnabled: protectionEnabled,
+                          defsVersion: defsVersion,
+                          onGenerateReport: () => Navigator.push(
+                            context,
+                            animatedRoute(const SecurityReportScreen()),
                           ),
                         ),
-                        AvHomeFeatureRow(
-                          title: l10n.homeFeatureSecureVpnTitle,
-                          description: l10n.homeFeatureSecureVpnDesc,
-                          icon: Icons.vpn_lock,
-                          color: theme.colorScheme.secondaryContainer,
-                          onTap: _openVpnAppStoreListing,
-                        ),
+                        const SizedBox(height: 18),
+                        const _AvarionXSecurityFooter(),
                       ],
                     ),
                   ),
@@ -1125,3 +1023,585 @@ class AvHomeScreenState extends State<AvHomeScreen>
     );
   }
 }
+
+
+class ScanModesScreen extends StatefulWidget {
+  final bool useCloudScan;
+  final ValueChanged<bool> onCloudScanChanged;
+
+  const ScanModesScreen({
+    super.key,
+    required this.useCloudScan,
+    required this.onCloudScanChanged,
+  });
+
+  @override
+  State<ScanModesScreen> createState() => _ScanModesScreenState();
+}
+
+class _ScanModesScreenState extends State<ScanModesScreen> {
+  late bool localCloudScan;
+
+  @override
+  void initState() {
+    super.initState();
+    localCloudScan = widget.useCloudScan;
+  }
+
+  Future<void> _setCloudScan(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useCloudScan', value);
+    if (!mounted) return;
+    setState(() {
+      localCloudScan = value;
+    });
+    widget.onCloudScanChanged(value);
+  }
+
+  void _startMode(ScanMode mode) {
+    Navigator.pushReplacement(
+      context,
+      animatedRoute(ScanScreen(startMode: mode)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeManager = Provider.of<ThemeManager>(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      backgroundColor: scheme.surface,
+      appBar: AppBar(
+        title: Text(
+          'Scan Modes',
+          style: text.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: scheme.onSurface,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: scheme.surface,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        elevation: 0,
+      ),
+      body: MeshBackground(
+        blobs: themeManager.meshBlobs,
+        base: scheme.surface,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.engineReadyBanner,
+                  style: text.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                    color: scheme.onSurface.withOpacity(0.58),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _ScanModeBlock(
+                  title: l10n.scanModeSmartTitle,
+                  subtitle: l10n.scanModeSmartSubtitle,
+                  icon: Icons.manage_search_rounded,
+                  color: scheme.primary,
+                  onTap: () => _startMode(ScanMode.smart),
+                ),
+                const SizedBox(height: 8),
+                _ScanModeBlock(
+                  title: l10n.scanModeRapidTitle,
+                  subtitle: l10n.scanModeRapidSubtitle,
+                  icon: Icons.bolt_rounded,
+                  color: Colors.amber,
+                  onTap: () => _startMode(ScanMode.rapid),
+                ),
+                const SizedBox(height: 8),
+                _ScanModeBlock(
+                  title: l10n.scanModeInstalledTitle,
+                  subtitle: l10n.scanModeInstalledSubtitle,
+                  icon: Icons.apps_rounded,
+                  color: Colors.blueAccent,
+                  onTap: () => _startMode(ScanMode.installed),
+                ),
+                const SizedBox(height: 8),
+                _ScanModeBlock(
+                  title: l10n.scanModeSingleTitle,
+                  subtitle: l10n.scanModeSingleSubtitle,
+                  icon: Icons.insert_drive_file_rounded,
+                  color: Colors.teal,
+                  onTap: () => _startMode(ScanMode.single),
+                ),
+                const SizedBox(height: 8),
+                _ScanModeBlock(
+                  title: l10n.scanModeFullTitle,
+                  subtitle: l10n.scanModeFullSubtitle,
+                  icon: Icons.storage_rounded,
+                  color: Colors.deepOrangeAccent,
+                  onTap: () => _startMode(ScanMode.full),
+                ),
+                const SizedBox(height: 18),
+                Card(
+                  elevation: 0,
+                  color: theme.cardTheme.color,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => _setCloudScan(!localCloudScan),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.useCloudAssistedScan,
+                                  style: text.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: scheme.onSurface.withOpacity(0.88),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  localCloudScan
+                                      ? 'Cloud-assisted checks enabled'
+                                      : 'Local scan engine only',
+                                  style: text.bodySmall?.copyWith(
+                                    height: 1.35,
+                                    color: scheme.onSurface.withOpacity(0.54),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: localCloudScan,
+                            onChanged: _setCloudScan,
+                            materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScanModeBlock extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ScanModeBlock({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    return Card(
+      elevation: 0,
+      color: theme.cardTheme.color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 76,
+                color: color.withOpacity(0.16),
+                child: Icon(icon, color: color, size: 30),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: scheme.onSurface.withOpacity(0.88),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          height: 1.35,
+                          color: scheme.onSurface.withOpacity(0.54),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: theme.iconTheme.color?.withOpacity(0.35),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AvarionXSecurityFooter extends StatelessWidget {
+  const _AvarionXSecurityFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
+
+    return Opacity(
+      opacity: theme.brightness == Brightness.dark ? 0.58 : 0.72,
+      child: Column(
+        children: [
+          Text(
+            'AvarionX',
+            style: text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.4,
+              color: scheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            'Protected by VX-TITANIUM',
+            style: text.labelSmall?.copyWith(
+              letterSpacing: 0.2,
+              color: scheme.onSurface.withOpacity(0.62),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SecurityOverviewPreview extends StatefulWidget {
+  final bool protectionEnabled;
+  final String defsVersion;
+  final VoidCallback onGenerateReport;
+
+  const _SecurityOverviewPreview({
+    required this.protectionEnabled,
+    required this.defsVersion,
+    required this.onGenerateReport,
+  });
+
+  @override
+  State<_SecurityOverviewPreview> createState() => _SecurityOverviewPreviewState();
+}
+
+class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
+  late Future<_HomeSecuritySnapshot> _future;
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _loadSnapshot();
+
+    _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      setState(() {
+        _future = _loadSnapshot();
+      });
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _SecurityOverviewPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.protectionEnabled != widget.protectionEnabled ||
+        oldWidget.defsVersion != widget.defsVersion) {
+      setState(() {
+        _future = _loadSnapshot();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<_HomeSecuritySnapshot> _loadSnapshot() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return _HomeSecuritySnapshot(
+      manualScans: prefs.getInt('security_report_manual_scans_total') ?? 0,
+      rtpScans: prefs.getInt('security_report_rtp_scans_total') ?? 0,
+      scheduledScans: prefs.getInt('security_report_scheduled_scans_total') ?? 0,
+      threats: prefs.getInt('security_report_threats_total') ?? 0,
+      filesChecked: prefs.getInt('security_report_files_scanned_total') ?? 0,
+      lastManualScanAt: prefs.getInt('security_report_last_manual_scan_at'),
+      lastRtpEventAt: prefs.getInt('security_report_last_rtp_event_at'),
+      lastScheduledScanAt: prefs.getInt('security_report_last_scheduled_scan_at'),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    const color = Colors.teal;
+
+    return FutureBuilder<_HomeSecuritySnapshot>(
+      future: _future,
+      builder: (context, snapshot) {
+        final data = snapshot.data ?? const _HomeSecuritySnapshot.empty();
+
+        return Card(
+          elevation: 0,
+          color: theme.cardTheme.color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: widget.onGenerateReport,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 76,
+                    color: color.withOpacity(0.16),
+                    child: const Icon(
+                      Icons.summarize_rounded,
+                      color: color,
+                      size: 30,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Security Overview',
+                            style: text.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: scheme.onSurface.withOpacity(0.88),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            data.latestLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.bodySmall?.copyWith(
+                              height: 1.35,
+                              color: scheme.onSurface.withOpacity(0.54),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _OverviewMetric(
+                                  label: 'Files checked',
+                                  value: _compactCount(data.filesChecked),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _OverviewMetric(
+                                  label: 'Threats',
+                                  value: _compactCount(data.threats),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 14),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 22,
+                      color: theme.iconTheme.color?.withOpacity(0.35),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+String _compactCount(int value) {
+  if (value >= 1000000) {
+    final compact = value / 1000000;
+    return '${compact.toStringAsFixed(compact >= 10 ? 0 : 1)}M';
+  }
+
+  if (value >= 1000) {
+    final compact = value / 1000;
+    return '${compact.toStringAsFixed(compact >= 10 ? 0 : 1)}K';
+  }
+
+  return value.toString();
+}
+
+class _OverviewMetric extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _OverviewMetric({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: scheme.surface.withOpacity(theme.brightness == Brightness.dark ? 0.56 : 0.54),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: scheme.onSurface.withOpacity(0.9),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.labelSmall?.copyWith(
+              color: scheme.onSurface.withOpacity(0.46),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeSecuritySnapshot {
+  final int manualScans;
+  final int rtpScans;
+  final int scheduledScans;
+  final int threats;
+  final int? lastManualScanAt;
+  final int? lastRtpEventAt;
+  final int? lastScheduledScanAt;
+  final int filesChecked;
+
+  const _HomeSecuritySnapshot({
+    required this.manualScans,
+    required this.rtpScans,
+    required this.scheduledScans,
+    required this.threats,
+    required this.lastManualScanAt,
+    required this.lastRtpEventAt,
+    required this.lastScheduledScanAt,
+    required this.filesChecked,
+  });
+
+  const _HomeSecuritySnapshot.empty()
+      : manualScans = 0,
+        rtpScans = 0,
+        scheduledScans = 0,
+        threats = 0,
+        filesChecked = 0,
+        lastManualScanAt = null,
+        lastRtpEventAt = null,
+        lastScheduledScanAt = null;
+
+  String get latestLabel {
+    final latest = [
+      lastManualScanAt,
+      lastRtpEventAt,
+      lastScheduledScanAt,
+    ].whereType<int>().fold<int?>(null, (prev, value) {
+      if (prev == null) return value;
+      return value > prev ? value : prev;
+    });
+
+    if (latest == null) return 'No report data yet';
+    return 'Last activity ${_relativeTime(latest)}';
+  }
+
+  static String _relativeTime(int millis) {
+    final date = DateTime.fromMillisecondsSinceEpoch(millis);
+    final diff = DateTime.now().difference(date);
+
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+}
+

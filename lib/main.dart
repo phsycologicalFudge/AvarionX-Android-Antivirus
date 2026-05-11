@@ -1,13 +1,14 @@
 import 'package:colourswift_av/services/defs_update_scheduler.dart';
 import 'package:colourswift_av/utils/route_observer.dart';
 import 'package:colourswift_av/widgets/antivirus_bridge.dart';
+import 'package:colourswift_av/widgets/mesh_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants/build_flags.dart';
-import 'services/theme_manager.dart';
+import 'services/theme/theme_manager.dart';
 import 'screens/boot_screen.dart';
 import 'screens/quarantine/quarantine_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -148,7 +149,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: appNavigatorKey,
       debugShowCheckedModeBanner: false,
       navigatorObservers: [loggingRouteObserver],
-      title: 'AvarionX Security',
+      title: 'Avarionx Security',
       theme: themeManager.themeData,
       themeMode: themeManager.themeMode,
       locale: languageManager.locale,
@@ -170,6 +171,14 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      builder: (context, child) {
+        final tm = Provider.of<ThemeManager>(context);
+        return MeshBackground(
+          blobs: tm.meshBlobs,
+          base: tm.themeData.colorScheme.surface,
+          child: child!,
+        );
+      },
       home: openQuarantine ? const QuarantineScreen() : const BootScreen(),
     );
   }

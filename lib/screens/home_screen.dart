@@ -1,3 +1,5 @@
+// legacy file
+
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';

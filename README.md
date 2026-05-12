@@ -88,9 +88,13 @@ AvarionX is designed to avoid unnecessary data collection.
 - Hash-only cloud lookups when VTTI is enabled
 - Local scanning works offline
 
-## Demo Video
+<h2>Demo Video</h2>
 
-[![Watch the video](https://img.youtube.com/vi/jWpmt21EWWg/maxresdefault.jpg)](https://youtube.com/shorts/jWpmt21EWWg)
+<p align="center">
+  <a href="https://streamable.com/07jwwd">
+    <img src="https://cdn-cf-east.streamable.com/image/07jwwd.jpg" width="260" alt="Watch demo video">
+  </a>
+</p>
 
 ## Project links
 

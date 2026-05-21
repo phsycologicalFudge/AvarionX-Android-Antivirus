@@ -26,6 +26,12 @@ Future<void> showSettingsProOptionsSheet({
         return 'AX';
       case 'avx':
         return 'AVX';
+      case 'a':
+        return 'A';
+      case 'edr':
+        return 'EDR';
+      case 'original':
+        return 'Original';
       default:
         return icon;
     }
@@ -87,17 +93,6 @@ Future<void> showSettingsProOptionsSheet({
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        SwitchListTile(
-                          value: goldHeaderEnabled,
-                          onChanged: (val) async {
-                            setModalState(() => goldHeaderEnabled = val);
-                            await prefs.setBool('goldHeaderEnabled', val);
-                            onChanged();
-                          },
-                          title: Text(l10n.settingsHideGoldHeader),
-                          contentPadding: EdgeInsets.zero,
-                        ),
                         const SizedBox(height: 18),
                         Text(
                           l10n.settingsAppIcon,
@@ -139,6 +134,24 @@ Future<void> showSettingsProOptionsSheet({
                               selected: selectedIcon,
                               label: iconLabel('avx'),
                               onTap: () => changeIcon('avx'),
+                            ),
+                            SettingsIconPreview(
+                              name: 'a',
+                              selected: selectedIcon,
+                              label: iconLabel('a'),
+                              onTap: () => changeIcon('a'),
+                            ),
+                            SettingsIconPreview(
+                              name: 'edr',
+                              selected: selectedIcon,
+                              label: iconLabel('edr'),
+                              onTap: () => changeIcon('edr'),
+                            ),
+                            SettingsIconPreview(
+                              name: 'original',
+                              selected: selectedIcon,
+                              label: iconLabel('original'),
+                              onTap: () => changeIcon('original'),
                             ),
                           ],
                         ),

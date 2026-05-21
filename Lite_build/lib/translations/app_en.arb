@@ -411,7 +411,7 @@
   "networkModeAdultSubtitle": "Uses 1.1.1.3",
   "networkModeAdultDescription": "Uses AvarionX’s offline malware database and adds adult content filtering. Cloud-based malware intelligence is disabled in this mode.",
   "networkInfoTitle": "What is Network Protection?",
-  "networkInfoBody": "Some threats work by connecting to malicious servers or redirecting internet traffic.\nNetwork Protection blocks known dangerous domains and common ads by using a local VPN.\n\nAVarionX Security does not collect any data.",
+  "networkInfoBody": "Some threats work by connecting to malicious servers or redirecting internet traffic.\nNetwork Protection blocks known dangerous domains and common ads by using a local VPN.\n\nAvarionX Security does not collect any data.",
   "linkCheckerTitle": "Link Checker",
   "linkCheckerTabAnalyse": "Analyse",
   "linkCheckerTabView": "View",

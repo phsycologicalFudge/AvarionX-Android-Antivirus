@@ -197,7 +197,7 @@ class CSForegroundService : Service() {
                 when (call.method) {
                     "startService" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: "Realtime protection active"
                         createNotification(title, text)
                         result.success(true)
@@ -210,7 +210,7 @@ class CSForegroundService : Service() {
 
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: ""
                         val openQuarantine = args?.get("openQuarantine") as? Boolean ?: false
 
@@ -349,7 +349,7 @@ class CSForegroundService : Service() {
         )
 
         val summary = notificationBuilder(channelId)
-            .setContentTitle("AVarionX")
+            .setContentTitle("AvarionX")
             .setContentText("Protection active")
             .setSmallIcon(R.drawable.ic_notification)
             .setGroup(groupKey)

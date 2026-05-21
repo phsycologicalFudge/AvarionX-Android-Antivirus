@@ -22,7 +22,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 object CertService {
 
     private const val KEY_ALIAS = "cs_https_root"
-    private const val CERT_NAME = "AVarionX HTTPS Inspection"
+    private const val CERT_NAME = "AvarionX HTTPS Inspection"
 
     fun ensureCaKeypair() {
         val ks = KeyStore.getInstance("AndroidKeyStore")

@@ -125,6 +125,11 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                splashScreenView.remove()
+            }
+        }
         handleIntent(intent)
     }
 
@@ -170,7 +175,7 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "startService" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: "Realtime protection active"
                         startForegroundServiceCompat(title, text)
                         result.success(true)
@@ -183,7 +188,7 @@ class MainActivity : FlutterActivity() {
 
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: ""
                         val autoDismissAfterSeconds = when (val v = args?.get("autoDismissAfterSeconds")) {
                             is Int -> v
@@ -572,11 +577,30 @@ class MainActivity : FlutterActivity() {
             "com.colourswift.cssecurity.IconAVXAlias"
         )
 
+
+        val aAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconAAlias"
+        )
+
+        val edrAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconEDRAlias"
+        )
+
+        val originalAlias = ComponentName(
+            applicationContext,
+            "com.colourswift.cssecurity.IconOriginalAlias"
+        )
+
         val enable = when (icon) {
             "bird" -> birdAlias
             "neon" -> neonAlias
             "ax" -> axAlias
             "avx" -> avxAlias
+            "a" -> aAlias
+            "edr" -> edrAlias
+            "original" -> originalAlias
             else -> defAlias
         }
 
@@ -585,7 +609,10 @@ class MainActivity : FlutterActivity() {
             birdAlias,
             neonAlias,
             axAlias,
-            avxAlias
+            avxAlias,
+            aAlias,
+            edrAlias,
+            originalAlias
         )
 
         for (alias in allAliases) {

@@ -372,7 +372,7 @@
   "passwordSettingsRestore": "Wiederherstellen",
   "passwordSettingsVaultRestored": "Tresor wiederhergestellt",
   "passwordSettingsFooterInfo": "Passwörter werden nie gespeichert.\n\nDer Wiederherstellungscode enthält nur Strukturdaten. Zusammen mit deinem MetaPass baut er deinen Tresor neu auf.",
-  "onboardingAppName": "AVarionX Security",
+  "onboardingAppName": "AvarionX Security",
   "onboardingStorageTitle": "Speicherzugriff",
   "onboardingStorageDesc": "Diese Berechtigung ist erforderlich, um Dateien auf deinem Gerät zu scannen. Du kannst sie jetzt oder später erteilen.",
   "onboardingStorageFootnote": "Du kannst dies überspringen, wirst aber erneut gefragt, wenn du einen Scanmodus auswählst.",

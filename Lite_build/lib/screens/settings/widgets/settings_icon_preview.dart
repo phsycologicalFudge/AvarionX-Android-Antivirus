@@ -29,10 +29,6 @@ class SettingsIconPreview extends StatelessWidget {
             height: 64,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected ? scheme.primary : scheme.outlineVariant,
-                width: isSelected ? 2.0 : 1.0,
-              ),
               color: isSelected
                   ? scheme.primaryContainer.withOpacity(0.25)
                   : scheme.surfaceContainer,

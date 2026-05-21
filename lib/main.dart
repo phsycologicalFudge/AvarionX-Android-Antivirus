@@ -19,7 +19,6 @@ import 'translations/app_localizations.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'services/realtime_protection_service.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -56,7 +55,7 @@ int _clampInt(int v, int min, int max) {
   return v;
 }
 
-Future<void> _applyScanLimitsFromPrefs() async {
+Future<void> applyScanLimitsFromPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   final mc = _clampInt(prefs.getInt(_kMaxConcurrentKey) ?? 1, 1, 4);
   final mt = _clampInt(prefs.getInt(_kMaxThreadsKey) ?? 0, 0, 16);
@@ -67,10 +66,8 @@ Future<void> _applyScanLimitsFromPrefs() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await DefsUpdateScheduler.init();
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.immersiveSticky,
-  );
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   const routingChannel = MethodChannel('colourswift/routing');
   routingChannel.setMethodCallHandler((call) async {
@@ -87,44 +84,13 @@ void main() async {
   final languageManager = LanguageManager();
   await languageManager.init();
 
-  await PurchaseService.init();
-
-  final info = await PackageInfo.fromPlatform();
-  final currentVersion = '${info.version}+${info.buildNumber}';
-
-  final prefs = await SharedPreferences.getInstance();
-  await _applyScanLimitsFromPrefs();
-  final lastSeen = prefs.getString('last_seen_app_version');
-
-  bool showUpdateLog = false;
-
-  if (lastSeen == null) {
-    await prefs.setString('last_seen_app_version', currentVersion);
-  } else if (lastSeen != currentVersion) {
-    showUpdateLog = true;
-    await prefs.setString('last_seen_app_version', currentVersion);
-  }
-
-  const channel = MethodChannel('colourswift/foreground_service');
-  bool openQuarantine = false;
-  try {
-    final result = await channel.invokeMethod<Map>('getLaunchExtras');
-    openQuarantine = result?['open_quarantine'] == true;
-  } catch (_) {}
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => themeManager),
         ChangeNotifierProvider(create: (_) => languageManager),
-        Provider(
-          create: (_) => LaunchFlags(
-            showUpdateLog: showUpdateLog,
-            currentVersion: currentVersion,
-          ),
-        ),
       ],
-      child: MyApp(openQuarantine: openQuarantine),
+      child: const MyApp(),
     ),
   );
 }
@@ -136,9 +102,7 @@ Future<void> _ensureNotificationPermission() async {
 }
 
 class MyApp extends StatelessWidget {
-  final bool openQuarantine;
-
-  const MyApp({super.key, required this.openQuarantine});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +143,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: openQuarantine ? const QuarantineScreen() : const BootScreen(),
+      home: const BootScreen(),
     );
   }
 }

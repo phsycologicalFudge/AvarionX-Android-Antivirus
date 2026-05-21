@@ -827,7 +827,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Passwörter werden nie gespeichert.\n\nDer Wiederherstellungscode enthält nur Strukturdaten. Zusammen mit deinem MetaPass baut er deinen Tresor neu auf.';
 
   @override
-  String get onboardingAppName => 'AVarionX Security';
+  String get onboardingAppName => 'AvarionX Security';
 
   @override
   String get onboardingStorageTitle => 'Speicherzugriff';

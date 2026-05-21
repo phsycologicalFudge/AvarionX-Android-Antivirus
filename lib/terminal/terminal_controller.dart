@@ -43,7 +43,7 @@ class TerminalController {
       _append(event.toString(), emit);
     });
 
-    _append("AVarionX Terminal v2.0", emit);
+    _append("AvarionX Terminal v2.0", emit);
     _append("Type 'help' for terminal documentation.", emit);
     _loadCloudPref();
 

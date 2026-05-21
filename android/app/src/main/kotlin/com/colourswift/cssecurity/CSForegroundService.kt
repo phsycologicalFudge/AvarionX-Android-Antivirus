@@ -45,6 +45,9 @@ class CSForegroundService : Service() {
     private val foregroundChannelName = "colourswift/foreground_service"
     private val realtimeChannelName = "colourswift/realtime_stream"
 
+    private val maxBufferedPaths = 64
+    private val maxRecentPaths = 256
+
     private val watcherServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             Log.i("CSRealtime", "SystemWatcher user service connected")
@@ -77,10 +80,32 @@ class CSForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        createNotification(
+            "AvarionX Antivirus",
+            "Realtime protection active"
+        )
+
         startBackgroundDart()
         startDownloadWatcher()
-        setupShizukuListeners()
-        tryBindWatcherService()
+
+        val prefs = getSharedPreferences(
+            "FlutterSharedPreferences",
+            Context.MODE_PRIVATE
+        )
+
+        val shizukuEnabled =
+            prefs.getBoolean("flutter.shizuku_enabled", false)
+
+        if (shizukuEnabled) {
+            setupShizukuListeners()
+            tryBindWatcherService()
+            Log.i("CSRealtime", "Shizuku watcher enabled")
+        } else {
+            SystemWatcher.stop()
+            Log.i("CSRealtime", "Shizuku watcher disabled by pref")
+        }
+
         Log.i("CSRealtime", "Service created")
     }
 
@@ -172,7 +197,7 @@ class CSForegroundService : Service() {
                 when (call.method) {
                     "startService" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: "Realtime protection active"
                         createNotification(title, text)
                         result.success(true)
@@ -185,11 +210,24 @@ class CSForegroundService : Service() {
 
                     "showNotification" -> {
                         val args = call.arguments as? Map<*, *>
-                        val title = args?.get("title") as? String ?: "AVarionX"
+                        val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: ""
                         val openQuarantine = args?.get("openQuarantine") as? Boolean ?: false
 
-                        showUserNotification(title, text, openQuarantine)
+                        val autoDismissAfterSeconds = when (val v = args?.get("autoDismissAfterSeconds")) {
+                            is Int -> v
+                            is Long -> v.toInt()
+                            is Double -> v.toInt()
+                            else -> null
+                        }
+
+                        showUserNotification(
+                            title,
+                            text,
+                            openQuarantine,
+                            autoDismissAfterSeconds
+                        )
+
                         result.success(true)
                     }
 
@@ -281,6 +319,14 @@ class CSForegroundService : Service() {
         handler.postDelayed({ bindWatcherService() }, delayMs)
     }
 
+    private fun notificationBuilder(channel: String): Notification.Builder {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(applicationContext, channel)
+        } else {
+            Notification.Builder(applicationContext)
+        }
+    }
+
     private fun createNotification(title: String, text: String) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -302,8 +348,8 @@ class CSForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val summary = Notification.Builder(applicationContext, channelId)
-            .setContentTitle("AVarionX")
+        val summary = notificationBuilder(channelId)
+            .setContentTitle("AvarionX")
             .setContentText("Protection active")
             .setSmallIcon(R.drawable.ic_notification)
             .setGroup(groupKey)
@@ -313,7 +359,7 @@ class CSForegroundService : Service() {
 
         manager.notify(notifSummaryId, summary)
 
-        val notification = Notification.Builder(applicationContext, channelId)
+        val notification = notificationBuilder(channelId)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_notification)
@@ -326,7 +372,12 @@ class CSForegroundService : Service() {
         startForeground(notifRtpId, notification)
     }
 
-    private fun showUserNotification(title: String, text: String, openQuarantine: Boolean) {
+    private fun showUserNotification(
+        title: String,
+        text: String,
+        openQuarantine: Boolean,
+        autoDismissAfterSeconds: Int? = null
+    ) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = "cssecurity_user_alerts"
 
@@ -339,19 +390,26 @@ class CSForegroundService : Service() {
             manager.createNotificationChannel(notificationChannel)
         }
 
-        val intent = Intent(applicationContext, MainActivity::class.java)
-        if (openQuarantine) {
-            intent.putExtra("open_quarantine", true)
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+            if (openQuarantine) {
+                putExtra("open_quarantine", true)
+            }
         }
 
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
-            44,
+            System.currentTimeMillis().toInt(),
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notification = Notification.Builder(applicationContext, channel)
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(applicationContext, channel)
+        } else {
+            Notification.Builder(applicationContext)
+        }
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_notification)
@@ -359,7 +417,16 @@ class CSForegroundService : Service() {
             .setAutoCancel(true)
             .build()
 
-        manager.notify(System.currentTimeMillis().toInt(), notification)
+        val id = System.currentTimeMillis().toInt()
+        manager.notify(id, notification)
+
+        if (autoDismissAfterSeconds != null && autoDismissAfterSeconds > 0) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    manager.cancel(id)
+                } catch (_: Exception) {}
+            }, autoDismissAfterSeconds * 1000L)
+        }
     }
 
     private fun startDownloadWatcher() {
@@ -382,6 +449,10 @@ class CSForegroundService : Service() {
                         }
 
                         recentPaths[fullPath] = now
+                        while (recentPaths.size > maxRecentPaths) {
+                            val firstKey = recentPaths.entries.firstOrNull()?.key ?: break
+                            recentPaths.remove(firstKey)
+                        }
 
                         val sink = realtimeEvents
                         if (sink != null) {
@@ -389,6 +460,11 @@ class CSForegroundService : Service() {
                             sink.success(fullPath)
                         } else {
                             Log.w("CSRealtime", "Background Dart stream not attached, buffering: $fullPath")
+
+                            if (pendingPaths.size >= maxBufferedPaths) {
+                                pendingPaths.removeAt(0)
+                            }
+
                             pendingPaths.add(fullPath)
                         }
                     }

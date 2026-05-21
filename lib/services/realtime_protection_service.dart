@@ -160,7 +160,7 @@ class RealtimeProtectionService {
     await _loadIndex();
     await ExclusionsStore.instance.init();
     await AvEngine.ensureInitialized();
-    await ForegroundService.start(title: 'AVarionX', text: 'Protection active');
+    await ForegroundService.start(title: 'AvarionX', text: 'Protection active');
 
     if (!_fgHandlerAttached) {
       _fgHandlerAttached = true;

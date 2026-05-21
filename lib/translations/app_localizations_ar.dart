@@ -815,7 +815,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يتم تخزين كلمات المرور.\n\nرمز الاستعادة يحتوي فقط على بيانات البنية. مع MetaPass، يعيد بناء خزنتك.';
 
   @override
-  String get onboardingAppName => 'AVarionX Security';
+  String get onboardingAppName => 'AvarionX Security';
 
   @override
   String get onboardingStorageTitle => 'إذن التخزين';
@@ -928,7 +928,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get networkInfoBody =>
-      'تعمل بعض التهديدات عبر الاتصال بخوادم خبيثة أو إعادة توجيه حركة الإنترنت.\nحماية الشبكة تحظر النطاقات الخطرة المعروفة والإعلانات الشائعة باستخدام VPN محلي.\n\nAVarionX Security لا يجمع أي بيانات.';
+      'تعمل بعض التهديدات عبر الاتصال بخوادم خبيثة أو إعادة توجيه حركة الإنترنت.\nحماية الشبكة تحظر النطاقات الخطرة المعروفة والإعلانات الشائعة باستخدام VPN محلي.\n\nAvarionX Security لا يجمع أي بيانات.';
 
   @override
   String get linkCheckerTitle => 'فاحص الروابط';
@@ -1329,7 +1329,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsAboutShizukuBody =>
-      'يمكن لـ AVarionX التكامل مع Shizuku للوصول إلى عمليات التطبيقات على مستوى النظام.\n\nيسمح ذلك للتطبيق بـ:\n• اكتشاف البرمجيات الخبيثة التي تختبئ من الماسحات القياسية\n• فحص عمليات التطبيقات قيد التشغيل\n• تعطيل أو احتواء معظم البرمجيات الخبيثة النشطة\n\nShizuku لا يمنح وصول root\n\nهذه الميزة مخصصة للمستخدمين المتقدمين وليست مطلوبة للحماية العادية.\n\nالتوثيق:\nhttps://shizuku.rikka.app';
+      'يمكن لـ AvarionX التكامل مع Shizuku للوصول إلى عمليات التطبيقات على مستوى النظام.\n\nيسمح ذلك للتطبيق بـ:\n• اكتشاف البرمجيات الخبيثة التي تختبئ من الماسحات القياسية\n• فحص عمليات التطبيقات قيد التشغيل\n• تعطيل أو احتواء معظم البرمجيات الخبيثة النشطة\n\nShizuku لا يمنح وصول root\n\nهذه الميزة مخصصة للمستخدمين المتقدمين وليست مطلوبة للحماية العادية.\n\nالتوثيق:\nhttps://shizuku.rikka.app';
 
   @override
   String get settingsSectionGeneral => 'عام';
@@ -1368,7 +1368,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPrivacyPolicyOpenFail => 'تعذر فتح سياسة الخصوصية';
 
   @override
-  String get settingsAboutApp => 'حول AVarionX';
+  String get settingsAboutApp => 'حول AvarionX';
 
   @override
   String get settingsHowThisAppWorks => 'كيف يعمل هذا التطبيق';
@@ -1534,7 +1534,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scheduledPreferredTimeSubtitle =>
-      'سيحاول AVarionX البدء قرب هذا الوقت. قد يؤخره Android لتوفير البطارية.';
+      'سيحاول AvarionX البدء قرب هذا الوقت. قد يؤخره Android لتوفير البطارية.';
 
   @override
   String get scheduledPickTime => 'اختيار وقت';

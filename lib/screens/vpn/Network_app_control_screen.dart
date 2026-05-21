@@ -102,7 +102,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
       builder: (ctx) {
         final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && _alwaysOnPkg != 'com.colourswift.cssecurity');
         final msg = other
-            ? 'Another VPN is currently selected as Always-on.\n\nTo block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN'
+            ? 'Another VPN is currently selected as Always-on.\n\nTo block apps reliably:\n\n1) Open Android VPN settings\n2) Select AvarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN'
             : 'To block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN';
 
         return AlertDialog(
@@ -241,7 +241,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     final text = ok
         ? 'App blocking is active.'
         : (other
-        ? 'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AVarionX.'
+        ? 'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AvarionX.'
         : 'Enable Always-on + Block without VPN for AVarionX to make app blocking work.');
 
     return Padding(

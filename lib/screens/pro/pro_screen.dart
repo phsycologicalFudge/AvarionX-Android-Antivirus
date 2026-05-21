@@ -45,23 +45,14 @@ class _ProScreenState extends State<ProScreen> {
 
   Future<void> _persistDefaultPlan(ProPlanType p) async {
     final prefs = await SharedPreferences.getInstance();
-    final v = p == ProPlanType.monthly ? 'monthly' : 'yearly';
-    await prefs.setString('pro_default_plan', v);
+    await prefs.setString('pro_default_plan', p == ProPlanType.monthly ? 'monthly' : 'yearly');
   }
 
   ProPlanType? _planTypeFromServerPlan(String plan) {
     final p = plan.toLowerCase();
-    if (p.contains('year')) return ProPlanType.yearly;
-    if (p.contains('annual')) return ProPlanType.yearly;
+    if (p.contains('year') || p.contains('annual')) return ProPlanType.yearly;
     if (p.contains('month')) return ProPlanType.monthly;
     return null;
-  }
-
-  String _statusLabelFrom(ProPlanType? planType, bool isPro, bool isFounder) {
-    if (!isPro) return 'Free';
-    if (planType == null) return isFounder ? 'Founder' : 'Pro';
-    final base = planType == ProPlanType.yearly ? 'Yearly' : 'Monthly';
-    return isFounder ? '$base (Founder)' : base;
   }
 
   Future<void> _loadCurrentStatus() async {
@@ -71,7 +62,7 @@ class _ProScreenState extends State<ProScreen> {
     ProPlanType? planType = _planTypeFromServerPlan(serverPlan);
 
     if (planType == null) {
-      final localPlan = (prefs.getString('billing_local_sub_plan') ?? '').toString();
+      final localPlan = prefs.getString('billing_local_sub_plan') ?? '';
       if (localPlan == PurchaseService.basePlanYearly) {
         planType = ProPlanType.yearly;
       } else if (localPlan == PurchaseService.basePlanMonthly) {
@@ -99,7 +90,6 @@ class _ProScreenState extends State<ProScreen> {
       final monthlyInfo = await PurchaseService.priceInfoForBasePlan(
         PurchaseService.basePlanMonthly,
       );
-
       final yearlyInfo = await PurchaseService.priceInfoForBasePlan(
         PurchaseService.basePlanYearly,
       );
@@ -112,28 +102,12 @@ class _ProScreenState extends State<ProScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        _loading = false;
-      });
+      setState(() => _loading = false);
     }
   }
 
   String _titleFor(ProPlanType p, AppLocalizations l10n) {
-    switch (p) {
-      case ProPlanType.monthly:
-        return l10n.settingsMonthly;
-      case ProPlanType.yearly:
-        return l10n.settingsYearly;
-    }
-  }
-
-  String _ctaLabel(ProPlanType p, AppLocalizations l10n) {
-    switch (p) {
-      case ProPlanType.monthly:
-        return l10n.settingsSubscribeMonthly;
-      case ProPlanType.yearly:
-        return l10n.settingsSubscribeYearly;
-    }
+    return p == ProPlanType.monthly ? l10n.settingsMonthly : l10n.settingsYearly;
   }
 
   String _formatCurrency(double value, String currencyCode) {
@@ -147,30 +121,25 @@ class _ProScreenState extends State<ProScreen> {
   Future<void> _showThankYou() async {
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     await showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.35),
       builder: (context) {
-        final theme = Theme.of(context);
-        final text = theme.textTheme;
-
         return AlertDialog(
-          backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+          backgroundColor: scheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: Text(
             'Thank you',
-            style: text.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           content: Text(
-            'Your purchase is confirmed.',
-            style: text.bodySmall?.copyWith(
-              height: 1.4,
-              color: text.bodySmall?.color?.withOpacity(0.85),
+            'Your subscription is confirmed.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+              height: 1.35,
             ),
           ),
           actions: [
@@ -198,14 +167,11 @@ class _ProScreenState extends State<ProScreen> {
       }
 
       await PurchaseService.restore();
-
       if (!mounted) return;
 
       await _loadCurrentStatus();
 
-      final bool nowOnSelectedPlan = _isSelectedCurrentPlan();
-
-      if (nowOnSelectedPlan) {
+      if (_isSelectedCurrentPlan()) {
         await _persistDefaultPlan(_selected);
         await _showThankYou();
         if (!mounted) return;
@@ -241,38 +207,61 @@ class _ProScreenState extends State<ProScreen> {
           final selected = _selected == p;
           final isCurrent = _isPro && _currentPlanType != null && _currentPlanType == p;
 
-          final titleStyle = theme.textTheme.titleMedium?.copyWith(
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-            color: isCurrent ? scheme.onSurface.withOpacity(0.55) : scheme.onSurface,
-          );
-
-          final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
-            color: isCurrent ? scheme.onSurfaceVariant.withOpacity(0.55) : scheme.onSurfaceVariant,
-          );
-
-          return Card(
-            color: scheme.surfaceContainer,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            clipBehavior: Clip.antiAlias,
-            child: ListTile(
-              enabled: !isCurrent,
-              onTap: isCurrent
-                  ? null
-                  : () {
-                Navigator.pop(ctx);
-                setState(() => _selected = p);
-              },
-              title: Row(
+          return GestureDetector(
+            onTap: isCurrent
+                ? null
+                : () {
+              Navigator.pop(ctx);
+              setState(() => _selected = p);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: selected
+                    ? scheme.primary.withOpacity(0.08)
+                    : scheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: selected
+                      ? scheme.primary.withOpacity(0.7)
+                      : scheme.outlineVariant,
+                  width: selected ? 2 : 1,
+                ),
+              ),
+              child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      _titleFor(p, l10n),
-                      style: titleStyle,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _titleFor(p, l10n),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: isCurrent
+                                ? scheme.onSurface.withOpacity(0.45)
+                                : scheme.onSurface,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: isCurrent
+                                  ? scheme.onSurfaceVariant.withOpacity(0.45)
+                                  : scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   if (isCurrent)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(999),
@@ -288,36 +277,27 @@ class _ProScreenState extends State<ProScreen> {
                     )
                   else if (badge != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFB8860B).withOpacity(0.18),
+                        color: scheme.primary.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: const Color(0xFFB8860B).withOpacity(0.35)),
+                        border: Border.all(color: scheme.primary.withOpacity(0.35)),
                       ),
                       child: Text(
                         badge,
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFFB8860B),
+                          color: scheme.primary,
                         ),
                       ),
                     ),
-                  const SizedBox(width: 10),
-                  if (selected) const Icon(Icons.check_rounded),
+                  const SizedBox(width: 8),
+                  if (selected) const Icon(Icons.check_rounded, size: 18),
                 ],
-              ),
-              subtitle: subtitle == null
-                  ? null
-                  : Text(
-                subtitle,
-                style: subtitleStyle,
               ),
             ),
           );
         }
-
-        final yearlySubtitle = _yearlyInfo?.formattedPrice ?? '';
-        final monthlySubtitle = _monthlyInfo?.formattedPrice ?? '';
 
         return Padding(
           padding: EdgeInsets.only(
@@ -353,11 +333,11 @@ class _ProScreenState extends State<ProScreen> {
                   option(
                     ProPlanType.yearly,
                     badge: l10n.settingsBestValue,
-                    subtitle: yearlySubtitle.isEmpty ? null : yearlySubtitle,
+                    subtitle: _yearlyInfo?.formattedPrice,
                   ),
                   option(
                     ProPlanType.monthly,
-                    subtitle: monthlySubtitle.isEmpty ? null : monthlySubtitle,
+                    subtitle: _monthlyInfo?.formattedPrice,
                   ),
                   const SizedBox(height: 6),
                 ],
@@ -369,244 +349,149 @@ class _ProScreenState extends State<ProScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget _buildFeatureRow(BuildContext context, String title, String subtitle) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    final monthly = _monthlyInfo;
-    final yearly = _yearlyInfo;
-
-    final bool hasPrices = monthly != null && yearly != null;
-
-    double? yearlyPerMonth;
-    int? savePercent;
-
-    if (hasPrices) {
-      yearlyPerMonth = yearly!.price / 12.0;
-      final ratio = yearlyPerMonth / monthly!.price;
-      savePercent = ((1.0 - ratio) * 100.0).round();
-      if (savePercent < 0) savePercent = 0;
-      if (savePercent > 95) savePercent = 95;
-    }
-
-    Widget planPriceBlock() {
-      if (!hasPrices) {
-        return Text(
-          l10n.settingsPlanPriceLoading,
-          style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-        );
-      }
-
-      if (_selected == ProPlanType.yearly) {
-        final perMonthStr = _formatCurrency(yearlyPerMonth!, yearly!.currencyCode);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${monthly!.formattedPrice} / month',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-                decoration: TextDecoration.lineThrough,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '$perMonthStr / month',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Billed ${yearly.formattedPrice} yearly',
-              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            if (savePercent != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: scheme.primaryContainer.withOpacity(0.6)),
-                ),
-                child: Text(
-                  'Save $savePercent%',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: scheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
-          ],
-        );
-      }
-
-      return Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${monthly!.formattedPrice} / month',
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Cancel anytime',
-            style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Icon(
+            Icons.check_circle_outline_rounded,
+            color: scheme.primary,
+            size: 22,
           ),
         ],
-      );
-    }
-
-    final disabledBuy = _buying || _isSelectedCurrentPlan();
-
-    return Scaffold(
-      backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          l10n.settingsUnlockPro,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: scheme.surfaceTint,
-        scrolledUnderElevation: 0,
-        elevation: 0,
       ),
-      body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    );
+  }
+
+  Widget _buildPlanCard({
+    required BuildContext context,
+    required ProPlanType type,
+    required String title,
+    required String priceStr,
+    required String subtitleStr,
+    String? discountBadge,
+    String? crossedOutPrice,
+  }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isSelected = _selected == type;
+    final isCurrent = _isPro && _currentPlanType == type;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: isCurrent ? null : () => setState(() => _selected = type),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? scheme.primary.withOpacity(0.08)
+                : scheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? scheme.primary.withOpacity(0.75)
+                  : scheme.outlineVariant,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card.outlined(
-                color: scheme.surfaceContainer,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFB8860B).withOpacity(0.18),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: const Color(0xFFB8860B).withOpacity(0.35)),
-                            ),
-                            child: Text(
-                              l10n.settingsPremium,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFFB8860B),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          TextButton.icon(
-                            onPressed: _openPlanPicker,
-                            icon: const Icon(Icons.swap_horiz_rounded),
-                            label: Text(l10n.settingsSwitchPlan),
-                          ),
-                        ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (isSelected)
+                    Icon(Icons.check_circle, color: scheme.primary, size: 16)
+                  else if (isCurrent)
+                    Text(
+                      'Current',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(height: 10),
+                    )
+                  else if (discountBadge != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                         decoration: BoxDecoration(
-                          color: scheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: scheme.outlineVariant),
+                          color: scheme.primary.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: scheme.primary.withOpacity(0.35)),
                         ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.verified_rounded, color: scheme.onSurfaceVariant),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Current status: ${_currentStatusLabel.isEmpty ? 'Free' : _currentStatusLabel}',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: scheme.onSurface,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.settingsUltimateSecurity,
-                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '${l10n.settingsProSubtitle}\nIncludes up to 5 VPN devices.',
-                        style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                      ),
-                      const SizedBox(height: 14),
-                      Card(
-                        color: scheme.surfaceContainerHigh,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _titleFor(_selected, l10n),
-                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                              ),
-                              const SizedBox(height: 8),
-                              planPriceBlock(),
-                            ],
+                        child: Text(
+                          discountBadge,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: scheme.primary,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFB8860B),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          onPressed: disabledBuy ? null : _buySelected,
-                          child: _buying
-                              ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                              : Text(
-                            _isSelectedCurrentPlan() ? 'Current plan' : _ctaLabel(_selected, l10n),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (crossedOutPrice != null)
+                Text(
+                  crossedOutPrice,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    decoration: TextDecoration.lineThrough,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+              Text(
+                priceStr,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                ),
               ),
-              const SizedBox(height: 14),
-              _benefitsCard(context),
-              const SizedBox(height: 10),
-              _finePrint(context),
+              const SizedBox(height: 2),
+              Text(
+                subtitleStr,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  height: 1.15,
+                  fontSize: 12,
+                ),
+              ),
             ],
           ),
         ),
@@ -614,68 +499,272 @@ class _ProScreenState extends State<ProScreen> {
     );
   }
 
-  Widget _benefitsCard(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    Widget item(IconData icon, String title, String subtitle) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Card.outlined(
-          color: scheme.surfaceContainer,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          clipBehavior: Clip.antiAlias,
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: scheme.primaryContainer,
-              child: Icon(icon, color: scheme.onPrimaryContainer),
-            ),
-            title: Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: scheme.onSurface,
-              ),
-            ),
-            subtitle: Text(
-              subtitle,
-              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            ),
-          ),
-        ),
-      );
+    double? yearlyPerMonth;
+    int? savePercent;
+
+    if (_monthlyInfo != null && _yearlyInfo != null) {
+      yearlyPerMonth = _yearlyInfo!.price / 12.0;
+      final ratio = yearlyPerMonth / _monthlyInfo!.price;
+      savePercent = ((1.0 - ratio) * 100.0).round().clamp(0, 95);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.settingsProBenefitsTitle,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface.withOpacity(0.92),
+    return Scaffold(
+      backgroundColor: scheme.surface,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        actions: [
+          TextButton(
+            onPressed: PurchaseService.restore,
+            child: Text(
+              'Restore',
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
           ),
+        ],
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(top: 100, bottom: 28),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    scheme.primary.withOpacity(0.18),
+                    scheme.surface,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Image.asset(
+                      'assets/icons/logo.png',
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'AvarionX ',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                          fontSize: 24,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: scheme.primary,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          'PRO',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: scheme.primary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Current status: ${_currentStatusLabel.isEmpty ? 'Free' : _currentStatusLabel}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildFeatureRow(
+                    context,
+                    l10n.settingsUnlimitedDnsTitle,
+                    l10n.settingsUnlimitedDnsBody,
+                  ),
+                  _buildFeatureRow(
+                    context,
+                    'Advanced Stealth+ Mode',
+                    'Unlock stealth transport modes for restrictive networks.',
+                  ),
+                  _buildFeatureRow(
+                    context,
+                    'Global Server Access',
+                    'Access every VPN server location, including premium high-speed regions.',
+                  ),
+                  _buildFeatureRow(
+                    context,
+                    l10n.settingsScheduledScansTitle,
+                    l10n.settingsScheduledScansBody,
+                  ),
+                  _buildFeatureRow(
+                    context,
+                    l10n.settingsThemesTitle,
+                    l10n.settingsThemesBody,
+                  ),
+                  _buildFeatureRow(
+                    context,
+                    l10n.settingsIconCustomizationTitle,
+                    l10n.settingsIconCustomizationBody,
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      _buildPlanCard(
+                        context: context,
+                        type: ProPlanType.monthly,
+                        title: l10n.settingsMonthly,
+                        priceStr: _monthlyInfo?.formattedPrice ?? '-',
+                        subtitleStr: 'Billed monthly',
+                      ),
+                      const SizedBox(width: 10),
+                      _buildPlanCard(
+                        context: context,
+                        type: ProPlanType.yearly,
+                        title: l10n.settingsYearly,
+                        discountBadge: savePercent != null ? '-$savePercent%' : null,
+                        crossedOutPrice: _monthlyInfo != null
+                            ? '${_monthlyInfo!.formattedPrice}/mo'
+                            : null,
+                        priceStr: yearlyPerMonth != null
+                            ? '${_formatCurrency(yearlyPerMonth, _yearlyInfo!.currencyCode)}/mo'
+                            : '-',
+                        subtitleStr:
+                        'Billed annually at ${_yearlyInfo?.formattedPrice ?? '-'}',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: scheme.outlineVariant),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: _openPlanPicker,
+                          child: Text(
+                            l10n.settingsSwitchPlan,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            gradient: (_buying || _isSelectedCurrentPlan())
+                                ? null
+                                : LinearGradient(
+                              colors: [
+                                scheme.primary,
+                                scheme.primary.withOpacity(0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            color: (_buying || _isSelectedCurrentPlan())
+                                ? scheme.surfaceContainerHighest
+                                : null,
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: (_buying || _isSelectedCurrentPlan())
+                                  ? null
+                                  : _buySelected,
+                              child: Center(
+                                child: _buying
+                                    ? SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: scheme.onSurface,
+                                  ),
+                                )
+                                    : Text(
+                                  _isSelectedCurrentPlan()
+                                      ? 'Current plan'
+                                      : _selected == ProPlanType.monthly
+                                      ? l10n.settingsSubscribeMonthly
+                                      : l10n.settingsSubscribeYearly,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: (_buying || _isSelectedCurrentPlan())
+                                        ? scheme.onSurfaceVariant
+                                        : Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.settingsProFinePrint,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant.withOpacity(0.6),
+                      fontSize: 10,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
-        item(Icons.vpn_lock_rounded, 'Unlimited VPN', 'Unlimited bandwidth and secure browsing anywhere'),
-        item(Icons.devices_rounded, '5 VPN devices', 'Use your Premium VPN on up to 5 devices at the same time'),
-        item(Icons.public_rounded, l10n.settingsUnlimitedDnsTitle, l10n.settingsUnlimitedDnsBody),
-        item(Icons.palette_rounded, l10n.settingsThemesTitle, l10n.settingsThemesBody),
-        item(Icons.apps_rounded, l10n.settingsIconCustomizationTitle, l10n.settingsIconCustomizationBody),
-        item(Icons.schedule_rounded, l10n.settingsScheduledScansTitle, l10n.settingsScheduledScansBody),
-      ],
-    );
-  }
-
-  Widget _finePrint(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return Text(
-      l10n.settingsProFinePrint,
-      style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+      ),
     );
   }
 }

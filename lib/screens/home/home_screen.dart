@@ -132,6 +132,9 @@ class AvHomeScreenState extends State<AvHomeScreen>
       case 'protection':
         _showRtpInfo();
         break;
+      case 'vpn_upsell':
+        _openVpnAppStoreListing();
+        break;
       default:
         break;
     }
@@ -772,18 +775,27 @@ class AvHomeScreenState extends State<AvHomeScreen>
   }
 
   Future<void> _openVpnAppStoreListing() async {
+    if (kGithubBuild) {
+      final url = Uri.parse('https://github.com/phsycologicalFudge/AvarionX-VPN');
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      }
+      return;
+    }
+
     const pkg = 'com.colourswift.avarionxvpn';
     final market = Uri.parse('market://details?id=$pkg');
     final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
 
-    final okMarket = await canLaunchUrl(market);
-    if (okMarket) {
-      await launchUrl(market, mode: LaunchMode.externalApplication);
-      return;
-    }
+    try {
+      final launched = await launchUrl(
+        market,
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+      if (launched) return;
+    } catch (_) {}
 
-    final okWeb = await canLaunchUrl(web);
-    if (okWeb) {
+    if (await canLaunchUrl(web)) {
       await launchUrl(web, mode: LaunchMode.externalApplication);
     }
   }

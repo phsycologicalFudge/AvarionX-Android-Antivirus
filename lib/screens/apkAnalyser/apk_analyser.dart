@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../pro/pro_screen.dart';
@@ -16,18 +17,91 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
   late final ApkAnalyserController _controller;
   late final AnimationController _spinController;
 
+  String _lastPath = '';
+  Timer? _countdownTimer;
+  int _countdown = 0;
+
   @override
   void initState() {
     super.initState();
     _controller = ApkAnalyserController()..init();
+    _controller.addListener(_onControllerUpdate);
     _spinController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
   }
 
+  void _onControllerUpdate() {
+    if (_controller.selectedApkPath != _lastPath) {
+      _lastPath = _controller.selectedApkPath;
+      if (_lastPath.isNotEmpty && !_controller.analysing) {
+        _startCountdown();
+      } else {
+        _cancelCountdown();
+      }
+    } else if (_controller.analysing && _countdownTimer != null) {
+      _cancelCountdown();
+    }
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    setState(() => _countdown = 3);
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_countdown > 1) {
+          _countdown--;
+        } else {
+          _countdown = 0;
+          timer.cancel();
+          _triggerAnalysis();
+        }
+      });
+    });
+  }
+
+  void _cancelCountdown() {
+    _countdownTimer?.cancel();
+    if (mounted) {
+      setState(() => _countdown = 0);
+    }
+  }
+
+  void _triggerAnalysis() {
+    final canAnalyse = _controller.isLoggedIn &&
+        _controller.selectedApkPath.isNotEmpty &&
+        !_controller.analysing &&
+        !(_controller.usageFetched &&
+            _controller.remainingGenerations != null &&
+            _controller.remainingGenerations! <= 0);
+
+    if (canAnalyse) {
+      _controller.analyseApk(context, () {
+        if (_controller.report != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ApkReportScreen(report: _controller.report!),
+            ),
+          ).then((_) {
+            if (mounted) {
+              _controller.selectTarget('', '');
+            }
+          });
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _countdownTimer?.cancel();
+    _controller.removeListener(_onControllerUpdate);
     _controller.dispose();
     _spinController.dispose();
     super.dispose();
@@ -419,7 +493,10 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
           ),
           const SizedBox(height: 16),
           TextButton(
-            onPressed: () => _controller.cancelAnalysis(),
+            onPressed: () {
+              _cancelCountdown();
+              _controller.cancelAnalysis();
+            },
             child: Text('Cancel', style: TextStyle(color: theme.colorScheme.error)),
           ),
         ],
@@ -430,116 +507,165 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
   Widget _buildTargetArea(ThemeData theme) {
     final text = theme.textTheme;
     final hasTarget = _controller.selectedApkPath.isNotEmpty;
+    final isLoggedIn = _controller.isLoggedIn;
 
-    if (!hasTarget) {
-      return GestureDetector(
-        onTap: _controller.isLoggedIn ? _showTargetPickerDialog : null,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 36),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: _controller.isLoggedIn
-                  ? theme.colorScheme.primary.withOpacity(0.35)
-                  : theme.colorScheme.onSurface.withOpacity(0.12),
-              width: 1.5,
-            ),
-            color: theme.colorScheme.primary.withOpacity(
-              _controller.isLoggedIn ? 0.04 : 0.02,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withOpacity(0.08),
+        ),
+        gradient: RadialGradient(
+          colors: [
+            theme.colorScheme.onSurface.withOpacity(0.12),
+            theme.colorScheme.onSurface.withOpacity(0.02),
+          ],
+          center: Alignment.center,
+          radius: 1.0,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: (isLoggedIn && !hasTarget) ? _showTargetPickerDialog : null,
+          child: Stack(
             children: [
-              Icon(
-                Icons.add_circle_outline_rounded,
-                size: 36,
-                color: _controller.isLoggedIn
-                    ? theme.colorScheme.primary.withOpacity(0.7)
-                    : theme.colorScheme.onSurface.withOpacity(0.25),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Choose Target',
-                style: text.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: _controller.isLoggedIn
-                      ? theme.colorScheme.primary.withOpacity(0.85)
-                      : theme.colorScheme.onSurface.withOpacity(0.3),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        hasTarget ? Icons.android_rounded : Icons.add_circle_outline_rounded,
+                        size: 36,
+                        color: isLoggedIn
+                            ? theme.colorScheme.onSurface.withOpacity(0.6)
+                            : theme.colorScheme.onSurface.withOpacity(0.25),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        hasTarget ? _controller.selectedApkName : 'Choose Target',
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: isLoggedIn
+                              ? theme.colorScheme.onSurface.withOpacity(0.85)
+                              : theme.colorScheme.onSurface.withOpacity(0.3),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        hasTarget
+                            ? (_countdown > 0 ? 'Analysing in $_countdown...' : 'Starting analysis...')
+                            : 'APK file or installed app',
+                        textAlign: TextAlign.center,
+                        style: text.bodySmall?.copyWith(
+                          fontWeight: hasTarget ? FontWeight.w700 : FontWeight.normal,
+                          color: hasTarget
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface.withOpacity(isLoggedIn ? 0.5 : 0.25),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'APK file or installed app',
-                style: text.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(
-                    _controller.isLoggedIn ? 0.45 : 0.25,
+              if (hasTarget)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    onPressed: () => _controller.selectTarget('', ''),
                   ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdvancedOptions(ThemeData theme) {
+    final text = theme.textTheme;
+    final isAdvanced = _controller.isPro && _controller.advancedModeEnabled;
+    final accentColor = isAdvanced ? Colors.greenAccent : Colors.redAccent;
+    final iconData = isAdvanced ? Icons.check_rounded : Icons.close_rounded;
+
+    return Card(
+      elevation: 0,
+      color: theme.cardTheme.color,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          if (!_controller.isPro) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProScreen()),
+            ).then((_) => _controller.checkAuthAndPro());
+          } else if (_controller.authResolved) {
+            _controller.setAdvancedMode(!_controller.advancedModeEnabled);
+          }
+        },
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 76,
+                color: accentColor.withOpacity(0.16),
+                child: Icon(iconData, color: accentColor, size: 30),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 19),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Deep analysis mode',
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: theme.colorScheme.onSurface.withOpacity(0.88),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        _controller.isPro
+                            ? 'A more complex analysis using global data sources'
+                            : 'Requires Pro to unlock deeper analysis',
+                        style: text.bodySmall?.copyWith(
+                          height: 1.35,
+                          color: !_controller.isPro
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface.withOpacity(0.54),
+                          fontWeight: !_controller.isPro ? FontWeight.w600 : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: theme.iconTheme.color?.withOpacity(0.35),
                 ),
               ),
             ],
           ),
         ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(Icons.android_rounded, color: theme.colorScheme.primary, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _controller.selectedApkName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                Text(
-                  'Ready to analyse',
-                  style: text.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => _controller.selectTarget('', ''),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Icon(
-                Icons.close_rounded,
-                size: 18,
-                color: theme.colorScheme.onSurface.withOpacity(0.55),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -556,7 +682,11 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
           backgroundColor: theme.colorScheme.surface,
           appBar: AppBar(
             backgroundColor: theme.colorScheme.surface,
-            title: const Text('APK Analyser'),
+            scrolledUnderElevation: 0,
+            title: Text(
+              'APK Analyser',
+              style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.history_rounded),
@@ -571,61 +701,12 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            'Analyse',
-                            style: text.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.onSurface.withOpacity(0.9),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Upload metadata directly to VTTI Cloud for advanced threat analysis.',
-                            style: text.bodySmall?.copyWith(
-                              height: 1.35,
-                              color: text.bodySmall?.color?.withOpacity(0.75),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           _buildTargetArea(theme),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: (_controller.isLoggedIn &&
-                                _controller.selectedApkPath.isNotEmpty &&
-                                !_controller.analysing &&
-                                !(_controller.usageFetched &&
-                                    _controller.remainingGenerations != null &&
-                                    _controller.remainingGenerations! <= 0))
-                                ? () {
-                              _controller.analyseApk(context, () {
-                                if (_controller.report != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => ApkReportScreen(report: _controller.report!),
-                                    ),
-                                  );
-                                }
-                              });
-                            }
-                                : null,
-                            icon: const Icon(Icons.cloud_upload_rounded, size: 18),
-                            label: const Text('Analyse Selected Target'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              textStyle: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
                           if (!_controller.isLoggedIn)
                             Padding(
                               padding: const EdgeInsets.only(top: 14),
@@ -639,79 +720,19 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                                 ),
                               ),
                             ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 24),
                           Padding(
-                            padding: const EdgeInsets.only(left: 4, bottom: 10),
+                            padding: const EdgeInsets.only(left: 4, bottom: 8),
                             child: Text(
                               'ADVANCED OPTIONS',
                               style: text.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.2,
-                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.8,
+                                color: theme.colorScheme.onSurface.withOpacity(0.4),
                               ),
                             ),
                           ),
-                          Card(
-                            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                            elevation: 0,
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                if (!_controller.isPro) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const ProScreen()),
-                                  ).then((_) => _controller.checkAuthAndPro());
-                                } else if (_controller.authResolved) {
-                                  _controller.setAdvancedMode(!_controller.advancedModeEnabled);
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Deep analysis mode',
-                                            style: text.titleSmall?.copyWith(
-                                              fontWeight: FontWeight.w800,
-                                              color: theme.colorScheme.onSurface.withOpacity(0.9),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            _controller.isPro
-                                                ? 'A more complex analysis using global data sources'
-                                                : 'Requires Pro to unlock deeper analysis',
-                                            style: text.bodySmall?.copyWith(
-                                              color: !_controller.isPro
-                                                  ? theme.colorScheme.primary
-                                                  : text.bodySmall?.color?.withOpacity(0.7),
-                                              fontWeight: !_controller.isPro ? FontWeight.w600 : null,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: _controller.isPro && _controller.advancedModeEnabled,
-                                      onChanged: (!_controller.isPro || !_controller.authResolved)
-                                          ? null
-                                          : (value) async {
-                                        await _controller.setAdvancedMode(value);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          _buildAdvancedOptions(theme),
                         ],
                       ),
                     ),
@@ -851,9 +872,9 @@ class _InstalledAppSheetState extends State<_InstalledAppSheet> {
                         hintText: 'Search apps...',
                         prefixIcon: const Icon(Icons.search_rounded, size: 20),
                         filled: true,
-                        fillColor: theme.colorScheme.surfaceContainerHigh,
+                        fillColor: theme.colorScheme.onSurface.withOpacity(0.04),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -978,7 +999,7 @@ class _AppListTileState extends State<_AppListTile> {
     final text = theme.textTheme;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       onTap: widget.onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -992,7 +1013,7 @@ class _AppListTileState extends State<_AppListTile> {
                 child: _iconBytes != null
                     ? Image.memory(_iconBytes!, fit: BoxFit.cover)
                     : Container(
-                  color: theme.colorScheme.surfaceContainerHigh,
+                  color: theme.colorScheme.onSurface.withOpacity(0.04),
                   child: Icon(
                     Icons.android_rounded,
                     size: 24,

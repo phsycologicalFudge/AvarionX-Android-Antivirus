@@ -3,10 +3,60 @@ import 'package:flutter/services.dart';
 import 'apk_analyser_controller.dart';
 import 'apk_export_service.dart';
 
-class ApkReportScreen extends StatelessWidget {
+class ApkReportScreen extends StatefulWidget {
   final ApkReport report;
 
   const ApkReportScreen({super.key, required this.report});
+
+  @override
+  State<ApkReportScreen> createState() => _ApkReportScreenState();
+}
+
+class _ApkReportScreenState extends State<ApkReportScreen> {
+
+  List<_ReportTab> _buildTabs() {
+    final report = widget.report;
+    final tabs = <_ReportTab>[];
+
+    tabs.add(_ReportTab(
+      title: 'Summary',
+      content: _buildSummaryContent(context),
+    ));
+
+    tabs.add(_ReportTab(
+      title: 'Permissions',
+      content: _buildPermissionsContent(context),
+    ));
+
+    if (report.unusualItems.isNotEmpty || report.unverifiedItems.isNotEmpty) {
+      tabs.add(_ReportTab(
+        title: 'Extra Flags',
+        content: _buildFlagsContent(context),
+      ));
+    }
+
+    final hasMalware = report.riskScore != null || report.riskLabel != null;
+    if (hasMalware && (report.contributingSignals.isNotEmpty || report.dampeningFactors.isNotEmpty)) {
+      tabs.add(_ReportTab(
+        title: 'Risk Signals',
+        content: _buildSignalsContent(context),
+      ));
+    }
+
+    if (report.sources.isNotEmpty || report.sourceNotes.isNotEmpty) {
+      tabs.add(_ReportTab(
+        title: 'Sources',
+        content: _buildSourcesContent(context),
+      ));
+    }
+
+    tabs.add(_ReportTab(
+      title: 'Metadata',
+      content: _buildMetadataContent(context),
+    ));
+
+    return tabs;
+  }
 
   Color _riskColor(String? label) {
     switch (label?.toLowerCase()) {
@@ -38,7 +88,7 @@ class ApkReportScreen extends StatelessWidget {
                 onTap: () async {
                   Navigator.pop(ctx);
                   await Clipboard.setData(
-                    ClipboardData(text: _buildClipboardReport(report)),
+                    ClipboardData(text: _buildClipboardReport(widget.report)),
                   );
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -52,7 +102,7 @@ class ApkReportScreen extends StatelessWidget {
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
-                    await ApkExportService.exportToPdf(report);
+                    await ApkExportService.exportToPdf(widget.report);
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +117,7 @@ class ApkReportScreen extends StatelessWidget {
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
-                    await ApkExportService.exportToCsv(report);
+                    await ApkExportService.exportToCsv(widget.report);
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -140,82 +190,60 @@ class ApkReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final report = widget.report;
     final hasMalware = report.riskScore != null || report.riskLabel != null;
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
+    final currentTabs = _buildTabs();
+
+    return DefaultTabController(
+      length: currentTabs.length,
+      child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        title: const Text('Analysis Report'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.ios_share_rounded),
-            onPressed: () => _showExportOptions(context),
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.surface,
+          scrolledUnderElevation: 0,
+          title: Text(
+            'Analysis Report',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.ios_share_rounded),
+              onPressed: () => _showExportOptions(context),
+            ),
+          ],
+        ),
+        body: Column(
           children: [
-            if (hasMalware) ...[
-              _buildMalwareVerdictCard(context),
-              const SizedBox(height: 12),
-            ],
-            _buildSection(
-              context,
-              title: 'Summary',
-              subtitle: 'VTTI Cloud assessment of this package.',
-              icon: Icons.description_outlined,
-              child: _buildSummaryContent(context),
+            if (hasMalware)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _buildMalwareVerdictHeader(context),
+              ),
+            TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicatorColor: theme.colorScheme.onSurface,
+              indicatorWeight: 2,
+              dividerColor: theme.colorScheme.onSurface.withOpacity(0.05),
+              labelColor: theme.colorScheme.onSurface,
+              unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.4),
+              labelStyle: text.titleSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+              unselectedLabelStyle: text.titleSmall?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.2),
+              tabs: currentTabs.map((t) => Tab(text: t.title)).toList(),
             ),
-            const SizedBox(height: 10),
-            _buildSection(
-              context,
-              title: 'Permissions',
-              subtitle: '${report.permissions.length} requested capabilities extracted from the manifest.',
-              icon: Icons.security_outlined,
-              child: _buildPermissionsContent(context),
-            ),
-            if (report.unusualItems.isNotEmpty || report.unverifiedItems.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              _buildSection(
-                context,
-                title: 'Extra Flags',
-                subtitle: 'Warnings and unverified claims flagged by the engine.',
-                icon: Icons.flag_outlined,
-                child: _buildFlagsContent(context),
+            Expanded(
+              child: TabBarView(
+                physics: const BouncingScrollPhysics(),
+                children: currentTabs.map((t) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: t.content,
+                  );
+                }).toList(),
               ),
-            ],
-            if (hasMalware && (report.contributingSignals.isNotEmpty || report.dampeningFactors.isNotEmpty)) ...[
-              const SizedBox(height: 10),
-              _buildSection(
-                context,
-                title: 'Risk Signals',
-                subtitle: 'Factors that contributed to the malware risk score.',
-                icon: Icons.radar_rounded,
-                child: _buildSignalsContent(context),
-              ),
-            ],
-            if (report.sources.isNotEmpty || report.sourceNotes.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              _buildSection(
-                context,
-                title: 'Discovered Sources',
-                subtitle: 'External URLs and claims verified by the cloud engine.',
-                icon: Icons.public_rounded,
-                child: _buildSourcesContent(context),
-              ),
-            ],
-            const SizedBox(height: 10),
-            _buildSection(
-              context,
-              title: 'Cloud Metadata',
-              subtitle: 'Raw technical data extracted from the package binary.',
-              icon: Icons.info_outline_rounded,
-              child: _buildMetadataContent(context),
             ),
           ],
         ),
@@ -223,109 +251,92 @@ class ApkReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMalwareVerdictCard(BuildContext context) {
+  Widget _buildMalwareVerdictHeader(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final report = widget.report;
     final score = report.riskScore ?? 0;
     final label = report.riskLabel ?? 'Unknown';
     final color = _riskColor(label);
     final verdict = report.hashVerdict;
 
-    return Card(
-      color: theme.colorScheme.surfaceContainerHigh,
-      elevation: 10,
-      shadowColor: Colors.black.withOpacity(0.25),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 76,
-                  height: 76,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox.expand(
-                        child: CircularProgressIndicator(
-                          value: score / 100,
-                          strokeWidth: 7,
-                          backgroundColor: theme.colorScheme.surfaceContainerLow,
-                          valueColor: AlwaysStoppedAnimation(color),
-                          strokeCap: StrokeCap.round,
-                        ),
-                      ),
-                      Text(
-                        '$score',
-                        style: text.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: color,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ],
+            SizedBox(
+              width: 64,
+              height: 64,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox.expand(
+                    child: CircularProgressIndicator(
+                      value: score / 100,
+                      strokeWidth: 6,
+                      backgroundColor: theme.colorScheme.onSurface.withOpacity(0.04),
+                      valueColor: AlwaysStoppedAnimation(color),
+                      strokeCap: StrokeCap.round,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Malware Risk',
-                        style: text.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.14),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: color.withOpacity(0.3)),
-                        ),
-                        child: Text(
-                          label,
-                          style: text.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: color,
-                          ),
-                        ),
-                      ),
-                      if (verdict != null && verdict.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        _buildHashVerdictChip(context, verdict),
-                      ],
-                    ],
+                  Text(
+                    '$score',
+                    style: text.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Divider(height: 1, color: theme.colorScheme.onSurface.withOpacity(0.07)),
-              const SizedBox(height: 12),
-              Text(
-                report.scoreRationale!,
-                style: text.bodySmall?.copyWith(
-                  height: 1.5,
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
+                ],
               ),
-            ],
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Malware Risk',
+                    style: text.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label.toUpperCase(),
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: color,
+                    ),
+                  ),
+                  if (verdict != null && verdict.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    _buildHashVerdictText(context, verdict),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
-      ),
+        if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text(
+            report.scoreRationale!,
+            style: text.bodyMedium?.copyWith(
+              height: 1.5,
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
-  Widget _buildHashVerdictChip(BuildContext context, String verdict) {
+  Widget _buildHashVerdictText(BuildContext context, String verdict) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
 
@@ -358,11 +369,11 @@ class ApkReportScreen extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: color),
-        const SizedBox(width: 5),
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 6),
         Text(
           label,
-          style: text.labelSmall?.copyWith(
+          style: text.bodyMedium?.copyWith(
             color: color,
             fontWeight: FontWeight.w700,
           ),
@@ -371,55 +382,11 @@ class ApkReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(
-      BuildContext context, {
-        required String title,
-        required String subtitle,
-        required IconData icon,
-        required Widget child,
-      }) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-
-    return Card(
-      color: theme.colorScheme.surfaceContainerHigh,
-      elevation: 10,
-      shadowColor: Colors.black.withOpacity(0.25),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: theme.copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          childrenPadding: EdgeInsets.zero,
-          leading: Icon(icon, size: 20, color: theme.colorScheme.onSurface.withOpacity(0.55)),
-          title: Text(
-            title,
-            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: text.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
-            ),
-          ),
-          children: [
-            Divider(height: 1, color: theme.colorScheme.onSurface.withOpacity(0.07)),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-              child: child,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSummaryContent(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
 
-    final normalized = report.summary
+    final normalized = widget.report.summary
         .replaceAll(r'\r\n', '\n')
         .replaceAll(r'\n', '\n')
         .replaceAll('\r\n', '\n')
@@ -460,7 +427,7 @@ class ApkReportScreen extends StatelessWidget {
               color: theme.colorScheme.onSurface.withOpacity(0.75),
             ),
           ),
-          if (i != paragraphs.length - 1) const SizedBox(height: 12),
+          if (i != paragraphs.length - 1) const SizedBox(height: 16),
         ],
       ],
     );
@@ -470,31 +437,34 @@ class ApkReportScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final text = theme.textTheme;
 
-    if (report.permissions.isEmpty) {
+    if (widget.report.permissions.isEmpty) {
       return Text(
         'No requested permissions extracted.',
-        style: text.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5)),
+        style: text.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5)),
       );
     }
 
     return Column(
-      children: report.permissions.map((p) {
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widget.report.permissions.map((p) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              p,
-              style: text.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface.withOpacity(0.8),
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.shield_outlined, size: 22, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  p,
+                  style: text.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         );
       }).toList(),
@@ -508,24 +478,25 @@ class ApkReportScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ...report.unusualItems.map((f) => _flagRow(
+        ...widget.report.unusualItems.map((f) => _flagRow(
           context,
           f,
           Icons.warning_amber_rounded,
           Colors.orange,
-          text.bodySmall?.copyWith(
-            height: 1.35,
-            color: text.bodySmall?.color?.withOpacity(0.85),
+          text.bodyMedium?.copyWith(
+            height: 1.4,
+            fontWeight: FontWeight.w600,
+            color: text.bodyMedium?.color?.withOpacity(0.85),
           ),
         )),
-        ...report.unverifiedItems.map((f) => _flagRow(
+        ...widget.report.unverifiedItems.map((f) => _flagRow(
           context,
           f,
           Icons.help_outline_rounded,
           Colors.grey,
-          text.bodySmall?.copyWith(
-            height: 1.35,
-            color: text.bodySmall?.color?.withOpacity(0.65),
+          text.bodyMedium?.copyWith(
+            height: 1.4,
+            color: text.bodyMedium?.color?.withOpacity(0.65),
             fontStyle: FontStyle.italic,
           ),
         )),
@@ -535,12 +506,12 @@ class ApkReportScreen extends StatelessWidget {
 
   Widget _flagRow(BuildContext context, String text, IconData icon, Color iconColor, TextStyle? style) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 17, color: iconColor),
-          const SizedBox(width: 10),
+          Icon(icon, size: 22, color: iconColor),
+          const SizedBox(width: 12),
           Expanded(child: Text(text, style: style)),
         ],
       ),
@@ -554,28 +525,29 @@ class ApkReportScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (report.contributingSignals.isNotEmpty) ...[
+        if (widget.report.contributingSignals.isNotEmpty) ...[
           Text(
             'Contributing',
-            style: text.labelSmall?.copyWith(
+            style: text.labelMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
               color: theme.colorScheme.onSurface.withOpacity(0.45),
             ),
           ),
-          const SizedBox(height: 8),
-          ...report.contributingSignals.map((s) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+          const SizedBox(height: 12),
+          ...widget.report.contributingSignals.map((s) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.arrow_upward_rounded, size: 14, color: const Color(0xFFF4511E)),
-                const SizedBox(width: 8),
+                Icon(Icons.arrow_upward_rounded, size: 22, color: const Color(0xFFF4511E)),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     s,
-                    style: text.bodySmall?.copyWith(
+                    style: text.bodyMedium?.copyWith(
                       height: 1.4,
+                      fontWeight: FontWeight.w500,
                       color: theme.colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
@@ -584,29 +556,30 @@ class ApkReportScreen extends StatelessWidget {
             ),
           )),
         ],
-        if (report.dampeningFactors.isNotEmpty) ...[
-          if (report.contributingSignals.isNotEmpty) const SizedBox(height: 10),
+        if (widget.report.dampeningFactors.isNotEmpty) ...[
+          if (widget.report.contributingSignals.isNotEmpty) const SizedBox(height: 16),
           Text(
             'Dampening',
-            style: text.labelSmall?.copyWith(
+            style: text.labelMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
               color: theme.colorScheme.onSurface.withOpacity(0.45),
             ),
           ),
-          const SizedBox(height: 8),
-          ...report.dampeningFactors.map((s) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+          const SizedBox(height: 12),
+          ...widget.report.dampeningFactors.map((s) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.arrow_downward_rounded, size: 14, color: const Color(0xFF43A047)),
-                const SizedBox(width: 8),
+                Icon(Icons.arrow_downward_rounded, size: 22, color: const Color(0xFF43A047)),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     s,
-                    style: text.bodySmall?.copyWith(
+                    style: text.bodyMedium?.copyWith(
                       height: 1.4,
+                      fontWeight: FontWeight.w500,
                       color: theme.colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
@@ -626,21 +599,21 @@ class ApkReportScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ...report.sources.entries.map((e) => _infoRow(context, e.key, e.value)),
-        if (report.sourceNotes.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          ...report.sourceNotes.map((n) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+        ...widget.report.sources.entries.map((e) => _infoRow(context, e.key, e.value)),
+        if (widget.report.sourceNotes.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ...widget.report.sourceNotes.map((n) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline_rounded, size: 15, color: Colors.amber),
-                const SizedBox(width: 8),
+                const Icon(Icons.info_outline_rounded, size: 22, color: Colors.amber),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     n,
-                    style: text.bodySmall?.copyWith(
-                      height: 1.35,
+                    style: text.bodyMedium?.copyWith(
+                      height: 1.4,
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
@@ -656,14 +629,14 @@ class ApkReportScreen extends StatelessWidget {
   Widget _buildMetadataContent(BuildContext context) {
     return Column(
       children: [
-        _infoRow(context, 'Package', report.name),
-        _infoRow(context, 'Package ID', report.packageName),
-        _infoRow(context, 'Engine', report.engineLabel),
-        _infoRow(context, 'Size', report.fileSizeLabel),
-        _infoRow(context, 'Min SDK', report.minSdkLabel),
-        _infoRow(context, 'Target SDK', report.targetSdkLabel),
-        _infoRow(context, 'Signature', report.signatureLabel),
-        _infoRow(context, 'Version', report.versionLabel),
+        _infoRow(context, 'Package', widget.report.name),
+        _infoRow(context, 'Package ID', widget.report.packageName),
+        _infoRow(context, 'Engine', widget.report.engineLabel),
+        _infoRow(context, 'Size', widget.report.fileSizeLabel),
+        _infoRow(context, 'Min SDK', widget.report.minSdkLabel),
+        _infoRow(context, 'Target SDK', widget.report.targetSdkLabel),
+        _infoRow(context, 'Signature', widget.report.signatureLabel),
+        _infoRow(context, 'Version', widget.report.versionLabel),
       ],
     );
   }
@@ -673,26 +646,27 @@ class ApkReportScreen extends StatelessWidget {
     final text = theme.textTheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 96,
+            width: 110,
             child: Text(
               label,
-              style: text.bodySmall?.copyWith(
-                color: text.bodySmall?.color?.withOpacity(0.5),
-                fontWeight: FontWeight.w700,
+              style: text.bodyMedium?.copyWith(
+                color: text.bodyMedium?.color?.withOpacity(0.4),
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: text.bodySmall?.copyWith(
-                height: 1.35,
-                color: theme.colorScheme.onSurface.withOpacity(0.84),
+              style: text.bodyMedium?.copyWith(
+                height: 1.4,
+                color: theme.colorScheme.onSurface.withOpacity(0.85),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -701,4 +675,11 @@ class ApkReportScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ReportTab {
+  final String title;
+  final Widget content;
+
+  _ReportTab({required this.title, required this.content});
 }

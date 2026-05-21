@@ -82,11 +82,19 @@ class ShizukuBridge(
     fun destroy() {
         Shizuku.removeBinderReceivedListener(received)
         Shizuku.removeBinderDeadListener(dead)
+        disable()
+        io.shutdown()
+    }
+
+    private fun disable() {
+        SystemWatcher.stop()
         service = null
+
         try {
             Shizuku.unbindUserService(userServiceArgs, serviceConnection, true)
-        } catch (_: Exception) {}
-        io.shutdown()
+        } catch (e: Exception) {
+            Log.w("ShizukuBridge", "disable unbind failed: ${e.message}")
+        }
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -127,6 +135,11 @@ class ShizukuBridge(
 
             "isServiceBound" -> {
                 result.success(service != null)
+            }
+
+            "disable" -> {
+                disable()
+                result.success(true)
             }
 
             "uninstallPackage" -> {

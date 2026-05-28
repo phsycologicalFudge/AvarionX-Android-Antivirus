@@ -44,6 +44,22 @@ Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, 
 | **Guardian Mode** | Watches for ransomware-style file behaviour. |
 | **APK analysis** | Checks installed or selected APKs for suspicious indicators. and creates a detailed report |
 
+## The Engine's Architecture
+
+AvarionX Antivirus (CS Security) operates through a multi-layered detection pipeline powered by VX-Titanium.
+
+1. Cloud Hash Layer: A fast check on an extremely large historical and current corpus of malware hashes
+2. Hash Layer: Comparing both SHA256 and MD5 fingerprints against known malware lists
+3. Signature Layer: Custom byte signitures checked against apk containers, dex and so files.
+4. Heuristic Layer: Machine learning based behaviour analysis for APKs
+
+### Machine Learning (ML+)
+
+AvarionX Security includes a dual ML system named ML+
+
+* On-Device: Runs on-device with no remote processing or user telemetry
+* MUniverse Tag: Suspicious applications that meet the scoring system's requirements are dubbed with a MUniverse (Malware Universe) tag
+
 ## Guardian Mode
 
 By utilizing shizuku, Guardian Mode can monitor app behaviour that android would normally keep out of reach. When an app starts changing files, AvarionX monitors it, assessing the likelihood on destructive behaviour.

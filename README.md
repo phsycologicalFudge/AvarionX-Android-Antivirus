@@ -48,7 +48,7 @@ Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, 
 
 AvarionX Antivirus (CS Security) operates through a multi-layered detection pipeline powered by VX-Titanium.
 
-1. Cloud Hash Layer: A fast check on an extremely large historical and current corpus of malware hashes
+1. Cloud Hash Layer: A fast check on an extremely large historical and current corpus of over 100 million unique malware hashes
 2. Hash Layer: Comparing both SHA256 and MD5 fingerprints against known malware lists
 3. Signature Layer: Custom byte signitures checked against apk containers, dex and native libraries.
 4. Heuristic Layer: Machine learning based behaviour analysis for APKs

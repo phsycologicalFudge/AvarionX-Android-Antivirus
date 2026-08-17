@@ -24,8 +24,6 @@ AvarionX combines local malware scanning, optional hash-based cloud intelligence
 
 </div>
 
----
-
 ## What is AvarionX?
 
 AvarionX Security is an Android antivirus built around user privacy.

@@ -1,6 +1,8 @@
-<p>
+<p align="center">
   <img src="assets/icons/ic_launcher_ax.png" width="92" alt="AvarionX Security logo">
 </p>
+
+<div align="center">
 
 # AvarionX Security
 
@@ -8,23 +10,21 @@
 
 AvarionX combines local malware scanning, optional hash-based cloud intelligence, download monitoring, DNS filtering, APK analysis, and Guardian Mode for ransomware-style behaviour detection.
 
-<p>
-  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/AvarionX-Android-Antivirus?style=for-the-badge&logo=github&label=Release&color=6366f1" alt="Release">
-  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/AvarionX-Android-Antivirus/total?style=for-the-badge&logo=github&label=Downloads&color=10b981" alt="Downloads">
-  <img src="https://img.shields.io/github/license/phsycologicalFudge/AvarionX-Android-Antivirus?style=for-the-badge&label=License&color=64748b" alt="License">
-</p>
+[![Release](https://img.shields.io/github/v/release/phsycologicalFudge/AvarionX-Android-Antivirus?logo=github&label=release&color=6366f1)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/releases)
+[![Downloads](https://img.shields.io/github/downloads/phsycologicalFudge/AvarionX-Android-Antivirus/total?logo=github&label=downloads&color=10b981)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/releases)
+[![License](https://img.shields.io/github/license/phsycologicalFudge/AvarionX-Android-Antivirus?label=license&color=64748b)](LICENSE)
 
-<p>
-  <img src="https://img.shields.io/badge/VX--TITANIUM-V8-111827?style=for-the-badge&labelColor=020617&color=7c3aed" alt="VX-TITANIUM V8">
-  <img src="https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?style=for-the-badge&label=VXPack&color=0ea5e9" alt="VXPack">
-  <img src="https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?style=for-the-badge&label=VXPack%20downloads&color=f97316" alt="VXPack downloads">
-</p>
+[![VX-TITANIUM](https://img.shields.io/badge/VX--TITANIUM-V9-7c3aed?labelColor=020617)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus)
+[![VXPack](https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?label=VXPack&color=0ea5e9)](https://github.com/phsycologicalFudge/AVDatabase/releases)
+[![VXPack downloads](https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?label=VXPack%20downloads&color=f97316)](https://github.com/phsycologicalFudge/AVDatabase/releases)
 
-<p>
-  <a href="https://buymeacoffee.com/ryanfromcolourswift">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="48" alt="Buy me a coffee">
-  </a>
-</p>
+<a href="https://buymeacoffee.com/ryanfromcolourswift">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="48" alt="Buy me a coffee">
+</a>
+
+</div>
+
+---
 
 ## What is AvarionX?
 
@@ -111,30 +111,3 @@ AvarionX is designed to avoid unnecessary data collection.
     <img src="https://cdn-cf-east.streamable.com/image/07jwwd.jpg" width="180" alt="Watch demo video">
   </a>
 </p>
-
-## Project links
-
-<p>
-  <a href="https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus">
-    <img src="https://img.shields.io/badge/Source%20Code-181717?style=for-the-badge&logo=github&logoColor=white" alt="Source Code">
-  </a>
-  <a href="https://play.google.com/store/apps/details?id=com.colourswift.cssecurity">
-    <img src="https://img.shields.io/badge/Get%20it%20on-Google%20Play-34A853?style=for-the-badge&logo=googleplay&logoColor=white" alt="Google Play">
-  </a>
-  <a href="https://github.com/phsycologicalFudge/AVDatabase">
-    <img src="https://img.shields.io/badge/Threat%20Database-VXPack-7c3aed?style=for-the-badge&logo=github&logoColor=white" alt="VXPack Database">
-  </a>
-  <a href="https://github.com/phsycologicalFudge/AvarionX-VPN">
-    <img src="https://img.shields.io/badge/Companion%20App-AvarionX%20VPN-0ea5e9?style=for-the-badge&logo=github&logoColor=white" alt="AvarionX VPN">
-  </a>
-  <a href="https://discord.gg/VYubQJfcYM">
-    <img src="https://img.shields.io/badge/Community-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
-  </a>
-</p>
-
-## VX-TITANIUM
-
-Current engine version:
-
-```text
-VX-TITANIUM V8

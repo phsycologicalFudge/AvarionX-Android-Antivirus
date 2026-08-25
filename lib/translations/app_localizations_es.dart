@@ -41,10 +41,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get companionAppsSectionTitle => 'More from AvarionX';
+  String get companionAppsSectionTitle => 'Más de AvarionX';
 
   @override
-  String get cleanerReclaimableLabel => 'Can be freed';
+  String get cleanerReclaimableLabel => 'Se puede liberar';
 
   @override
   String get exploreMultiThreadingTitle => 'Multihilo';
@@ -68,7 +68,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get updateDbUpdateFailed => 'Error al actualizar la base de datos';
 
   @override
-  String get engineReadyBanner => 'VX-TITANIUM-v8';
+  String get engineReadyBanner => 'VX-TITANIUM-v9';
 
   @override
   String get scanButton => 'Escanear';
@@ -1920,7 +1920,2283 @@ class AppLocalizationsEs extends AppLocalizations {
   String get quarantineDeleteDialogTitle => '¿Eliminar archivos seleccionados?';
 
   @override
-  String quarantineDeleteDialogBody(Object count, Object plural) {
-    return 'Esto eliminará permanentemente $count elemento$plural.';
+  String quarantineDeleteDialogBody(Object count, String plural) {
+    String _temp0 = intl.Intl.selectLogic(
+      plural,
+      {
+        's': '',
+        'other': '',
+      },
+    );
+    return 'Elementos que se eliminarán permanentemente: $count.$_temp0';
+  }
+
+  @override
+  String get howThisAppWorksHowAvarionXWorks => 'Cómo funciona AvarionX';
+
+  @override
+  String get howThisAppWorksAvarionxIsAMobileSecurityAppThat =>
+      'AvarionX es una aplicación de seguridad móvil que combina análisis antivirus en el dispositivo, protección de red y funciones VPN opcionales. ';
+
+  @override
+  String get howThisAppWorksTheAntivirusEngineIsPoweredByVX =>
+      'El motor antivirus funciona con VX-Titanium.';
+
+  @override
+  String get howThisAppWorksIfYouUseNetworkProtectionOrVPN =>
+      'Si utilizas la protección de red o las funciones VPN, la aplicación se conecta a los servicios de ColourSwift para aplicar tus ajustes, gestionar el acceso a tu cuenta y enrutar el tráfico protegido.';
+
+  @override
+  String get howThisAppWorksKeyFeatures => 'Funciones principales';
+
+  @override
+  String get howThisAppWorksRealTimeProtectionForDownloadedThreats =>
+      '• Protección en tiempo real frente a amenazas descargadas';
+
+  @override
+  String get howThisAppWorksNetworkProtectionWithDNSFiltering =>
+      '• Protección de red con filtrado DNS';
+
+  @override
+  String get howThisAppWorksOptionalSecureVPNMode =>
+      '• Modo Secure VPN opcional';
+
+  @override
+  String get howThisAppWorksBuiltInToolsSuchAsLinkChecker =>
+      '• Herramientas integradas como Link Checker';
+
+  @override
+  String get howThisAppWorksNotes => 'Notas';
+
+  @override
+  String get howThisAppWorksSomeFeaturesMayRequireSignInAn =>
+      'Es posible que algunas funciones requieran iniciar sesión, un plan activo o permisos del dispositivo para funcionar correctamente.';
+
+  @override
+  String get apkAnalyserCopyCurrentReport => 'Copiar informe actual';
+
+  @override
+  String get apkAnalyserReportCopiedToClipboard =>
+      'Informe copiado al portapapeles';
+
+  @override
+  String get apkAnalyserExportCurrentAsPDF => 'Exportar actual como PDF';
+
+  @override
+  String get apkAnalyserFailedToExportPDF => 'No se pudo exportar el PDF';
+
+  @override
+  String get apkAnalyserExportCurrentAsCSV => 'Exportar actual como CSV';
+
+  @override
+  String get apkAnalyserFailedToExportCSV => 'No se pudo exportar el CSV';
+
+  @override
+  String get apkAnalyserViewSavedReports => 'Ver informes guardados';
+
+  @override
+  String get apkAnalyserClearHistory => 'Borrar historial';
+
+  @override
+  String get apkAnalyserReportHistoryCleared => 'Historial de informes borrado';
+
+  @override
+  String get apkAnalyserSavedReports => 'Informes guardados';
+
+  @override
+  String get apkAnalyserNoSavedReportsFound =>
+      'No se encontraron informes guardados.';
+
+  @override
+  String get apkAnalyserChooseTarget => 'Elegir objetivo';
+
+  @override
+  String get apkAnalyserSelectASourceToAnalyseWithVTTI =>
+      'Selecciona una fuente para analizarla con VTTI Cloud.';
+
+  @override
+  String get apkAnalyserApkFile => 'Archivo APK';
+
+  @override
+  String get apkAnalyserPickAnApkFromStorage =>
+      'Elige un archivo .apk del almacenamiento';
+
+  @override
+  String get apkAnalyserInstalledApp => 'Aplicación instalada';
+
+  @override
+  String get apkAnalyserChooseFromAppsOnThisDevice =>
+      'Elige entre las aplicaciones de este dispositivo';
+
+  @override
+  String apkAnalyserAnalysingIn(Object countdown) {
+    return 'Analizando en $countdown...';
+  }
+
+  @override
+  String get apkAnalyserStartingAnalysis => 'Iniciando análisis...';
+
+  @override
+  String get apkAnalyserApkFileOrInstalledApp =>
+      'Archivo APK o aplicación instalada';
+
+  @override
+  String get apkAnalyserDeepAnalysisMode => 'Modo de análisis profundo';
+
+  @override
+  String get apkAnalyserAMoreComplexAnalysisUsingGlobalData =>
+      'Un análisis más complejo que utiliza fuentes de datos globales';
+
+  @override
+  String get apkAnalyserRequiresProToUnlockDeeperAnalysis =>
+      'Requiere Pro para desbloquear un análisis más profundo';
+
+  @override
+  String get apkAnalyserApkAnalyser => 'Analizador de APK';
+
+  @override
+  String get apkAnalyserPleaseSignInViaSettingsToEnable =>
+      'Inicia sesión desde Ajustes para activar Cloud Analysis.';
+
+  @override
+  String get apkAnalyserAdvancedOPTIONS => 'OPCIONES AVANZADAS';
+
+  @override
+  String apkAnalyserDailyLimit(Object remaining, Object limit) {
+    return 'Límite diario: $remaining / $limit';
+  }
+
+  @override
+  String get apkAnalyserDailyLimitDataUnavailable =>
+      'Datos del límite diario no disponibles';
+
+  @override
+  String get apkAnalyserPoweredByVTTICloud => 'Con tecnología de VTTI Cloud';
+
+  @override
+  String get apkAnalyserSearchApps => 'Buscar aplicaciones...';
+
+  @override
+  String get apkAnalyserFailedToLoadApps =>
+      'No se pudieron cargar las aplicaciones.';
+
+  @override
+  String get apkAnalyserNoAppsFound => 'No se encontraron aplicaciones.';
+
+  @override
+  String get apkReportSummary => 'Resumen';
+
+  @override
+  String get apkReportPermissions => 'Permisos';
+
+  @override
+  String get apkReportExtraFlags => 'Indicadores adicionales';
+
+  @override
+  String get apkReportRiskSignals => 'Señales de riesgo';
+
+  @override
+  String get apkReportSources => 'Fuentes';
+
+  @override
+  String get apkReportMetadata => 'Metadatos';
+
+  @override
+  String get apkReportCopyReport => 'Copiar informe';
+
+  @override
+  String get apkReportReportCopiedToClipboard =>
+      'Informe copiado al portapapeles';
+
+  @override
+  String get apkReportExportAsPDF => 'Exportar como PDF';
+
+  @override
+  String get apkReportFailedToExportPDF => 'No se pudo exportar el PDF';
+
+  @override
+  String get apkReportExportAsCSV => 'Exportar como CSV';
+
+  @override
+  String get apkReportFailedToExportCSV => 'No se pudo exportar el CSV';
+
+  @override
+  String get apkReportAnalysisReport => 'Informe de análisis';
+
+  @override
+  String get apkReportMalwareRisk => 'Riesgo de malware';
+
+  @override
+  String get apkReportNoSummaryGenerated => 'No se generó ningún resumen.';
+
+  @override
+  String get apkReportNoRequestedPermissionsExtracted =>
+      'No se extrajeron permisos solicitados.';
+
+  @override
+  String get apkReportContributing => 'Contribuyentes';
+
+  @override
+  String get apkReportDampening => 'Atenuantes';
+
+  @override
+  String get bootOptimisingYourProtection => 'Optimizando tu protección';
+
+  @override
+  String get exclusionsFolders => 'Carpetas';
+
+  @override
+  String get exclusionsNone => 'Ninguno';
+
+  @override
+  String get exclusionsFiles => 'Archivos';
+
+  @override
+  String get exploreApkAnalyser => 'Analizador de APK';
+
+  @override
+  String get exploreCreateADetailedAnalysisOnAnyAPK =>
+      'Crea un análisis detallado de cualquier APK';
+
+  @override
+  String get featuresComingSoon => 'Próximamente';
+
+  @override
+  String get featuresWantToLearnMore => '¿Quieres saber más?';
+
+  @override
+  String get homeDrawerApkAnalyser => 'Analizador de APK';
+
+  @override
+  String get homeDrawerAdvanced => 'Avanzado';
+
+  @override
+  String get homeDrawerQuarantine => 'Cuarentena';
+
+  @override
+  String get homeDrawerUpgradeToPro => 'Mejorar a Pro';
+
+  @override
+  String get homeDrawerAvarionxVPN => 'AvarionX VPN';
+
+  @override
+  String get homeDrawerProtectYourInternetWithOurUnlimitedVPN =>
+      'Protege tu conexión a Internet con nuestra VPN ilimitada';
+
+  @override
+  String get deviceSecurityDeviceSecurity => 'Seguridad del dispositivo';
+
+  @override
+  String get deviceSecurityDeviceHealthStatus =>
+      'Estado de seguridad del dispositivo';
+
+  @override
+  String get deviceSecurityDeviceSecurityRecommendations =>
+      'Recomendaciones de seguridad del dispositivo';
+
+  @override
+  String get deviceSecurityStopIgnoring => 'Dejar de ignorar';
+
+  @override
+  String get deviceSecurityIgnoreCheck => 'Ignorar comprobación';
+
+  @override
+  String get deviceSecurityNoScreenLock => 'Sin bloqueo de pantalla';
+
+  @override
+  String get deviceSecurityAMissingSecureLockMakesLocalAccess =>
+      'No tener un bloqueo seguro facilita el acceso físico al dispositivo.';
+
+  @override
+  String get deviceSecurityRootShizukuActive => 'Root/Shizuku activo';
+
+  @override
+  String get deviceSecurityRootOrShizukuCanGrantPowerfulDevice =>
+      'Root o Shizuku pueden proporcionar un control avanzado del dispositivo.';
+
+  @override
+  String get deviceSecurityDisabledAppVerification =>
+      'Verificación de aplicaciones desactivada';
+
+  @override
+  String get deviceSecurityAppVerificationHelpsDetectHarmfulInstalls =>
+      'La verificación de aplicaciones ayuda a detectar instalaciones dañinas.';
+
+  @override
+  String get deviceSecurityOldAndroidSecurityPatch =>
+      'Parche de seguridad de Android antiguo';
+
+  @override
+  String get deviceSecurityOlderPatchLevelsMayLeaveKnownIssues =>
+      'Los niveles de parche antiguos pueden dejar sin corregir problemas conocidos.';
+
+  @override
+  String get deviceSecurityDeveloperModeOn => 'Modo desarrollador activado';
+
+  @override
+  String get deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls =>
+      'Las opciones de desarrollador permiten acceder a controles avanzados del dispositivo.';
+
+  @override
+  String get deviceSecurityUsbDebuggingOn => 'Depuración USB activada';
+
+  @override
+  String get deviceSecurityUsbDebuggingAllowsADBControlFromTrusted =>
+      'La depuración USB permite el control mediante ADB desde ordenadores de confianza.';
+
+  @override
+  String get deviceSecurityUnknownSourcesAllowed =>
+      'Fuentes desconocidas permitidas';
+
+  @override
+  String get deviceSecuritySideloadingCanBypassNormalAppStoreChecks =>
+      'La instalación lateral puede eludir las comprobaciones habituales de la tienda de aplicaciones.';
+
+  @override
+  String get deviceSecurityAccessibilityAbuseRisk =>
+      'Riesgo de abuso de accesibilidad';
+
+  @override
+  String get deviceSecurityAccessibilityServicesCanReadAndControlScreen =>
+      'Los servicios de accesibilidad pueden leer y controlar las acciones de la pantalla.';
+
+  @override
+  String get homeHelpImproveDetectionsForEverybody =>
+      'Ayuda a mejorar la detección para todos';
+
+  @override
+  String get homeApkSAndroidAppsFoundToBe =>
+      'Los APK (aplicaciones Android) detectados como maliciosos ';
+
+  @override
+  String get homeCanBeUploadedTo => 'se pueden subir a ';
+
+  @override
+  String get homeAndSharedWithTheCommunityThisIs =>
+      ' y compartir con la comunidad. Esto se limita ';
+
+  @override
+  String get homeStrictlyLimitedToAPKFilesNOTYour =>
+      'estrictamente a archivos APK, NO a tus ';
+
+  @override
+  String get homeDocuments => 'documentos personales.\n\n';
+
+  @override
+  String get homeThisWillImproveDetectionsForEveryoneThat =>
+      'Esto mejorará la detección para todos los que ';
+
+  @override
+  String get homeUsesAvarionXNoPressureThough =>
+      'usen AvarionX. ¡Sin compromiso!\n\n';
+
+  @override
+  String get homeThanks => 'Gracias,\n';
+
+  @override
+  String get homeRyanfromcolourswift => 'RyanFromColourswift';
+
+  @override
+  String get homeSure => '¡Claro!';
+
+  @override
+  String get homeNoThanks => '¡No, gracias!';
+
+  @override
+  String get homePsstCustomiseItHere => 'Psst... personalízalo aquí';
+
+  @override
+  String get homeScanNow => 'Analizar ahora';
+
+  @override
+  String get homeManuallyCheckYourDeviceForMalware =>
+      'Comprueba manualmente tu dispositivo en busca de malware';
+
+  @override
+  String get homeDeviceSecurity => 'Seguridad del dispositivo';
+
+  @override
+  String get homeScanModes => 'Modos de análisis';
+
+  @override
+  String get homeCloudAssistedChecksEnabled =>
+      'Comprobaciones asistidas por la nube activadas';
+
+  @override
+  String get homeLocalScanEngineOnly => 'Solo motor de análisis local';
+
+  @override
+  String get homeProtectedByVXTITANIUM => 'Protegido por VX-TITANIUM';
+
+  @override
+  String get homeSecurityOverview => 'Resumen de seguridad';
+
+  @override
+  String get homeFilesChecked => 'Archivos comprobados';
+
+  @override
+  String get homeThreats => 'Amenazas';
+
+  @override
+  String get securityReportAvarionxSecurityReport =>
+      'Informe de seguridad de Avarionx';
+
+  @override
+  String get securityReportSecurityReport => 'Informe de seguridad';
+
+  @override
+  String get securityReportManualScans => 'Análisis manuales';
+
+  @override
+  String get securityReportRealtimeChecks => 'Comprobaciones en tiempo real';
+
+  @override
+  String get securityReportTotalFilesScanned => 'Total de archivos analizados';
+
+  @override
+  String get securityReportThreatsFound => 'Amenazas encontradas';
+
+  @override
+  String get securityReportGenerateReport => 'Generar informe';
+
+  @override
+  String get securityReportLiveReport => 'Informe en directo';
+
+  @override
+  String get securityReportThisBoxUpdatesAsScanServicesWrite =>
+      'Este cuadro se actualiza a medida que los servicios de análisis escriben datos del informe.';
+
+  @override
+  String get securityReportExportPDF => 'Exportar PDF';
+
+  @override
+  String get securityReportExportCSV => 'Exportar CSV';
+
+  @override
+  String get homeLegacyProActivated => 'Pro activado';
+
+  @override
+  String get homeLegacyProDeactivated => 'Pro desactivado';
+
+  @override
+  String get linkCheckPoweredByVTTICloud => 'Con tecnología de VTTI Cloud';
+
+  @override
+  String get safeViewSafeView => 'Safe View';
+
+  @override
+  String get passwordSettingsChangingThisAltersAllPasswords =>
+      'Cambiar esto modifica todas las contraseñas.\n';
+
+  @override
+  String get passwordSettingsUsingTheSameMetaPassRestoresThem =>
+      'Usar el mismo MetaPass las restaura.';
+
+  @override
+  String get passwordSettingsPasswordsAreNeverStored =>
+      'Las contraseñas nunca se almacenan.\n\n';
+
+  @override
+  String get passwordSettingsTheRestoreCodeContainsOnlyStructureData =>
+      'El código de restauración solo contiene datos de estructura. ';
+
+  @override
+  String get passwordSettingsCombinedWithYourMetaPassItRebuildsYour =>
+      'Combinado con tu MetaPass, reconstruye tu bóveda.';
+
+  @override
+  String get passwordManagerContinue => 'Continuar';
+
+  @override
+  String passwordManagerFailedToLoadApps(Object e) {
+    return 'No se pudieron cargar las aplicaciones: $e';
+  }
+
+  @override
+  String passwordManagerFailedToGeneratePassword(Object e) {
+    return 'No se pudo generar la contraseña: $e';
+  }
+
+  @override
+  String get passwordManagerPasswordsAreNeverStored =>
+      'Las contraseñas nunca se almacenan.\n\n';
+
+  @override
+  String get passwordManagerEachEntryDerivesAPasswordFrom =>
+      'Cada entrada deriva una contraseña a partir de:\n';
+
+  @override
+  String get passwordManagerYourMetaPassword => '• Tu contraseña maestra\n';
+
+  @override
+  String get passwordManagerTheLabelName => '• El nombre de la etiqueta\n';
+
+  @override
+  String get passwordManagerTheVersionAndLength =>
+      '• La versión y la longitud\n\n';
+
+  @override
+  String get passwordManagerReinstallingTheAppWithTheSameMeta =>
+      'Si reinstalas la aplicación con la misma contraseña maestra y las mismas etiquetas, se vuelven a generar las mismas contraseñas.';
+
+  @override
+  String get permissionsIntroSetupIsNowCompleteTimeToSecure =>
+      '¡La configuración ya está completa! Es hora de proteger tus datos.';
+
+  @override
+  String get proScreenThankYou => 'Gracias';
+
+  @override
+  String get proScreenYourSubscriptionIsConfirmed =>
+      'Tu suscripción está confirmada.';
+
+  @override
+  String get proScreenCurrent => 'Actual';
+
+  @override
+  String get proScreenAdvancedStealthMode => 'Modo Stealth+ avanzado';
+
+  @override
+  String get proScreenUnlockStealthTransportModesForRestrictiveNetworks =>
+      'Desbloquea modos de transporte ocultos para redes restrictivas.';
+
+  @override
+  String get proScreenGlobalServerAccess => 'Acceso global a servidores';
+
+  @override
+  String get proScreenAccessEveryVPNServerLocationIncludingPremium =>
+      'Accede a todas las ubicaciones de servidores VPN, incluidas las regiones premium de alta velocidad.';
+
+  @override
+  String get proScreenBilledMonthly => 'Facturación mensual';
+
+  @override
+  String proScreenMo(Object monthlyInfo) {
+    return '$monthlyInfo/mes';
+  }
+
+  @override
+  String proScreenMo2(Object currencyCode) {
+    return '$currencyCode/mes';
+  }
+
+  @override
+  String get proScreenCurrentPlan => 'Plan actual';
+
+  @override
+  String get quarantineScreenQuarantineDataCorruptedResetting =>
+      'Datos de cuarentena dañados. Restableciendo.';
+
+  @override
+  String get quarantineScreenUninstallApp => 'Desinstalar aplicación';
+
+  @override
+  String quarantineScreenUninstall(Object appName) {
+    return '¿Desinstalar $appName?';
+  }
+
+  @override
+  String get quarantineScreenUninstall2 => 'Desinstalar';
+
+  @override
+  String get quarantineScreenFailedToLaunchUninstall =>
+      'No se pudo iniciar la desinstalación';
+
+  @override
+  String get quarantineScreenFiles => 'Archivos';
+
+  @override
+  String get cleanerAppManagerShizukuNotAvailable => 'Shizuku no disponible';
+
+  @override
+  String get cleanerAppManagerWithoutShizukuEachAppRequiresASeparate =>
+      'Sin Shizuku, cada aplicación requiere una confirmación del sistema por separado. ¿Continuar?';
+
+  @override
+  String cleanerAppManagerAppsUninstalled(Object successCount) {
+    return '$successCount aplicaciones desinstaladas';
+  }
+
+  @override
+  String cleanerAppManagerUninstalledFailed(
+      Object successCount, Object failedCount) {
+    return '$successCount desinstaladas, $failedCount con error';
+  }
+
+  @override
+  String cleanerAppManagerStopped(Object appName) {
+    return '$appName detenida';
+  }
+
+  @override
+  String get cleanerAppManagerForceStopFailed =>
+      'No se pudo forzar la detención';
+
+  @override
+  String get cleanerAppManagerClearAppData => 'Borrar datos de la aplicación';
+
+  @override
+  String cleanerAppManagerResetThisClearsItsAccountsSettingsFiles(
+      Object appName) {
+    return '¿Restablecer $appName? Esto borrará sus cuentas, ajustes, archivos y caché.';
+  }
+
+  @override
+  String get cleanerAppManagerClearData => 'Borrar datos';
+
+  @override
+  String cleanerAppManagerReset(Object appName) {
+    return '$appName restablecida';
+  }
+
+  @override
+  String get cleanerAppManagerClearDataFailed =>
+      'No se pudieron borrar los datos';
+
+  @override
+  String get cleanerAppManagerOpenApp => 'Abrir aplicación';
+
+  @override
+  String get cleanerAppManagerForceStop => 'Forzar detención';
+
+  @override
+  String get cleanerAppManagerUninstall => 'Desinstalar';
+
+  @override
+  String cleanerAppManagerSelected(Object selectedCount) {
+    return '$selectedCount seleccionados';
+  }
+
+  @override
+  String get cleanerAppManagerAppManager => 'Gestor de aplicaciones';
+
+  @override
+  String get cleanerAppManagerDeselectAll => 'Deseleccionar todo';
+
+  @override
+  String cleanerAppManagerUninstalling(Object done, Object total) {
+    return 'Desinstalando $done / $total…';
+  }
+
+  @override
+  String cleanerAppManagerUninstall2(Object selectedCount) {
+    return 'Desinstalar $selectedCount';
+  }
+
+  @override
+  String get cleanerProClearAppCaches => 'Borrar cachés de aplicaciones';
+
+  @override
+  String get cleanerProThisAsksAndroidToTrimAppCaches =>
+      'Esto pide a Android que reduzca las cachés de las aplicaciones en todo el dispositivo. No se borran los datos, las cuentas ni los ajustes de las aplicaciones.';
+
+  @override
+  String get cleanerProClearCaches => 'Borrar cachés';
+
+  @override
+  String get cleanerProCacheTrimRequested => 'Limpieza de caché solicitada';
+
+  @override
+  String get cleanerProCacheCleanerFailed => 'Falló la limpieza de caché';
+
+  @override
+  String get cleanerProLogFiles => 'Archivos de registro';
+
+  @override
+  String get cleanerProCacheCleaner => 'Limpiador de caché';
+
+  @override
+  String get cleanerProLogCleaner => 'Limpiador de registros';
+
+  @override
+  String get cleanerProAppDataManager => 'Gestor de datos de aplicaciones';
+
+  @override
+  String get cleanerScreenCleaner => 'Limpiador';
+
+  @override
+  String get scanDetailDeleteFiles => 'Eliminar archivos';
+
+  @override
+  String scanDetailDeleteFilesPermanently(Object selectedCount) {
+    return '¿Eliminar permanentemente $selectedCount archivos?';
+  }
+
+  @override
+  String get scanDetailSelectedFilesDeleted =>
+      'Archivos seleccionados eliminados';
+
+  @override
+  String get scanDetailDeleteAllFiles => 'Eliminar todos los archivos';
+
+  @override
+  String scanDetailDeleteAllFilesPermanently(Object fileCount) {
+    return '¿Eliminar permanentemente los $fileCount archivos?';
+  }
+
+  @override
+  String get scanDetailDeleteAll => 'Eliminar todo';
+
+  @override
+  String get scanDetailAllFilesDeleted => 'Todos los archivos eliminados';
+
+  @override
+  String scanDetailSelected(Object selectedCount) {
+    return '$selectedCount seleccionados';
+  }
+
+  @override
+  String get scanDetailDeselectAll => 'Deseleccionar todo';
+
+  @override
+  String get scanDetailNewestFirst => 'Más recientes primero';
+
+  @override
+  String get scanDetailOldestFirst => 'Más antiguos primero';
+
+  @override
+  String get scanDetailLargestFirst => 'Más grandes primero';
+
+  @override
+  String get scanDetailSmallestFirst => 'Más pequeños primero';
+
+  @override
+  String get scanDetailNoFilesFound => 'No se encontraron archivos';
+
+  @override
+  String get scanDetailDeleteAll2 => 'Eliminar todo';
+
+  @override
+  String get scanInstalledAppsSearchApps => 'Buscar aplicaciones...';
+
+  @override
+  String get scanInstalledAppsNoAppsFound => 'No se encontraron aplicaciones.';
+
+  @override
+  String get scanUiScanComplete => 'Análisis completado';
+
+  @override
+  String scanUiScannedItems(Object scanned) {
+    return 'Analizados: $scanned elementos';
+  }
+
+  @override
+  String scanUiProgress(Object pct, Object scanned, Object total) {
+    return 'Progreso: $pct ($scanned / $total)';
+  }
+
+  @override
+  String get scanUiPreparingEngine => 'Preparando motor...';
+
+  @override
+  String get scanUiLoadingTargetS => 'Cargando objetivo(s)';
+
+  @override
+  String get scanUiAvarionxVPN => 'AvarionX VPN';
+
+  @override
+  String get scanUiProtectYourInternetWithOurUnlimitedVPN =>
+      'Protege tu conexión a Internet con nuestra VPN ilimitada';
+
+  @override
+  String get scanUiTapMe => '¡Tócame!';
+
+  @override
+  String scanUiScanned(Object scanned) {
+    return '$scanned analizados';
+  }
+
+  @override
+  String get scanUiReturn => 'Volver';
+
+  @override
+  String get scanLimitsSettingsUpdated => 'Ajustes actualizados';
+
+  @override
+  String get scanLimitsScanLimits => 'Límites de análisis';
+
+  @override
+  String get scanLimitsLimitHowMuchTheEngineUsesYour =>
+      'Limita cuánto usa el motor tu CPU. Hilos: 0 significa automático.';
+
+  @override
+  String get scanLimitsMaxScanThreads => 'Máximo de hilos de análisis';
+
+  @override
+  String scanLimits0AutoRange0ToCores(Object maxThreads, Object coreCount) {
+    return '0 = automático. Intervalo: 0 a $maxThreads (núcleos: $coreCount).';
+  }
+
+  @override
+  String scanLegacyScanning(Object percent) {
+    return 'Analizando... $percent%';
+  }
+
+  @override
+  String scanLegacySuspicious(Object infectedCount) {
+    return 'Sospechosos: $infectedCount';
+  }
+
+  @override
+  String scanLegacyClean(Object cleanCount) {
+    return 'Limpios: $cleanCount';
+  }
+
+  @override
+  String get scanLegacyNoFilesToScan => 'No hay archivos que analizar';
+
+  @override
+  String get settingsSponsorsUnlock => 'Los patrocinadores lo desbloquean ❤️';
+
+  @override
+  String get settingsPickCertificate => 'Elegir certificado';
+
+  @override
+  String get settingsCertificateLoaded => 'Certificado cargado';
+
+  @override
+  String get settingsEnterCode => 'introducir código';
+
+  @override
+  String get settingsSupportFileMissing => 'Falta el archivo de soporte';
+
+  @override
+  String get settingsInvalidSupportCode => 'Código de soporte no válido';
+
+  @override
+  String get settingsAvarionxSecurity => 'Seguridad de AvarionX';
+
+  @override
+  String get settingsAvarionxIsAMobileSecuritySuiteCreated =>
+      'AvarionX es una suite de seguridad móvil creada por ColourSwift, con sede en Birmingham, Reino Unido.\n\n';
+
+  @override
+  String get settingsContact => 'Contacto: ';
+
+  @override
+  String get settingsExperimentalFeatures => 'Funciones experimentales';
+
+  @override
+  String get settingsEnablingShizukuUnlocksExperimentalWorkInProgress =>
+      'Al activar Shizuku se desbloquean funciones experimentales todavía en desarrollo:\n\n';
+
+  @override
+  String get settingsAdvancedRansomwareProtection =>
+      '• Protección avanzada contra ransomware\n';
+
+  @override
+  String get settingsCacheCleanerPlus => '• Cache Cleaner Plus\n\n';
+
+  @override
+  String get settingsExperimentalWarning => 'Advertencia experimental:\n';
+
+  @override
+  String get settingsTheseFeaturesUseAdvancedSystemAccessAnd =>
+      'Estas funciones utilizan acceso avanzado al sistema y pueden comportarse de forma diferente según el dispositivo, la versión de Android y la configuración de Shizuku. Algunas acciones pueden afectar a aplicaciones en ejecución, archivos o datos de caché de forma más directa que un análisis normal.\n\n';
+
+  @override
+  String get settingsOnlyEnableThisIfYouUnderstandShizuku =>
+      'Activa esto solo si entiendes Shizuku, aceptas que la función aún está en pruebas y has hecho una copia de seguridad de todo lo importante.\n\n';
+
+  @override
+  String get settingsPleaseReadTheDocumentationBeforeEnabling =>
+      'Lee la documentación antes de activarlo.';
+
+  @override
+  String get settingsEnable => 'Activar';
+
+  @override
+  String get settingsSigningOut => 'Cerrando sesión...';
+
+  @override
+  String get settingsCheckingAccountStatus =>
+      'Comprobando el estado de la cuenta...';
+
+  @override
+  String get settingsManageSignInPremiumAndPurchases =>
+      'Gestionar inicio de sesión, Premium y compras';
+
+  @override
+  String get settingsPremiumActive => 'Premium activo';
+
+  @override
+  String get settingsManagePremiumOptionsAndRestorePurchases =>
+      'Gestionar opciones Premium y restaurar compras';
+
+  @override
+  String get settingsUnlockDeepAnalysisModeAndVPNFeatures =>
+      'Desbloquea el modo de análisis profundo y las funciones VPN';
+
+  @override
+  String get settingsAutoClearNotifications =>
+      'Borrar notificaciones automáticamente';
+
+  @override
+  String get settingsScanModes => 'Modos de análisis';
+
+  @override
+  String get settingsAdvancedScanModes => 'Modos de análisis avanzados';
+
+  @override
+  String get settingsDisableToUseTheDefaultScanningMode =>
+      'Desactiva para usar el modo de análisis predeterminado';
+
+  @override
+  String get settingsToggleToEnableAllScanningModes =>
+      'Activa para habilitar todos los modos de análisis';
+
+  @override
+  String get settingsApkSubmissions => 'Envíos de APK';
+
+  @override
+  String get settingsShareMaliciousAPKs => 'Compartir APK maliciosos';
+
+  @override
+  String get settingsHelpingImproveDetectionForEveryone =>
+      'Ayuda a mejorar la detección para todos';
+
+  @override
+  String get settingsOff => 'Desactivado';
+
+  @override
+  String get settingsIncludeRealtimeProtectionCatches =>
+      'Incluir detecciones de Protección en tiempo real';
+
+  @override
+  String get settingsApksFlaggedByRealtimeProtectionAreIncluded =>
+      'Se incluyen los APK marcados por Protección en tiempo real';
+
+  @override
+  String get settingsApksFlaggedByRealtimeProtectionAreExcluded =>
+      'Se excluyen los APK marcados por Protección en tiempo real';
+
+  @override
+  String get settingsIncludeManualAndScheduledScans =>
+      'Incluir análisis manuales y programados';
+
+  @override
+  String get settingsApksFlaggedByScansAreIncluded =>
+      'Se incluyen los APK marcados por los análisis';
+
+  @override
+  String get settingsApksFlaggedByScansAreExcluded =>
+      'Se excluyen los APK marcados por los análisis';
+
+  @override
+  String get settingsWiFiOnly => 'Solo Wi-Fi';
+
+  @override
+  String get settingsUploadsWaitForAWiFiConnection =>
+      'Las subidas esperan a una conexión Wi-Fi';
+
+  @override
+  String get settingsUploadsMayUseMobileData =>
+      'Las subidas pueden usar datos móviles';
+
+  @override
+  String get settingsChargingOnly => 'Solo mientras se carga';
+
+  @override
+  String get settingsUploadsWaitUntilTheDeviceIsCharging =>
+      'Las subidas esperan hasta que el dispositivo esté cargando';
+
+  @override
+  String get settingsUploadsAreNotLimitedToCharging =>
+      'Las subidas no se limitan al estado de carga';
+
+  @override
+  String get settingsChooseWhichAppsUpload =>
+      'Elegir qué aplicaciones se suben';
+
+  @override
+  String get settingsReviewAndPickAppsEachTimeBefore =>
+      'Revisar y elegir aplicaciones cada vez antes de subirlas';
+
+  @override
+  String get settingsFlaggedAppsUploadAutomatically =>
+      'Las aplicaciones marcadas se suben automáticamente';
+
+  @override
+  String get settingsEnableProDebug => 'Activar Pro (depuración)';
+
+  @override
+  String get settingsLocalUnlockForUITesting =>
+      'Desbloqueo local para pruebas de interfaz';
+
+  @override
+  String get settingsRestorePurchases => 'Restaurar compras';
+
+  @override
+  String get settingsReCheckPlayBilling => 'Volver a comprobar Play Billing';
+
+  @override
+  String get settingsCheckingAccount => 'Comprobando cuenta...';
+
+  @override
+  String get settingsAvarionxAccountConnected => 'Cuenta de AvarionX conectada';
+
+  @override
+  String settingsAccountID(Object accountId) {
+    return 'ID de cuenta: $accountId';
+  }
+
+  @override
+  String get settingsSignInToManagePurchasesAndAccount =>
+      'Inicia sesión para gestionar las compras y las funciones de la cuenta.';
+
+  @override
+  String get settingsOpenTheAvarionXAccountPortal =>
+      'Abrir el portal de cuenta de AvarionX';
+
+  @override
+  String get settingsAccountDashboard => 'Panel de la cuenta';
+
+  @override
+  String get settingsOpenBillingAndAccountSettings =>
+      'Abrir ajustes de facturación y cuenta';
+
+  @override
+  String get settingsRemoveThisAccountFromTheApp =>
+      'Eliminar esta cuenta de la aplicación';
+
+  @override
+  String get settingsPremiumFeaturesAreAvailableOnThisDevice =>
+      'Las funciones Premium están disponibles en este dispositivo';
+
+  @override
+  String get settingsViewOptionalPremiumFeatures =>
+      'Ver funciones Premium opcionales';
+
+  @override
+  String get settingsReCheckPlayBillingEntitlement =>
+      'Volver a comprobar el derecho de Play Billing';
+
+  @override
+  String get settingsRtpNotificationAutoClearNotifications =>
+      'Borrar notificaciones automáticamente';
+
+  @override
+  String get settingsRtpNotificationNever => 'Nunca';
+
+  @override
+  String get settingsRtpNotification5Minutes => '5 minutos';
+
+  @override
+  String get settingsRtpNotification10Minutes => '10 minutos';
+
+  @override
+  String get settingsRtpNotification30Minutes => '30 minutos';
+
+  @override
+  String get settingsThemeBlack => 'Negro';
+
+  @override
+  String get settingsThemeWhite => 'Blanco';
+
+  @override
+  String get settingsThemeGrey => 'Gris';
+
+  @override
+  String get settingsThemeEmerald => 'Esmeralda';
+
+  @override
+  String get settingsThemePurple => 'Morado';
+
+  @override
+  String get settingsThemeRoyalBlue => 'Azul real';
+
+  @override
+  String get settingsAccountCardSyncPurchasesAndUnlockProAcrossApps =>
+      'Sincroniza las compras y desbloquea Pro en todas las aplicaciones.';
+
+  @override
+  String get settingsAccountCardLoading => 'Cargando...';
+
+  @override
+  String get settingsAccountCardDashboard => 'Panel';
+
+  @override
+  String get settingsProCardChangePlan => 'Cambiar plan';
+
+  @override
+  String get advancedNetworkProtectionEnterYourOwnResolver =>
+      'Introduce tu propio resolvedor';
+
+  @override
+  String get advancedNetworkProtectionCloudProtectionMode =>
+      'Modo de protección en la nube';
+
+  @override
+  String get advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud =>
+      'Enruta todas las consultas DNS al motor en la nube, lo que permite actualizaciones en directo de las listas de bloqueo, comprobaciones de reputación de dominios y mucho más.';
+
+  @override
+  String get advancedNetworkProtectionRefreshProStatus =>
+      'Actualizar estado de Pro';
+
+  @override
+  String get advancedNetworkProtectionProActive => 'Pro activo';
+
+  @override
+  String get advancedNetworkProtectionFreePlan => 'Plan gratuito';
+
+  @override
+  String get advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith =>
+      'Comprueba tu derecho y lo sincroniza con las funciones en la nube. Pro desbloquea el bloqueo de anuncios en todo el sistema.';
+
+  @override
+  String get advancedNetworkProtectionMalwareProtection =>
+      'Protección contra malware';
+
+  @override
+  String get advancedNetworkProtectionBlocksKnownMaliciousDomains =>
+      'Bloquea dominios maliciosos conocidos';
+
+  @override
+  String get advancedNetworkProtectionTrackerProtection =>
+      'Protección contra rastreadores';
+
+  @override
+  String get advancedNetworkProtectionReducesTrackingDomains =>
+      'Reduce los dominios de seguimiento';
+
+  @override
+  String get advancedNetworkProtectionAdProtection =>
+      'Protección contra anuncios';
+
+  @override
+  String get advancedNetworkProtectionBlocksCommonAdDomains =>
+      'Bloquea dominios publicitarios comunes';
+
+  @override
+  String get advancedNetworkProtectionAdultFilter =>
+      'Filtro de contenido para adultos';
+
+  @override
+  String get advancedNetworkProtectionUses1113Upstream =>
+      'Usa 1.1.1.3 como servidor ascendente';
+
+  @override
+  String get advancedNetworkProtectionLockedUntilProIsActiveAndCloud =>
+      'Bloqueado hasta que Pro esté activo y el modo en la nube esté habilitado.';
+
+  @override
+  String get advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer =>
+      'Eventos DNS en directo desde la capa VPN.';
+
+  @override
+  String get advancedNetworkProtectionAdvanced => 'Avanzado';
+
+  @override
+  String get advancedNetworkProtectionDns => 'DNS';
+
+  @override
+  String get advancedNetworkProtectionCloudDNSMode => 'Modo DNS en la nube';
+
+  @override
+  String get networkProtectionEnterYourOwnResolver =>
+      'Introduce tu propio resolvedor';
+
+  @override
+  String get networkAppControlEnableVPNToggles => 'Activar controles de VPN';
+
+  @override
+  String get networkAppControlOpenSettings => 'Abrir ajustes';
+
+  @override
+  String get networkAppControlAppControl => 'Control de aplicaciones';
+
+  @override
+  String get networkAppControlNoAppsFound => 'No se encontraron aplicaciones.';
+
+  @override
+  String get networkSpeedTestCountry => 'País';
+
+  @override
+  String get networkSpeedTestRunning => 'En curso';
+
+  @override
+  String get networkSpeedTestRunTest => 'Ejecutar prueba';
+
+  @override
+  String get networkSpeedTestNoResultsYet => 'Aún no hay resultados.';
+
+  @override
+  String networkSpeedTestDnsTLS(Object dns, Object tls) {
+    return 'DNS: $dns  •  TLS: $tls';
+  }
+
+  @override
+  String get networkSpeedTestFail => 'Fallo';
+
+  @override
+  String get dnsNetworkProtectionEnterYourOwnResolver =>
+      'Introduce tu propio resolvedor';
+
+  @override
+  String get dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure =>
+      'El filtrado DNS es independiente de Secure VPN. Puede bloquear malware conocido, anuncios (en todas las aplicaciones), rastreadores y contenido de categorías no deseadas antes de que se carguen.';
+
+  @override
+  String get fullVpnSignedIn => 'Sesión iniciada.';
+
+  @override
+  String get fullVpnSignInRequired => 'Inicio de sesión necesario';
+
+  @override
+  String get fullVpnClose => 'Cerrar';
+
+  @override
+  String get fullVpnLoadingUsage => 'Cargando uso...';
+
+  @override
+  String get fullVpnSyncing => 'Sincronizando';
+
+  @override
+  String fullVpnUsedThisMonth(Object usedBytes) {
+    return '$usedBytes usados este mes';
+  }
+
+  @override
+  String get blockedScreenUnsupportedEnvironment => 'Entorno no compatible';
+
+  @override
+  String updateLogUpdateV(Object version) {
+    return 'Actualización: v$version';
+  }
+
+  @override
+  String get updateLogHiThereAvarionXHasBeenUpdatedBelow =>
+      '¡Hola! AvarionX se ha actualizado. Estos son los cambios:';
+
+  @override
+  String get updateLogNoUserFacingChangesInThisUpdate =>
+      'Esta actualización no incluye cambios visibles para el usuario.';
+
+  @override
+  String get updateLogContinue => 'Continuar';
+
+  @override
+  String get featuresRealtimeProtectionBody =>
+      'Supervisa archivos nuevos y modificados en segundo plano y bloquea las amenazas en cuanto aparecen.';
+
+  @override
+  String get featuresTriLayerEngineTitle => 'Motor de tres capas';
+
+  @override
+  String get featuresTriLayerEngineBody =>
+      'Un núcleo de detección de tres etapas que combina filtrado Bloom, análisis de firmas y análisis de bytes orientado a APK para ofrecer gran precisión y velocidad.';
+
+  @override
+  String get featuresMachineLearningTitle => 'Aprendizaje automático';
+
+  @override
+  String get featuresMachineLearningBody =>
+      'Un modelo ligero en el dispositivo entrenado para reconocer patrones de comportamiento malicioso en APK.';
+
+  @override
+  String get featuresCleanerProTitle => 'Cleaner Pro';
+
+  @override
+  String get featuresCleanerProBody =>
+      'Un módulo de limpieza en evolución que identifica duplicados, caché y aplicaciones sin usar para recuperar almacenamiento.';
+
+  @override
+  String get featuresWifiProtectionTitle => 'Protección Wi-Fi';
+
+  @override
+  String get featuresWifiProtectionBody =>
+      'Detecta redes Wi-Fi inseguras o sospechosas mediante análisis en el dispositivo.';
+
+  @override
+  String get featuresRootLevelProtectionTitle => 'Protección a nivel root';
+
+  @override
+  String get featuresRootLevelProtectionBody =>
+      'Defensa profunda a nivel del sistema diseñada para dispositivos rooteados y usuarios avanzados.';
+
+  @override
+  String get featuresPcCompanionTitle => 'Complemento para PC';
+
+  @override
+  String get featuresPcCompanionBody =>
+      'Próxima versión de escritorio para integrar el antivirus entre plataformas.';
+
+  @override
+  String get deviceSecurityNoRisksFound =>
+      'No se encontraron riesgos en el dispositivo';
+
+  @override
+  String get deviceSecurityOneCheckNeedsAttention =>
+      '1 comprobación del dispositivo necesita atención';
+
+  @override
+  String deviceSecurityChecksNeedAttention(Object count) {
+    return '$count comprobaciones del dispositivo necesitan atención';
+  }
+
+  @override
+  String get deviceSecurityHealthSectionBody =>
+      'Estos ajustes afectan directamente a la postura de seguridad de tu dispositivo.';
+
+  @override
+  String get deviceSecurityRecommendationsSectionBody =>
+      'Estos ajustes forman parte de las buenas prácticas de seguridad habituales.';
+
+  @override
+  String get deviceSecuritySignalUnavailable => 'Señal no disponible';
+
+  @override
+  String get deviceSecurityIgnoredByYou => 'Ignorado por ti';
+
+  @override
+  String get deviceSecurityScreenLockInactiveTitle => 'Bloqueo de pantalla';
+
+  @override
+  String get deviceSecurityScreenLockActiveLabel =>
+      'No seguro: no hay configurado un bloqueo de pantalla seguro';
+
+  @override
+  String get deviceSecurityScreenLockInactiveLabel =>
+      'El bloqueo de pantalla está activo';
+
+  @override
+  String get deviceSecurityScreenLockDetail =>
+      'Un bloqueo de pantalla seguro protege tu dispositivo si se pierde, lo roban o queda desatendido. Sin un PIN, contraseña, patrón, huella dactilar o desbloqueo facial respaldado por un método de bloqueo seguro, cualquiera que tenga acceso físico puede abrir el dispositivo con mayor facilidad.';
+
+  @override
+  String get deviceSecurityScreenLockHelp =>
+      'Abre los ajustes de seguridad de Android y configura un bloqueo de pantalla seguro.';
+
+  @override
+  String get deviceSecurityCheckSetting => 'Comprobar ajuste';
+
+  @override
+  String get deviceSecurityPrivilegedInactiveTitle => 'Sin acceso privilegiado';
+
+  @override
+  String get deviceSecurityPrivilegedActiveLabel =>
+      'Acceso privilegiado detectado';
+
+  @override
+  String get deviceSecurityPrivilegedInactiveLabel =>
+      'No se detectó acceso privilegiado';
+
+  @override
+  String get deviceSecurityPrivilegedDetail =>
+      'Root y Shizuku pueden ser útiles, pero también aumentan el impacto de una aplicación maliciosa si se abusa del acceso. Las aplicaciones con acceso privilegiado pueden realizar acciones que las aplicaciones normales de Android no pueden.';
+
+  @override
+  String get deviceSecurityPrivilegedHelp =>
+      'Revisa manualmente los ajustes de root, Magisk o Shizuku.';
+
+  @override
+  String get deviceSecurityReviewSetting => 'Revisar ajuste';
+
+  @override
+  String get deviceSecurityAppVerificationInactiveTitle =>
+      'Verificación de aplicaciones';
+
+  @override
+  String get deviceSecurityAppVerificationActiveLabel =>
+      'No seguro: la verificación de aplicaciones parece estar desactivada';
+
+  @override
+  String get deviceSecurityAppVerificationInactiveLabel =>
+      'La verificación de aplicaciones parece estar activada';
+
+  @override
+  String get deviceSecurityAppVerificationDetail =>
+      'La verificación de aplicaciones de Android ayuda a comprobar las aplicaciones antes o después de instalarlas. Si esta protección está desactivada o no está disponible, es menos probable que las aplicaciones dañinas se bloqueen antes de ejecutarse.';
+
+  @override
+  String get deviceSecurityAppVerificationHelp =>
+      'Abre los ajustes de seguridad de Android y revisa la verificación de aplicaciones.';
+
+  @override
+  String get deviceSecuritySecurityPatchInactiveTitle =>
+      'Parche de seguridad actualizado';
+
+  @override
+  String get deviceSecuritySecurityPatchActiveLabel =>
+      'El nivel del parche de seguridad está desactualizado';
+
+  @override
+  String get deviceSecuritySecurityPatchInactiveLabel =>
+      'El nivel del parche de seguridad está actualizado';
+
+  @override
+  String get deviceSecuritySecurityPatchDetail =>
+      'Los parches de seguridad de Android corrigen problemas conocidos de la plataforma y del fabricante. Si el nivel del parche es antiguo, el dispositivo puede estar expuesto a vulnerabilidades que ya se han corregido en versiones más recientes.';
+
+  @override
+  String get deviceSecuritySecurityPatchHelp =>
+      'Abre los ajustes de actualización del sistema Android y busca actualizaciones.';
+
+  @override
+  String get deviceSecurityCheckUpdates => 'Buscar actualizaciones';
+
+  @override
+  String get deviceSecurityDeveloperModeInactiveTitle => 'Modo desarrollador';
+
+  @override
+  String get deviceSecurityDeveloperModeActiveLabel =>
+      'Las opciones de desarrollador están activadas';
+
+  @override
+  String get deviceSecurityDeveloperModeInactiveLabel =>
+      'Las opciones de desarrollador están desactivadas';
+
+  @override
+  String get deviceSecurityDeveloperModeDetail =>
+      'El Modo desarrollador es normal para desarrolladores y probadores, pero expone ajustes avanzados que pueden reducir la seguridad del dispositivo si se cambian accidentalmente o los utiliza de forma indebida alguien con acceso al dispositivo.';
+
+  @override
+  String get deviceSecurityDeveloperModeHelp =>
+      'Abre las Opciones de desarrollador y desactiva los ajustes que no necesites.';
+
+  @override
+  String get deviceSecurityUsbDebuggingInactiveTitle => 'Depuración USB';
+
+  @override
+  String get deviceSecurityUsbDebuggingActiveLabel =>
+      'No seguro: la depuración USB está activada';
+
+  @override
+  String get deviceSecurityUsbDebuggingInactiveLabel =>
+      'La depuración USB está desactivada';
+
+  @override
+  String get deviceSecurityUsbDebuggingDetail =>
+      'La depuración USB permite que un ordenador conectado interactúe con tu dispositivo mediante Android Debug Bridge. Si se deja activada, aumenta el riesgo de acceso no autorizado al conectarse a un equipo que no sea de confianza.';
+
+  @override
+  String get deviceSecurityUsbDebuggingHelp =>
+      'Abre las Opciones de desarrollador y desactiva la depuración USB.';
+
+  @override
+  String get deviceSecurityUnknownSourcesInactiveTitle =>
+      'Fuentes desconocidas';
+
+  @override
+  String get deviceSecurityUnknownSourcesActiveLabel =>
+      'Se permite instalar aplicaciones desconocidas';
+
+  @override
+  String get deviceSecurityUnknownSourcesInactiveLabel =>
+      'La instalación de aplicaciones desconocidas está restringida';
+
+  @override
+  String get deviceSecurityUnknownSourcesDetail =>
+      'Permitir instalaciones de aplicaciones desconocidas puede ser útil para APK de confianza, pero también aumenta la posibilidad de instalar aplicaciones de fuentes no seguras. Permítelo solo para aplicaciones y tiendas en las que confíes.';
+
+  @override
+  String get deviceSecurityUnknownSourcesHelp =>
+      'Abre los ajustes de Android y revisa el acceso para instalar aplicaciones desconocidas.';
+
+  @override
+  String get deviceSecurityAccessibilityInactiveTitle =>
+      'Servicios de accesibilidad';
+
+  @override
+  String get deviceSecurityAccessibilityActiveLabel =>
+      'Servicio de accesibilidad de terceros activado';
+
+  @override
+  String get deviceSecurityAccessibilityInactiveLabel =>
+      'No se encontraron servicios de accesibilidad de riesgo';
+
+  @override
+  String get deviceSecurityAccessibilityDetail =>
+      'Los servicios de accesibilidad son potentes porque pueden observar el contenido de la pantalla y realizar acciones en nombre del usuario. Esto resulta útil para herramientas legítimas, pero también es una función que las aplicaciones maliciosas suelen utilizar de forma abusiva.';
+
+  @override
+  String get deviceSecurityAccessibilityHelp =>
+      'Abre los ajustes de Accesibilidad y revisa los servicios activados.';
+
+  @override
+  String get deviceSecurityChecking =>
+      'Comprobando la seguridad del dispositivo';
+
+  @override
+  String get deviceSecurityReadingSignals =>
+      'Leyendo señales de postura del dispositivo...';
+
+  @override
+  String get deviceSecurityOneCheckAttention =>
+      '1 comprobación necesita atención';
+
+  @override
+  String deviceSecurityChecksAttention(Object count) {
+    return '$count comprobaciones necesitan atención';
+  }
+
+  @override
+  String get deviceSecurityTapSignal =>
+      'Toca una señal de abajo para obtener más información.';
+
+  @override
+  String deviceSecurityIgnoredChecks(Object count, String plural) {
+    String _temp0 = intl.Intl.selectLogic(
+      plural,
+      {
+        's': '',
+        'other': '',
+      },
+    );
+    return 'Comprobaciones activas ignoradas: $count.$_temp0';
+  }
+
+  @override
+  String get deviceSecurityPostureNormal =>
+      'Las comprobaciones de postura de seguridad de tu dispositivo parecen normales.';
+
+  @override
+  String get timeJustNow => 'ahora mismo';
+
+  @override
+  String timeMinutesAgo(Object minutes) {
+    return 'hace $minutes min';
+  }
+
+  @override
+  String timeHoursAgo(Object hours) {
+    return 'hace $hours h';
+  }
+
+  @override
+  String timeDaysAgo(Object days) {
+    return 'hace $days d';
+  }
+
+  @override
+  String get securityNoReportDataYet => 'Aún no hay datos del informe';
+
+  @override
+  String securityLastActivity(Object relative) {
+    return 'Última actividad $relative';
+  }
+
+  @override
+  String get securityReportSharePdfTitle => 'Informe de seguridad de Avarionx';
+
+  @override
+  String get securityReportCsvField => 'Campo';
+
+  @override
+  String get securityReportCsvValue => 'Valor';
+
+  @override
+  String get securityReportGeneratedAt => 'Generado el';
+
+  @override
+  String get securityReportOverallStatus => 'Estado general';
+
+  @override
+  String get securityReportLastManualScan => 'Último análisis manual';
+
+  @override
+  String get securityReportLastRealtimeEvent => 'Último evento en tiempo real';
+
+  @override
+  String get securityReportLastScheduledScan => 'Último análisis programado';
+
+  @override
+  String get securityReportShareCsvTitle =>
+      'CSV del informe de seguridad de Avarionx';
+
+  @override
+  String get securityReportReviewRecommended => 'Se recomienda revisar';
+
+  @override
+  String get securityReportNoKnownThreatDetected =>
+      'No se detectó ninguna amenaza conocida';
+
+  @override
+  String securityReportGeneratedLine(Object generatedAt) {
+    return 'Generado: $generatedAt';
+  }
+
+  @override
+  String securityReportStatusLine(Object status) {
+    return 'Estado: $status';
+  }
+
+  @override
+  String securityReportLatestActivityLine(Object latest) {
+    return 'Última actividad: $latest';
+  }
+
+  @override
+  String securityReportManualScansLine(Object count) {
+    return 'Análisis manuales: $count';
+  }
+
+  @override
+  String securityReportRealtimeChecksLine(Object count) {
+    return 'Comprobaciones en tiempo real: $count';
+  }
+
+  @override
+  String securityReportTotalFilesScannedLine(Object count) {
+    return 'Total de archivos analizados: $count';
+  }
+
+  @override
+  String securityReportThreatsFoundLine(Object count) {
+    return 'Amenazas encontradas: $count';
+  }
+
+  @override
+  String securityReportLastManualScanLine(Object value) {
+    return 'Último análisis manual: $value';
+  }
+
+  @override
+  String securityReportLastRealtimeEventLine(Object value) {
+    return 'Último evento en tiempo real: $value';
+  }
+
+  @override
+  String securityReportLastScheduledScanLine(Object value) {
+    return 'Último análisis programado: $value';
+  }
+
+  @override
+  String get securityReportNotRecorded => 'No registrado';
+
+  @override
+  String get safeViewNavigationBlocked => 'Navegación bloqueada';
+
+  @override
+  String get safeViewInvalidDestination => 'Destino no válido';
+
+  @override
+  String get safeViewUnsupportedScheme => 'Esquema no compatible';
+
+  @override
+  String get safeViewUnableToResolveDestination =>
+      'No se pudo resolver el destino';
+
+  @override
+  String get safeViewDestinationBlocked => 'Destino bloqueado';
+
+  @override
+  String get safeViewUnableToVerifyDestination =>
+      'No se pudo verificar el destino';
+
+  @override
+  String proScreenCurrentStatus(Object status) {
+    return 'Estado actual: $status';
+  }
+
+  @override
+  String proScreenBilledAnnuallyAt(Object price) {
+    return 'Facturado anualmente a $price';
+  }
+
+  @override
+  String get quarantineUnknownApp => 'Aplicación desconocida';
+
+  @override
+  String get cleanerScanCancelled => 'Análisis cancelado';
+
+  @override
+  String get cleanerProClearingCaches => 'Borrando cachés…';
+
+  @override
+  String get cleanerProTrimAppCaches =>
+      'Reduce las cachés de aplicaciones en todo el dispositivo.';
+
+  @override
+  String get cleanerProEnableShizuku =>
+      'Activa Shizuku en Ajustes para usar esta función.';
+
+  @override
+  String get cleanerProScanningStorage => 'Analizando almacenamiento…';
+
+  @override
+  String get cleanerProFindLogFiles =>
+      'Busca archivos .log, .trace, .crash y .dmp.';
+
+  @override
+  String cleanerProLogFileCount(Object count, Object size) {
+    return '$count archivos • $size';
+  }
+
+  @override
+  String get cleanerProAppManagerReady =>
+      'Fuerza la detención, borra datos y desinstala aplicaciones por lotes.';
+
+  @override
+  String get cleanerProAppManagerLimited =>
+      'La desinstalación funciona con normalidad. Forzar detención y borrar datos requieren Shizuku.';
+
+  @override
+  String get cleanerProCheckingShizuku => 'Comprobando Shizuku…';
+
+  @override
+  String get cleanerProShizukuNotRunning =>
+      'Shizuku no se está ejecutando. Actívalo desde Ajustes cuando lo necesites.';
+
+  @override
+  String get cleanerProShizukuPermissionMissing =>
+      'No se ha concedido el permiso de Shizuku. Actívalo desde Ajustes.';
+
+  @override
+  String get cleanerProShizukuNotBound =>
+      'El servicio Shizuku aún no está vinculado. Abre Ajustes y actualiza esta pantalla después de activarlo.';
+
+  @override
+  String get cleanerLiteTab => 'Lite';
+
+  @override
+  String get cleanerProTab => 'Pro';
+
+  @override
+  String get scanCancelled => 'Análisis cancelado';
+
+  @override
+  String get scanPreparing => 'Preparando análisis...';
+
+  @override
+  String scanSuspiciousItemsFound(Object count, String plural) {
+    String _temp0 = intl.Intl.selectLogic(
+      plural,
+      {
+        's': '',
+        'other': '',
+      },
+    );
+    return 'Elementos sospechosos encontrados: $count.$_temp0';
+  }
+
+  @override
+  String scanSuspiciousCount(Object count) {
+    return '$count sospechosos';
+  }
+
+  @override
+  String scanCleanCount(Object count) {
+    return '$count limpios';
+  }
+
+  @override
+  String scanNotificationFullItems(Object count) {
+    return 'Analizados: $count elementos';
+  }
+
+  @override
+  String scanNotificationCurrent(Object count, Object file) {
+    return 'Analizados: $count • $file';
+  }
+
+  @override
+  String scanNotificationProgress(Object scanned, Object total) {
+    return '$scanned / $total';
+  }
+
+  @override
+  String scanNotificationProgressCurrent(
+      Object scanned, Object total, Object file) {
+    return '$scanned / $total • $file';
+  }
+
+  @override
+  String get settingsThemeRoyalBluePremium => 'Azul real (Premium)';
+
+  @override
+  String get settingsIconDefault => 'Predeterminado';
+
+  @override
+  String get settingsIconBird => 'Pájaro';
+
+  @override
+  String get settingsIconNeon => 'Neón';
+
+  @override
+  String get settingsIconOriginal => 'Original';
+
+  @override
+  String get homeRealtimeProtectionTitle => 'Protección en tiempo real';
+
+  @override
+  String get networkCardStatusLocked => 'Bloqueado';
+
+  @override
+  String get networkSectionConnection => 'Conexión';
+
+  @override
+  String get networkSectionBlocklists => 'Listas de bloqueo';
+
+  @override
+  String get networkSectionResolver => 'Resolvedor';
+
+  @override
+  String get networkAppControlOtherVpnSetupInstructions =>
+      'Actualmente hay otra VPN seleccionada como Siempre activa.\n\nPara bloquear aplicaciones de forma fiable:\n\n1) Abre los ajustes de VPN de Android\n2) Selecciona AvarionX como VPN\n3) Activa VPN siempre activa\n4) Activa Bloquear conexiones sin VPN';
+
+  @override
+  String get networkAppControlSetupInstructions =>
+      'Para bloquear aplicaciones de forma fiable:\n\n1) Abre los ajustes de VPN de Android\n2) Selecciona AvarionX como VPN\n3) Activa VPN siempre activa\n4) Activa Bloquear conexiones sin VPN';
+
+  @override
+  String get networkAppControlBlockingActive =>
+      'El bloqueo de aplicaciones está activo.';
+
+  @override
+  String get networkAppControlOtherVpnWarning =>
+      'Hay otra VPN configurada como Siempre activa. Activa Siempre activa + Bloquear sin VPN para AvarionX.';
+
+  @override
+  String get networkAppControlSetupWarning =>
+      'Activa Siempre activa + Bloquear sin VPN para AvarionX para que funcione el bloqueo de aplicaciones.';
+
+  @override
+  String get countryUnitedKingdom => 'Reino Unido';
+
+  @override
+  String get countryUnitedStates => 'Estados Unidos';
+
+  @override
+  String get countryCanada => 'Canadá';
+
+  @override
+  String get countryIreland => 'Irlanda';
+
+  @override
+  String get countryFrance => 'Francia';
+
+  @override
+  String get countryGermany => 'Alemania';
+
+  @override
+  String get countryNetherlands => 'Países Bajos';
+
+  @override
+  String get countrySpain => 'España';
+
+  @override
+  String get countryItaly => 'Italia';
+
+  @override
+  String get countrySweden => 'Suecia';
+
+  @override
+  String get countryNorway => 'Noruega';
+
+  @override
+  String get countryDenmark => 'Dinamarca';
+
+  @override
+  String get countryPoland => 'Polonia';
+
+  @override
+  String get countryTurkey => 'Turquía';
+
+  @override
+  String get countryGreece => 'Grecia';
+
+  @override
+  String get countryRomania => 'Rumanía';
+
+  @override
+  String get countryUkraine => 'Ucrania';
+
+  @override
+  String get countryRussia => 'Rusia';
+
+  @override
+  String get countryIndia => 'India';
+
+  @override
+  String get countryPakistan => 'Pakistán';
+
+  @override
+  String get countryBangladesh => 'Bangladés';
+
+  @override
+  String get countrySriLanka => 'Sri Lanka';
+
+  @override
+  String get countryNepal => 'Nepal';
+
+  @override
+  String get countryJapan => 'Japón';
+
+  @override
+  String get countrySouthKorea => 'Corea del Sur';
+
+  @override
+  String get countrySingapore => 'Singapur';
+
+  @override
+  String get countryMalaysia => 'Malasia';
+
+  @override
+  String get countryThailand => 'Tailandia';
+
+  @override
+  String get countryVietnam => 'Vietnam';
+
+  @override
+  String get countryPhilippines => 'Filipinas';
+
+  @override
+  String get countryIndonesia => 'Indonesia';
+
+  @override
+  String get countryAustralia => 'Australia';
+
+  @override
+  String get countryNewZealand => 'Nueva Zelanda';
+
+  @override
+  String get countryBrazil => 'Brasil';
+
+  @override
+  String get countryArgentina => 'Argentina';
+
+  @override
+  String get countryChile => 'Chile';
+
+  @override
+  String get countryMexico => 'México';
+
+  @override
+  String get countryColombia => 'Colombia';
+
+  @override
+  String get countryPeru => 'Perú';
+
+  @override
+  String get countrySouthAfrica => 'Sudáfrica';
+
+  @override
+  String get countryNigeria => 'Nigeria';
+
+  @override
+  String get countryKenya => 'Kenia';
+
+  @override
+  String get countryEgypt => 'Egipto';
+
+  @override
+  String get countryUAE => 'Emiratos Árabes Unidos';
+
+  @override
+  String get countrySaudiArabia => 'Arabia Saudí';
+
+  @override
+  String get countryIsrael => 'Israel';
+
+  @override
+  String networkSpeedTestTesting(Object current, Object total, Object domain) {
+    return 'Probando $current/$total • $domain';
+  }
+
+  @override
+  String get networkSpeedTestDone => 'Hecho';
+
+  @override
+  String get vpnFooterCustomisation => 'Personalización';
+
+  @override
+  String get apkClipboardReportTitle =>
+      'VTTI Cloud - Informe de análisis de APK';
+
+  @override
+  String apkClipboardAppName(Object name) {
+    return 'Nombre de la aplicación: $name';
+  }
+
+  @override
+  String apkClipboardPackageId(Object packageId) {
+    return 'ID del paquete: $packageId';
+  }
+
+  @override
+  String apkClipboardVersion(Object version) {
+    return 'Versión: $version';
+  }
+
+  @override
+  String apkClipboardFileSize(Object size) {
+    return 'Tamaño del archivo: $size';
+  }
+
+  @override
+  String apkClipboardMinSdk(Object sdk) {
+    return 'SDK mínimo: $sdk';
+  }
+
+  @override
+  String apkClipboardTargetSdk(Object sdk) {
+    return 'SDK de destino: $sdk';
+  }
+
+  @override
+  String apkClipboardSignature(Object signature) {
+    return 'Firma: $signature';
+  }
+
+  @override
+  String apkClipboardMalwareRisk(Object risk) {
+    return 'Riesgo de malware: $risk';
+  }
+
+  @override
+  String apkClipboardRiskLabel(Object label) {
+    return 'Etiqueta de riesgo: $label';
+  }
+
+  @override
+  String apkClipboardHashVerdict(Object verdict) {
+    return 'Veredicto del hash: $verdict';
+  }
+
+  @override
+  String apkClipboardRationale(Object rationale) {
+    return 'Justificación: $rationale';
+  }
+
+  @override
+  String get apkReportUnusualFlags => 'Indicadores inusuales';
+
+  @override
+  String get apkReportUnverifiedItems => 'Elementos no verificados';
+
+  @override
+  String get apkReportKnownMalware => 'Malware conocido';
+
+  @override
+  String get apkReportSuspiciousHash => 'Hash sospechoso';
+
+  @override
+  String get apkReportCleanHash => 'Hash limpio';
+
+  @override
+  String get apkReportHashNotChecked => 'Hash no comprobado';
+
+  @override
+  String get apkReportHashUnknown => 'Hash desconocido';
+
+  @override
+  String get apkMetadataPackage => 'Paquete';
+
+  @override
+  String get apkMetadataPackageId => 'ID del paquete';
+
+  @override
+  String get apkMetadataEngine => 'Motor';
+
+  @override
+  String get apkMetadataSize => 'Tamaño';
+
+  @override
+  String get apkMetadataMinSdk => 'SDK mínimo';
+
+  @override
+  String get apkMetadataTargetSdk => 'SDK de destino';
+
+  @override
+  String get apkMetadataSignature => 'Firma';
+
+  @override
+  String get apkAnalyserStageDeconstructing => 'Desmontando APK';
+
+  @override
+  String get apkAnalyserStageAnalysing => 'Analizando contenido';
+
+  @override
+  String get apkAnalyserSignInRequired =>
+      'Inicia sesión desde Ajustes para usar Cloud Analysis.';
+
+  @override
+  String get apkAnalyserStageCheckingCloud => 'Comprobando VTTI Cloud';
+
+  @override
+  String apkAnalyserDailyLimitReached(Object limit) {
+    return 'Has alcanzado tu límite diario de $limit análisis.';
+  }
+
+  @override
+  String get apkAnalyserCloudAnalysisFailed =>
+      'El análisis en la nube ha fallado';
+
+  @override
+  String get apkAnalyserStageGeneratingReport => 'Generando informe';
+
+  @override
+  String get apkAnalyserAnalysisFailed =>
+      'No se pudo procesar el análisis del APK';
+
+  @override
+  String get genericError => 'Error';
+
+  @override
+  String get apkReportEngineVttiCloud => 'Motor VTTI Cloud';
+
+  @override
+  String get apkReportCertificateDetected => 'Certificado detectado';
+
+  @override
+  String get apkReportNoCertificateData => 'No hay datos del certificado';
+
+  @override
+  String get apkExportOverview => 'Resumen';
+
+  @override
+  String get apkExportMalwareAssessment => 'Evaluación de malware';
+
+  @override
+  String get apkExportRiskScore => 'Puntuación de riesgo';
+
+  @override
+  String get apkExportRiskLabel => 'Etiqueta de riesgo';
+
+  @override
+  String get apkExportHashVerdict => 'Veredicto del hash';
+
+  @override
+  String get apkExportScoreRationale => 'Justificación de la puntuación';
+
+  @override
+  String get apkExportContributingSignals => 'Señales contribuyentes';
+
+  @override
+  String get apkExportDampeningFactors => 'Factores atenuantes';
+
+  @override
+  String get apkExportPermissionsRequested => 'Permisos solicitados';
+
+  @override
+  String get apkExportExtraFlagsUnusual =>
+      'Indicadores adicionales (inusuales)';
+
+  @override
+  String get apkExportExtraFlagsUnverified =>
+      'Indicadores adicionales (no verificados)';
+
+  @override
+  String get apkExportDiscoveredSources => 'Fuentes descubiertas';
+
+  @override
+  String get apkExportRequestedPermissions => 'Permisos solicitados';
+
+  @override
+  String get apkExportRationale => 'Justificación';
+
+  @override
+  String apkExportCsvShareText(Object name) {
+    return 'CSV del análisis de APK de $name';
+  }
+
+  @override
+  String get apkExportPdfTitle => 'VTTI Cloud - Análisis de APK';
+
+  @override
+  String apkExportPdfShareText(Object name) {
+    return 'PDF del análisis de APK de $name';
+  }
+
+  @override
+  String get apkMetadataAppName => 'Nombre de la aplicación';
+
+  @override
+  String get apkMetadataFileSize => 'Tamaño del archivo';
+
+  @override
+  String get vpnBackendFailedOpenBrowser => 'No se pudo abrir el navegador.';
+
+  @override
+  String get vpnBackendSignedIn => 'Sesión iniciada.';
+
+  @override
+  String get vpnBackendSignedOut => 'Sesión cerrada.';
+
+  @override
+  String get vpnBackendSessionExpiredSignIn =>
+      'La sesión ha caducado. Inicia sesión de nuevo.';
+
+  @override
+  String vpnBackendFailedLoadAccountStatus(Object status) {
+    return 'No se pudo cargar la cuenta ($status).';
+  }
+
+  @override
+  String vpnBackendFailedLoadAccountError(Object error) {
+    return 'No se pudo cargar la cuenta ($error).';
+  }
+
+  @override
+  String get vpnBackendSignInFirst => 'Inicia sesión primero.';
+
+  @override
+  String get vpnBackendConnecting => 'Conectando...';
+
+  @override
+  String get vpnBackendNotificationsPermissionRequired =>
+      'Se requiere permiso para las notificaciones.';
+
+  @override
+  String get vpnBackendPermissionNotGranted =>
+      'No se concedió el permiso de VPN.';
+
+  @override
+  String get vpnBackendAnotherVpnActive =>
+      'Hay otra VPN activa. Desactívala primero.';
+
+  @override
+  String get vpnBackendProvisionIncomplete =>
+      'El aprovisionamiento devolvió ajustes incompletos.';
+
+  @override
+  String get vpnBackendSecuringConnection => 'Protegiendo la conexión...';
+
+  @override
+  String get vpnBackendConnected => 'Conectado.';
+
+  @override
+  String vpnBackendWireGuardFailed(Object error) {
+    return 'No se pudo iniciar WireGuard ($error).';
+  }
+
+  @override
+  String get vpnBackendDisconnecting => 'Desconectando...';
+
+  @override
+  String get vpnBackendDisconnected => 'Desconectado.';
+
+  @override
+  String vpnBackendSelectedServer(Object server) {
+    return 'Seleccionado $server';
+  }
+
+  @override
+  String vpnBackendSwitchingServer(Object server) {
+    return 'Cambiando a $server...';
+  }
+
+  @override
+  String get vpnBackendKeyNotFound => 'No se encontró la clave VPN.';
+
+  @override
+  String get vpnBackendDnsUpdated => 'Ajustes DNS actualizados.';
+
+  @override
+  String get vpnBackendSessionExpired => 'La sesión ha caducado.';
+
+  @override
+  String vpnBackendFailedStatus(Object status) {
+    return 'Falló ($status).';
+  }
+
+  @override
+  String get vpnBackendPlanNotAllowed => 'Tu plan no permite usar Full VPN.';
+
+  @override
+  String vpnBackendProvisionFailed(Object status) {
+    return 'Falló el aprovisionamiento ($status).';
   }
 }

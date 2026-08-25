@@ -80,7 +80,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
 
   static const _dnsEventChannel = EventChannel('cs_dns_events');
 
-  static const List<_UpstreamPreset> _presets = [
+  static  List<_UpstreamPreset> _presets = [
     _UpstreamPreset(key: 'cloudflare', title: 'Cloudflare', subtitle: '1.1.1.1', ip: '1.1.1.1'),
     _UpstreamPreset(key: 'cloudflare_alt', title: 'Cloudflare (alt)', subtitle: '1.0.0.1', ip: '1.0.0.1'),
     _UpstreamPreset(key: 'google', title: 'Google', subtitle: '8.8.8.8', ip: '8.8.8.8'),
@@ -89,7 +89,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
     _UpstreamPreset(key: 'quad9_alt', title: 'Quad9 (alt)', subtitle: '149.112.112.112', ip: '149.112.112.112'),
     _UpstreamPreset(key: 'adguard', title: 'AdGuard', subtitle: '94.140.14.14', ip: '94.140.14.14'),
     _UpstreamPreset(key: 'adguard_alt', title: 'AdGuard (alt)', subtitle: '94.140.15.15', ip: '94.140.15.15'),
-    _UpstreamPreset(key: 'custom', title: 'Custom', subtitle: 'Enter your own resolver', ip: ''),
+    _UpstreamPreset(key: 'custom', title: AppLocalizations.of(context)!.networkCardStatusCustom, subtitle: AppLocalizations.of(context)!.advancedNetworkProtectionEnterYourOwnResolver, ip: ''),
   ];
 
   bool proBusy = false;
@@ -386,7 +386,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionCard(
-            title: 'Cloud protection mode',
+            title: AppLocalizations.of(context)!.advancedNetworkProtectionCloudProtectionMode,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -394,7 +394,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   children: [
                     Expanded(
                       child: Text(
-                        cloudEnabled ? 'Enabled' : 'Disabled',
+                        cloudEnabled ? AppLocalizations.of(context)!.scheduledScansEnabledTitle : AppLocalizations.of(context)!.networkCardStatusDisabled,
                         style: text.bodySmall?.copyWith(
                           color: text.bodySmall?.color?.withOpacity(0.8),
                         ),
@@ -408,7 +408,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Routes all DNS queries to the cloud engine, enabling live blocklist updates, domain reputation checking, and more.',
+                  AppLocalizations.of(context)!.advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud,
                   style: text.bodySmall?.copyWith(
                     color: text.bodySmall?.color?.withOpacity(0.78),
                     height: 1.35,
@@ -419,7 +419,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
           ),
           const SizedBox(height: 12),
           _sectionCard(
-            title: 'Refresh pro status',
+            title: AppLocalizations.of(context)!.advancedNetworkProtectionRefreshProStatus,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -427,7 +427,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   children: [
                     Expanded(
                       child: Text(
-                        isPro ? 'Pro active' : 'Free plan',
+                        isPro ? AppLocalizations.of(context)!.advancedNetworkProtectionProActive : AppLocalizations.of(context)!.advancedNetworkProtectionFreePlan,
                         style: text.bodySmall?.copyWith(
                           color: text.bodySmall?.color?.withOpacity(0.8),
                         ),
@@ -447,7 +447,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Checks your entitlement and syncs it with cloud features. Pro unlocks system wide ad blocking.',
+                  AppLocalizations.of(context)!.advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith,
                   style: text.bodySmall?.copyWith(
                     color: text.bodySmall?.color?.withOpacity(0.78),
                     height: 1.35,
@@ -469,7 +469,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
       Opacity(
         opacity: opacity,
         child: _sectionCard(
-          title: 'Blocklists',
+          title: AppLocalizations.of(context)!.networkCardBlocklistsTitle,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -483,8 +483,8 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   await _pushCloudSettingsToVpn();
                 }
                     : null,
-                title: const Text('Malware protection'),
-                subtitle: const Text('Blocks known malicious domains'),
+                title:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionMalwareProtection),
+                subtitle:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionBlocksKnownMaliciousDomains),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -496,8 +496,8 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   await _pushCloudSettingsToVpn();
                 }
                     : null,
-                title: const Text('Tracker protection'),
-                subtitle: const Text('Reduces tracking domains'),
+                title:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionTrackerProtection),
+                subtitle:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionReducesTrackingDomains),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -509,8 +509,8 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   await _pushCloudSettingsToVpn();
                 }
                     : null,
-                title: const Text('Ad protection'),
-                subtitle: const Text('Blocks common ad domains'),
+                title:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionAdProtection),
+                subtitle:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionBlocksCommonAdDomains),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -522,14 +522,14 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   await _pushCloudSettingsToVpn();
                 }
                     : null,
-                title: const Text('Adult filter'),
-                subtitle: const Text('Uses 1.1.1.3 upstream'),
+                title:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionAdultFilter),
+                subtitle:  Text(AppLocalizations.of(context)!.advancedNetworkProtectionUses1113Upstream),
               ),
               if (!unlocked)
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    'Locked until Pro is active and cloud mode is enabled.',
+                    AppLocalizations.of(context)!.advancedNetworkProtectionLockedUntilProIsActiveAndCloud,
                     style: text.bodySmall?.copyWith(
                       color: text.bodySmall?.color?.withOpacity(0.75),
                       height: 1.35,
@@ -569,7 +569,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
       Opacity(
         opacity: opacity,
         child: _sectionCard(
-          title: 'Resolver',
+          title: AppLocalizations.of(context)!.networkResolverTitle,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -582,9 +582,9 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                     controller: _customResolverCtrl,
                     enabled: unlocked,
                     keyboardType: TextInputType.url,
-                    decoration: const InputDecoration(
-                      labelText: 'Resolver IP',
-                      hintText: 'Example: 1.1.1.1',
+                    decoration:  InputDecoration(
+                      labelText: AppLocalizations.of(context)!.networkResolverIpLabel,
+                      hintText: AppLocalizations.of(context)!.networkResolverIpHint,
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (v) async {
@@ -598,7 +598,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    'Locked until Pro is active and cloud mode is enabled.',
+                    AppLocalizations.of(context)!.advancedNetworkProtectionLockedUntilProIsActiveAndCloud,
                     style: text.bodySmall?.copyWith(
                       color: text.bodySmall?.color?.withOpacity(0.75),
                       height: 1.35,
@@ -620,12 +620,12 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionCard(
-            title: 'Logs',
+            title: AppLocalizations.of(context)!.networkCardLogsTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Live DNS events from the VPN layer.',
+                  AppLocalizations.of(context)!.advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer,
                   style: text.bodySmall?.copyWith(
                     color: text.bodySmall?.color?.withOpacity(0.85),
                     height: 1.35,
@@ -634,7 +634,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                 const SizedBox(height: 12),
                 if (preview.isEmpty)
                   Text(
-                    'No requests yet.',
+                    AppLocalizations.of(context)!.networkLiveLogsEmpty,
                     style: text.bodySmall?.copyWith(
                       color: text.bodySmall?.color?.withOpacity(0.75),
                     ),
@@ -647,7 +647,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                       final mm = ts.minute.toString().padLeft(2, '0');
                       final ss = ts.second.toString().padLeft(2, '0');
                       final left = '$hh:$mm:$ss';
-                      final right = e.blocked ? 'Blocked' : 'Allowed';
+                      final right = e.blocked ? AppLocalizations.of(context)!.networkLiveLogsBlocked : AppLocalizations.of(context)!.networkLiveLogsAllowed;
 
                       final meta = <String>[];
                       if (e.upstream != null && e.upstream!.trim().isNotEmpty) meta.add(e.upstream!);
@@ -718,12 +718,12 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
   Widget _speedTab(TextTheme text) {
     return _pagePadding(
       _sectionCard(
-        title: 'Speed test',
+        title: AppLocalizations.of(context)!.networkSpeedTestTitle,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Runs a DNS speed tester using your current settings.',
+              AppLocalizations.of(context)!.networkSpeedTestBody,
               style: text.bodySmall?.copyWith(
                 color: text.bodySmall?.color?.withOpacity(0.85),
                 height: 1.35,
@@ -738,7 +738,7 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                     MaterialPageRoute(builder: (_) => const NetworkSpeedTestScreen()),
                   );
                 },
-                child: const Text('Run speed test'),
+                child:  Text(AppLocalizations.of(context)!.networkSpeedTestRun),
               ),
             ),
           ],
@@ -842,22 +842,22 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
-    final connectionStatus = cloudEnabled ? 'Enabled' : 'Disabled';
-    final blocklistsStatus = (cloudEnabled && isPro) ? 'Available' : 'Locked';
+    final connectionStatus = cloudEnabled ? l10n.scheduledScansEnabledTitle : l10n.networkCardStatusDisabled;
+    final blocklistsStatus = (cloudEnabled && isPro) ? l10n.networkCardStatusAvailable : l10n.networkCardStatusLocked;
     final upstreamStatus = (cloudEnabled && isPro)
         ? (resolverChoice == 'custom'
-        ? 'Custom'
+        ? l10n.networkCardStatusCustom
         : _presets.firstWhere((p) => p.key == resolverChoice, orElse: () => _presets.first).title)
-        : 'Locked';
-    final appsStatus = (cloudEnabled && isPro) ? 'Available' : 'Available';
-    final logsStatus = _dnsEvents.isEmpty ? 'No activity' : '${min(_dnsEvents.length, 800)} recent';
-    final speedStatus = 'Ready';
+        : l10n.networkCardStatusLocked;
+    final appsStatus = l10n.networkCardStatusAvailable;
+    final logsStatus = _dnsEvents.isEmpty ? l10n.networkLogsStatusNoActivity : l10n.networkLogsStatusRecent(min(_dnsEvents.length, 800));
+    final speedStatus = l10n.networkCardStatusReady;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.networkProtectionTitle ?? 'Advanced'),
+        title: Text(l10n.networkProtectionTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -875,31 +875,31 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                 children: [
                   _homeCard(
                     icon: Icons.public,
-                    title: 'DNS',
-                    subtitle: 'Cloud DNS mode',
+                    title: AppLocalizations.of(context)!.advancedNetworkProtectionDns,
+                    subtitle: AppLocalizations.of(context)!.advancedNetworkProtectionCloudDNSMode,
                     status: connectionStatus,
-                    onTap: () => _openSection('Connection', () => _connectionTab(Theme.of(context).textTheme)),
+                    onTap: () => _openSection(l10n.networkSectionConnection, () => _connectionTab(Theme.of(context).textTheme)),
                   ),
                   _homeCard(
                     icon: Icons.shield_outlined,
-                    title: 'Blocklists',
-                    subtitle: 'Filtering controls',
+                    title: AppLocalizations.of(context)!.networkCardBlocklistsTitle,
+                    subtitle: AppLocalizations.of(context)!.networkCardBlocklistsSubtitle,
                     status: blocklistsStatus,
-                    onTap: () => _openSection('Blocklists', () => _blocklistsTab(Theme.of(context).textTheme)),
+                    onTap: () => _openSection(l10n.networkSectionBlocklists, () => _blocklistsTab(Theme.of(context).textTheme)),
                     enabled: true,
                   ),
                   _homeCard(
                     icon: Icons.dns_outlined,
-                    title: 'Upstream',
-                    subtitle: 'Resolver selection',
+                    title: AppLocalizations.of(context)!.networkCardUpstreamTitle,
+                    subtitle: AppLocalizations.of(context)!.networkCardUpstreamSubtitle,
                     status: upstreamStatus,
-                    onTap: () => _openSection('Resolver', () => _upstreamTab(Theme.of(context).textTheme)),
+                    onTap: () => _openSection(l10n.networkSectionResolver, () => _upstreamTab(Theme.of(context).textTheme)),
                     enabled: true,
                   ),
                   _homeCard(
                     icon: Icons.apps,
-                    title: 'Apps',
-                    subtitle: 'Block apps on WiFi',
+                    title: AppLocalizations.of(context)!.networkCardAppsTitle,
+                    subtitle: AppLocalizations.of(context)!.networkCardAppsSubtitle,
                     status: appsStatus,
                     onTap: () {
                       Navigator.of(context).push(
@@ -910,17 +910,17 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
                   ),
                   _homeCard(
                     icon: Icons.subject,
-                    title: 'Logs',
-                    subtitle: 'Live DNS events',
+                    title: AppLocalizations.of(context)!.networkCardLogsTitle,
+                    subtitle: AppLocalizations.of(context)!.networkCardLogsSubtitle,
                     status: logsStatus,
                     onTap: () async => _openLiveLogs(),
                   ),
                   _homeCard(
                     icon: Icons.speed,
-                    title: 'Speed',
-                    subtitle: 'DNS test',
+                    title: AppLocalizations.of(context)!.networkCardSpeedTitle,
+                    subtitle: AppLocalizations.of(context)!.networkCardSpeedSubtitle,
                     status: speedStatus,
-                    onTap: () => _openSection('Speed test', () => _speedTab(Theme.of(context).textTheme)),
+                    onTap: () => _openSection(l10n.networkSpeedTestTitle, () => _speedTab(Theme.of(context).textTheme)),
                   ),
                 ],
               ),
@@ -979,10 +979,10 @@ class _NetworkLiveLogsScreenState extends State<NetworkLiveLogsScreen> {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Live logs')),
+      appBar: AppBar(title:  Text(AppLocalizations.of(context)!.networkLiveLogsTitle)),
       body: SafeArea(
         child: _dnsEvents.isEmpty
-            ? Center(child: Text('No requests yet.', style: text.bodyMedium))
+            ? Center(child: Text(AppLocalizations.of(context)!.networkLiveLogsEmpty, style: text.bodyMedium))
             : ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: _dnsEvents.length,
@@ -1041,7 +1041,7 @@ class _NetworkLiveLogsScreenState extends State<NetworkLiveLogsScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      e.blocked ? 'Blocked' : 'Allowed',
+                      e.blocked ? AppLocalizations.of(context)!.networkLiveLogsBlocked : AppLocalizations.of(context)!.networkLiveLogsAllowed,
                       style: text.bodySmall?.copyWith(fontWeight: FontWeight.w900),
                     ),
                   ],

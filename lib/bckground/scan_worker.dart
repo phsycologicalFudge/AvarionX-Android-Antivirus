@@ -1,7 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/scan_ui_screen.dart';
+import '../screens/scan/main_scan_ui/scan_screen.dart';
 import '../services/quarantine_service.dart';
 import '../services/scan api/headless_scan.dart';
+import '../services/scan api/scan_types.dart';
 
 const String scheduledScanTask = 'scheduled_scan_task';
 

@@ -1,15 +1,13 @@
-//FOR THE FILESCREEN APK SCANNER
-
 import 'dart:convert';
 import 'dart:io';
 import '../widgets/antivirus_bridge.dart';
 
 Map<String, dynamic> scanFilesIsolate(Map<String, dynamic> args) {
-  final defs = args['defs'] as (String, String);
+  final defsPath = args['defs'] as String;
   final paths = (args['paths'] as List).cast<String>();
 
   final av = AntivirusBridge();
-  final initCode = av.init(defs.$1, defs.$2);
+  final initCode = av.init(defsPath);
 
   final results = <Map<String, dynamic>>[];
   int infected = 0;

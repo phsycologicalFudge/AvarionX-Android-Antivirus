@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../translations/app_localizations.dart';
 
 class FullVpnFooterNav extends StatelessWidget {
   final String active;
@@ -14,6 +15,7 @@ class FullVpnFooterNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -33,10 +35,10 @@ class FullVpnFooterNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildItem(context, Icons.vpn_key_outlined, "Connection", "connection"),
-              _buildItem(context, Icons.dns_outlined, "DNS", "dns"),
-              _buildItem(context, Icons.tune_rounded, "Customisation", "customisation"),
-              _buildItem(context, Icons.settings_outlined, "Settings", "settings"),
+              _buildItem(context, Icons.vpn_key_outlined, l10n.networkSectionConnection, "connection"),
+              _buildItem(context, Icons.dns_outlined, l10n.advancedNetworkProtectionDns, "dns"),
+              _buildItem(context, Icons.tune_rounded, l10n.vpnFooterCustomisation, "customisation"),
+              _buildItem(context, Icons.settings_outlined, l10n.footerSettings, "settings"),
             ],
           ),
         ),

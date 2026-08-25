@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'cleaner_lite_screen.dart';
 import 'cleaner_pro_screen.dart';
 
+import '../../translations/app_localizations.dart';
 class CleanerScreen extends StatelessWidget {
   const CleanerScreen({super.key});
 
@@ -15,7 +16,7 @@ class CleanerScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: AppBar(
-          title: const Text('Cleaner'),
+          title:  Text(AppLocalizations.of(context)!.cleanerScreenCleaner),
           centerTitle: true,
           backgroundColor: theme.colorScheme.surface,
           surfaceTintColor: theme.colorScheme.surfaceTint,
@@ -44,9 +45,9 @@ class CleanerScreen extends StatelessWidget {
                   unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.65),
                   labelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
                   unselectedLabelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-                  tabs: const [
-                    Tab(text: 'Lite'),
-                    Tab(text: 'Pro'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.cleanerLiteTab),
+                    Tab(text: AppLocalizations.of(context)!.cleanerProTab),
                   ],
                 ),
               ),

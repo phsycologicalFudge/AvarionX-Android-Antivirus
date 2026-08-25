@@ -1,7 +1,7 @@
 name: colourswift_av
 description: AvarionX Security - antivirus suite
 publish_to: "none"
-version: 4.0.6+11548
+version: 4.1.0+11552
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
@@ -51,6 +51,8 @@ dependencies:
   pdf: ^3.11.0
   csv: ^5.1.1
   share_plus: ^7.2.1
+  xterm: ^4.0.0
+  in_app_review: ^2.0.9
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
@@ -72,6 +74,8 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/defs/
+    - assets/linux/alpine-arm64.tar.gz
+    - assets/linux/alpine-arm32.tar.gz
     - assets/illustrations/thumbs_up_stickman.svg
 
 flutter_launcher_icons:

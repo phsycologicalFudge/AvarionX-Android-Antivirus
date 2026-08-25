@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../translations/app_localizations.dart';
 enum ScanMode { none, smart, single, rapid, installed }
 enum ScanState { idle, scanning, result, empty }
 
@@ -85,7 +86,7 @@ class ScanUiScreen extends StatelessWidget {
         const Icon(Icons.shield_rounded, size: 64, color: Colors.greenAccent),
         const SizedBox(height: 24),
         Text(
-          'Scanning... $percent%',
+          AppLocalizations.of(context)!.scanLegacyScanning(percent),
           style: text.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.greenAccent,
@@ -108,8 +109,8 @@ class ScanUiScreen extends StatelessWidget {
         TextButton.icon(
           onPressed: onCancel,
           icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
-          label: const Text(
-            'Cancel Scan',
+          label:  Text(
+            AppLocalizations.of(context)!.cancelScan,
             style: TextStyle(
               color: Colors.redAccent,
               fontWeight: FontWeight.w600,
@@ -136,14 +137,14 @@ class ScanUiScreen extends StatelessWidget {
           ),
           const SizedBox(height: 25),
           Text(
-            'Scan Complete',
+            AppLocalizations.of(context)!.scanComplete,
             style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           Text(
             hasThreats
-                ? 'Suspicious: ${state.infected.length}'
-                : 'Clean: ${state.clean.length}',
+                ? AppLocalizations.of(context)!.scanLegacySuspicious(state.infected.length)
+                : AppLocalizations.of(context)!.scanLegacyClean(state.clean.length),
             style: text.bodyMedium?.copyWith(
               color: hasThreats ? Colors.orangeAccent : Colors.greenAccent,
               fontWeight: FontWeight.w600,
@@ -152,7 +153,7 @@ class ScanUiScreen extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: onFinish,
-            child: const Text('Return Home'),
+            child:  Text(AppLocalizations.of(context)!.returnHome),
           ),
         ],
       ),
@@ -167,13 +168,13 @@ class ScanUiScreen extends StatelessWidget {
           const Icon(Icons.info_outline_rounded, size: 60),
           const SizedBox(height: 20),
           Text(
-            'No files to scan',
+            AppLocalizations.of(context)!.scanLegacyNoFilesToScan,
             style: text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: onFinish,
-            child: const Text('Return Home'),
+            child:  Text(AppLocalizations.of(context)!.returnHome),
           ),
         ],
       ),

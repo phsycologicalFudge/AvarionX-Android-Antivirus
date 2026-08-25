@@ -6,6 +6,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 import 'package:open_filex/open_filex.dart';
 
+import '../../translations/app_localizations.dart';
 enum CleanerSort { newest, oldest, largest, smallest }
 
 class CleanerDetailScreen extends StatefulWidget {
@@ -106,15 +107,15 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete Files'),
-        content: Text('Delete ${_selected.length} files permanently?'),
+        title:  Text(AppLocalizations.of(context)!.scanDetailDeleteFiles),
+        content: Text(AppLocalizations.of(context)!.scanDetailDeleteFilesPermanently(_selected.length)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child:  Text(AppLocalizations.of(context)!.cancel)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete')),
+              child:  Text(AppLocalizations.of(context)!.quarantineDelete)),
         ],
       ),
     );
@@ -135,7 +136,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
         _deleting = false;
       });
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Selected files deleted')));
+          .showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.scanDetailSelectedFilesDeleted)));
     }
   }
 
@@ -144,15 +145,15 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete All Files'),
-        content: Text('Delete all ${_files.length} files permanently?'),
+        title:  Text(AppLocalizations.of(context)!.scanDetailDeleteAllFiles),
+        content: Text(AppLocalizations.of(context)!.scanDetailDeleteAllFilesPermanently(_files.length)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child:  Text(AppLocalizations.of(context)!.cancel)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete All')),
+              child:  Text(AppLocalizations.of(context)!.scanDetailDeleteAll)),
         ],
       ),
     );
@@ -173,7 +174,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
         _deleting = false;
       });
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('All files deleted')));
+          .showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.scanDetailAllFilesDeleted)));
     }
   }
 
@@ -212,7 +213,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(inSelectMode ? '${_selected.length} selected' : widget.title),
+        title: Text(inSelectMode ? AppLocalizations.of(context)!.scanDetailSelected(_selected.length) : widget.title),
         actions: [
           if (_deleting)
             const Padding(
@@ -237,18 +238,18 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
                 });
               },
               child: Text(
-                  _selected.length == files.length ? 'Deselect all' : 'Select all'),
+                  _selected.length == files.length ? AppLocalizations.of(context)!.scanDetailDeselectAll : AppLocalizations.of(context)!.quarantineSelectAll),
             )
           else
             PopupMenuButton<CleanerSort>(
               initialValue: _sort,
               onSelected: (v) => setState(() => _sort = v),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: CleanerSort.newest, child: Text('Newest first')),
-                PopupMenuItem(value: CleanerSort.oldest, child: Text('Oldest first')),
-                PopupMenuItem(value: CleanerSort.largest, child: Text('Largest first')),
+              itemBuilder: (_) =>  [
+                PopupMenuItem(value: CleanerSort.newest, child: Text(AppLocalizations.of(context)!.scanDetailNewestFirst)),
+                PopupMenuItem(value: CleanerSort.oldest, child: Text(AppLocalizations.of(context)!.scanDetailOldestFirst)),
+                PopupMenuItem(value: CleanerSort.largest, child: Text(AppLocalizations.of(context)!.scanDetailLargestFirst)),
                 PopupMenuItem(
-                    value: CleanerSort.smallest, child: Text('Smallest first')),
+                    value: CleanerSort.smallest, child: Text(AppLocalizations.of(context)!.scanDetailSmallestFirst)),
               ],
               icon: const Icon(Icons.sort_rounded),
             ),
@@ -266,7 +267,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
                     color: theme.colorScheme.onSurface.withOpacity(0.2)),
                 const SizedBox(height: 12),
                 Text(
-                  'No files found',
+                  AppLocalizations.of(context)!.scanDetailNoFilesFound,
                   style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.45)),
                 ),
@@ -446,7 +447,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${_selected.length} selected',
+                      AppLocalizations.of(context)!.scanDetailSelected(_selected.length),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
@@ -455,7 +456,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
                     FilledButton.icon(
                       onPressed: _deleting ? null : _deleteAll,
                       icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-                      label: const Text('Delete all'),
+                      label:  Text(AppLocalizations.of(context)!.scanDetailDeleteAll2),
                       style: FilledButton.styleFrom(
                           backgroundColor: Colors.redAccent,
                           foregroundColor: Colors.white),
@@ -466,7 +467,7 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
                           ? _deleteSelected
                           : null,
                       icon: const Icon(Icons.delete_forever_rounded, size: 18),
-                      label: const Text('Delete'),
+                      label:  Text(AppLocalizations.of(context)!.quarantineDelete),
                       style: FilledButton.styleFrom(
                           backgroundColor: Colors.redAccent,
                           foregroundColor: Colors.white),

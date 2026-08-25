@@ -15,13 +15,15 @@
       "version": {}
     }
   },
+  "companionAppsSectionTitle": "AvarionX のその他のアプリ",
+  "cleanerReclaimableLabel": "解放可能",
   "exploreMultiThreadingTitle": "マルチスレッド",
   "exploreMultiThreadingSubtitle": "実験的なエンジン制御",
   "updateDbAutoDownloadLabel": "今後の更新を自動でダウンロード",
   "updateDbUpdatedAutoOn": "データベース更新済み • 自動更新が有効",
   "updateDbUpdatedSuccess": "データベースを更新しました",
   "updateDbUpdateFailed": "データベースの更新に失敗しました",
-  "engineReadyBanner": "VX-TITANIUM-v8",
+  "engineReadyBanner": "VX-TITANIUM-v9",
   "scanButton": "スキャン",
   "scanModeFullTitle": "端末全体スキャン",
   "scanModeFullSubtitle": "読み取り可能なストレージ内の全ファイルをスキャンします。",
@@ -858,11 +860,1053 @@
   "quarantineSnackRestored": "復元しました",
   "quarantineSnackDeleted": "削除しました",
   "quarantineDeleteDialogTitle": "選択したファイルを削除しますか？",
-  "quarantineDeleteDialogBody": "{count} 件の項目を完全に削除します。",
+  "quarantineDeleteDialogBody": "{count} 件の項目を完全に削除します。{plural, select, s {} other {}}",
   "@quarantineDeleteDialogBody": {
     "placeholders": {
       "count": {},
-      "plural": {}
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "howThisAppWorksHowAvarionXWorks": "AvarionX の仕組み",
+  "howThisAppWorksAvarionxIsAMobileSecurityAppThat": "AvarionX は、端末上のウイルススキャン、ネットワーク保護、オプションの VPN 機能を組み合わせたモバイルセキュリティアプリです。 ",
+  "howThisAppWorksTheAntivirusEngineIsPoweredByVX": "ウイルス対策エンジンには VX-Titanium が使用されています。",
+  "howThisAppWorksIfYouUseNetworkProtectionOrVPN": "ネットワーク保護または VPN 機能を使用する場合、アプリは ColourSwift のサービスに接続して設定を適用し、アカウントへのアクセスを管理し、保護された通信をルーティングします。",
+  "howThisAppWorksKeyFeatures": "主な機能",
+  "howThisAppWorksRealTimeProtectionForDownloadedThreats": "• ダウンロードされた脅威に対するリアルタイム保護",
+  "howThisAppWorksNetworkProtectionWithDNSFiltering": "• DNS フィルタリングによるネットワーク保護",
+  "howThisAppWorksOptionalSecureVPNMode": "• オプションの Secure VPN モード",
+  "howThisAppWorksBuiltInToolsSuchAsLinkChecker": "• Link Checker などの内蔵ツール",
+  "howThisAppWorksNotes": "注意事項",
+  "howThisAppWorksSomeFeaturesMayRequireSignInAn": "一部の機能を正常に使用するには、サインイン、有効なプラン、または端末の権限が必要な場合があります。",
+  "apkAnalyserCopyCurrentReport": "現在のレポートをコピー",
+  "apkAnalyserReportCopiedToClipboard": "レポートをクリップボードにコピーしました",
+  "apkAnalyserExportCurrentAsPDF": "現在のレポートを PDF としてエクスポート",
+  "apkAnalyserFailedToExportPDF": "PDF のエクスポートに失敗しました",
+  "apkAnalyserExportCurrentAsCSV": "現在のレポートを CSV としてエクスポート",
+  "apkAnalyserFailedToExportCSV": "CSV のエクスポートに失敗しました",
+  "apkAnalyserViewSavedReports": "保存済みレポートを表示",
+  "apkAnalyserClearHistory": "履歴を消去",
+  "apkAnalyserReportHistoryCleared": "レポート履歴を消去しました",
+  "apkAnalyserSavedReports": "保存済みレポート",
+  "apkAnalyserNoSavedReportsFound": "保存済みレポートはありません。",
+  "apkAnalyserChooseTarget": "対象を選択",
+  "apkAnalyserSelectASourceToAnalyseWithVTTI": "VTTI Cloud で解析するソースを選択してください。",
+  "apkAnalyserApkFile": "APK ファイル",
+  "apkAnalyserPickAnApkFromStorage": "ストレージから .apk を選択",
+  "apkAnalyserInstalledApp": "インストール済みアプリ",
+  "apkAnalyserChooseFromAppsOnThisDevice": "この端末のアプリから選択",
+  "apkAnalyserAnalysingIn": "{countdown} 後に解析...",
+  "@apkAnalyserAnalysingIn": {
+    "placeholders": {
+      "countdown": {}
+    }
+  },
+  "apkAnalyserStartingAnalysis": "解析を開始しています...",
+  "apkAnalyserApkFileOrInstalledApp": "APK ファイルまたはインストール済みアプリ",
+  "apkAnalyserDeepAnalysisMode": "詳細解析モード",
+  "apkAnalyserAMoreComplexAnalysisUsingGlobalData": "グローバルなデータソースを使用する、より高度な解析",
+  "apkAnalyserRequiresProToUnlockDeeperAnalysis": "より詳細な解析を利用するには Pro が必要です",
+  "apkAnalyserApkAnalyser": "APK 解析",
+  "apkAnalyserPleaseSignInViaSettingsToEnable": "Cloud Analysis を有効にするには、設定からサインインしてください。",
+  "apkAnalyserAdvancedOPTIONS": "詳細オプション",
+  "apkAnalyserDailyLimit": "1 日の上限: {remaining} / {limit}",
+  "@apkAnalyserDailyLimit": {
+    "placeholders": {
+      "remaining": {},
+      "limit": {}
+    }
+  },
+  "apkAnalyserDailyLimitDataUnavailable": "1 日の上限データを利用できません",
+  "apkAnalyserPoweredByVTTICloud": "VTTI Cloud 搭載",
+  "apkAnalyserSearchApps": "アプリを検索...",
+  "apkAnalyserFailedToLoadApps": "アプリの読み込みに失敗しました。",
+  "apkAnalyserNoAppsFound": "アプリが見つかりません。",
+  "apkReportSummary": "概要",
+  "apkReportPermissions": "権限",
+  "apkReportExtraFlags": "追加フラグ",
+  "apkReportRiskSignals": "リスクシグナル",
+  "apkReportSources": "ソース",
+  "apkReportMetadata": "メタデータ",
+  "apkReportCopyReport": "レポートをコピー",
+  "apkReportReportCopiedToClipboard": "レポートをクリップボードにコピーしました",
+  "apkReportExportAsPDF": "PDF としてエクスポート",
+  "apkReportFailedToExportPDF": "PDF のエクスポートに失敗しました",
+  "apkReportExportAsCSV": "CSV としてエクスポート",
+  "apkReportFailedToExportCSV": "CSV のエクスポートに失敗しました",
+  "apkReportAnalysisReport": "解析レポート",
+  "apkReportMalwareRisk": "マルウェアリスク",
+  "apkReportNoSummaryGenerated": "概要は生成されませんでした。",
+  "apkReportNoRequestedPermissionsExtracted": "要求された権限は抽出されませんでした。",
+  "apkReportContributing": "リスク増加要因",
+  "apkReportDampening": "リスク軽減要因",
+  "bootOptimisingYourProtection": "保護を最適化しています",
+  "exclusionsFolders": "フォルダー",
+  "exclusionsNone": "なし",
+  "exclusionsFiles": "ファイル",
+  "exploreApkAnalyser": "APK 解析",
+  "exploreCreateADetailedAnalysisOnAnyAPK": "任意の APK を詳細に解析",
+  "featuresComingSoon": "近日公開",
+  "featuresWantToLearnMore": "詳しく知りたいですか？",
+  "homeDrawerApkAnalyser": "APK 解析",
+  "homeDrawerAdvanced": "詳細設定",
+  "homeDrawerQuarantine": "隔離",
+  "homeDrawerUpgradeToPro": "Pro にアップグレード",
+  "homeDrawerAvarionxVPN": "AvarionX VPN",
+  "homeDrawerProtectYourInternetWithOurUnlimitedVPN": "無制限 VPN でインターネット接続を保護",
+  "deviceSecurityDeviceSecurity": "端末のセキュリティ",
+  "deviceSecurityDeviceHealthStatus": "端末のセキュリティ状態",
+  "deviceSecurityDeviceSecurityRecommendations": "端末のセキュリティに関する推奨事項",
+  "deviceSecurityStopIgnoring": "無視を解除",
+  "deviceSecurityIgnoreCheck": "チェックを無視",
+  "deviceSecurityNoScreenLock": "画面ロックなし",
+  "deviceSecurityAMissingSecureLockMakesLocalAccess": "安全なロックがないと、端末への直接アクセスが容易になります。",
+  "deviceSecurityRootShizukuActive": "Root/Shizuku が有効",
+  "deviceSecurityRootOrShizukuCanGrantPowerfulDevice": "Root または Shizuku は端末を強力に制御できる権限を与える場合があります。",
+  "deviceSecurityDisabledAppVerification": "アプリの検証が無効",
+  "deviceSecurityAppVerificationHelpsDetectHarmfulInstalls": "アプリの検証は、有害なインストールの検出に役立ちます。",
+  "deviceSecurityOldAndroidSecurityPatch": "古い Android セキュリティパッチ",
+  "deviceSecurityOlderPatchLevelsMayLeaveKnownIssues": "古いパッチレベルでは、既知の問題が未修正のまま残る可能性があります。",
+  "deviceSecurityDeveloperModeOn": "開発者モードが有効",
+  "deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls": "開発者向けオプションでは高度な端末制御が利用できます。",
+  "deviceSecurityUsbDebuggingOn": "USB デバッグが有効",
+  "deviceSecurityUsbDebuggingAllowsADBControlFromTrusted": "USB デバッグでは、信頼できるコンピューターから ADB で端末を制御できます。",
+  "deviceSecurityUnknownSourcesAllowed": "提供元不明のアプリを許可",
+  "deviceSecuritySideloadingCanBypassNormalAppStoreChecks": "サイドロードでは通常のアプリストアのチェックを回避できる場合があります。",
+  "deviceSecurityAccessibilityAbuseRisk": "ユーザー補助機能の悪用リスク",
+  "deviceSecurityAccessibilityServicesCanReadAndControlScreen": "ユーザー補助サービスは画面内容を読み取り、画面上の操作を制御できます。",
+  "homeHelpImproveDetectionsForEverybody": "みんなの検出精度向上にご協力ください",
+  "homeApkSAndroidAppsFoundToBe": "悪意があると判定された APK（Android アプリ）は ",
+  "homeCanBeUploadedTo": "次の場所にアップロードされ、",
+  "homeAndSharedWithTheCommunityThisIs": "コミュニティと共有できます。対象は ",
+  "homeStrictlyLimitedToAPKFilesNOTYour": "APK ファイルのみに厳密に限定され、個人の ",
+  "homeDocuments": "ドキュメントは対象になりません。\n\n",
+  "homeThisWillImproveDetectionsForEveryoneThat": "これにより、AvarionX を ",
+  "homeUsesAvarionXNoPressureThough": "利用するすべての人の検出精度が向上します。もちろん強制ではありません！\n\n",
+  "homeThanks": "ありがとうございます。\n",
+  "homeRyanfromcolourswift": "RyanFromColourswift",
+  "homeSure": "協力する！",
+  "homeNoThanks": "いいえ",
+  "homePsstCustomiseItHere": "ここでカスタマイズできます",
+  "homeScanNow": "今すぐスキャン",
+  "homeManuallyCheckYourDeviceForMalware": "端末を手動でマルウェアチェック",
+  "homeDeviceSecurity": "端末のセキュリティ",
+  "homeScanModes": "スキャンモード",
+  "homeCloudAssistedChecksEnabled": "クラウド支援チェックが有効",
+  "homeLocalScanEngineOnly": "ローカルスキャンエンジンのみ",
+  "homeProtectedByVXTITANIUM": "VX-TITANIUM による保護",
+  "homeSecurityOverview": "セキュリティ概要",
+  "homeFilesChecked": "チェック済みファイル",
+  "homeThreats": "脅威",
+  "securityReportAvarionxSecurityReport": "Avarionx セキュリティレポート",
+  "securityReportSecurityReport": "セキュリティレポート",
+  "securityReportManualScans": "手動スキャン",
+  "securityReportRealtimeChecks": "リアルタイムチェック",
+  "securityReportTotalFilesScanned": "スキャンしたファイル総数",
+  "securityReportThreatsFound": "検出された脅威",
+  "securityReportGenerateReport": "レポートを生成",
+  "securityReportLiveReport": "ライブレポート",
+  "securityReportThisBoxUpdatesAsScanServicesWrite": "スキャンサービスがレポートデータを書き込むと、この欄が更新されます。",
+  "securityReportExportPDF": "PDF をエクスポート",
+  "securityReportExportCSV": "CSV をエクスポート",
+  "homeLegacyProActivated": "Pro が有効になりました",
+  "homeLegacyProDeactivated": "Pro が無効になりました",
+  "linkCheckPoweredByVTTICloud": "VTTI Cloud 搭載",
+  "safeViewSafeView": "Safe View",
+  "passwordSettingsChangingThisAltersAllPasswords": "これを変更すると、すべてのパスワードが変わります。\n",
+  "passwordSettingsUsingTheSameMetaPassRestoresThem": "同じ MetaPass を使うと復元できます。",
+  "passwordSettingsPasswordsAreNeverStored": "パスワードが保存されることはありません。\n\n",
+  "passwordSettingsTheRestoreCodeContainsOnlyStructureData": "復元コードには構造データのみが含まれます。 ",
+  "passwordSettingsCombinedWithYourMetaPassItRebuildsYour": "MetaPass と組み合わせることで、保管庫を再構築できます。",
+  "passwordManagerContinue": "続行",
+  "passwordManagerFailedToLoadApps": "アプリの読み込みに失敗しました: {e}",
+  "@passwordManagerFailedToLoadApps": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerFailedToGeneratePassword": "パスワードの生成に失敗しました: {e}",
+  "@passwordManagerFailedToGeneratePassword": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerPasswordsAreNeverStored": "パスワードが保存されることはありません。\n\n",
+  "passwordManagerEachEntryDerivesAPasswordFrom": "各エントリのパスワードは次の情報から生成されます:\n",
+  "passwordManagerYourMetaPassword": "• メタパスワード\n",
+  "passwordManagerTheLabelName": "• ラベル名\n",
+  "passwordManagerTheVersionAndLength": "• バージョンと長さ\n\n",
+  "passwordManagerReinstallingTheAppWithTheSameMeta": "同じメタパスワードとラベルでアプリを再インストールすると、同じパスワードが再生成されます。",
+  "permissionsIntroSetupIsNowCompleteTimeToSecure": "セットアップが完了しました！データを保護しましょう。",
+  "proScreenThankYou": "ありがとうございます",
+  "proScreenYourSubscriptionIsConfirmed": "サブスクリプションが確認されました。",
+  "proScreenCurrent": "現在",
+  "proScreenAdvancedStealthMode": "高度な Stealth+ モード",
+  "proScreenUnlockStealthTransportModesForRestrictiveNetworks": "制限の厳しいネットワーク向けのステルス通信モードを利用できます。",
+  "proScreenGlobalServerAccess": "グローバルサーバーアクセス",
+  "proScreenAccessEveryVPNServerLocationIncludingPremium": "高速なプレミアム地域を含む、すべての VPN サーバー拠点を利用できます。",
+  "proScreenBilledMonthly": "月払い",
+  "proScreenMo": "{monthlyInfo}/月",
+  "@proScreenMo": {
+    "placeholders": {
+      "monthlyInfo": {}
+    }
+  },
+  "proScreenMo2": "{currencyCode}/月",
+  "@proScreenMo2": {
+    "placeholders": {
+      "currencyCode": {}
+    }
+  },
+  "proScreenCurrentPlan": "現在のプラン",
+  "quarantineScreenQuarantineDataCorruptedResetting": "隔離データが破損しています。リセットしています。",
+  "quarantineScreenUninstallApp": "アプリをアンインストール",
+  "quarantineScreenUninstall": "{appName} をアンインストールしますか？",
+  "@quarantineScreenUninstall": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "quarantineScreenUninstall2": "アンインストール",
+  "quarantineScreenFailedToLaunchUninstall": "アンインストールを開始できませんでした",
+  "quarantineScreenFiles": "ファイル",
+  "cleanerAppManagerShizukuNotAvailable": "Shizuku を利用できません",
+  "cleanerAppManagerWithoutShizukuEachAppRequiresASeparate": "Shizuku がない場合、アプリごとに個別のシステム確認が必要です。続行しますか？",
+  "cleanerAppManagerAppsUninstalled": "{successCount} 個のアプリをアンインストールしました",
+  "@cleanerAppManagerAppsUninstalled": {
+    "placeholders": {
+      "successCount": {}
+    }
+  },
+  "cleanerAppManagerUninstalledFailed": "{successCount} 個をアンインストール、{failedCount} 個は失敗",
+  "@cleanerAppManagerUninstalledFailed": {
+    "placeholders": {
+      "successCount": {},
+      "failedCount": {}
+    }
+  },
+  "cleanerAppManagerStopped": "{appName} を停止しました",
+  "@cleanerAppManagerStopped": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerForceStopFailed": "強制停止に失敗しました",
+  "cleanerAppManagerClearAppData": "アプリデータを消去",
+  "cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": "{appName} をリセットしますか？アカウント、設定、ファイル、キャッシュが消去されます。",
+  "@cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearData": "データを消去",
+  "cleanerAppManagerReset": "{appName} をリセットしました",
+  "@cleanerAppManagerReset": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearDataFailed": "データの消去に失敗しました",
+  "cleanerAppManagerOpenApp": "アプリを開く",
+  "cleanerAppManagerForceStop": "強制停止",
+  "cleanerAppManagerUninstall": "アンインストール",
+  "cleanerAppManagerSelected": "{selectedCount} 件選択",
+  "@cleanerAppManagerSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerAppManagerAppManager": "アプリマネージャー",
+  "cleanerAppManagerDeselectAll": "すべて選択解除",
+  "cleanerAppManagerUninstalling": "アンインストール中 {done} / {total}…",
+  "@cleanerAppManagerUninstalling": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "cleanerAppManagerUninstall2": "{selectedCount} 件をアンインストール",
+  "@cleanerAppManagerUninstall2": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerProClearAppCaches": "アプリキャッシュを消去",
+  "cleanerProThisAsksAndroidToTrimAppCaches": "Android に端末全体のアプリキャッシュの削減を要求します。アプリデータ、アカウント、設定は消去されません。",
+  "cleanerProClearCaches": "キャッシュを消去",
+  "cleanerProCacheTrimRequested": "キャッシュ削減を要求しました",
+  "cleanerProCacheCleanerFailed": "キャッシュのクリーンアップに失敗しました",
+  "cleanerProLogFiles": "ログファイル",
+  "cleanerProCacheCleaner": "キャッシュクリーナー",
+  "cleanerProLogCleaner": "ログクリーナー",
+  "cleanerProAppDataManager": "アプリデータマネージャー",
+  "cleanerScreenCleaner": "クリーナー",
+  "scanDetailDeleteFiles": "ファイルを削除",
+  "scanDetailDeleteFilesPermanently": "{selectedCount} 個のファイルを完全に削除しますか？",
+  "@scanDetailDeleteFilesPermanently": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailSelectedFilesDeleted": "選択したファイルを削除しました",
+  "scanDetailDeleteAllFiles": "すべてのファイルを削除",
+  "scanDetailDeleteAllFilesPermanently": "{fileCount} 個のファイルをすべて完全に削除しますか？",
+  "@scanDetailDeleteAllFilesPermanently": {
+    "placeholders": {
+      "fileCount": {}
+    }
+  },
+  "scanDetailDeleteAll": "すべて削除",
+  "scanDetailAllFilesDeleted": "すべてのファイルを削除しました",
+  "scanDetailSelected": "{selectedCount} 件選択",
+  "@scanDetailSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailDeselectAll": "すべて選択解除",
+  "scanDetailNewestFirst": "新しい順",
+  "scanDetailOldestFirst": "古い順",
+  "scanDetailLargestFirst": "大きい順",
+  "scanDetailSmallestFirst": "小さい順",
+  "scanDetailNoFilesFound": "ファイルが見つかりません",
+  "scanDetailDeleteAll2": "すべて削除",
+  "scanInstalledAppsSearchApps": "アプリを検索...",
+  "scanInstalledAppsNoAppsFound": "アプリが見つかりません。",
+  "scanUiScanComplete": "スキャン完了",
+  "scanUiScannedItems": "スキャン済み: {scanned} 項目",
+  "@scanUiScannedItems": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiProgress": "進行状況: {pct} ({scanned} / {total})",
+  "@scanUiProgress": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanUiPreparingEngine": "エンジンを準備しています...",
+  "scanUiLoadingTargetS": "対象を読み込んでいます",
+  "scanUiAvarionxVPN": "AvarionX VPN",
+  "scanUiProtectYourInternetWithOurUnlimitedVPN": "無制限 VPN でインターネット接続を保護",
+  "scanUiTapMe": "タップ！",
+  "scanUiScanned": "{scanned} 件スキャン済み",
+  "@scanUiScanned": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiReturn": "戻る",
+  "scanLimitsSettingsUpdated": "設定を更新しました",
+  "scanLimitsScanLimits": "スキャン制限",
+  "scanLimitsLimitHowMuchTheEngineUsesYour": "エンジンが使用する CPU 量を制限します。スレッド数が 0 の場合は自動です。",
+  "scanLimitsMaxScanThreads": "最大スキャンスレッド数",
+  "scanLimits0AutoRange0ToCores": "0 = 自動。範囲: 0～{maxThreads}（コア数: {coreCount}）。",
+  "@scanLimits0AutoRange0ToCores": {
+    "placeholders": {
+      "maxThreads": {},
+      "coreCount": {}
+    }
+  },
+  "scanLegacyScanning": "スキャン中... {percent}%",
+  "@scanLegacyScanning": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "scanLegacySuspicious": "疑わしい: {infectedCount}",
+  "@scanLegacySuspicious": {
+    "placeholders": {
+      "infectedCount": {}
+    }
+  },
+  "scanLegacyClean": "安全: {cleanCount}",
+  "@scanLegacyClean": {
+    "placeholders": {
+      "cleanCount": {}
+    }
+  },
+  "scanLegacyNoFilesToScan": "スキャンするファイルがありません",
+  "settingsSponsorsUnlock": "スポンサー特典で解除 ❤️",
+  "settingsPickCertificate": "証明書を選択",
+  "settingsCertificateLoaded": "証明書を読み込みました",
+  "settingsEnterCode": "コードを入力",
+  "settingsSupportFileMissing": "サポートファイルがありません",
+  "settingsInvalidSupportCode": "無効なサポートコード",
+  "settingsAvarionxSecurity": "AvarionX Security",
+  "settingsAvarionxIsAMobileSecuritySuiteCreated": "AvarionX は、英国バーミンガムを拠点とする ColourSwift が開発したモバイルセキュリティスイートです。\n\n",
+  "settingsContact": "連絡先: ",
+  "settingsExperimentalFeatures": "試験的機能",
+  "settingsEnablingShizukuUnlocksExperimentalWorkInProgress": "Shizuku を有効にすると、開発中の試験的機能を利用できます:\n\n",
+  "settingsAdvancedRansomwareProtection": "• 高度なランサムウェア保護\n",
+  "settingsCacheCleanerPlus": "• Cache Cleaner Plus\n\n",
+  "settingsExperimentalWarning": "試験的機能に関する注意:\n",
+  "settingsTheseFeaturesUseAdvancedSystemAccessAnd": "これらの機能は高度なシステムアクセスを使用するため、端末、Android のバージョン、Shizuku の設定によって動作が異なる場合があります。一部の操作は、通常のスキャンよりも実行中のアプリ、ファイル、キャッシュデータへ直接影響する可能性があります。\n\n",
+  "settingsOnlyEnableThisIfYouUnderstandShizuku": "Shizuku を理解しており、この機能がまだテスト中であることを承知し、重要なデータをバックアップ済みの場合にのみ有効にしてください。\n\n",
+  "settingsPleaseReadTheDocumentationBeforeEnabling": "有効にする前にドキュメントをお読みください。",
+  "settingsEnable": "有効にする",
+  "settingsSigningOut": "サインアウトしています...",
+  "settingsCheckingAccountStatus": "アカウント状態を確認しています...",
+  "settingsManageSignInPremiumAndPurchases": "サインイン、Premium、購入を管理",
+  "settingsPremiumActive": "Premium 有効",
+  "settingsManagePremiumOptionsAndRestorePurchases": "Premium オプションの管理と購入の復元",
+  "settingsUnlockDeepAnalysisModeAndVPNFeatures": "詳細解析モードと VPN 機能を解除",
+  "settingsAutoClearNotifications": "通知を自動消去",
+  "settingsScanModes": "スキャンモード",
+  "settingsAdvancedScanModes": "高度なスキャンモード",
+  "settingsDisableToUseTheDefaultScanningMode": "無効にすると既定のスキャンモードを使用します",
+  "settingsToggleToEnableAllScanningModes": "オンにするとすべてのスキャンモードを利用できます",
+  "settingsApkSubmissions": "APK の送信",
+  "settingsShareMaliciousAPKs": "悪意のある APK を共有",
+  "settingsHelpingImproveDetectionForEveryone": "すべてのユーザーの検出精度向上に役立ちます",
+  "settingsOff": "オフ",
+  "settingsIncludeRealtimeProtectionCatches": "リアルタイム保護の検出結果を含める",
+  "settingsApksFlaggedByRealtimeProtectionAreIncluded": "リアルタイム保護で検出された APK を含めます",
+  "settingsApksFlaggedByRealtimeProtectionAreExcluded": "リアルタイム保護で検出された APK を除外します",
+  "settingsIncludeManualAndScheduledScans": "手動スキャンとスケジュールスキャンを含める",
+  "settingsApksFlaggedByScansAreIncluded": "スキャンで検出された APK を含めます",
+  "settingsApksFlaggedByScansAreExcluded": "スキャンで検出された APK を除外します",
+  "settingsWiFiOnly": "Wi-Fi のみ",
+  "settingsUploadsWaitForAWiFiConnection": "アップロードは Wi-Fi 接続まで待機します",
+  "settingsUploadsMayUseMobileData": "アップロードにモバイルデータ通信を使用する場合があります",
+  "settingsChargingOnly": "充電中のみ",
+  "settingsUploadsWaitUntilTheDeviceIsCharging": "端末が充電中になるまでアップロードを待機します",
+  "settingsUploadsAreNotLimitedToCharging": "アップロードは充電中に限定されません",
+  "settingsChooseWhichAppsUpload": "アップロードするアプリを選択",
+  "settingsReviewAndPickAppsEachTimeBefore": "アップロード前に毎回アプリを確認して選択",
+  "settingsFlaggedAppsUploadAutomatically": "検出されたアプリを自動的にアップロード",
+  "settingsEnableProDebug": "Pro を有効化（デバッグ）",
+  "settingsLocalUnlockForUITesting": "UI テスト用のローカル解除",
+  "settingsRestorePurchases": "購入を復元",
+  "settingsReCheckPlayBilling": "Play Billing を再確認",
+  "settingsCheckingAccount": "アカウントを確認しています...",
+  "settingsAvarionxAccountConnected": "AvarionX アカウント接続済み",
+  "settingsAccountID": "アカウント ID: {accountId}",
+  "@settingsAccountID": {
+    "placeholders": {
+      "accountId": {}
+    }
+  },
+  "settingsSignInToManagePurchasesAndAccount": "購入とアカウント機能を管理するにはサインインしてください。",
+  "settingsOpenTheAvarionXAccountPortal": "AvarionX アカウントポータルを開く",
+  "settingsAccountDashboard": "アカウントダッシュボード",
+  "settingsOpenBillingAndAccountSettings": "請求とアカウント設定を開く",
+  "settingsRemoveThisAccountFromTheApp": "このアカウントをアプリから削除",
+  "settingsPremiumFeaturesAreAvailableOnThisDevice": "この端末では Premium 機能を利用できます",
+  "settingsViewOptionalPremiumFeatures": "オプションの Premium 機能を表示",
+  "settingsReCheckPlayBillingEntitlement": "Play Billing の利用資格を再確認",
+  "settingsRtpNotificationAutoClearNotifications": "通知を自動消去",
+  "settingsRtpNotificationNever": "しない",
+  "settingsRtpNotification5Minutes": "5 分",
+  "settingsRtpNotification10Minutes": "10 分",
+  "settingsRtpNotification30Minutes": "30 分",
+  "settingsThemeBlack": "ブラック",
+  "settingsThemeWhite": "ホワイト",
+  "settingsThemeGrey": "グレー",
+  "settingsThemeEmerald": "エメラルド",
+  "settingsThemePurple": "パープル",
+  "settingsThemeRoyalBlue": "ロイヤルブルー",
+  "settingsAccountCardSyncPurchasesAndUnlockProAcrossApps": "購入を同期し、各アプリで Pro を解除します。",
+  "settingsAccountCardLoading": "読み込み中...",
+  "settingsAccountCardDashboard": "ダッシュボード",
+  "settingsProCardChangePlan": "プランを変更",
+  "advancedNetworkProtectionEnterYourOwnResolver": "独自のリゾルバーを入力",
+  "advancedNetworkProtectionCloudProtectionMode": "クラウド保護モード",
+  "advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud": "すべての DNS クエリをクラウドエンジンにルーティングし、ブロックリストのリアルタイム更新、ドメイン評価の確認などを有効にします。",
+  "advancedNetworkProtectionRefreshProStatus": "Pro の状態を更新",
+  "advancedNetworkProtectionProActive": "Pro 有効",
+  "advancedNetworkProtectionFreePlan": "無料プラン",
+  "advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith": "利用資格を確認し、クラウド機能と同期します。Pro ではシステム全体の広告ブロックが利用できます。",
+  "advancedNetworkProtectionMalwareProtection": "マルウェア保護",
+  "advancedNetworkProtectionBlocksKnownMaliciousDomains": "既知の悪意のあるドメインをブロック",
+  "advancedNetworkProtectionTrackerProtection": "トラッカー保護",
+  "advancedNetworkProtectionReducesTrackingDomains": "トラッキングドメインを減らします",
+  "advancedNetworkProtectionAdProtection": "広告保護",
+  "advancedNetworkProtectionBlocksCommonAdDomains": "一般的な広告ドメインをブロック",
+  "advancedNetworkProtectionAdultFilter": "成人向けコンテンツフィルター",
+  "advancedNetworkProtectionUses1113Upstream": "上流に 1.1.1.3 を使用",
+  "advancedNetworkProtectionLockedUntilProIsActiveAndCloud": "Pro が有効で、クラウドモードがオンになるまでロックされています。",
+  "advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer": "VPN レイヤーからのリアルタイム DNS イベント。",
+  "advancedNetworkProtectionAdvanced": "詳細",
+  "advancedNetworkProtectionDns": "DNS",
+  "advancedNetworkProtectionCloudDNSMode": "クラウド DNS モード",
+  "networkProtectionEnterYourOwnResolver": "独自のリゾルバーを入力",
+  "networkAppControlEnableVPNToggles": "VPN 切り替えを有効化",
+  "networkAppControlOpenSettings": "設定を開く",
+  "networkAppControlAppControl": "アプリ制御",
+  "networkAppControlNoAppsFound": "アプリが見つかりません。",
+  "networkSpeedTestCountry": "国",
+  "networkSpeedTestRunning": "実行中",
+  "networkSpeedTestRunTest": "テストを実行",
+  "networkSpeedTestNoResultsYet": "まだ結果がありません。",
+  "networkSpeedTestDnsTLS": "DNS: {dns}  •  TLS: {tls}",
+  "@networkSpeedTestDnsTLS": {
+    "placeholders": {
+      "dns": {},
+      "tls": {}
+    }
+  },
+  "networkSpeedTestFail": "失敗",
+  "dnsNetworkProtectionEnterYourOwnResolver": "独自のリゾルバーを入力",
+  "dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure": "DNS フィルタリングは Secure VPN とは別の機能です。既知のマルウェア、すべてのアプリ内の広告、トラッカー、不要なカテゴリのコンテンツを読み込み前にブロックできます。",
+  "fullVpnSignedIn": "サインイン済みです。",
+  "fullVpnSignInRequired": "サインインが必要です",
+  "fullVpnClose": "閉じる",
+  "fullVpnLoadingUsage": "使用量を読み込んでいます...",
+  "fullVpnSyncing": "同期中",
+  "fullVpnUsedThisMonth": "今月 {usedBytes} 使用",
+  "@fullVpnUsedThisMonth": {
+    "placeholders": {
+      "usedBytes": {}
+    }
+  },
+  "blockedScreenUnsupportedEnvironment": "サポートされていない環境",
+  "updateLogUpdateV": "アップデート: v{version}",
+  "@updateLogUpdateV": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "updateLogHiThereAvarionXHasBeenUpdatedBelow": "AvarionX が更新されました。変更内容は次のとおりです:",
+  "updateLogNoUserFacingChangesInThisUpdate": "このアップデートにはユーザー向けの変更はありません。",
+  "updateLogContinue": "続行",
+  "featuresRealtimeProtectionBody": "新規または変更されたファイルをバックグラウンドで監視し、脅威が現れた瞬間にブロックします。",
+  "featuresTriLayerEngineTitle": "3 層エンジン",
+  "featuresTriLayerEngineBody": "Bloom フィルタリング、シグネチャスキャン、APK に特化したバイト解析を組み合わせ、高い精度と速度を実現する 3 段階の検出コアです。",
+  "featuresMachineLearningTitle": "機械学習",
+  "featuresMachineLearningBody": "悪意のある APK の挙動パターンを認識するよう学習した、軽量なオンデバイスモデルです。",
+  "featuresCleanerProTitle": "Cleaner Pro",
+  "featuresCleanerProBody": "重複ファイル、キャッシュ、未使用アプリを特定してストレージ容量を取り戻す、進化を続けるクリーニングモジュールです。",
+  "featuresWifiProtectionTitle": "Wi-Fi 保護",
+  "featuresWifiProtectionBody": "端末上の解析によって、安全でない、または不審な Wi-Fi ネットワークを検出します。",
+  "featuresRootLevelProtectionTitle": "Root レベル保護",
+  "featuresRootLevelProtectionBody": "root 化された端末や上級ユーザー向けに設計された、システムレベルの高度な防御です。",
+  "featuresPcCompanionTitle": "PC コンパニオン",
+  "featuresPcCompanionBody": "クロスプラットフォームのウイルス対策連携に対応する、今後提供予定のデスクトップ版です。",
+  "deviceSecurityNoRisksFound": "端末のリスクは見つかりませんでした",
+  "deviceSecurityOneCheckNeedsAttention": "1 件の端末チェックに対応が必要です",
+  "deviceSecurityChecksNeedAttention": "{count} 件の端末チェックに対応が必要です",
+  "@deviceSecurityChecksNeedAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityHealthSectionBody": "これらの設定は端末のセキュリティ状態に直接影響します。",
+  "deviceSecurityRecommendationsSectionBody": "これらは一般的に推奨されるセキュリティ設定です。",
+  "deviceSecuritySignalUnavailable": "シグナルを利用できません",
+  "deviceSecurityIgnoredByYou": "あなたが無視しました",
+  "deviceSecurityScreenLockInactiveTitle": "画面ロック",
+  "deviceSecurityScreenLockActiveLabel": "安全ではありません。安全な画面ロックが設定されていません",
+  "deviceSecurityScreenLockInactiveLabel": "画面ロックは有効です",
+  "deviceSecurityScreenLockDetail": "安全な画面ロックは、端末を紛失した場合、盗難に遭った場合、または放置した場合に保護します。PIN、パスワード、パターン、指紋、または安全なロック方式で保護された顔認証がないと、端末を物理的に手にした人が簡単に開ける可能性があります。",
+  "deviceSecurityScreenLockHelp": "Android のセキュリティ設定を開き、安全な画面ロックを設定してください。",
+  "deviceSecurityCheckSetting": "設定を確認",
+  "deviceSecurityPrivilegedInactiveTitle": "特権アクセスなし",
+  "deviceSecurityPrivilegedActiveLabel": "特権アクセスを検出",
+  "deviceSecurityPrivilegedInactiveLabel": "特権アクセスは検出されませんでした",
+  "deviceSecurityPrivilegedDetail": "Root や Shizuku は便利な場合がありますが、アクセスが悪用された場合、悪意のあるアプリの影響を大きくする可能性もあります。特権アクセスを持つアプリは、通常の Android アプリでは実行できない操作を行える場合があります。",
+  "deviceSecurityPrivilegedHelp": "root、Magisk、Shizuku の設定を手動で確認してください。",
+  "deviceSecurityReviewSetting": "設定を確認",
+  "deviceSecurityAppVerificationInactiveTitle": "アプリの検証",
+  "deviceSecurityAppVerificationActiveLabel": "安全ではありません。アプリの検証が無効になっているようです",
+  "deviceSecurityAppVerificationInactiveLabel": "アプリの検証が有効になっているようです",
+  "deviceSecurityAppVerificationDetail": "Android のアプリ検証は、インストール前後にアプリを確認するのに役立ちます。この保護が無効または利用できない場合、有害なアプリが実行前にブロックされる可能性が低くなる場合があります。",
+  "deviceSecurityAppVerificationHelp": "Android のセキュリティ設定を開き、アプリの検証を確認してください。",
+  "deviceSecuritySecurityPatchInactiveTitle": "セキュリティパッチは最新",
+  "deviceSecuritySecurityPatchActiveLabel": "セキュリティパッチレベルが古くなっています",
+  "deviceSecuritySecurityPatchInactiveLabel": "セキュリティパッチレベルは最新です",
+  "deviceSecuritySecurityPatchDetail": "Android のセキュリティパッチは、既知のプラットフォームやメーカー固有の問題を修正します。パッチレベルが古い場合、新しいビルドではすでに修正されている脆弱性に端末がさらされる可能性があります。",
+  "deviceSecuritySecurityPatchHelp": "Android のシステム更新設定を開き、アップデートを確認してください。",
+  "deviceSecurityCheckUpdates": "アップデートを確認",
+  "deviceSecurityDeveloperModeInactiveTitle": "開発者モード",
+  "deviceSecurityDeveloperModeActiveLabel": "開発者向けオプションが有効です",
+  "deviceSecurityDeveloperModeInactiveLabel": "開発者向けオプションが無効です",
+  "deviceSecurityDeveloperModeDetail": "開発者モードは開発者やテスターにとって通常の機能ですが、高度な設定が公開されるため、誤って変更したり端末にアクセスできる人に悪用されたりすると、端末のセキュリティが低下する可能性があります。",
+  "deviceSecurityDeveloperModeHelp": "開発者向けオプションを開き、不要な設定をオフにしてください。",
+  "deviceSecurityUsbDebuggingInactiveTitle": "USB デバッグ",
+  "deviceSecurityUsbDebuggingActiveLabel": "安全ではありません。USB デバッグがオンです",
+  "deviceSecurityUsbDebuggingInactiveLabel": "USB デバッグはオフです",
+  "deviceSecurityUsbDebuggingDetail": "USB デバッグを有効にすると、接続したコンピューターが Android Debug Bridge を介して端末とやり取りできます。有効なままにすると、信頼できないコンピューターへ接続した際に不正アクセスのリスクが高まります。",
+  "deviceSecurityUsbDebuggingHelp": "開発者向けオプションを開き、USB デバッグをオフにしてください。",
+  "deviceSecurityUnknownSourcesInactiveTitle": "提供元不明のアプリ",
+  "deviceSecurityUnknownSourcesActiveLabel": "提供元不明のアプリのインストールが許可されています",
+  "deviceSecurityUnknownSourcesInactiveLabel": "提供元不明のアプリのインストールは制限されています",
+  "deviceSecurityUnknownSourcesDetail": "提供元不明のアプリのインストールを許可すると、信頼できる APK を導入する際には便利ですが、安全でないソースからアプリをインストールする可能性も高まります。信頼できるアプリやストアにのみ許可してください。",
+  "deviceSecurityUnknownSourcesHelp": "Android の設定を開き、「不明なアプリのインストール」のアクセス権を確認してください。",
+  "deviceSecurityAccessibilityInactiveTitle": "ユーザー補助サービス",
+  "deviceSecurityAccessibilityActiveLabel": "サードパーティのユーザー補助サービスが有効です",
+  "deviceSecurityAccessibilityInactiveLabel": "危険なユーザー補助サービスは見つかりませんでした",
+  "deviceSecurityAccessibilityDetail": "ユーザー補助サービスは画面内容を確認し、ユーザーに代わって操作を実行できる強力な機能です。正規のツールには有用ですが、悪意のあるアプリによって悪用されることもよくあります。",
+  "deviceSecurityAccessibilityHelp": "ユーザー補助設定を開き、有効なサービスを確認してください。",
+  "deviceSecurityChecking": "端末のセキュリティを確認しています",
+  "deviceSecurityReadingSignals": "端末のセキュリティ状態を読み取っています...",
+  "deviceSecurityOneCheckAttention": "1 件のチェックに対応が必要です",
+  "deviceSecurityChecksAttention": "{count} 件のチェックに対応が必要です",
+  "@deviceSecurityChecksAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityTapSignal": "詳しく見るには下のシグナルをタップしてください。",
+  "deviceSecurityIgnoredChecks": "無視している有効なチェック: {count} 件。{plural, select, s {} other {}}",
+  "@deviceSecurityIgnoredChecks": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceSecurityPostureNormal": "端末のセキュリティ状態のチェックは正常です。",
+  "timeJustNow": "たった今",
+  "timeMinutesAgo": "{minutes} 分前",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "timeHoursAgo": "{hours} 時間前",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "timeDaysAgo": "{days} 日前",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "securityNoReportDataYet": "まだレポートデータがありません",
+  "securityLastActivity": "最終アクティビティ {relative}",
+  "@securityLastActivity": {
+    "placeholders": {
+      "relative": {}
+    }
+  },
+  "securityReportSharePdfTitle": "Avarionx セキュリティレポート",
+  "securityReportCsvField": "項目",
+  "securityReportCsvValue": "値",
+  "securityReportGeneratedAt": "生成日時",
+  "securityReportOverallStatus": "全体の状態",
+  "securityReportLastManualScan": "前回の手動スキャン",
+  "securityReportLastRealtimeEvent": "前回のリアルタイムイベント",
+  "securityReportLastScheduledScan": "前回のスケジュールスキャン",
+  "securityReportShareCsvTitle": "Avarionx セキュリティレポート CSV",
+  "securityReportReviewRecommended": "確認を推奨",
+  "securityReportNoKnownThreatDetected": "既知の脅威は検出されませんでした",
+  "securityReportGeneratedLine": "生成日時: {generatedAt}",
+  "@securityReportGeneratedLine": {
+    "placeholders": {
+      "generatedAt": {}
+    }
+  },
+  "securityReportStatusLine": "状態: {status}",
+  "@securityReportStatusLine": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "securityReportLatestActivityLine": "最新のアクティビティ: {latest}",
+  "@securityReportLatestActivityLine": {
+    "placeholders": {
+      "latest": {}
+    }
+  },
+  "securityReportManualScansLine": "手動スキャン: {count}",
+  "@securityReportManualScansLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportRealtimeChecksLine": "リアルタイムチェック: {count}",
+  "@securityReportRealtimeChecksLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportTotalFilesScannedLine": "スキャンしたファイル総数: {count}",
+  "@securityReportTotalFilesScannedLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportThreatsFoundLine": "検出された脅威: {count}",
+  "@securityReportThreatsFoundLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportLastManualScanLine": "前回の手動スキャン: {value}",
+  "@securityReportLastManualScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastRealtimeEventLine": "前回のリアルタイムイベント: {value}",
+  "@securityReportLastRealtimeEventLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastScheduledScanLine": "前回のスケジュールスキャン: {value}",
+  "@securityReportLastScheduledScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportNotRecorded": "記録なし",
+  "safeViewNavigationBlocked": "移動をブロックしました",
+  "safeViewInvalidDestination": "無効な移動先",
+  "safeViewUnsupportedScheme": "サポートされていないスキーム",
+  "safeViewUnableToResolveDestination": "移動先を解決できません",
+  "safeViewDestinationBlocked": "移動先をブロックしました",
+  "safeViewUnableToVerifyDestination": "移動先を確認できません",
+  "proScreenCurrentStatus": "現在の状態: {status}",
+  "@proScreenCurrentStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "proScreenBilledAnnuallyAt": "年額 {price} で請求",
+  "@proScreenBilledAnnuallyAt": {
+    "placeholders": {
+      "price": {}
+    }
+  },
+  "quarantineUnknownApp": "不明なアプリ",
+  "cleanerScanCancelled": "スキャンをキャンセルしました",
+  "cleanerProClearingCaches": "キャッシュを消去しています…",
+  "cleanerProTrimAppCaches": "端末全体のアプリキャッシュを削減します。",
+  "cleanerProEnableShizuku": "使用するには設定で Shizuku を有効にしてください。",
+  "cleanerProScanningStorage": "ストレージをスキャンしています…",
+  "cleanerProFindLogFiles": ".log、.trace、.crash、.dmp ファイルを検索します。",
+  "cleanerProLogFileCount": "{count} ファイル • {size}",
+  "@cleanerProLogFileCount": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerProAppManagerReady": "アプリの強制停止、データ消去、一括アンインストールができます。",
+  "cleanerProAppManagerLimited": "アンインストールは通常どおり利用できます。強制停止とデータ消去には Shizuku が必要です。",
+  "cleanerProCheckingShizuku": "Shizuku を確認しています…",
+  "cleanerProShizukuNotRunning": "Shizuku が実行されていません。必要なときに設定から有効にしてください。",
+  "cleanerProShizukuPermissionMissing": "Shizuku の権限が付与されていません。設定から有効にしてください。",
+  "cleanerProShizukuNotBound": "Shizuku サービスはまだバインドされていません。有効にした後、設定を開いてこの画面を更新してください。",
+  "cleanerLiteTab": "Lite",
+  "cleanerProTab": "Pro",
+  "scanCancelled": "スキャンをキャンセルしました",
+  "scanPreparing": "スキャンを準備しています...",
+  "scanSuspiciousItemsFound": "疑わしい項目が {count} 件見つかりました。{plural, select, s {} other {}}",
+  "@scanSuspiciousItemsFound": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "scanSuspiciousCount": "疑わしい: {count}",
+  "@scanSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanCleanCount": "安全: {count}",
+  "@scanCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationFullItems": "スキャン済み: {count} 項目",
+  "@scanNotificationFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationCurrent": "スキャン済み: {count} • {file}",
+  "@scanNotificationCurrent": {
+    "placeholders": {
+      "count": {},
+      "file": {}
+    }
+  },
+  "scanNotificationProgress": "{scanned} / {total}",
+  "@scanNotificationProgress": {
+    "placeholders": {
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanNotificationProgressCurrent": "{scanned} / {total} • {file}",
+  "@scanNotificationProgressCurrent": {
+    "placeholders": {
+      "scanned": {},
+      "total": {},
+      "file": {}
+    }
+  },
+  "settingsThemeRoyalBluePremium": "ロイヤルブルー（Premium）",
+  "settingsIconDefault": "デフォルト",
+  "settingsIconBird": "バード",
+  "settingsIconNeon": "ネオン",
+  "settingsIconOriginal": "オリジナル",
+  "homeRealtimeProtectionTitle": "リアルタイム保護",
+  "networkCardStatusLocked": "ロック中",
+  "networkSectionConnection": "接続",
+  "networkSectionBlocklists": "ブロックリスト",
+  "networkSectionResolver": "リゾルバー",
+  "networkAppControlOtherVpnSetupInstructions": "別の VPN が「常時接続」として選択されています。\n\nアプリを確実にブロックするには:\n\n1) Android の VPN 設定を開く\n2) VPN として AvarionX を選択\n3) 「常時接続 VPN」を有効にする\n4) 「VPN 以外の接続をブロック」を有効にする",
+  "networkAppControlSetupInstructions": "アプリを確実にブロックするには:\n\n1) Android の VPN 設定を開く\n2) VPN として AvarionX を選択\n3) 「常時接続 VPN」を有効にする\n4) 「VPN 以外の接続をブロック」を有効にする",
+  "networkAppControlBlockingActive": "アプリのブロックが有効です。",
+  "networkAppControlOtherVpnWarning": "別の VPN が常時接続に設定されています。AvarionX で「常時接続」+「VPN なしの接続をブロック」を有効にしてください。",
+  "networkAppControlSetupWarning": "アプリのブロックを機能させるには、AvarionX で「常時接続」+「VPN なしの接続をブロック」を有効にしてください。",
+  "countryUnitedKingdom": "イギリス",
+  "countryUnitedStates": "アメリカ合衆国",
+  "countryCanada": "カナダ",
+  "countryIreland": "アイルランド",
+  "countryFrance": "フランス",
+  "countryGermany": "ドイツ",
+  "countryNetherlands": "オランダ",
+  "countrySpain": "スペイン",
+  "countryItaly": "イタリア",
+  "countrySweden": "スウェーデン",
+  "countryNorway": "ノルウェー",
+  "countryDenmark": "デンマーク",
+  "countryPoland": "ポーランド",
+  "countryTurkey": "トルコ",
+  "countryGreece": "ギリシャ",
+  "countryRomania": "ルーマニア",
+  "countryUkraine": "ウクライナ",
+  "countryRussia": "ロシア",
+  "countryIndia": "インド",
+  "countryPakistan": "パキスタン",
+  "countryBangladesh": "バングラデシュ",
+  "countrySriLanka": "スリランカ",
+  "countryNepal": "ネパール",
+  "countryJapan": "日本",
+  "countrySouthKorea": "韓国",
+  "countrySingapore": "シンガポール",
+  "countryMalaysia": "マレーシア",
+  "countryThailand": "タイ",
+  "countryVietnam": "ベトナム",
+  "countryPhilippines": "フィリピン",
+  "countryIndonesia": "インドネシア",
+  "countryAustralia": "オーストラリア",
+  "countryNewZealand": "ニュージーランド",
+  "countryBrazil": "ブラジル",
+  "countryArgentina": "アルゼンチン",
+  "countryChile": "チリ",
+  "countryMexico": "メキシコ",
+  "countryColombia": "コロンビア",
+  "countryPeru": "ペルー",
+  "countrySouthAfrica": "南アフリカ",
+  "countryNigeria": "ナイジェリア",
+  "countryKenya": "ケニア",
+  "countryEgypt": "エジプト",
+  "countryUAE": "アラブ首長国連邦",
+  "countrySaudiArabia": "サウジアラビア",
+  "countryIsrael": "イスラエル",
+  "networkSpeedTestTesting": "テスト中 {current}/{total} • {domain}",
+  "@networkSpeedTestTesting": {
+    "placeholders": {
+      "current": {},
+      "total": {},
+      "domain": {}
+    }
+  },
+  "networkSpeedTestDone": "完了",
+  "vpnFooterCustomisation": "カスタマイズ",
+  "apkClipboardReportTitle": "VTTI Cloud - APK 解析レポート",
+  "apkClipboardAppName": "アプリ名: {name}",
+  "@apkClipboardAppName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkClipboardPackageId": "パッケージ ID: {packageId}",
+  "@apkClipboardPackageId": {
+    "placeholders": {
+      "packageId": {}
+    }
+  },
+  "apkClipboardVersion": "バージョン: {version}",
+  "@apkClipboardVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "apkClipboardFileSize": "ファイルサイズ: {size}",
+  "@apkClipboardFileSize": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "apkClipboardMinSdk": "最小 SDK: {sdk}",
+  "@apkClipboardMinSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardTargetSdk": "ターゲット SDK: {sdk}",
+  "@apkClipboardTargetSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardSignature": "署名: {signature}",
+  "@apkClipboardSignature": {
+    "placeholders": {
+      "signature": {}
+    }
+  },
+  "apkClipboardMalwareRisk": "マルウェアリスク: {risk}",
+  "@apkClipboardMalwareRisk": {
+    "placeholders": {
+      "risk": {}
+    }
+  },
+  "apkClipboardRiskLabel": "リスクラベル: {label}",
+  "@apkClipboardRiskLabel": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "apkClipboardHashVerdict": "ハッシュ判定: {verdict}",
+  "@apkClipboardHashVerdict": {
+    "placeholders": {
+      "verdict": {}
+    }
+  },
+  "apkClipboardRationale": "根拠: {rationale}",
+  "@apkClipboardRationale": {
+    "placeholders": {
+      "rationale": {}
+    }
+  },
+  "apkReportUnusualFlags": "通常と異なるフラグ",
+  "apkReportUnverifiedItems": "未検証の項目",
+  "apkReportKnownMalware": "既知のマルウェア",
+  "apkReportSuspiciousHash": "疑わしいハッシュ",
+  "apkReportCleanHash": "安全なハッシュ",
+  "apkReportHashNotChecked": "ハッシュ未確認",
+  "apkReportHashUnknown": "不明なハッシュ",
+  "apkMetadataPackage": "パッケージ",
+  "apkMetadataPackageId": "パッケージ ID",
+  "apkMetadataEngine": "エンジン",
+  "apkMetadataSize": "サイズ",
+  "apkMetadataMinSdk": "最小 SDK",
+  "apkMetadataTargetSdk": "ターゲット SDK",
+  "apkMetadataSignature": "署名",
+  "apkAnalyserStageDeconstructing": "APK を展開しています",
+  "apkAnalyserStageAnalysing": "内容を解析しています",
+  "apkAnalyserSignInRequired": "Cloud Analysis を使用するには、設定からサインインしてください。",
+  "apkAnalyserStageCheckingCloud": "VTTI Cloud を確認しています",
+  "apkAnalyserDailyLimitReached": "1 日の解析上限 {limit} 回に達しました。",
+  "@apkAnalyserDailyLimitReached": {
+    "placeholders": {
+      "limit": {}
+    }
+  },
+  "apkAnalyserCloudAnalysisFailed": "クラウド解析に失敗しました",
+  "apkAnalyserStageGeneratingReport": "レポートを生成しています",
+  "apkAnalyserAnalysisFailed": "APK 解析を処理できませんでした",
+  "genericError": "エラー",
+  "apkReportEngineVttiCloud": "VTTI Cloud エンジン",
+  "apkReportCertificateDetected": "証明書を検出しました",
+  "apkReportNoCertificateData": "証明書データがありません",
+  "apkExportOverview": "概要",
+  "apkExportMalwareAssessment": "マルウェア評価",
+  "apkExportRiskScore": "リスクスコア",
+  "apkExportRiskLabel": "リスクラベル",
+  "apkExportHashVerdict": "ハッシュ判定",
+  "apkExportScoreRationale": "スコアの根拠",
+  "apkExportContributingSignals": "寄与シグナル",
+  "apkExportDampeningFactors": "軽減要因",
+  "apkExportPermissionsRequested": "要求された権限",
+  "apkExportExtraFlagsUnusual": "追加フラグ（通常と異なる）",
+  "apkExportExtraFlagsUnverified": "追加フラグ（未検証）",
+  "apkExportDiscoveredSources": "検出されたソース",
+  "apkExportRequestedPermissions": "要求された権限",
+  "apkExportRationale": "根拠",
+  "apkExportCsvShareText": "{name} の APK 解析 CSV",
+  "@apkExportCsvShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkExportPdfTitle": "VTTI Cloud - APK 解析",
+  "apkExportPdfShareText": "{name} の APK 解析 PDF",
+  "@apkExportPdfShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkMetadataAppName": "アプリ名",
+  "apkMetadataFileSize": "ファイルサイズ",
+  "vpnBackendFailedOpenBrowser": "ブラウザーを開けませんでした。",
+  "vpnBackendSignedIn": "サインインしました。",
+  "vpnBackendSignedOut": "サインアウトしました。",
+  "vpnBackendSessionExpiredSignIn": "セッションの有効期限が切れました。もう一度サインインしてください。",
+  "vpnBackendFailedLoadAccountStatus": "アカウントを読み込めませんでした（{status}）。",
+  "@vpnBackendFailedLoadAccountStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendFailedLoadAccountError": "アカウントを読み込めませんでした（{error}）。",
+  "@vpnBackendFailedLoadAccountError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendSignInFirst": "先にサインインしてください。",
+  "vpnBackendConnecting": "接続しています...",
+  "vpnBackendNotificationsPermissionRequired": "通知の権限が必要です。",
+  "vpnBackendPermissionNotGranted": "VPN の権限が付与されていません。",
+  "vpnBackendAnotherVpnActive": "別の VPN が有効です。先に無効にしてください。",
+  "vpnBackendProvisionIncomplete": "プロビジョニングから不完全な設定が返されました。",
+  "vpnBackendSecuringConnection": "接続を保護しています...",
+  "vpnBackendConnected": "接続しました。",
+  "vpnBackendWireGuardFailed": "WireGuard を開始できませんでした（{error}）。",
+  "@vpnBackendWireGuardFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendDisconnecting": "切断しています...",
+  "vpnBackendDisconnected": "切断しました。",
+  "vpnBackendSelectedServer": "{server} を選択しました",
+  "@vpnBackendSelectedServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendSwitchingServer": "{server} に切り替えています...",
+  "@vpnBackendSwitchingServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendKeyNotFound": "VPN キーが見つかりません。",
+  "vpnBackendDnsUpdated": "DNS 設定を更新しました。",
+  "vpnBackendSessionExpired": "セッションの有効期限が切れました。",
+  "vpnBackendFailedStatus": "失敗しました（{status}）。",
+  "@vpnBackendFailedStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendPlanNotAllowed": "現在のプランでは Full VPN を使用できません。",
+  "vpnBackendProvisionFailed": "プロビジョニングに失敗しました（{status}）。",
+  "@vpnBackendProvisionFailed": {
+    "placeholders": {
+      "status": {}
     }
   }
 }

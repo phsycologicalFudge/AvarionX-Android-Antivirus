@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import com.colourswift.cssecurity.rtp.SystemWatcher
 import com.colourswift.cssecurity.rtp.SystemWatcherUserService
+import com.colourswift.cssecurity.terminal.bridge.AXTerminalPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import rikka.shizuku.Shizuku
@@ -36,14 +37,18 @@ class ShizukuBridge(
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             val svc = ISystemWatcherService.Stub.asInterface(binder)
             service = svc
-            Log.i("ShizukuBridge", "Shell service connected")
+            Log.i(TAG, "Shell service connected")
             SystemWatcher.start(context, svc)
+            // Wire the terminal so new PTY sessions run as shell UID via Shizuku
+            AXTerminalPlugin.setShizukuService(svc)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             service = null
-            Log.i("ShizukuBridge", "Shell service disconnected")
+            Log.i(TAG, "Shell service disconnected")
             SystemWatcher.stop()
+            // Fall back to direct PTY on future sessions
+            AXTerminalPlugin.setShizukuService(null)
         }
     }
 
@@ -57,6 +62,7 @@ class ShizukuBridge(
     private val dead = Shizuku.OnBinderDeadListener {
         binderReady = false
         service = null
+        AXTerminalPlugin.setShizukuService(null)
     }
 
     init {
@@ -75,7 +81,7 @@ class ShizukuBridge(
         try {
             Shizuku.bindUserService(userServiceArgs, serviceConnection)
         } catch (e: Exception) {
-            Log.e("ShizukuBridge", "bindService failed: ${e.message}")
+            Log.e(TAG, "bindService failed: ${e.message}")
         }
     }
 
@@ -89,11 +95,12 @@ class ShizukuBridge(
     private fun disable() {
         SystemWatcher.stop()
         service = null
+        AXTerminalPlugin.setShizukuService(null)
 
         try {
             Shizuku.unbindUserService(userServiceArgs, serviceConnection, true)
         } catch (e: Exception) {
-            Log.w("ShizukuBridge", "disable unbind failed: ${e.message}")
+            Log.w(TAG, "disable unbind failed: ${e.message}")
         }
     }
 
@@ -227,5 +234,9 @@ class ShizukuBridge(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "ShizukuBridge"
     }
 }

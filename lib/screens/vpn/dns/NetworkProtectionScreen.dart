@@ -46,7 +46,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
 
   static const String _githubUrl = 'https://github.com/phsycologicalFudge/ColourSwift_AV?tab=readme-ov-file#network-protection';
 
-  static const List<UpstreamPreset> _presets = [
+  static  List<UpstreamPreset> _presets = [
     UpstreamPreset(key: 'cloudflare', title: 'Cloudflare', subtitle: '1.1.1.1', ip: '1.1.1.1'),
     UpstreamPreset(key: 'cloudflare_alt', title: 'Cloudflare (alt)', subtitle: '1.0.0.1', ip: '1.0.0.1'),
     UpstreamPreset(key: 'google', title: 'Google', subtitle: '8.8.8.8', ip: '8.8.8.8'),
@@ -55,7 +55,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
     UpstreamPreset(key: 'quad9_alt', title: 'Quad9 (alt)', subtitle: '149.112.112.112', ip: '149.112.112.112'),
     UpstreamPreset(key: 'adguard', title: 'AdGuard', subtitle: '94.140.14.14', ip: '94.140.14.14'),
     UpstreamPreset(key: 'adguard_alt', title: 'AdGuard (alt)', subtitle: '94.140.15.15', ip: '94.140.15.15'),
-    UpstreamPreset(key: 'custom', title: 'Custom', subtitle: 'Enter your own resolver', ip: ''),
+    UpstreamPreset(key: 'custom', title: AppLocalizations.of(context)!.networkCardStatusCustom, subtitle: AppLocalizations.of(context)!.dnsNetworkProtectionEnterYourOwnResolver, ip: ''),
   ];
 
   bool get canUseAdsBlocklists => !kEnableAds || isPro;
@@ -1158,7 +1158,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
               ),
               const SizedBox(height: 16),
               Text(
-                "Switch to DNS filtering?",
+                AppLocalizations.of(context)!.networkDnsOffTitle,
                 textAlign: TextAlign.center,
                 style: text.titleLarge?.copyWith(fontWeight: FontWeight.w900),
               ),
@@ -1173,17 +1173,17 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "What is DNS filtering?",
+                        AppLocalizations.of(context)!.networkDnsOffInfoTitle,
                         style: text.titleSmall?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "DNS filtering is seperate from the Secure VPN. It can block known malware, ads (across all apps), trackers, and content from unwanted categories before they load.",
+                        AppLocalizations.of(context)!.dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure,
                         style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "It does not encrypt your traffic or hide your IP.",
+                        AppLocalizations.of(context)!.networkDnsOffInfoBody2,
                         style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     ],
@@ -1199,7 +1199,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text("Enable DNS Filtering"),
+                  child:  Text(AppLocalizations.of(context)!.networkDnsOffEnableButton),
                 ),
               ),
             ],

@@ -10,15 +10,17 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/scan_ui_screen.dart';
+import '../screens/scan/main_scan_ui/scan_screen.dart';
 import '../utils/exclusions_store.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
+import 'cloud/cloud_auth_service.dart';
 import 'update_service.dart';
 import 'cloud_helper_service.dart';
 import 'foreground_service.dart';
 import 'quarantine_service.dart';
 import 'package:crypto/crypto.dart';
+import '../services/scan api/scan_types.dart';
 
 bool scanFileIsolate(String path) {
   try {
@@ -50,10 +52,7 @@ class RealtimeProtectionService {
   static bool _scheduledCancelRequested = false;
   static Timer? _defsSyncTimer;
   static bool _defsSyncRunning = false;
-  static final CloudScanner _cloud = CloudScanner(
-    endpoint: 'https://efkou1u21ooih2hko.colourswift.com',
-    apiKey: '23JVO3ojo23oO3O423rrTR',
-  );
+  static CloudScanner? _cloud;
 
   static const _eventChannel = EventChannel('colourswift/realtime_stream');
   static const EventChannel _watcherStateChannel = EventChannel('colourswift/watcher_state');
@@ -92,7 +91,6 @@ class RealtimeProtectionService {
         try {
           AntivirusBridge().reload(
             paths['defsPath']!,
-            paths['keyPath']!,
           );
         } catch (_) {}
       }
@@ -160,6 +158,10 @@ class RealtimeProtectionService {
     await _loadIndex();
     await ExclusionsStore.instance.init();
     await AvEngine.ensureInitialized();
+    _cloud ??= CloudScanner(
+      endpoint: 'https://api.colourswift.com/hash_cloud',
+      apiKey: CloudAuthService.sessionToken ?? '',
+    );
     await ForegroundService.start(title: 'AvarionX', text: 'Protection active');
 
     if (!_fgHandlerAttached) {
@@ -197,6 +199,17 @@ class RealtimeProtectionService {
     _eventSub = _eventChannel.receiveBroadcastStream().listen(
           (dynamic event) async {
         if (event is! String) return;
+
+        if (event.startsWith('app::')) {
+          final parts = event.split('::');
+          if (parts.length < 3) return;
+          final packageName = parts[1];
+          final apkPath = parts.sublist(2).join('::');
+          if (packageName.isEmpty || apkPath.isEmpty) return;
+          await _scanInstalledApp(packageName, apkPath);
+          return;
+        }
+
         final name = p.basename(event);
         if (name.startsWith('.pending-')) return;
         await _scanSingleFile(event);
@@ -535,7 +548,7 @@ class RealtimeProtectionService {
       final bytes = await f.readAsBytes();
       final sha = sha256.convert(bytes).toString();
 
-      final cloudHit = await _cloud.checkBatch([sha]);
+      final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
       if (cloudHit.contains(sha)) {
         _seen[path] = mtime;
         unawaited(_saveIndex());
@@ -571,6 +584,94 @@ class RealtimeProtectionService {
     } catch (_) {
     } finally {
       _inFlight.remove(path);
+    }
+  }
+
+  static Future<void> _scanInstalledApp(String packageName, String apkPath) async {
+    if (packageName == 'com.colourswift.cssecurity') return;
+    if (_inFlight.contains(apkPath)) return;
+    _inFlight.add(apkPath);
+
+    try {
+      final f = File(apkPath);
+      if (!await f.exists()) return;
+      if (ExclusionsStore.instance.isExcluded(apkPath)) return;
+
+      final size = await f.length();
+      if (size <= 0 || size > _maxSize) return;
+
+      final bytes = await f.readAsBytes();
+      final sha = sha256.convert(bytes).toString();
+
+      final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
+      if (cloudHit.contains(sha)) {
+        await _recordRealtimeReportEvent(threat: true);
+        if (!ExclusionsStore.instance.isExcluded(apkPath)) {
+          await _handleAppDetection(packageName, apkPath);
+        }
+        return;
+      }
+
+      final infected = await compute(scanFileIsolate, apkPath);
+      if (infected) {
+        await _recordRealtimeReportEvent(threat: true);
+        if (!ExclusionsStore.instance.isExcluded(apkPath)) {
+          await _handleAppDetection(packageName, apkPath);
+        }
+        return;
+      }
+
+      await _recordRealtimeReportEvent(threat: false);
+      await ForegroundService.toast(text: 'Clean: $packageName');
+    } catch (_) {
+    } finally {
+      _inFlight.remove(apkPath);
+    }
+  }
+
+  static Future<void> _handleAppDetection(String packageName, String apkPath) async {
+    String appName = packageName;
+    try {
+      const ch = MethodChannel('cs.fastapps');
+      final List<dynamic> apps = await ch.invokeMethod('listUserApps');
+      final match = apps.cast<Map>().firstWhere(
+            (e) => e['package'] == packageName,
+        orElse: () => {},
+      );
+      if (match.isNotEmpty && match['name'] is String) {
+        appName = match['name'] as String;
+      }
+    } catch (_) {}
+
+    try {
+      await QuarantineService.quarantineApp(
+        packageName: packageName,
+        appName: appName,
+        apkPath: apkPath,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      final autoDismissSeconds =
+          prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
+
+      await ForegroundService.notify(
+        title: 'Threat Detected',
+        text: 'Suspicious app flagged: $appName',
+        autoDismissAfterSeconds:
+        autoDismissSeconds > 0 ? autoDismissSeconds : null,
+        openQuarantineOnClick: true,
+      );
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      final autoDismissSeconds =
+          prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
+
+      await ForegroundService.notify(
+        title: 'Threat Detected',
+        text: 'Suspicious app detected: $appName',
+        autoDismissAfterSeconds:
+        autoDismissSeconds > 0 ? autoDismissSeconds : null,
+        openQuarantineOnClick: true,
+      );
     }
   }
 

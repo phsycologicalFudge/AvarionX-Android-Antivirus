@@ -24,7 +24,6 @@ class _ProScreenState extends State<ProScreen> {
   bool _isPro = false;
   bool _isFounder = false;
   ProPlanType? _currentPlanType;
-  String _currentStatusLabel = '';
 
   @override
   void initState() {
@@ -77,9 +76,6 @@ class _ProScreenState extends State<ProScreen> {
       _isPro = isPro;
       _isFounder = false;
       _currentPlanType = isPro ? planType : null;
-      _currentStatusLabel = isPro
-          ? (planType == null ? 'Pro' : (planType == ProPlanType.yearly ? 'Yearly' : 'Monthly'))
-          : 'Free';
     });
   }
 
@@ -132,11 +128,11 @@ class _ProScreenState extends State<ProScreen> {
           backgroundColor: scheme.surfaceContainerHigh,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: Text(
-            'Thank you',
+            AppLocalizations.of(context)!.proScreenThankYou,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           content: Text(
-            'Your subscription is confirmed.',
+            AppLocalizations.of(context)!.proScreenYourSubscriptionIsConfirmed,
             style: theme.textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
               height: 1.35,
@@ -268,7 +264,7 @@ class _ProScreenState extends State<ProScreen> {
                         border: Border.all(color: scheme.outlineVariant),
                       ),
                       child: Text(
-                        'Current',
+                        AppLocalizations.of(context)!.proScreenCurrent,
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: scheme.onSurfaceVariant,
@@ -442,7 +438,7 @@ class _ProScreenState extends State<ProScreen> {
                     Icon(Icons.check_circle, color: scheme.primary, size: 16)
                   else if (isCurrent)
                     Text(
-                      'Current',
+                      AppLocalizations.of(context)!.proScreenCurrent,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -499,6 +495,13 @@ class _ProScreenState extends State<ProScreen> {
     );
   }
 
+  String _currentStatusText(AppLocalizations l10n) {
+    if (!_isPro) return l10n.vpnAccountFree;
+    if (_currentPlanType == ProPlanType.yearly) return l10n.settingsYearly;
+    if (_currentPlanType == ProPlanType.monthly) return l10n.settingsMonthly;
+    return l10n.vpnAccountMembershipPro;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -525,7 +528,7 @@ class _ProScreenState extends State<ProScreen> {
           TextButton(
             onPressed: PurchaseService.restore,
             child: Text(
-              'Restore',
+              AppLocalizations.of(context)!.quarantineRestore,
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
           ),
@@ -597,7 +600,7 @@ class _ProScreenState extends State<ProScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Current status: ${_currentStatusLabel.isEmpty ? 'Free' : _currentStatusLabel}',
+                    l10n.proScreenCurrentStatus(_currentStatusText(l10n)),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -617,13 +620,13 @@ class _ProScreenState extends State<ProScreen> {
                   ),
                   _buildFeatureRow(
                     context,
-                    'Advanced Stealth+ Mode',
-                    'Unlock stealth transport modes for restrictive networks.',
+                    AppLocalizations.of(context)!.proScreenAdvancedStealthMode,
+                    AppLocalizations.of(context)!.proScreenUnlockStealthTransportModesForRestrictiveNetworks,
                   ),
                   _buildFeatureRow(
                     context,
-                    'Global Server Access',
-                    'Access every VPN server location, including premium high-speed regions.',
+                    AppLocalizations.of(context)!.proScreenGlobalServerAccess,
+                    AppLocalizations.of(context)!.proScreenAccessEveryVPNServerLocationIncludingPremium,
                   ),
                   _buildFeatureRow(
                     context,
@@ -648,7 +651,7 @@ class _ProScreenState extends State<ProScreen> {
                         type: ProPlanType.monthly,
                         title: l10n.settingsMonthly,
                         priceStr: _monthlyInfo?.formattedPrice ?? '-',
-                        subtitleStr: 'Billed monthly',
+                        subtitleStr: AppLocalizations.of(context)!.proScreenBilledMonthly,
                       ),
                       const SizedBox(width: 10),
                       _buildPlanCard(
@@ -657,13 +660,14 @@ class _ProScreenState extends State<ProScreen> {
                         title: l10n.settingsYearly,
                         discountBadge: savePercent != null ? '-$savePercent%' : null,
                         crossedOutPrice: _monthlyInfo != null
-                            ? '${_monthlyInfo!.formattedPrice}/mo'
+                            ? AppLocalizations.of(context)!.proScreenMo(_monthlyInfo!.formattedPrice)
                             : null,
                         priceStr: yearlyPerMonth != null
-                            ? '${_formatCurrency(yearlyPerMonth, _yearlyInfo!.currencyCode)}/mo'
+                            ? AppLocalizations.of(context)!.proScreenMo2(_formatCurrency(yearlyPerMonth, _yearlyInfo!.currencyCode))
                             : '-',
-                        subtitleStr:
-                        'Billed annually at ${_yearlyInfo?.formattedPrice ?? '-'}',
+                        subtitleStr: l10n.proScreenBilledAnnuallyAt(
+                          _yearlyInfo?.formattedPrice ?? '-',
+                        ),
                       ),
                     ],
                   ),
@@ -729,7 +733,7 @@ class _ProScreenState extends State<ProScreen> {
                                 )
                                     : Text(
                                   _isSelectedCurrentPlan()
-                                      ? 'Current plan'
+                                      ? AppLocalizations.of(context)!.proScreenCurrentPlan
                                       : _selected == ProPlanType.monthly
                                       ? l10n.settingsSubscribeMonthly
                                       : l10n.settingsSubscribeYearly,

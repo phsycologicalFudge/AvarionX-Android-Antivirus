@@ -32,18 +32,17 @@ class TerminalController {
   StreamSubscription? _procSub;
   CloudScanner? _cloudScanner;
 
-  static const _processStream =
-  EventChannel('colourswift/process_logs');
+  static const _processStream = EventChannel('colourswift/process_logs');
+  static const _heuristicStream = EventChannel('colourswift/heuristic_logs');
 
-  static const _heuristicStream =
-  EventChannel('colourswift/heuristic_logs');
+  static const _ptyChannel = MethodChannel('ax_terminal');
 
   void init(void Function(String) emit) {
     _heuristicStream.receiveBroadcastStream().listen((event) {
       _append(event.toString(), emit);
     });
 
-    _append("AvarionX Terminal v2.0", emit);
+    _append("AX Terminal v3.0", emit);
     _append("Type 'help' for terminal documentation.", emit);
     _loadCloudPref();
 
@@ -57,15 +56,11 @@ class TerminalController {
 
   String _formatLog(String raw) {
     final ts = DateTime.now();
-    final time =
-        '${ts.hour.toString().padLeft(2, '0')}:'
+    final time = '${ts.hour.toString().padLeft(2, '0')}:'
         '${ts.minute.toString().padLeft(2, '0')}:'
         '${ts.second.toString().padLeft(2, '0')}';
 
-    if (raw.startsWith('[')) {
-      return '[$time] $raw';
-    }
-
+    if (raw.startsWith('[')) return '[$time] $raw';
     return '[$time] [INFO] $raw';
   }
 
@@ -76,27 +71,24 @@ class TerminalController {
   }
 
   Future<void> runCommand(String cmd, void Function(String) emit) async {
-    final raw = cmd.trim();
-    if (raw.isEmpty) return;
+    final raw0 = cmd.trim();
+    if (raw0.isEmpty) return;
 
-    _append("AX@local > $raw", emit);
-
-    var lower = raw.toLowerCase();
     bool forceCloud = false;
-
-    if (lower.contains('/c')) {
-      forceCloud = true;
-      lower = lower.replaceAll('/c', '').trim();
-    }
+    final tokens = raw0.split(RegExp(r'\s+'));
+    if (tokens.remove('/c')) forceCloud = true;
+    final raw = tokens.join(' ');
+    final lower = raw.toLowerCase();
 
     for (final command in _commands) {
       if (command.matches(lower)) {
+        _append("AX@local > $raw", emit);
         await command.run(raw, forceCloud, emit);
         return;
       }
     }
 
-    _append("Unknown command. Type 'help'.", emit);
+    await _ptyChannel.invokeMethod('write', {'text': '$raw\n'});
   }
 
   Future<void> _openTerminalDocs(void Function(String) emit) async {
@@ -147,15 +139,13 @@ class TerminalController {
   Future<void> _runInfoCommand(void Function(String) emit) async {
     try {
       final appDir = await getApplicationDocumentsDirectory();
-      final defsPath = p.join(appDir.path, 'defs.vxpack');
-      final keyPath = p.join(appDir.path, 'defs_key.bin');
-
+      final defsPath = p.join(appDir.path, 'defs.cs');
       final android = await DeviceInfoPlugin().androidInfo;
       final ram = await _getTotalRam();
 
-      _append("[INFO] Engine version : VX-Titanium-v7", emit);
+      _append("[INFO] Engine version : VX-Titanium-v9", emit);
       _append(
-        "[INFO] Definitions   : ${await File(defsPath).exists() && await File(keyPath).exists() ? "loaded" : "missing"}",
+        "[INFO] Definitions   : ${await File(defsPath).exists() ? "loaded" : "missing"}",
         emit,
       );
       _append("[INFO] Platform      : Android ${android.version.release}", emit);
@@ -205,13 +195,9 @@ class TerminalController {
             emit('[PROC] already enabled');
             return;
           }
-
-          _procSub = _processStream
-              .receiveBroadcastStream()
-              .listen((event) {
+          _procSub = _processStream.receiveBroadcastStream().listen((event) {
             _append(event.toString(), emit);
           });
-
           emit('[PROC] process stream enabled');
         },
       ),
@@ -229,7 +215,7 @@ class TerminalController {
         matches: (i) => i == 'clear',
         run: (_, __, emit) async {
           log.clear();
-          emit('');
+          await _ptyChannel.invokeMethod('write', {'text': '\x0c'});
         },
       ),
 
@@ -274,9 +260,7 @@ class TerminalController {
             emit("[ENGINE] A scan is already running");
             return;
           }
-
           final useCloud = forceCloud ? true : _useCloudPref;
-
           if (raw == 'smart') {
             await _runSmartScan(useCloud, emit);
           } else if (raw == 'rapid') {
@@ -320,13 +304,11 @@ class TerminalController {
             emit("[ENGINE] A scan is already running");
             return;
           }
-
           final path = raw.substring('scan folder '.length).trim();
           if (path.isEmpty) {
             emit("[SCAN] No folder path provided");
             return;
           }
-
           final useCloud = forceCloud ? true : _useCloudPref;
           await _runFolderScan(path, useCloud, emit);
         },
@@ -336,7 +318,6 @@ class TerminalController {
         matches: (i) => i.startsWith('sys '),
         run: (raw, __, emit) async {
           final cmd = raw.substring(4).trim();
-
           switch (cmd) {
             case 'uname':
               emit(await SysInfo.uname());
@@ -367,8 +348,6 @@ class TerminalController {
           }
         },
       ),
-
-
     ];
   }
 
@@ -406,7 +385,8 @@ class TerminalController {
   }
 
   Future<void> _runUrlCheck(String input, void Function(String) emit) async {
-    final target = input.replaceAll(RegExp(r'https?://'), '').split('/').first;
+    final target =
+        input.replaceAll(RegExp(r'https?://'), '').split('/').first;
     if (target.isEmpty) {
       _append("[URL] Invalid address", emit);
       return;
@@ -436,7 +416,8 @@ class TerminalController {
     }
   }
 
-  Future<void> _runSmartScan(bool useCloud, void Function(String) emit) async {
+  Future<void> _runSmartScan(
+      bool useCloud, void Function(String) emit) async {
     _isScanning = true;
     try {
       if (!await _ensureStorageAccess()) {
@@ -448,8 +429,10 @@ class TerminalController {
       final ex = ExclusionService();
       await ex.load();
 
-      await for (final e in root.list(recursive: true, followLinks: false)) {
-        if (e is File && _isSmartAllowed(_ext(e.path), await e.length())) {
+      await for (final e
+      in root.list(recursive: true, followLinks: false)) {
+        if (e is File &&
+            _isSmartAllowed(_ext(e.path), await e.length())) {
           if (!ex.skipFolder(e.path)) files.add(e.path);
         }
       }
@@ -460,7 +443,8 @@ class TerminalController {
     }
   }
 
-  Future<void> _runRapidScan(bool useCloud, void Function(String) emit) async {
+  Future<void> _runRapidScan(
+      bool useCloud, void Function(String) emit) async {
     _isScanning = true;
     try {
       if (!await _ensureStorageAccess()) {
@@ -474,7 +458,8 @@ class TerminalController {
 
       if (await dir.exists()) {
         await for (final e in dir.list(recursive: true)) {
-          if (e is File && _isRapidAllowed(_ext(e.path), await e.length())) {
+          if (e is File &&
+              _isRapidAllowed(_ext(e.path), await e.length())) {
             if (!ex.skipFolder(e.path)) files.add(e.path);
           }
         }
@@ -486,7 +471,8 @@ class TerminalController {
     }
   }
 
-  Future<void> _runSingleScan(bool useCloud, void Function(String) emit) async {
+  Future<void> _runSingleScan(
+      bool useCloud, void Function(String) emit) async {
     _isScanning = true;
     try {
       final res = await FilePicker.platform.pickFiles();
@@ -528,7 +514,8 @@ class TerminalController {
       await ex.load();
 
       await for (final e in dir.list(recursive: true)) {
-        if (e is File && _isSmartAllowed(_ext(e.path), await e.length())) {
+        if (e is File &&
+            _isSmartAllowed(_ext(e.path), await e.length())) {
           if (!ex.skipFolder(e.path)) files.add(e.path);
         }
       }
@@ -561,7 +548,10 @@ class TerminalController {
       }
     }
 
-    _append("[SUMMARY] $infected suspicious • ${files.length - infected} clean", emit);
+    _append(
+      "[SUMMARY] $infected suspicious • ${files.length - infected} clean",
+      emit,
+    );
   }
 
   String _ext(String path) {

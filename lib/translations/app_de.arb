@@ -23,7 +23,7 @@
   "updateDbUpdatedAutoOn": "Datenbank aktualisiert • Auto-Updates aktiviert",
   "updateDbUpdatedSuccess": "Datenbank erfolgreich aktualisiert",
   "updateDbUpdateFailed": "Datenbank-Update fehlgeschlagen",
-  "engineReadyBanner": "VX-TITANIUM-v8",
+  "engineReadyBanner": "VX-TITANIUM-v9",
   "scanButton": "Scannen",
   "scanModeFullTitle": "Vollständiger Gerätescan",
   "scanModeFullSubtitle": "Scannt alle lesbaren Speicherdateien.",
@@ -860,11 +860,1053 @@
   "quarantineSnackRestored": "Wiederhergestellt",
   "quarantineSnackDeleted": "Gelöscht",
   "quarantineDeleteDialogTitle": "Ausgewählte Dateien löschen?",
-  "quarantineDeleteDialogBody": "Dadurch werden {count} Element{plural} dauerhaft gelöscht.",
+  "quarantineDeleteDialogBody": "Dauerhaft zu löschende Elemente: {count}.{plural, select, s {} other {}}",
   "@quarantineDeleteDialogBody": {
     "placeholders": {
       "count": {},
-      "plural": {}
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "howThisAppWorksHowAvarionXWorks": "So funktioniert AvarionX",
+  "howThisAppWorksAvarionxIsAMobileSecurityAppThat": "AvarionX ist eine mobile Sicherheits-App, die Virenscans auf dem Gerät, Netzwerkschutz und optionale VPN-Funktionen kombiniert. ",
+  "howThisAppWorksTheAntivirusEngineIsPoweredByVX": "Die Antivirus-Engine wird von VX-Titanium betrieben.",
+  "howThisAppWorksIfYouUseNetworkProtectionOrVPN": "Wenn du Netzwerkschutz- oder VPN-Funktionen verwendest, verbindet sich die App mit ColourSwift-Diensten, um deine Einstellungen anzuwenden, deinen Kontozugriff zu verwalten und geschützten Datenverkehr zu leiten.",
+  "howThisAppWorksKeyFeatures": "Hauptfunktionen",
+  "howThisAppWorksRealTimeProtectionForDownloadedThreats": "• Echtzeitschutz vor heruntergeladenen Bedrohungen",
+  "howThisAppWorksNetworkProtectionWithDNSFiltering": "• Netzwerkschutz mit DNS-Filterung",
+  "howThisAppWorksOptionalSecureVPNMode": "• Optionaler Secure-VPN-Modus",
+  "howThisAppWorksBuiltInToolsSuchAsLinkChecker": "• Integrierte Tools wie Link Checker",
+  "howThisAppWorksNotes": "Hinweise",
+  "howThisAppWorksSomeFeaturesMayRequireSignInAn": "Einige Funktionen erfordern möglicherweise eine Anmeldung, einen aktiven Tarif oder Geräteberechtigungen, um ordnungsgemäß zu funktionieren.",
+  "apkAnalyserCopyCurrentReport": "Aktuellen Bericht kopieren",
+  "apkAnalyserReportCopiedToClipboard": "Bericht in die Zwischenablage kopiert",
+  "apkAnalyserExportCurrentAsPDF": "Aktuellen Bericht als PDF exportieren",
+  "apkAnalyserFailedToExportPDF": "PDF konnte nicht exportiert werden",
+  "apkAnalyserExportCurrentAsCSV": "Aktuellen Bericht als CSV exportieren",
+  "apkAnalyserFailedToExportCSV": "CSV konnte nicht exportiert werden",
+  "apkAnalyserViewSavedReports": "Gespeicherte Berichte anzeigen",
+  "apkAnalyserClearHistory": "Verlauf löschen",
+  "apkAnalyserReportHistoryCleared": "Berichtsverlauf gelöscht",
+  "apkAnalyserSavedReports": "Gespeicherte Berichte",
+  "apkAnalyserNoSavedReportsFound": "Keine gespeicherten Berichte gefunden.",
+  "apkAnalyserChooseTarget": "Ziel auswählen",
+  "apkAnalyserSelectASourceToAnalyseWithVTTI": "Wähle eine Quelle zur Analyse mit VTTI Cloud aus.",
+  "apkAnalyserApkFile": "APK-Datei",
+  "apkAnalyserPickAnApkFromStorage": "Eine .apk-Datei aus dem Speicher auswählen",
+  "apkAnalyserInstalledApp": "Installierte App",
+  "apkAnalyserChooseFromAppsOnThisDevice": "Aus den Apps auf diesem Gerät auswählen",
+  "apkAnalyserAnalysingIn": "Analyse in {countdown}...",
+  "@apkAnalyserAnalysingIn": {
+    "placeholders": {
+      "countdown": {}
+    }
+  },
+  "apkAnalyserStartingAnalysis": "Analyse wird gestartet...",
+  "apkAnalyserApkFileOrInstalledApp": "APK-Datei oder installierte App",
+  "apkAnalyserDeepAnalysisMode": "Tiefenanalyse-Modus",
+  "apkAnalyserAMoreComplexAnalysisUsingGlobalData": "Eine komplexere Analyse mit globalen Datenquellen",
+  "apkAnalyserRequiresProToUnlockDeeperAnalysis": "Pro ist erforderlich, um die tiefere Analyse freizuschalten",
+  "apkAnalyserApkAnalyser": "APK-Analyse",
+  "apkAnalyserPleaseSignInViaSettingsToEnable": "Bitte melde dich über die Einstellungen an, um Cloud Analysis zu aktivieren.",
+  "apkAnalyserAdvancedOPTIONS": "ERWEITERTE OPTIONEN",
+  "apkAnalyserDailyLimit": "Tageslimit: {remaining} / {limit}",
+  "@apkAnalyserDailyLimit": {
+    "placeholders": {
+      "remaining": {},
+      "limit": {}
+    }
+  },
+  "apkAnalyserDailyLimitDataUnavailable": "Daten zum Tageslimit nicht verfügbar",
+  "apkAnalyserPoweredByVTTICloud": "Unterstützt von VTTI Cloud",
+  "apkAnalyserSearchApps": "Apps suchen...",
+  "apkAnalyserFailedToLoadApps": "Apps konnten nicht geladen werden.",
+  "apkAnalyserNoAppsFound": "Keine Apps gefunden.",
+  "apkReportSummary": "Zusammenfassung",
+  "apkReportPermissions": "Berechtigungen",
+  "apkReportExtraFlags": "Zusätzliche Flags",
+  "apkReportRiskSignals": "Risikosignale",
+  "apkReportSources": "Quellen",
+  "apkReportMetadata": "Metadaten",
+  "apkReportCopyReport": "Bericht kopieren",
+  "apkReportReportCopiedToClipboard": "Bericht in die Zwischenablage kopiert",
+  "apkReportExportAsPDF": "Als PDF exportieren",
+  "apkReportFailedToExportPDF": "PDF konnte nicht exportiert werden",
+  "apkReportExportAsCSV": "Als CSV exportieren",
+  "apkReportFailedToExportCSV": "CSV konnte nicht exportiert werden",
+  "apkReportAnalysisReport": "Analysebericht",
+  "apkReportMalwareRisk": "Malware-Risiko",
+  "apkReportNoSummaryGenerated": "Keine Zusammenfassung erstellt.",
+  "apkReportNoRequestedPermissionsExtracted": "Keine angeforderten Berechtigungen extrahiert.",
+  "apkReportContributing": "Verstärkend",
+  "apkReportDampening": "Abschwächend",
+  "bootOptimisingYourProtection": "Schutz wird optimiert",
+  "exclusionsFolders": "Ordner",
+  "exclusionsNone": "Keine",
+  "exclusionsFiles": "Dateien",
+  "exploreApkAnalyser": "APK-Analyse",
+  "exploreCreateADetailedAnalysisOnAnyAPK": "Erstelle eine detaillierte Analyse für jede APK",
+  "featuresComingSoon": "Demnächst",
+  "featuresWantToLearnMore": "Möchtest du mehr erfahren?",
+  "homeDrawerApkAnalyser": "APK-Analyse",
+  "homeDrawerAdvanced": "Erweitert",
+  "homeDrawerQuarantine": "Quarantäne",
+  "homeDrawerUpgradeToPro": "Auf Pro upgraden",
+  "homeDrawerAvarionxVPN": "AvarionX VPN",
+  "homeDrawerProtectYourInternetWithOurUnlimitedVPN": "Schütze deine Internetverbindung mit unserem unbegrenzten VPN",
+  "deviceSecurityDeviceSecurity": "Gerätesicherheit",
+  "deviceSecurityDeviceHealthStatus": "Gerätesicherheitsstatus",
+  "deviceSecurityDeviceSecurityRecommendations": "Empfehlungen zur Gerätesicherheit",
+  "deviceSecurityStopIgnoring": "Nicht mehr ignorieren",
+  "deviceSecurityIgnoreCheck": "Prüfung ignorieren",
+  "deviceSecurityNoScreenLock": "Keine Displaysperre",
+  "deviceSecurityAMissingSecureLockMakesLocalAccess": "Ohne sichere Sperre ist der lokale Zugriff auf das Gerät einfacher.",
+  "deviceSecurityRootShizukuActive": "Root/Shizuku aktiv",
+  "deviceSecurityRootOrShizukuCanGrantPowerfulDevice": "Root oder Shizuku kann weitreichende Kontrolle über das Gerät ermöglichen.",
+  "deviceSecurityDisabledAppVerification": "App-Überprüfung deaktiviert",
+  "deviceSecurityAppVerificationHelpsDetectHarmfulInstalls": "Die App-Überprüfung hilft, schädliche Installationen zu erkennen.",
+  "deviceSecurityOldAndroidSecurityPatch": "Veralteter Android-Sicherheitspatch",
+  "deviceSecurityOlderPatchLevelsMayLeaveKnownIssues": "Ältere Patch-Stände können bekannte Probleme ungepatcht lassen.",
+  "deviceSecurityDeveloperModeOn": "Entwicklermodus aktiviert",
+  "deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls": "Entwickleroptionen stellen erweiterte Gerätesteuerungen bereit.",
+  "deviceSecurityUsbDebuggingOn": "USB-Debugging aktiviert",
+  "deviceSecurityUsbDebuggingAllowsADBControlFromTrusted": "USB-Debugging ermöglicht ADB-Steuerung von vertrauenswürdigen Computern.",
+  "deviceSecurityUnknownSourcesAllowed": "Unbekannte Quellen erlaubt",
+  "deviceSecuritySideloadingCanBypassNormalAppStoreChecks": "Sideloading kann die üblichen Prüfungen des App-Stores umgehen.",
+  "deviceSecurityAccessibilityAbuseRisk": "Risiko durch Missbrauch von Bedienungshilfen",
+  "deviceSecurityAccessibilityServicesCanReadAndControlScreen": "Bedienungshilfen können Bildschirminhalte lesen und Aktionen steuern.",
+  "homeHelpImproveDetectionsForEverybody": "Hilf mit, die Erkennung für alle zu verbessern",
+  "homeApkSAndroidAppsFoundToBe": "APKs (Android-Apps), die als schädlich erkannt wurden, ",
+  "homeCanBeUploadedTo": "können hochgeladen werden zu ",
+  "homeAndSharedWithTheCommunityThisIs": " und mit der Community geteilt werden. Dies ist ",
+  "homeStrictlyLimitedToAPKFilesNOTYour": "streng auf APK-Dateien beschränkt, NICHT auf deine persönlichen ",
+  "homeDocuments": "Dokumente.\n\n",
+  "homeThisWillImproveDetectionsForEveryoneThat": "Dadurch wird die Erkennung für alle verbessert, die ",
+  "homeUsesAvarionXNoPressureThough": "AvarionX verwenden. Aber kein Druck!\n\n",
+  "homeThanks": "Danke,\n",
+  "homeRyanfromcolourswift": "RyanFromColourswift",
+  "homeSure": "Klar!",
+  "homeNoThanks": "Nein, danke!",
+  "homePsstCustomiseItHere": "Psst... hier anpassen",
+  "homeScanNow": "Jetzt scannen",
+  "homeManuallyCheckYourDeviceForMalware": "Prüfe dein Gerät manuell auf Malware",
+  "homeDeviceSecurity": "Gerätesicherheit",
+  "homeScanModes": "Scan-Modi",
+  "homeCloudAssistedChecksEnabled": "Cloud-unterstützte Prüfungen aktiviert",
+  "homeLocalScanEngineOnly": "Nur lokale Scan-Engine",
+  "homeProtectedByVXTITANIUM": "Geschützt durch VX-TITANIUM",
+  "homeSecurityOverview": "Sicherheitsübersicht",
+  "homeFilesChecked": "Geprüfte Dateien",
+  "homeThreats": "Bedrohungen",
+  "securityReportAvarionxSecurityReport": "Avarionx-Sicherheitsbericht",
+  "securityReportSecurityReport": "Sicherheitsbericht",
+  "securityReportManualScans": "Manuelle Scans",
+  "securityReportRealtimeChecks": "Echtzeitprüfungen",
+  "securityReportTotalFilesScanned": "Insgesamt gescannte Dateien",
+  "securityReportThreatsFound": "Gefundene Bedrohungen",
+  "securityReportGenerateReport": "Bericht erstellen",
+  "securityReportLiveReport": "Live-Bericht",
+  "securityReportThisBoxUpdatesAsScanServicesWrite": "Dieses Feld wird aktualisiert, sobald Scan-Dienste Berichtsdaten schreiben.",
+  "securityReportExportPDF": "PDF exportieren",
+  "securityReportExportCSV": "CSV exportieren",
+  "homeLegacyProActivated": "Pro aktiviert",
+  "homeLegacyProDeactivated": "Pro deaktiviert",
+  "linkCheckPoweredByVTTICloud": "Unterstützt von VTTI Cloud",
+  "safeViewSafeView": "Safe View",
+  "passwordSettingsChangingThisAltersAllPasswords": "Wenn du dies änderst, ändern sich alle Passwörter.\n",
+  "passwordSettingsUsingTheSameMetaPassRestoresThem": "Mit demselben MetaPass können sie wiederhergestellt werden.",
+  "passwordSettingsPasswordsAreNeverStored": "Passwörter werden niemals gespeichert.\n\n",
+  "passwordSettingsTheRestoreCodeContainsOnlyStructureData": "Der Wiederherstellungscode enthält nur Strukturdaten. ",
+  "passwordSettingsCombinedWithYourMetaPassItRebuildsYour": "Zusammen mit deinem MetaPass stellt er deinen Tresor wieder her.",
+  "passwordManagerContinue": "Weiter",
+  "passwordManagerFailedToLoadApps": "Apps konnten nicht geladen werden: {e}",
+  "@passwordManagerFailedToLoadApps": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerFailedToGeneratePassword": "Passwort konnte nicht generiert werden: {e}",
+  "@passwordManagerFailedToGeneratePassword": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerPasswordsAreNeverStored": "Passwörter werden niemals gespeichert.\n\n",
+  "passwordManagerEachEntryDerivesAPasswordFrom": "Für jeden Eintrag wird ein Passwort abgeleitet aus:\n",
+  "passwordManagerYourMetaPassword": "• Deinem Meta-Passwort\n",
+  "passwordManagerTheLabelName": "• Dem Labelnamen\n",
+  "passwordManagerTheVersionAndLength": "• Der Version und Länge\n\n",
+  "passwordManagerReinstallingTheAppWithTheSameMeta": "Wenn du die App mit demselben Meta-Passwort und denselben Labels neu installierst, werden dieselben Passwörter erneut erzeugt.",
+  "permissionsIntroSetupIsNowCompleteTimeToSecure": "Die Einrichtung ist abgeschlossen! Zeit, deine Daten zu schützen.",
+  "proScreenThankYou": "Vielen Dank",
+  "proScreenYourSubscriptionIsConfirmed": "Dein Abonnement wurde bestätigt.",
+  "proScreenCurrent": "Aktuell",
+  "proScreenAdvancedStealthMode": "Erweiterter Stealth+-Modus",
+  "proScreenUnlockStealthTransportModesForRestrictiveNetworks": "Schalte verdeckte Transportmodi für restriktive Netzwerke frei.",
+  "proScreenGlobalServerAccess": "Globaler Serverzugriff",
+  "proScreenAccessEveryVPNServerLocationIncludingPremium": "Greife auf jeden VPN-Serverstandort zu, einschließlich schneller Premium-Regionen.",
+  "proScreenBilledMonthly": "Monatliche Abrechnung",
+  "proScreenMo": "{monthlyInfo}/Monat",
+  "@proScreenMo": {
+    "placeholders": {
+      "monthlyInfo": {}
+    }
+  },
+  "proScreenMo2": "{currencyCode}/Monat",
+  "@proScreenMo2": {
+    "placeholders": {
+      "currencyCode": {}
+    }
+  },
+  "proScreenCurrentPlan": "Aktueller Tarif",
+  "quarantineScreenQuarantineDataCorruptedResetting": "Quarantänedaten beschädigt. Wird zurückgesetzt.",
+  "quarantineScreenUninstallApp": "App deinstallieren",
+  "quarantineScreenUninstall": "{appName} deinstallieren?",
+  "@quarantineScreenUninstall": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "quarantineScreenUninstall2": "Deinstallieren",
+  "quarantineScreenFailedToLaunchUninstall": "Deinstallation konnte nicht gestartet werden",
+  "quarantineScreenFiles": "Dateien",
+  "cleanerAppManagerShizukuNotAvailable": "Shizuku nicht verfügbar",
+  "cleanerAppManagerWithoutShizukuEachAppRequiresASeparate": "Ohne Shizuku erfordert jede App eine separate Systembestätigung. Fortfahren?",
+  "cleanerAppManagerAppsUninstalled": "{successCount} Apps deinstalliert",
+  "@cleanerAppManagerAppsUninstalled": {
+    "placeholders": {
+      "successCount": {}
+    }
+  },
+  "cleanerAppManagerUninstalledFailed": "{successCount} deinstalliert, {failedCount} fehlgeschlagen",
+  "@cleanerAppManagerUninstalledFailed": {
+    "placeholders": {
+      "successCount": {},
+      "failedCount": {}
+    }
+  },
+  "cleanerAppManagerStopped": "{appName} gestoppt",
+  "@cleanerAppManagerStopped": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerForceStopFailed": "Beenden erzwingen fehlgeschlagen",
+  "cleanerAppManagerClearAppData": "App-Daten löschen",
+  "cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": "{appName} zurücksetzen? Dadurch werden Konten, Einstellungen, Dateien und Cache der App gelöscht.",
+  "@cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearData": "Daten löschen",
+  "cleanerAppManagerReset": "{appName} zurückgesetzt",
+  "@cleanerAppManagerReset": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearDataFailed": "Daten konnten nicht gelöscht werden",
+  "cleanerAppManagerOpenApp": "App öffnen",
+  "cleanerAppManagerForceStop": "Beenden erzwingen",
+  "cleanerAppManagerUninstall": "Deinstallieren",
+  "cleanerAppManagerSelected": "{selectedCount} ausgewählt",
+  "@cleanerAppManagerSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerAppManagerAppManager": "App-Manager",
+  "cleanerAppManagerDeselectAll": "Auswahl aufheben",
+  "cleanerAppManagerUninstalling": "Deinstallation {done} / {total}…",
+  "@cleanerAppManagerUninstalling": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "cleanerAppManagerUninstall2": "{selectedCount} deinstallieren",
+  "@cleanerAppManagerUninstall2": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerProClearAppCaches": "App-Caches leeren",
+  "cleanerProThisAsksAndroidToTrimAppCaches": "Android wird angewiesen, App-Caches auf dem gesamten Gerät zu verkleinern. App-Daten, Konten und Einstellungen werden nicht gelöscht.",
+  "cleanerProClearCaches": "Caches leeren",
+  "cleanerProCacheTrimRequested": "Cache-Bereinigung angefordert",
+  "cleanerProCacheCleanerFailed": "Cache-Bereinigung fehlgeschlagen",
+  "cleanerProLogFiles": "Protokolldateien",
+  "cleanerProCacheCleaner": "Cache Cleaner",
+  "cleanerProLogCleaner": "Log Cleaner",
+  "cleanerProAppDataManager": "App-Daten-Manager",
+  "cleanerScreenCleaner": "Cleaner",
+  "scanDetailDeleteFiles": "Dateien löschen",
+  "scanDetailDeleteFilesPermanently": "{selectedCount} Dateien dauerhaft löschen?",
+  "@scanDetailDeleteFilesPermanently": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailSelectedFilesDeleted": "Ausgewählte Dateien gelöscht",
+  "scanDetailDeleteAllFiles": "Alle Dateien löschen",
+  "scanDetailDeleteAllFilesPermanently": "Alle {fileCount} Dateien dauerhaft löschen?",
+  "@scanDetailDeleteAllFilesPermanently": {
+    "placeholders": {
+      "fileCount": {}
+    }
+  },
+  "scanDetailDeleteAll": "Alle löschen",
+  "scanDetailAllFilesDeleted": "Alle Dateien gelöscht",
+  "scanDetailSelected": "{selectedCount} ausgewählt",
+  "@scanDetailSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailDeselectAll": "Auswahl aufheben",
+  "scanDetailNewestFirst": "Neueste zuerst",
+  "scanDetailOldestFirst": "Älteste zuerst",
+  "scanDetailLargestFirst": "Größte zuerst",
+  "scanDetailSmallestFirst": "Kleinste zuerst",
+  "scanDetailNoFilesFound": "Keine Dateien gefunden",
+  "scanDetailDeleteAll2": "Alle löschen",
+  "scanInstalledAppsSearchApps": "Apps suchen...",
+  "scanInstalledAppsNoAppsFound": "Keine Apps gefunden.",
+  "scanUiScanComplete": "Scan abgeschlossen",
+  "scanUiScannedItems": "Gescannt: {scanned} Elemente",
+  "@scanUiScannedItems": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiProgress": "Fortschritt: {pct} ({scanned} / {total})",
+  "@scanUiProgress": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanUiPreparingEngine": "Engine wird vorbereitet...",
+  "scanUiLoadingTargetS": "Ziel(e) werden geladen",
+  "scanUiAvarionxVPN": "AvarionX VPN",
+  "scanUiProtectYourInternetWithOurUnlimitedVPN": "Schütze deine Internetverbindung mit unserem unbegrenzten VPN",
+  "scanUiTapMe": "Antippen!",
+  "scanUiScanned": "{scanned} gescannt",
+  "@scanUiScanned": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiReturn": "Zurück",
+  "scanLimitsSettingsUpdated": "Einstellungen aktualisiert",
+  "scanLimitsScanLimits": "Scan-Limits",
+  "scanLimitsLimitHowMuchTheEngineUsesYour": "Begrenze, wie stark die Engine deine CPU nutzt. Threads: 0 bedeutet automatisch.",
+  "scanLimitsMaxScanThreads": "Maximale Scan-Threads",
+  "scanLimits0AutoRange0ToCores": "0 = automatisch. Bereich: 0 bis {maxThreads} (Kerne: {coreCount}).",
+  "@scanLimits0AutoRange0ToCores": {
+    "placeholders": {
+      "maxThreads": {},
+      "coreCount": {}
+    }
+  },
+  "scanLegacyScanning": "Scan läuft... {percent}%",
+  "@scanLegacyScanning": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "scanLegacySuspicious": "Verdächtig: {infectedCount}",
+  "@scanLegacySuspicious": {
+    "placeholders": {
+      "infectedCount": {}
+    }
+  },
+  "scanLegacyClean": "Sauber: {cleanCount}",
+  "@scanLegacyClean": {
+    "placeholders": {
+      "cleanCount": {}
+    }
+  },
+  "scanLegacyNoFilesToScan": "Keine Dateien zum Scannen",
+  "settingsSponsorsUnlock": "Sponsoren schalten frei ❤️",
+  "settingsPickCertificate": "Zertifikat auswählen",
+  "settingsCertificateLoaded": "Zertifikat geladen",
+  "settingsEnterCode": "Code eingeben",
+  "settingsSupportFileMissing": "Supportdatei fehlt",
+  "settingsInvalidSupportCode": "Ungültiger Supportcode",
+  "settingsAvarionxSecurity": "AvarionX Security",
+  "settingsAvarionxIsAMobileSecuritySuiteCreated": "AvarionX ist eine mobile Sicherheitssuite von ColourSwift mit Sitz in Birmingham, Großbritannien.\n\n",
+  "settingsContact": "Kontakt: ",
+  "settingsExperimentalFeatures": "Experimentelle Funktionen",
+  "settingsEnablingShizukuUnlocksExperimentalWorkInProgress": "Durch Aktivieren von Shizuku werden experimentelle Funktionen freigeschaltet, die sich noch in Entwicklung befinden:\n\n",
+  "settingsAdvancedRansomwareProtection": "• Erweiterter Ransomware-Schutz\n",
+  "settingsCacheCleanerPlus": "• Cache Cleaner Plus\n\n",
+  "settingsExperimentalWarning": "Hinweis zu experimentellen Funktionen:\n",
+  "settingsTheseFeaturesUseAdvancedSystemAccessAnd": "Diese Funktionen nutzen erweiterten Systemzugriff und können sich je nach Gerät, Android-Version und Shizuku-Konfiguration unterschiedlich verhalten. Einige Aktionen können laufende Apps, Dateien oder Cache-Daten direkter beeinflussen als ein normaler Scan.\n\n",
+  "settingsOnlyEnableThisIfYouUnderstandShizuku": "Aktiviere dies nur, wenn du Shizuku verstehst, akzeptierst, dass die Funktion noch getestet wird, und wichtige Daten gesichert hast.\n\n",
+  "settingsPleaseReadTheDocumentationBeforeEnabling": "Bitte lies vor dem Aktivieren die Dokumentation.",
+  "settingsEnable": "Aktivieren",
+  "settingsSigningOut": "Abmeldung läuft...",
+  "settingsCheckingAccountStatus": "Kontostatus wird geprüft...",
+  "settingsManageSignInPremiumAndPurchases": "Anmeldung, Premium und Käufe verwalten",
+  "settingsPremiumActive": "Premium aktiv",
+  "settingsManagePremiumOptionsAndRestorePurchases": "Premium-Optionen verwalten und Käufe wiederherstellen",
+  "settingsUnlockDeepAnalysisModeAndVPNFeatures": "Tiefenanalyse-Modus und VPN-Funktionen freischalten",
+  "settingsAutoClearNotifications": "Benachrichtigungen automatisch löschen",
+  "settingsScanModes": "Scan-Modi",
+  "settingsAdvancedScanModes": "Erweiterte Scan-Modi",
+  "settingsDisableToUseTheDefaultScanningMode": "Deaktivieren, um den Standard-Scanmodus zu verwenden",
+  "settingsToggleToEnableAllScanningModes": "Aktivieren, um alle Scan-Modi freizuschalten",
+  "settingsApkSubmissions": "APK-Übermittlungen",
+  "settingsShareMaliciousAPKs": "Schädliche APKs teilen",
+  "settingsHelpingImproveDetectionForEveryone": "Hilft, die Erkennung für alle zu verbessern",
+  "settingsOff": "Aus",
+  "settingsIncludeRealtimeProtectionCatches": "Treffer des Echtzeitschutzes einschließen",
+  "settingsApksFlaggedByRealtimeProtectionAreIncluded": "Vom Echtzeitschutz markierte APKs werden eingeschlossen",
+  "settingsApksFlaggedByRealtimeProtectionAreExcluded": "Vom Echtzeitschutz markierte APKs werden ausgeschlossen",
+  "settingsIncludeManualAndScheduledScans": "Manuelle und geplante Scans einschließen",
+  "settingsApksFlaggedByScansAreIncluded": "Durch Scans markierte APKs werden eingeschlossen",
+  "settingsApksFlaggedByScansAreExcluded": "Durch Scans markierte APKs werden ausgeschlossen",
+  "settingsWiFiOnly": "Nur Wi-Fi",
+  "settingsUploadsWaitForAWiFiConnection": "Uploads warten auf eine Wi-Fi-Verbindung",
+  "settingsUploadsMayUseMobileData": "Uploads können mobile Daten verwenden",
+  "settingsChargingOnly": "Nur beim Laden",
+  "settingsUploadsWaitUntilTheDeviceIsCharging": "Uploads warten, bis das Gerät geladen wird",
+  "settingsUploadsAreNotLimitedToCharging": "Uploads sind nicht auf den Ladevorgang beschränkt",
+  "settingsChooseWhichAppsUpload": "Auswählen, welche Apps hochgeladen werden",
+  "settingsReviewAndPickAppsEachTimeBefore": "Apps vor jedem Upload prüfen und auswählen",
+  "settingsFlaggedAppsUploadAutomatically": "Markierte Apps werden automatisch hochgeladen",
+  "settingsEnableProDebug": "Pro aktivieren (Debug)",
+  "settingsLocalUnlockForUITesting": "Lokale Freischaltung für UI-Tests",
+  "settingsRestorePurchases": "Käufe wiederherstellen",
+  "settingsReCheckPlayBilling": "Play Billing erneut prüfen",
+  "settingsCheckingAccount": "Konto wird geprüft...",
+  "settingsAvarionxAccountConnected": "AvarionX-Konto verbunden",
+  "settingsAccountID": "Konto-ID: {accountId}",
+  "@settingsAccountID": {
+    "placeholders": {
+      "accountId": {}
+    }
+  },
+  "settingsSignInToManagePurchasesAndAccount": "Melde dich an, um Käufe und Kontofunktionen zu verwalten.",
+  "settingsOpenTheAvarionXAccountPortal": "AvarionX-Kontoportal öffnen",
+  "settingsAccountDashboard": "Konto-Dashboard",
+  "settingsOpenBillingAndAccountSettings": "Abrechnungs- und Kontoeinstellungen öffnen",
+  "settingsRemoveThisAccountFromTheApp": "Dieses Konto aus der App entfernen",
+  "settingsPremiumFeaturesAreAvailableOnThisDevice": "Premium-Funktionen sind auf diesem Gerät verfügbar",
+  "settingsViewOptionalPremiumFeatures": "Optionale Premium-Funktionen anzeigen",
+  "settingsReCheckPlayBillingEntitlement": "Play-Billing-Berechtigung erneut prüfen",
+  "settingsRtpNotificationAutoClearNotifications": "Benachrichtigungen automatisch löschen",
+  "settingsRtpNotificationNever": "Nie",
+  "settingsRtpNotification5Minutes": "5 Minuten",
+  "settingsRtpNotification10Minutes": "10 Minuten",
+  "settingsRtpNotification30Minutes": "30 Minuten",
+  "settingsThemeBlack": "Schwarz",
+  "settingsThemeWhite": "Weiß",
+  "settingsThemeGrey": "Grau",
+  "settingsThemeEmerald": "Smaragdgrün",
+  "settingsThemePurple": "Lila",
+  "settingsThemeRoyalBlue": "Königsblau",
+  "settingsAccountCardSyncPurchasesAndUnlockProAcrossApps": "Käufe synchronisieren und Pro appübergreifend freischalten.",
+  "settingsAccountCardLoading": "Wird geladen...",
+  "settingsAccountCardDashboard": "Dashboard",
+  "settingsProCardChangePlan": "Tarif ändern",
+  "advancedNetworkProtectionEnterYourOwnResolver": "Eigenen Resolver eingeben",
+  "advancedNetworkProtectionCloudProtectionMode": "Cloud-Schutzmodus",
+  "advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud": "Leitet alle DNS-Anfragen an die Cloud-Engine weiter und ermöglicht so Live-Updates der Blocklisten, Prüfungen der Domain-Reputation und mehr.",
+  "advancedNetworkProtectionRefreshProStatus": "Pro-Status aktualisieren",
+  "advancedNetworkProtectionProActive": "Pro aktiv",
+  "advancedNetworkProtectionFreePlan": "Kostenloser Tarif",
+  "advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith": "Prüft deine Berechtigung und synchronisiert sie mit Cloud-Funktionen. Pro schaltet systemweite Werbeblockierung frei.",
+  "advancedNetworkProtectionMalwareProtection": "Malware-Schutz",
+  "advancedNetworkProtectionBlocksKnownMaliciousDomains": "Blockiert bekannte schädliche Domains",
+  "advancedNetworkProtectionTrackerProtection": "Tracker-Schutz",
+  "advancedNetworkProtectionReducesTrackingDomains": "Reduziert Tracking-Domains",
+  "advancedNetworkProtectionAdProtection": "Werbeschutz",
+  "advancedNetworkProtectionBlocksCommonAdDomains": "Blockiert gängige Werbe-Domains",
+  "advancedNetworkProtectionAdultFilter": "Filter für nicht jugendfreie Inhalte",
+  "advancedNetworkProtectionUses1113Upstream": "Verwendet 1.1.1.3 als Upstream",
+  "advancedNetworkProtectionLockedUntilProIsActiveAndCloud": "Gesperrt, bis Pro aktiv und der Cloud-Modus aktiviert ist.",
+  "advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer": "Live-DNS-Ereignisse aus der VPN-Schicht.",
+  "advancedNetworkProtectionAdvanced": "Erweitert",
+  "advancedNetworkProtectionDns": "DNS",
+  "advancedNetworkProtectionCloudDNSMode": "Cloud-DNS-Modus",
+  "networkProtectionEnterYourOwnResolver": "Eigenen Resolver eingeben",
+  "networkAppControlEnableVPNToggles": "VPN-Schalter aktivieren",
+  "networkAppControlOpenSettings": "Einstellungen öffnen",
+  "networkAppControlAppControl": "App-Steuerung",
+  "networkAppControlNoAppsFound": "Keine Apps gefunden.",
+  "networkSpeedTestCountry": "Land",
+  "networkSpeedTestRunning": "Läuft",
+  "networkSpeedTestRunTest": "Test starten",
+  "networkSpeedTestNoResultsYet": "Noch keine Ergebnisse.",
+  "networkSpeedTestDnsTLS": "DNS: {dns}  •  TLS: {tls}",
+  "@networkSpeedTestDnsTLS": {
+    "placeholders": {
+      "dns": {},
+      "tls": {}
+    }
+  },
+  "networkSpeedTestFail": "Fehlgeschlagen",
+  "dnsNetworkProtectionEnterYourOwnResolver": "Eigenen Resolver eingeben",
+  "dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure": "DNS-Filterung ist vom Secure VPN getrennt. Sie kann bekannte Malware, Werbung (in allen Apps), Tracker und Inhalte unerwünschter Kategorien blockieren, bevor sie geladen werden.",
+  "fullVpnSignedIn": "Angemeldet.",
+  "fullVpnSignInRequired": "Anmeldung erforderlich",
+  "fullVpnClose": "Schließen",
+  "fullVpnLoadingUsage": "Nutzung wird geladen...",
+  "fullVpnSyncing": "Wird synchronisiert",
+  "fullVpnUsedThisMonth": "Diesen Monat {usedBytes} verwendet",
+  "@fullVpnUsedThisMonth": {
+    "placeholders": {
+      "usedBytes": {}
+    }
+  },
+  "blockedScreenUnsupportedEnvironment": "Nicht unterstützte Umgebung",
+  "updateLogUpdateV": "Update: v{version}",
+  "@updateLogUpdateV": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "updateLogHiThereAvarionXHasBeenUpdatedBelow": "Hallo! AvarionX wurde aktualisiert. Hier sind die Änderungen:",
+  "updateLogNoUserFacingChangesInThisUpdate": "Dieses Update enthält keine sichtbaren Änderungen für Nutzer.",
+  "updateLogContinue": "Weiter",
+  "featuresRealtimeProtectionBody": "Überwacht neue und geänderte Dateien im Hintergrund und blockiert Bedrohungen, sobald sie auftreten.",
+  "featuresTriLayerEngineTitle": "Dreischicht-Engine",
+  "featuresTriLayerEngineBody": "Ein dreistufiger Erkennungskern, der Bloom-Filterung, Signatur-Scans und APK-spezifische Byte-Analyse für hohe Genauigkeit und Geschwindigkeit kombiniert.",
+  "featuresMachineLearningTitle": "Maschinelles Lernen",
+  "featuresMachineLearningBody": "Ein leichtgewichtiges On-Device-Modell, das darauf trainiert ist, schädliche Verhaltensmuster in APKs zu erkennen.",
+  "featuresCleanerProTitle": "Cleaner Pro",
+  "featuresCleanerProBody": "Ein stetig weiterentwickeltes Reinigungsmodul, das Duplikate, Cache und ungenutzte Apps erkennt, um Speicherplatz freizugeben.",
+  "featuresWifiProtectionTitle": "Wi-Fi-Schutz",
+  "featuresWifiProtectionBody": "Erkennt unsichere oder verdächtige Wi-Fi-Netzwerke durch Analyse auf dem Gerät.",
+  "featuresRootLevelProtectionTitle": "Root-Level-Schutz",
+  "featuresRootLevelProtectionBody": "Tiefgreifender Schutz auf Systemebene für gerootete Geräte und fortgeschrittene Nutzer.",
+  "featuresPcCompanionTitle": "PC-Begleiter",
+  "featuresPcCompanionBody": "Kommende Desktop-Version für plattformübergreifende Antivirus-Integration.",
+  "deviceSecurityNoRisksFound": "Keine Geräterisiken gefunden",
+  "deviceSecurityOneCheckNeedsAttention": "1 Geräteprüfung erfordert Aufmerksamkeit",
+  "deviceSecurityChecksNeedAttention": "{count} Geräteprüfungen erfordern Aufmerksamkeit",
+  "@deviceSecurityChecksNeedAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityHealthSectionBody": "Diese Einstellungen wirken sich direkt auf die Sicherheitslage deines Geräts aus.",
+  "deviceSecurityRecommendationsSectionBody": "Diese Einstellungen entsprechen gängigen Empfehlungen für gute Sicherheit.",
+  "deviceSecuritySignalUnavailable": "Signal nicht verfügbar",
+  "deviceSecurityIgnoredByYou": "Von dir ignoriert",
+  "deviceSecurityScreenLockInactiveTitle": "Displaysperre",
+  "deviceSecurityScreenLockActiveLabel": "Unsicher, es ist keine sichere Displaysperre eingerichtet",
+  "deviceSecurityScreenLockInactiveLabel": "Displaysperre ist aktiv",
+  "deviceSecurityScreenLockDetail": "Eine sichere Displaysperre schützt dein Gerät, wenn es verloren geht, gestohlen wird oder unbeaufsichtigt bleibt. Ohne PIN, Passwort, Muster, Fingerabdruck oder Gesichtserkennung, die durch eine sichere Sperrmethode abgesichert ist, kann jemand mit physischem Zugriff das Gerät leichter öffnen.",
+  "deviceSecurityScreenLockHelp": "Öffne die Android-Sicherheitseinstellungen und richte eine sichere Displaysperre ein.",
+  "deviceSecurityCheckSetting": "Einstellung prüfen",
+  "deviceSecurityPrivilegedInactiveTitle": "Kein privilegierter Zugriff",
+  "deviceSecurityPrivilegedActiveLabel": "Privilegierter Zugriff erkannt",
+  "deviceSecurityPrivilegedInactiveLabel": "Kein privilegierter Zugriff erkannt",
+  "deviceSecurityPrivilegedDetail": "Root und Shizuku können nützlich sein, erhöhen aber auch die Auswirkungen einer schädlichen App, wenn der Zugriff missbraucht wird. Apps mit privilegiertem Zugriff können möglicherweise Aktionen ausführen, die normale Android-Apps nicht ausführen können.",
+  "deviceSecurityPrivilegedHelp": "Prüfe deine Root-, Magisk- oder Shizuku-Einstellungen manuell.",
+  "deviceSecurityReviewSetting": "Einstellung überprüfen",
+  "deviceSecurityAppVerificationInactiveTitle": "App-Überprüfung",
+  "deviceSecurityAppVerificationActiveLabel": "Unsicher, App-Überprüfung scheint deaktiviert zu sein",
+  "deviceSecurityAppVerificationInactiveLabel": "App-Überprüfung scheint aktiviert zu sein",
+  "deviceSecurityAppVerificationDetail": "Die Android-App-Überprüfung hilft dabei, Apps vor oder nach der Installation zu prüfen. Wenn dieser Schutz deaktiviert oder nicht verfügbar ist, werden schädliche Apps möglicherweise seltener blockiert, bevor sie ausgeführt werden.",
+  "deviceSecurityAppVerificationHelp": "Öffne die Android-Sicherheitseinstellungen und überprüfe die App-Überprüfung.",
+  "deviceSecuritySecurityPatchInactiveTitle": "Sicherheitspatch aktuell",
+  "deviceSecuritySecurityPatchActiveLabel": "Sicherheitspatch-Level ist veraltet",
+  "deviceSecuritySecurityPatchInactiveLabel": "Sicherheitspatch-Level ist aktuell",
+  "deviceSecuritySecurityPatchDetail": "Android-Sicherheitspatches beheben bekannte Probleme der Plattform und der Hersteller. Wenn der Patch-Stand alt ist, kann das Gerät Schwachstellen ausgesetzt sein, die in neueren Builds bereits behoben wurden.",
+  "deviceSecuritySecurityPatchHelp": "Öffne die Android-Systemupdate-Einstellungen und suche nach Updates.",
+  "deviceSecurityCheckUpdates": "Nach Updates suchen",
+  "deviceSecurityDeveloperModeInactiveTitle": "Entwicklermodus",
+  "deviceSecurityDeveloperModeActiveLabel": "Entwickleroptionen sind aktiviert",
+  "deviceSecurityDeveloperModeInactiveLabel": "Entwickleroptionen sind deaktiviert",
+  "deviceSecurityDeveloperModeDetail": "Der Entwicklermodus ist für Entwickler und Tester normal, stellt aber erweiterte Einstellungen bereit, die die Gerätesicherheit verringern können, wenn sie versehentlich geändert oder von jemandem mit Gerätezugriff missbraucht werden.",
+  "deviceSecurityDeveloperModeHelp": "Öffne die Entwickleroptionen und deaktiviere Einstellungen, die du nicht benötigst.",
+  "deviceSecurityUsbDebuggingInactiveTitle": "USB-Debugging",
+  "deviceSecurityUsbDebuggingActiveLabel": "Unsicher, USB-Debugging ist aktiviert",
+  "deviceSecurityUsbDebuggingInactiveLabel": "USB-Debugging ist deaktiviert",
+  "deviceSecurityUsbDebuggingDetail": "USB-Debugging ermöglicht einem verbundenen Computer, über Android Debug Bridge mit deinem Gerät zu interagieren. Bleibt es aktiviert, steigt das Risiko eines unbefugten Zugriffs bei Verbindung mit einem nicht vertrauenswürdigen Computer.",
+  "deviceSecurityUsbDebuggingHelp": "Öffne die Entwickleroptionen und deaktiviere USB-Debugging.",
+  "deviceSecurityUnknownSourcesInactiveTitle": "Unbekannte Quellen",
+  "deviceSecurityUnknownSourcesActiveLabel": "Installation unbekannter Apps ist erlaubt",
+  "deviceSecurityUnknownSourcesInactiveLabel": "Installation unbekannter Apps ist eingeschränkt",
+  "deviceSecurityUnknownSourcesDetail": "Das Zulassen von App-Installationen aus unbekannten Quellen kann für vertrauenswürdige APKs nützlich sein, erhöht aber auch das Risiko, Apps aus unsicheren Quellen zu installieren. Erlaube dies nur für Apps und Stores, denen du vertraust.",
+  "deviceSecurityUnknownSourcesHelp": "Öffne die Android-Einstellungen und überprüfe die Berechtigung zum Installieren unbekannter Apps.",
+  "deviceSecurityAccessibilityInactiveTitle": "Bedienungshilfen",
+  "deviceSecurityAccessibilityActiveLabel": "Bedienungshilfedienst eines Drittanbieters aktiviert",
+  "deviceSecurityAccessibilityInactiveLabel": "Keine riskanten Bedienungshilfedienste gefunden",
+  "deviceSecurityAccessibilityDetail": "Bedienungshilfen sind leistungsfähig, da sie Bildschirminhalte beobachten und Aktionen im Namen des Nutzers ausführen können. Das ist für legitime Tools nützlich, wird aber auch häufig von schädlichen Apps missbraucht.",
+  "deviceSecurityAccessibilityHelp": "Öffne die Einstellungen für Bedienungshilfen und überprüfe die aktivierten Dienste.",
+  "deviceSecurityChecking": "Gerätesicherheit wird geprüft",
+  "deviceSecurityReadingSignals": "Signale zur Gerätesicherheitslage werden gelesen...",
+  "deviceSecurityOneCheckAttention": "1 Prüfung erfordert Aufmerksamkeit",
+  "deviceSecurityChecksAttention": "{count} Prüfungen erfordern Aufmerksamkeit",
+  "@deviceSecurityChecksAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityTapSignal": "Tippe unten auf ein Signal, um mehr zu erfahren.",
+  "deviceSecurityIgnoredChecks": "Ignorierte aktive Prüfungen: {count}.{plural, select, s {} other {}}",
+  "@deviceSecurityIgnoredChecks": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceSecurityPostureNormal": "Die Prüfungen der Sicherheitslage deines Geräts sehen normal aus.",
+  "timeJustNow": "gerade eben",
+  "timeMinutesAgo": "vor {minutes} Min.",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "timeHoursAgo": "vor {hours} Std.",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "timeDaysAgo": "vor {days} T.",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "securityNoReportDataYet": "Noch keine Berichtsdaten",
+  "securityLastActivity": "Letzte Aktivität {relative}",
+  "@securityLastActivity": {
+    "placeholders": {
+      "relative": {}
+    }
+  },
+  "securityReportSharePdfTitle": "Avarionx-Sicherheitsbericht",
+  "securityReportCsvField": "Feld",
+  "securityReportCsvValue": "Wert",
+  "securityReportGeneratedAt": "Erstellt am",
+  "securityReportOverallStatus": "Gesamtstatus",
+  "securityReportLastManualScan": "Letzter manueller Scan",
+  "securityReportLastRealtimeEvent": "Letztes Echtzeitereignis",
+  "securityReportLastScheduledScan": "Letzter geplanter Scan",
+  "securityReportShareCsvTitle": "Avarionx-Sicherheitsbericht CSV",
+  "securityReportReviewRecommended": "Überprüfung empfohlen",
+  "securityReportNoKnownThreatDetected": "Keine bekannte Bedrohung erkannt",
+  "securityReportGeneratedLine": "Erstellt: {generatedAt}",
+  "@securityReportGeneratedLine": {
+    "placeholders": {
+      "generatedAt": {}
+    }
+  },
+  "securityReportStatusLine": "Status: {status}",
+  "@securityReportStatusLine": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "securityReportLatestActivityLine": "Letzte Aktivität: {latest}",
+  "@securityReportLatestActivityLine": {
+    "placeholders": {
+      "latest": {}
+    }
+  },
+  "securityReportManualScansLine": "Manuelle Scans: {count}",
+  "@securityReportManualScansLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportRealtimeChecksLine": "Echtzeitprüfungen: {count}",
+  "@securityReportRealtimeChecksLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportTotalFilesScannedLine": "Insgesamt gescannte Dateien: {count}",
+  "@securityReportTotalFilesScannedLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportThreatsFoundLine": "Gefundene Bedrohungen: {count}",
+  "@securityReportThreatsFoundLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportLastManualScanLine": "Letzter manueller Scan: {value}",
+  "@securityReportLastManualScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastRealtimeEventLine": "Letztes Echtzeitereignis: {value}",
+  "@securityReportLastRealtimeEventLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastScheduledScanLine": "Letzter geplanter Scan: {value}",
+  "@securityReportLastScheduledScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportNotRecorded": "Nicht erfasst",
+  "safeViewNavigationBlocked": "Navigation blockiert",
+  "safeViewInvalidDestination": "Ungültiges Ziel",
+  "safeViewUnsupportedScheme": "Nicht unterstütztes Schema",
+  "safeViewUnableToResolveDestination": "Ziel konnte nicht aufgelöst werden",
+  "safeViewDestinationBlocked": "Ziel blockiert",
+  "safeViewUnableToVerifyDestination": "Ziel konnte nicht überprüft werden",
+  "proScreenCurrentStatus": "Aktueller Status: {status}",
+  "@proScreenCurrentStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "proScreenBilledAnnuallyAt": "Jährlich abgerechnet zu {price}",
+  "@proScreenBilledAnnuallyAt": {
+    "placeholders": {
+      "price": {}
+    }
+  },
+  "quarantineUnknownApp": "Unbekannte App",
+  "cleanerScanCancelled": "Scan abgebrochen",
+  "cleanerProClearingCaches": "Caches werden geleert…",
+  "cleanerProTrimAppCaches": "App-Caches auf dem gesamten Gerät verkleinern.",
+  "cleanerProEnableShizuku": "Aktiviere Shizuku in den Einstellungen, um dies zu verwenden.",
+  "cleanerProScanningStorage": "Speicher wird gescannt…",
+  "cleanerProFindLogFiles": ".log-, .trace-, .crash- und .dmp-Dateien finden.",
+  "cleanerProLogFileCount": "{count} Dateien • {size}",
+  "@cleanerProLogFileCount": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerProAppManagerReady": "Apps erzwingen beenden, Daten löschen und mehrere Apps auf einmal deinstallieren.",
+  "cleanerProAppManagerLimited": "Deinstallieren funktioniert normal. Beenden erzwingen und Daten löschen erfordern Shizuku.",
+  "cleanerProCheckingShizuku": "Shizuku wird geprüft…",
+  "cleanerProShizukuNotRunning": "Shizuku läuft nicht. Aktiviere es bei Bedarf in den Einstellungen.",
+  "cleanerProShizukuPermissionMissing": "Die Shizuku-Berechtigung wurde nicht erteilt. Aktiviere sie in den Einstellungen.",
+  "cleanerProShizukuNotBound": "Der Shizuku-Dienst ist noch nicht gebunden. Öffne die Einstellungen und aktualisiere diesen Bildschirm nach dem Aktivieren.",
+  "cleanerLiteTab": "Lite",
+  "cleanerProTab": "Pro",
+  "scanCancelled": "Scan abgebrochen",
+  "scanPreparing": "Scan wird vorbereitet...",
+  "scanSuspiciousItemsFound": "Verdächtige Elemente gefunden: {count}.{plural, select, s {} other {}}",
+  "@scanSuspiciousItemsFound": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "scanSuspiciousCount": "{count} verdächtig",
+  "@scanSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanCleanCount": "{count} sauber",
+  "@scanCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationFullItems": "Gescannt: {count} Elemente",
+  "@scanNotificationFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationCurrent": "Gescannt: {count} • {file}",
+  "@scanNotificationCurrent": {
+    "placeholders": {
+      "count": {},
+      "file": {}
+    }
+  },
+  "scanNotificationProgress": "{scanned} / {total}",
+  "@scanNotificationProgress": {
+    "placeholders": {
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanNotificationProgressCurrent": "{scanned} / {total} • {file}",
+  "@scanNotificationProgressCurrent": {
+    "placeholders": {
+      "scanned": {},
+      "total": {},
+      "file": {}
+    }
+  },
+  "settingsThemeRoyalBluePremium": "Königsblau (Premium)",
+  "settingsIconDefault": "Standard",
+  "settingsIconBird": "Vogel",
+  "settingsIconNeon": "Neon",
+  "settingsIconOriginal": "Original",
+  "homeRealtimeProtectionTitle": "Echtzeitschutz",
+  "networkCardStatusLocked": "Gesperrt",
+  "networkSectionConnection": "Verbindung",
+  "networkSectionBlocklists": "Blocklisten",
+  "networkSectionResolver": "Resolver",
+  "networkAppControlOtherVpnSetupInstructions": "Ein anderes VPN ist derzeit als Always-on ausgewählt.\n\nSo blockierst du Apps zuverlässig:\n\n1) Öffne die Android-VPN-Einstellungen\n2) Wähle AvarionX als VPN aus\n3) Aktiviere Always-on VPN\n4) Aktiviere Verbindungen ohne VPN blockieren",
+  "networkAppControlSetupInstructions": "So blockierst du Apps zuverlässig:\n\n1) Öffne die Android-VPN-Einstellungen\n2) Wähle AvarionX als VPN aus\n3) Aktiviere Always-on VPN\n4) Aktiviere Verbindungen ohne VPN blockieren",
+  "networkAppControlBlockingActive": "App-Blockierung ist aktiv.",
+  "networkAppControlOtherVpnWarning": "Ein anderes VPN ist als Always-on festgelegt. Aktiviere Always-on + Blockieren ohne VPN für AvarionX.",
+  "networkAppControlSetupWarning": "Aktiviere Always-on + Blockieren ohne VPN für AvarionX, damit die App-Blockierung funktioniert.",
+  "countryUnitedKingdom": "Vereinigtes Königreich",
+  "countryUnitedStates": "Vereinigte Staaten",
+  "countryCanada": "Kanada",
+  "countryIreland": "Irland",
+  "countryFrance": "Frankreich",
+  "countryGermany": "Deutschland",
+  "countryNetherlands": "Niederlande",
+  "countrySpain": "Spanien",
+  "countryItaly": "Italien",
+  "countrySweden": "Schweden",
+  "countryNorway": "Norwegen",
+  "countryDenmark": "Dänemark",
+  "countryPoland": "Polen",
+  "countryTurkey": "Türkei",
+  "countryGreece": "Griechenland",
+  "countryRomania": "Rumänien",
+  "countryUkraine": "Ukraine",
+  "countryRussia": "Russland",
+  "countryIndia": "Indien",
+  "countryPakistan": "Pakistan",
+  "countryBangladesh": "Bangladesch",
+  "countrySriLanka": "Sri Lanka",
+  "countryNepal": "Nepal",
+  "countryJapan": "Japan",
+  "countrySouthKorea": "Südkorea",
+  "countrySingapore": "Singapur",
+  "countryMalaysia": "Malaysia",
+  "countryThailand": "Thailand",
+  "countryVietnam": "Vietnam",
+  "countryPhilippines": "Philippinen",
+  "countryIndonesia": "Indonesien",
+  "countryAustralia": "Australien",
+  "countryNewZealand": "Neuseeland",
+  "countryBrazil": "Brasilien",
+  "countryArgentina": "Argentinien",
+  "countryChile": "Chile",
+  "countryMexico": "Mexiko",
+  "countryColombia": "Kolumbien",
+  "countryPeru": "Peru",
+  "countrySouthAfrica": "Südafrika",
+  "countryNigeria": "Nigeria",
+  "countryKenya": "Kenia",
+  "countryEgypt": "Ägypten",
+  "countryUAE": "Vereinigte Arabische Emirate",
+  "countrySaudiArabia": "Saudi-Arabien",
+  "countryIsrael": "Israel",
+  "networkSpeedTestTesting": "Test {current}/{total} • {domain}",
+  "@networkSpeedTestTesting": {
+    "placeholders": {
+      "current": {},
+      "total": {},
+      "domain": {}
+    }
+  },
+  "networkSpeedTestDone": "Fertig",
+  "vpnFooterCustomisation": "Anpassung",
+  "apkClipboardReportTitle": "VTTI Cloud – APK-Analysebericht",
+  "apkClipboardAppName": "App-Name: {name}",
+  "@apkClipboardAppName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkClipboardPackageId": "Paket-ID: {packageId}",
+  "@apkClipboardPackageId": {
+    "placeholders": {
+      "packageId": {}
+    }
+  },
+  "apkClipboardVersion": "Version: {version}",
+  "@apkClipboardVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "apkClipboardFileSize": "Dateigröße: {size}",
+  "@apkClipboardFileSize": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "apkClipboardMinSdk": "Min. SDK: {sdk}",
+  "@apkClipboardMinSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardTargetSdk": "Ziel-SDK: {sdk}",
+  "@apkClipboardTargetSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardSignature": "Signatur: {signature}",
+  "@apkClipboardSignature": {
+    "placeholders": {
+      "signature": {}
+    }
+  },
+  "apkClipboardMalwareRisk": "Malware-Risiko: {risk}",
+  "@apkClipboardMalwareRisk": {
+    "placeholders": {
+      "risk": {}
+    }
+  },
+  "apkClipboardRiskLabel": "Risikoeinstufung: {label}",
+  "@apkClipboardRiskLabel": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "apkClipboardHashVerdict": "Hash-Bewertung: {verdict}",
+  "@apkClipboardHashVerdict": {
+    "placeholders": {
+      "verdict": {}
+    }
+  },
+  "apkClipboardRationale": "Begründung: {rationale}",
+  "@apkClipboardRationale": {
+    "placeholders": {
+      "rationale": {}
+    }
+  },
+  "apkReportUnusualFlags": "Ungewöhnliche Flags",
+  "apkReportUnverifiedItems": "Nicht verifizierte Elemente",
+  "apkReportKnownMalware": "Bekannte Malware",
+  "apkReportSuspiciousHash": "Verdächtiger Hash",
+  "apkReportCleanHash": "Sauberer Hash",
+  "apkReportHashNotChecked": "Hash nicht geprüft",
+  "apkReportHashUnknown": "Hash unbekannt",
+  "apkMetadataPackage": "Paket",
+  "apkMetadataPackageId": "Paket-ID",
+  "apkMetadataEngine": "Engine",
+  "apkMetadataSize": "Größe",
+  "apkMetadataMinSdk": "Min. SDK",
+  "apkMetadataTargetSdk": "Ziel-SDK",
+  "apkMetadataSignature": "Signatur",
+  "apkAnalyserStageDeconstructing": "APK wird zerlegt",
+  "apkAnalyserStageAnalysing": "Inhalt wird analysiert",
+  "apkAnalyserSignInRequired": "Bitte melde dich über die Einstellungen an, um Cloud Analysis zu verwenden.",
+  "apkAnalyserStageCheckingCloud": "VTTI Cloud wird geprüft",
+  "apkAnalyserDailyLimitReached": "Du hast dein tägliches Limit von {limit} Analysen erreicht.",
+  "@apkAnalyserDailyLimitReached": {
+    "placeholders": {
+      "limit": {}
+    }
+  },
+  "apkAnalyserCloudAnalysisFailed": "Cloud-Analyse fehlgeschlagen",
+  "apkAnalyserStageGeneratingReport": "Bericht wird erstellt",
+  "apkAnalyserAnalysisFailed": "APK-Analyse konnte nicht verarbeitet werden",
+  "genericError": "Fehler",
+  "apkReportEngineVttiCloud": "VTTI Cloud Engine",
+  "apkReportCertificateDetected": "Zertifikat erkannt",
+  "apkReportNoCertificateData": "Keine Zertifikatsdaten",
+  "apkExportOverview": "Übersicht",
+  "apkExportMalwareAssessment": "Malware-Bewertung",
+  "apkExportRiskScore": "Risikowert",
+  "apkExportRiskLabel": "Risikoeinstufung",
+  "apkExportHashVerdict": "Hash-Bewertung",
+  "apkExportScoreRationale": "Begründung des Risikowerts",
+  "apkExportContributingSignals": "Beitragende Signale",
+  "apkExportDampeningFactors": "Abschwächende Faktoren",
+  "apkExportPermissionsRequested": "Angeforderte Berechtigungen",
+  "apkExportExtraFlagsUnusual": "Zusätzliche Flags (ungewöhnlich)",
+  "apkExportExtraFlagsUnverified": "Zusätzliche Flags (nicht verifiziert)",
+  "apkExportDiscoveredSources": "Gefundene Quellen",
+  "apkExportRequestedPermissions": "Angeforderte Berechtigungen",
+  "apkExportRationale": "Begründung",
+  "apkExportCsvShareText": "APK-Analyse-CSV für {name}",
+  "@apkExportCsvShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkExportPdfTitle": "VTTI Cloud – APK-Analyse",
+  "apkExportPdfShareText": "APK-Analyse-PDF für {name}",
+  "@apkExportPdfShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkMetadataAppName": "App-Name",
+  "apkMetadataFileSize": "Dateigröße",
+  "vpnBackendFailedOpenBrowser": "Browser konnte nicht geöffnet werden.",
+  "vpnBackendSignedIn": "Angemeldet.",
+  "vpnBackendSignedOut": "Abgemeldet.",
+  "vpnBackendSessionExpiredSignIn": "Sitzung abgelaufen. Bitte erneut anmelden.",
+  "vpnBackendFailedLoadAccountStatus": "Konto konnte nicht geladen werden ({status}).",
+  "@vpnBackendFailedLoadAccountStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendFailedLoadAccountError": "Konto konnte nicht geladen werden ({error}).",
+  "@vpnBackendFailedLoadAccountError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendSignInFirst": "Bitte zuerst anmelden.",
+  "vpnBackendConnecting": "Verbindung wird hergestellt...",
+  "vpnBackendNotificationsPermissionRequired": "Benachrichtigungsberechtigung erforderlich.",
+  "vpnBackendPermissionNotGranted": "VPN-Berechtigung nicht erteilt.",
+  "vpnBackendAnotherVpnActive": "Ein anderes VPN ist aktiv. Deaktiviere es zuerst.",
+  "vpnBackendProvisionIncomplete": "Bereitstellung hat unvollständige Einstellungen zurückgegeben.",
+  "vpnBackendSecuringConnection": "Verbindung wird abgesichert...",
+  "vpnBackendConnected": "Verbunden.",
+  "vpnBackendWireGuardFailed": "WireGuard konnte nicht gestartet werden ({error}).",
+  "@vpnBackendWireGuardFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendDisconnecting": "Verbindung wird getrennt...",
+  "vpnBackendDisconnected": "Getrennt.",
+  "vpnBackendSelectedServer": "{server} ausgewählt",
+  "@vpnBackendSelectedServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendSwitchingServer": "Wechsel zu {server}...",
+  "@vpnBackendSwitchingServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendKeyNotFound": "VPN-Schlüssel nicht gefunden.",
+  "vpnBackendDnsUpdated": "DNS-Einstellungen aktualisiert.",
+  "vpnBackendSessionExpired": "Sitzung abgelaufen.",
+  "vpnBackendFailedStatus": "Fehlgeschlagen ({status}).",
+  "@vpnBackendFailedStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendPlanNotAllowed": "Dein Tarif erlaubt die Nutzung von Full VPN nicht.",
+  "vpnBackendProvisionFailed": "Bereitstellung fehlgeschlagen ({status}).",
+  "@vpnBackendProvisionFailed": {
+    "placeholders": {
+      "status": {}
     }
   }
 }

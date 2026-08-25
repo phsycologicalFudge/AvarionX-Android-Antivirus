@@ -20,12 +20,14 @@ class MeshBlob {
 class MeshBackground extends StatefulWidget {
   final List<MeshBlob> blobs;
   final Color base;
+  final Color? overlayColor;
   final Widget child;
 
   const MeshBackground({
     super.key,
     required this.blobs,
     required this.base,
+    this.overlayColor,
     required this.child,
   });
 
@@ -34,8 +36,10 @@ class MeshBackground extends StatefulWidget {
 }
 
 class _MeshBackgroundState extends State<MeshBackground>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
+  late final AnimationController _overlayController;
+  late Animation<Color?> _overlayAnim;
 
   @override
   void initState() {
@@ -45,11 +49,42 @@ class _MeshBackgroundState extends State<MeshBackground>
       vsync: this,
       duration: const Duration(seconds: 22),
     )..repeat();
+
+    _overlayController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _overlayAnim = ColorTween(
+      begin: Colors.transparent,
+      end: Colors.transparent,
+    ).animate(CurvedAnimation(
+      parent: _overlayController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void didUpdateWidget(covariant MeshBackground oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.overlayColor != widget.overlayColor) {
+      final from = _overlayAnim.value ?? Colors.transparent;
+      _overlayAnim = ColorTween(
+        begin: from,
+        end: widget.overlayColor ?? Colors.transparent,
+      ).animate(CurvedAnimation(
+        parent: _overlayController,
+        curve: Curves.easeInOut,
+      ));
+      _overlayController
+        ..reset()
+        ..forward();
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _overlayController.dispose();
     super.dispose();
   }
 
@@ -63,6 +98,7 @@ class _MeshBackgroundState extends State<MeshBackground>
         painter: _MeshPainter(
           blobs: widget.blobs,
           base: widget.base,
+          overlayColor: widget.overlayColor ?? Colors.transparent,
           progress: 0.0,
         ),
         isComplex: true,
@@ -71,13 +107,14 @@ class _MeshBackgroundState extends State<MeshBackground>
     }
 
     return AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_controller, _overlayController]),
       child: widget.child,
       builder: (context, child) {
         return CustomPaint(
           painter: _MeshPainter(
             blobs: widget.blobs,
             base: widget.base,
+            overlayColor: _overlayAnim.value ?? Colors.transparent,
             progress: _controller.value,
           ),
           isComplex: true,
@@ -92,11 +129,13 @@ class _MeshBackgroundState extends State<MeshBackground>
 class _MeshPainter extends CustomPainter {
   final List<MeshBlob> blobs;
   final Color base;
+  final Color overlayColor;
   final double progress;
 
   _MeshPainter({
     required this.blobs,
     required this.base,
+    required this.overlayColor,
     required this.progress,
   });
 
@@ -140,11 +179,16 @@ class _MeshPainter extends CustomPainter {
 
       canvas.drawCircle(center, radius, paint);
     }
+
+    if (overlayColor.alpha > 0) {
+      canvas.drawRect(Offset.zero & size, Paint()..color = overlayColor);
+    }
   }
 
   @override
   bool shouldRepaint(covariant _MeshPainter old) =>
       old.base != base ||
           old.blobs != blobs ||
+          old.overlayColor != overlayColor ||
           old.progress != progress;
 }

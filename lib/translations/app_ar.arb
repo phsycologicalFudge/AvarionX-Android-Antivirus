@@ -15,13 +15,15 @@
       "version": {}
     }
   },
+  "companionAppsSectionTitle": "المزيد من AvarionX",
+  "cleanerReclaimableLabel": "يمكن تحريرها",
   "exploreMultiThreadingTitle": "تعدد الخيوط",
   "exploreMultiThreadingSubtitle": "تحكم تجريبي بالمحرك",
   "updateDbAutoDownloadLabel": "تنزيل التحديثات المستقبلية تلقائيًا",
   "updateDbUpdatedAutoOn": "تم تحديث قاعدة البيانات • التحديثات التلقائية مفعلة",
   "updateDbUpdatedSuccess": "تم تحديث قاعدة البيانات بنجاح",
   "updateDbUpdateFailed": "فشل تحديث قاعدة البيانات",
-  "engineReadyBanner": "VX-TITANIUM-v8",
+  "engineReadyBanner": "VX-TITANIUM-v9",
   "scanButton": "فحص",
   "scanModeFullTitle": "فحص كامل للجهاز",
   "scanModeFullSubtitle": "يفحص كل الملفات القابلة للقراءة في التخزين.",
@@ -479,6 +481,9 @@
       "error": {}
     }
   },
+  "homeUpgrade": "ترقية",
+  "homeFeatureSecureVpnTitle": "AvarionX Secure VPN",
+  "homeFeatureSecureVpnDesc": "أخفِ عنوان IP الخاص بك واحظر الإعلانات غير المرغوب فيها",
   "proActivated": "تم تفعيل PRO",
   "proDeactivated": "تم إيقاف PRO",
   "settingsProReset": "إعادة ضبط PRO (للتصحيح فقط)",
@@ -491,7 +496,70 @@
       "icon": {}
     }
   },
+  "vpnSignInRequiredTitle": "تسجيل الدخول مطلوب",
+  "vpnClose": "إغلاق",
+  "vpnSignInRequiredBody": "سجّل الدخول لاستخدام Secure VPN.",
+  "vpnCancel": "إلغاء",
+  "vpnSignIn": "تسجيل الدخول",
+  "vpnUsageLoading": "جارٍ تحميل الاستخدام...",
+  "vpnUsageNoLimits": "لا توجد حدود للبيانات",
+  "vpnUsageSyncing": "جارٍ المزامنة",
+  "vpnUsageUsedThisMonth": "تم استخدام {used} هذا الشهر",
+  "vpnUsageDataTitle": "استخدام البيانات",
+  "vpnUsageUnavailable": "بيانات الاستخدام غير متاحة",
+  "vpnStatusConnectingEllipsis": "جارٍ الاتصال...",
+  "vpnStatusConnectedTo": "متصل بـ {country}",
+  "@vpnStatusConnectedTo": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "vpnTitleSecure": "Secure VPN",
+  "vpnStatusConnected": "متصل",
+  "vpnSubtitleEstablishingTunnel": "جارٍ إنشاء النفق...",
+  "vpnSubtitleFindingLocation": "جارٍ تحديد الموقع...",
+  "vpnStatusProtected": "محمي",
+  "vpnStatusNotConnected": "غير متصل",
+  "vpnConnect": "اتصال",
+  "vpnDisconnect": "قطع الاتصال",
+  "vpnIpLabel": "IP: {ip}",
+  "@vpnIpLabel": {
+    "placeholders": {
+      "ip": {}
+    }
+  },
+  "vpnServerLoadLabel": "{current}/{max}",
+  "@vpnServerLoadLabel": {
+    "placeholders": {
+      "current": {},
+      "max": {}
+    }
+  },
+  "vpnBlocklistsTitle": "قوائم حظر Secure VPN",
+  "vpnSave": "حفظ",
   "settingsSave": "حفظ",
+  "settingsPremium": "Premium",
+  "settingsUltimateSecurity": "الحماية القصوى",
+  "settingsSwitchPlan": "تغيير الخطة",
+  "settingsBestValue": "أفضل قيمة",
+  "settingsOneTime": "دفعة واحدة",
+  "settingsPlanPriceLoading": "جارٍ تحميل السعر...",
+  "settingsMonthly": "شهري",
+  "settingsYearly": "سنوي",
+  "settingsLifetime": "مدى الحياة",
+  "settingsSubscribeMonthly": "اشتراك شهري",
+  "settingsSubscribeYearly": "اشتراك سنوي",
+  "settingsUnlockLifetime": "فتح مدى الحياة",
+  "settingsProBenefitsTitle": "المزايا",
+  "settingsUnlimitedDnsTitle": "استعلامات DNS غير محدودة",
+  "settingsUnlimitedDnsBody": "أزل حدود الاستعلامات وافتح التصفية السحابية الكاملة.",
+  "settingsThemesTitle": "السمات",
+  "settingsThemesBody": "افتح السمات المميزة وخيارات التخصيص.",
+  "settingsIconCustomizationTitle": "تخصيص أيقونة التطبيق",
+  "settingsIconCustomizationBody": "غيّر أيقونة التطبيق لتناسب أسلوبك.",
+  "settingsScheduledScansTitle": "عمليات الفحص المجدولة",
+  "settingsScheduledScansBody": "افتح الجدولة المتقدمة وتخصيص عمليات الفحص.",
+  "settingsProFinePrint": "تتجدد الاشتراكات ما لم يتم إلغاؤها. يمكنك إدارتها أو إلغاؤها في أي وقت من Google Play. خيار مدى الحياة هو عملية شراء لمرة واحدة.",
   "settingsSectionShizuku": "حماية متقدمة (Shizuku)",
   "settingsEnableShizuku": "تفعيل Shizuku",
   "settingsShizukuRequiresManager": "يتطلب مديرًا خارجيًا",
@@ -561,6 +629,31 @@
       "hours": {}
     }
   },
+  "vpnSettingsPrivacySecurityTitle": "الخصوصية والأمان",
+  "vpnSettingsNoLogsPolicyTitle": "سياسة عدم تخزين السجلات",
+  "vpnSettingsNoLogsPolicyBody": "لا يتم تخزين أي سجلات. لا يتم تسجيل أو الاحتفاظ بنشاط الاتصال أو نشاط التصفح أو استعلامات DNS أو محتوى حركة البيانات.",
+  "vpnSettingsNoActivityLogsTitle": "لا توجد سجلات نشاط",
+  "vpnSettingsNoActivityLogsBody": "لا تتم مراقبة نشاطك أو تتبعه أثناء استخدام Secure VPN.",
+  "vpnSettingsWireGuardTitle": "VX-Link مدعوم بواسطة WireGuard",
+  "vpnSettingsWireGuardBody": "يستخدم Secure VPN بروتوكول WireGuard عبر VX-Link لتوفير تشفير سريع وحديث.",
+  "vpnSettingsMalwareProtectionTitle": "الحماية من البرمجيات الضارة مفعّلة",
+  "vpnSettingsMalwareProtectionBody": "يتم حظر النطاقات الضارة افتراضيًا أثناء الاتصال.",
+  "vpnSettingsAdTrackerProtectionTitle": "حماية اختيارية من الإعلانات وأدوات التتبع",
+  "vpnSettingsAdTrackerProtectionBody": "فعّل حظرًا إضافيًا للإعلانات وأدوات التتبع من تبويب التخصيص.",
+  "vpnSettingsBrandFooter": "مؤمّن بواسطة VX-Link",
+  "vpnSettingsAccountTitle": "الحساب",
+  "vpnSettingsSignInToContinue": "سجّل الدخول للمتابعة",
+  "vpnSettingsAccountSyncBody": "تتم مزامنة خطتك واستخدام البيانات مع حسابك.",
+  "vpnSettingsSignedIn": "تم تسجيل الدخول",
+  "vpnSettingsPlanUnknown": "الخطة: غير معروفة",
+  "vpnSettingsPlanLabel": "الخطة: {plan}",
+  "@vpnSettingsPlanLabel": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "vpnSettingsRefresh": "تحديث",
+  "vpnSettingsSignOut": "تسجيل الخروج",
   "scheduledChargingOnlyTitle": "أثناء الشحن فقط",
   "scheduledChargingOnlySubtitle": "تشغيل الفحص المجدول فقط أثناء توصيل الجهاز بالشاحن.",
   "scheduledPreferredTimeTitle": "الوقت المفضل",
@@ -658,6 +751,84 @@
       "size": {}
     }
   },
+  "vpnAccountScreenTitle": "الحساب",
+  "vpnAccountSignInRequiredTitle": "تسجيل الدخول مطلوب",
+  "vpnAccountSignInManageUsageBody": "سجّل الدخول لإدارة حسابك واستخدامك.",
+  "vpnAccountNotSignedIn": "لم يتم تسجيل الدخول",
+  "vpnAccountFree": "مجاني",
+  "vpnAccountUnknown": "غير معروف",
+  "vpnAccountStatusSyncing": "جارٍ المزامنة",
+  "vpnAccountStatusActive": "نشط",
+  "vpnAccountStatusConnected": "متصل",
+  "vpnAccountStatusDisconnected": "غير متصل",
+  "vpnAccountStatusUnavailable": "غير متاح",
+  "vpnAccountStatusConnectedNow": "متصل الآن",
+  "vpnAccountStatusRefreshToLoadServer": "حدّث لتحميل حالة الخادم",
+  "vpnAccountUsageTitle": "الاستخدام",
+  "vpnAccountUsageLoading": "جارٍ تحميل الاستخدام...",
+  "vpnAccountUsageSignInToSync": "سجّل الدخول لمزامنة الاستخدام",
+  "vpnAccountUsagePullToRefresh": "اسحب للتحديث لمزامنة الاستخدام",
+  "vpnAccountUsageUnlimited": "غير محدود",
+  "vpnAccountUsageUsedThisMonth": "تم استخدام {used} هذا الشهر",
+  "@vpnAccountUsageUsedThisMonth": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedThisMonthUnlimited": "تم استخدام {used} هذا الشهر، غير محدود",
+  "@vpnAccountUsageUsedThisMonthUnlimited": {
+    "placeholders": {
+      "used": {}
+    }
+  },
+  "vpnAccountUsageUsedOfLimit": "{used} / {limit}",
+  "@vpnAccountUsageUsedOfLimit": {
+    "placeholders": {
+      "used": {},
+      "limit": {}
+    }
+  },
+  "settingsSectionAccount": "الحساب",
+  "settingsAccountTitle": "الحساب",
+  "settingsAccountSubtitle": "تسجيل الدخول والخطة والاشتراك واستخدام الحساب",
+  "exploreSecureVpnTitle": "Secure VPN",
+  "exploreSecureVpnSubtitle": "أخفِ عنوان IP الخاص بك واحظر المحتوى غير المرغوب فيه",
+  "vpnAccountServerLoadTitle": "حِمل الخادم المحدد",
+  "vpnAccountServerConnectedCount": "{connected}/{cap}",
+  "@vpnAccountServerConnectedCount": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "networkDnsOffTitle": "التبديل إلى تصفية DNS؟",
+  "networkDnsOffInfoTitle": "ما هي تصفية DNS؟",
+  "networkDnsOffInfoBody1": "تصفية DNS منفصلة عن Secure VPN. يمكنها حظر البرمجيات الضارة المعروفة والإعلانات عبر التطبيقات وأدوات التتبع والفئات غير المرغوب فيها قبل تحميلها.",
+  "networkDnsOffInfoBody2": "لا تقوم بتشفير حركة بياناتك أو إخفاء عنوان IP الخاص بك.",
+  "networkDnsOffEnableButton": "تفعيل تصفية DNS",
+  "vpnAccountServerConnectedCountWithLabel": "{connected}/{cap} متصل",
+  "@vpnAccountServerConnectedCountWithLabel": {
+    "placeholders": {
+      "connected": {},
+      "cap": {}
+    }
+  },
+  "vpnAccountIdentityFallbackTitle": "الحساب",
+  "vpnAccountMembershipLabel": "العضوية",
+  "vpnAccountMembershipFounderVpnPro": "المؤسسون · VPN Pro",
+  "vpnAccountMembershipFounder": "مؤسس",
+  "vpnAccountMembershipPro": "Pro",
+  "vpnAccountSectionAccountStatus": "حالة الحساب",
+  "vpnAccountSectionActions": "الإجراءات",
+  "vpnAccountKvStatus": "الحالة",
+  "vpnAccountKvPlan": "الخطة",
+  "vpnAccountKvUsage": "الاستخدام",
+  "vpnAccountKvSelectedServer": "الخادم المحدد",
+  "vpnAccountKvConnectionState": "حالة الاتصال",
+  "vpnAccountActionRefresh": "تحديث",
+  "vpnAccountActionOpen": "فتح",
+  "vpnAccountFounderThanks": "شكرًا لدعمك ColourSwift",
+  "vpnAccountFounderNote": "أنا مجرد شخص واحد، ويسندني أعظم مجتمع.",
   "cleanerStageOldVideosProgress": "فيديوهات قديمة: {count} • {size}",
   "@cleanerStageOldVideosProgress": {
     "placeholders": {
@@ -689,11 +860,1053 @@
   "quarantineSnackRestored": "تمت الاستعادة",
   "quarantineSnackDeleted": "تم الحذف",
   "quarantineDeleteDialogTitle": "حذف الملفات المحددة؟",
-  "quarantineDeleteDialogBody": "سيؤدي هذا إلى حذف {count} عنصر{plural} نهائيًا.",
+  "quarantineDeleteDialogBody": "عدد العناصر التي سيتم حذفها نهائيًا: {count}.{plural, select, s {} other {}}",
   "@quarantineDeleteDialogBody": {
     "placeholders": {
       "count": {},
-      "plural": {}
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "howThisAppWorksHowAvarionXWorks": "كيف يعمل AvarionX",
+  "howThisAppWorksAvarionxIsAMobileSecurityAppThat": "AvarionX هو تطبيق أمان للهواتف يجمع بين فحص مكافحة الفيروسات على الجهاز وحماية الشبكة وميزات VPN الاختيارية. ",
+  "howThisAppWorksTheAntivirusEngineIsPoweredByVX": "محرك مكافحة الفيروسات مدعوم بواسطة VX-Titanium.",
+  "howThisAppWorksIfYouUseNetworkProtectionOrVPN": "إذا كنت تستخدم حماية الشبكة أو ميزات VPN، يتصل التطبيق بخدمات ColourSwift لتطبيق إعداداتك وإدارة الوصول إلى حسابك وتوجيه حركة البيانات المحمية.",
+  "howThisAppWorksKeyFeatures": "الميزات الرئيسية",
+  "howThisAppWorksRealTimeProtectionForDownloadedThreats": "• حماية في الوقت الفعلي من التهديدات التي يتم تنزيلها",
+  "howThisAppWorksNetworkProtectionWithDNSFiltering": "• حماية الشبكة مع تصفية DNS",
+  "howThisAppWorksOptionalSecureVPNMode": "• وضع Secure VPN اختياري",
+  "howThisAppWorksBuiltInToolsSuchAsLinkChecker": "• أدوات مدمجة مثل Link Checker",
+  "howThisAppWorksNotes": "ملاحظات",
+  "howThisAppWorksSomeFeaturesMayRequireSignInAn": "قد تتطلب بعض الميزات تسجيل الدخول أو خطة نشطة أو أذونات على الجهاز لتعمل بشكل صحيح.",
+  "apkAnalyserCopyCurrentReport": "نسخ التقرير الحالي",
+  "apkAnalyserReportCopiedToClipboard": "تم نسخ التقرير إلى الحافظة",
+  "apkAnalyserExportCurrentAsPDF": "تصدير الحالي كملف PDF",
+  "apkAnalyserFailedToExportPDF": "فشل تصدير PDF",
+  "apkAnalyserExportCurrentAsCSV": "تصدير الحالي كملف CSV",
+  "apkAnalyserFailedToExportCSV": "فشل تصدير CSV",
+  "apkAnalyserViewSavedReports": "عرض التقارير المحفوظة",
+  "apkAnalyserClearHistory": "مسح السجل",
+  "apkAnalyserReportHistoryCleared": "تم مسح سجل التقارير",
+  "apkAnalyserSavedReports": "التقارير المحفوظة",
+  "apkAnalyserNoSavedReportsFound": "لم يتم العثور على تقارير محفوظة.",
+  "apkAnalyserChooseTarget": "اختر الهدف",
+  "apkAnalyserSelectASourceToAnalyseWithVTTI": "اختر مصدرًا لتحليله باستخدام VTTI Cloud.",
+  "apkAnalyserApkFile": "ملف APK",
+  "apkAnalyserPickAnApkFromStorage": "اختر ملف .apk من مساحة التخزين",
+  "apkAnalyserInstalledApp": "تطبيق مثبت",
+  "apkAnalyserChooseFromAppsOnThisDevice": "اختر من التطبيقات الموجودة على هذا الجهاز",
+  "apkAnalyserAnalysingIn": "سيبدأ التحليل خلال {countdown}...",
+  "@apkAnalyserAnalysingIn": {
+    "placeholders": {
+      "countdown": {}
+    }
+  },
+  "apkAnalyserStartingAnalysis": "جارٍ بدء التحليل...",
+  "apkAnalyserApkFileOrInstalledApp": "ملف APK أو تطبيق مثبت",
+  "apkAnalyserDeepAnalysisMode": "وضع التحليل العميق",
+  "apkAnalyserAMoreComplexAnalysisUsingGlobalData": "تحليل أكثر تعقيدًا باستخدام مصادر بيانات عالمية",
+  "apkAnalyserRequiresProToUnlockDeeperAnalysis": "يتطلب Pro لفتح التحليل الأعمق",
+  "apkAnalyserApkAnalyser": "محلل APK",
+  "apkAnalyserPleaseSignInViaSettingsToEnable": "يرجى تسجيل الدخول عبر الإعدادات لتفعيل Cloud Analysis.",
+  "apkAnalyserAdvancedOPTIONS": "خيارات متقدمة",
+  "apkAnalyserDailyLimit": "الحد اليومي: {remaining} / {limit}",
+  "@apkAnalyserDailyLimit": {
+    "placeholders": {
+      "remaining": {},
+      "limit": {}
+    }
+  },
+  "apkAnalyserDailyLimitDataUnavailable": "بيانات الحد اليومي غير متاحة",
+  "apkAnalyserPoweredByVTTICloud": "مدعوم بواسطة VTTI Cloud",
+  "apkAnalyserSearchApps": "البحث في التطبيقات...",
+  "apkAnalyserFailedToLoadApps": "فشل تحميل التطبيقات.",
+  "apkAnalyserNoAppsFound": "لم يتم العثور على تطبيقات.",
+  "apkReportSummary": "الملخص",
+  "apkReportPermissions": "الأذونات",
+  "apkReportExtraFlags": "علامات إضافية",
+  "apkReportRiskSignals": "مؤشرات المخاطر",
+  "apkReportSources": "المصادر",
+  "apkReportMetadata": "البيانات الوصفية",
+  "apkReportCopyReport": "نسخ التقرير",
+  "apkReportReportCopiedToClipboard": "تم نسخ التقرير إلى الحافظة",
+  "apkReportExportAsPDF": "تصدير كملف PDF",
+  "apkReportFailedToExportPDF": "فشل تصدير PDF",
+  "apkReportExportAsCSV": "تصدير كملف CSV",
+  "apkReportFailedToExportCSV": "فشل تصدير CSV",
+  "apkReportAnalysisReport": "تقرير التحليل",
+  "apkReportMalwareRisk": "مخاطر البرمجيات الضارة",
+  "apkReportNoSummaryGenerated": "لم يتم إنشاء ملخص.",
+  "apkReportNoRequestedPermissionsExtracted": "لم يتم استخراج أي أذونات مطلوبة.",
+  "apkReportContributing": "عوامل مساهمة",
+  "apkReportDampening": "عوامل مخفِّضة",
+  "bootOptimisingYourProtection": "جارٍ تحسين حمايتك",
+  "exclusionsFolders": "المجلدات",
+  "exclusionsNone": "لا شيء",
+  "exclusionsFiles": "الملفات",
+  "exploreApkAnalyser": "محلل APK",
+  "exploreCreateADetailedAnalysisOnAnyAPK": "أنشئ تحليلًا مفصلًا لأي APK",
+  "featuresComingSoon": "قريبًا",
+  "featuresWantToLearnMore": "هل تريد معرفة المزيد؟",
+  "homeDrawerApkAnalyser": "محلل APK",
+  "homeDrawerAdvanced": "متقدم",
+  "homeDrawerQuarantine": "الحجر الصحي",
+  "homeDrawerUpgradeToPro": "الترقية إلى Pro",
+  "homeDrawerAvarionxVPN": "AvarionX VPN",
+  "homeDrawerProtectYourInternetWithOurUnlimitedVPN": "احمِ اتصالك بالإنترنت باستخدام VPN غير المحدود لدينا",
+  "deviceSecurityDeviceSecurity": "أمان الجهاز",
+  "deviceSecurityDeviceHealthStatus": "حالة أمان الجهاز",
+  "deviceSecurityDeviceSecurityRecommendations": "توصيات أمان الجهاز",
+  "deviceSecurityStopIgnoring": "إلغاء التجاهل",
+  "deviceSecurityIgnoreCheck": "تجاهل الفحص",
+  "deviceSecurityNoScreenLock": "لا يوجد قفل للشاشة",
+  "deviceSecurityAMissingSecureLockMakesLocalAccess": "غياب قفل آمن يجعل الوصول المباشر إلى الجهاز أسهل.",
+  "deviceSecurityRootShizukuActive": "Root/Shizuku نشط",
+  "deviceSecurityRootOrShizukuCanGrantPowerfulDevice": "يمكن أن يمنح Root أو Shizuku تحكمًا قويًا بالجهاز.",
+  "deviceSecurityDisabledAppVerification": "التحقق من التطبيقات معطّل",
+  "deviceSecurityAppVerificationHelpsDetectHarmfulInstalls": "يساعد التحقق من التطبيقات في اكتشاف عمليات التثبيت الضارة.",
+  "deviceSecurityOldAndroidSecurityPatch": "تصحيح أمان Android قديم",
+  "deviceSecurityOlderPatchLevelsMayLeaveKnownIssues": "قد تترك مستويات التصحيح القديمة مشكلات معروفة دون إصلاح.",
+  "deviceSecurityDeveloperModeOn": "وضع المطور مفعّل",
+  "deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls": "تتيح خيارات المطور عناصر تحكم متقدمة في الجهاز.",
+  "deviceSecurityUsbDebuggingOn": "تصحيح أخطاء USB مفعّل",
+  "deviceSecurityUsbDebuggingAllowsADBControlFromTrusted": "يسمح تصحيح أخطاء USB بالتحكم عبر ADB من أجهزة الكمبيوتر الموثوقة.",
+  "deviceSecurityUnknownSourcesAllowed": "المصادر غير المعروفة مسموح بها",
+  "deviceSecuritySideloadingCanBypassNormalAppStoreChecks": "يمكن للتثبيت الجانبي تجاوز فحوصات متجر التطبيقات المعتادة.",
+  "deviceSecurityAccessibilityAbuseRisk": "خطر إساءة استخدام إمكانية الوصول",
+  "deviceSecurityAccessibilityServicesCanReadAndControlScreen": "يمكن لخدمات إمكانية الوصول قراءة الشاشة والتحكم في الإجراءات عليها.",
+  "homeHelpImproveDetectionsForEverybody": "ساعد في تحسين الاكتشاف للجميع",
+  "homeApkSAndroidAppsFoundToBe": "ملفات APK (تطبيقات Android) التي يتبين أنها ضارة ",
+  "homeCanBeUploadedTo": "يمكن رفعها إلى ",
+  "homeAndSharedWithTheCommunityThisIs": " ومشاركتها مع المجتمع. يقتصر هذا ",
+  "homeStrictlyLimitedToAPKFilesNOTYour": "بشكل صارم على ملفات APK، وليس ",
+  "homeDocuments": "مستنداتك الشخصية.\n\n",
+  "homeThisWillImproveDetectionsForEveryoneThat": "سيساعد هذا في تحسين الاكتشاف لكل من ",
+  "homeUsesAvarionXNoPressureThough": "يستخدم AvarionX. لا يوجد أي ضغط عليك!\n\n",
+  "homeThanks": "شكرًا،\n",
+  "homeRyanfromcolourswift": "RyanFromColourswift",
+  "homeSure": "بالتأكيد!",
+  "homeNoThanks": "لا شكرًا!",
+  "homePsstCustomiseItHere": "همسًا... خصّصه من هنا",
+  "homeScanNow": "افحص الآن",
+  "homeManuallyCheckYourDeviceForMalware": "افحص جهازك يدويًا بحثًا عن البرمجيات الضارة",
+  "homeDeviceSecurity": "أمان الجهاز",
+  "homeScanModes": "أوضاع الفحص",
+  "homeCloudAssistedChecksEnabled": "الفحوصات بمساعدة السحابة مفعّلة",
+  "homeLocalScanEngineOnly": "محرك الفحص المحلي فقط",
+  "homeProtectedByVXTITANIUM": "محمي بواسطة VX-TITANIUM",
+  "homeSecurityOverview": "نظرة عامة على الأمان",
+  "homeFilesChecked": "الملفات التي تم فحصها",
+  "homeThreats": "التهديدات",
+  "securityReportAvarionxSecurityReport": "تقرير أمان Avarionx",
+  "securityReportSecurityReport": "تقرير الأمان",
+  "securityReportManualScans": "عمليات الفحص اليدوية",
+  "securityReportRealtimeChecks": "فحوصات الوقت الفعلي",
+  "securityReportTotalFilesScanned": "إجمالي الملفات التي تم فحصها",
+  "securityReportThreatsFound": "التهديدات المكتشفة",
+  "securityReportGenerateReport": "إنشاء تقرير",
+  "securityReportLiveReport": "تقرير مباشر",
+  "securityReportThisBoxUpdatesAsScanServicesWrite": "يتم تحديث هذا المربع بينما تكتب خدمات الفحص بيانات التقرير.",
+  "securityReportExportPDF": "تصدير PDF",
+  "securityReportExportCSV": "تصدير CSV",
+  "homeLegacyProActivated": "تم تفعيل Pro",
+  "homeLegacyProDeactivated": "تم إلغاء تفعيل Pro",
+  "linkCheckPoweredByVTTICloud": "مدعوم بواسطة VTTI Cloud",
+  "safeViewSafeView": "Safe View",
+  "passwordSettingsChangingThisAltersAllPasswords": "تغيير هذا سيغيّر جميع كلمات المرور.\n",
+  "passwordSettingsUsingTheSameMetaPassRestoresThem": "استخدام MetaPass نفسه يعيد إنشاءها.",
+  "passwordSettingsPasswordsAreNeverStored": "لا يتم تخزين كلمات المرور مطلقًا.\n\n",
+  "passwordSettingsTheRestoreCodeContainsOnlyStructureData": "يحتوي رمز الاستعادة على بيانات البنية فقط. ",
+  "passwordSettingsCombinedWithYourMetaPassItRebuildsYour": "وعند دمجه مع MetaPass الخاص بك، يعيد بناء خزنتك.",
+  "passwordManagerContinue": "متابعة",
+  "passwordManagerFailedToLoadApps": "فشل تحميل التطبيقات: {e}",
+  "@passwordManagerFailedToLoadApps": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerFailedToGeneratePassword": "فشل إنشاء كلمة المرور: {e}",
+  "@passwordManagerFailedToGeneratePassword": {
+    "placeholders": {
+      "e": {}
+    }
+  },
+  "passwordManagerPasswordsAreNeverStored": "لا يتم تخزين كلمات المرور مطلقًا.\n\n",
+  "passwordManagerEachEntryDerivesAPasswordFrom": "تُشتق كلمة مرور كل إدخال من:\n",
+  "passwordManagerYourMetaPassword": "• كلمة المرور الوصفية الخاصة بك\n",
+  "passwordManagerTheLabelName": "• اسم التصنيف\n",
+  "passwordManagerTheVersionAndLength": "• الإصدار والطول\n\n",
+  "passwordManagerReinstallingTheAppWithTheSameMeta": "إعادة تثبيت التطبيق باستخدام كلمة المرور الوصفية نفسها والتصنيفات نفسها تعيد إنشاء كلمات المرور ذاتها.",
+  "permissionsIntroSetupIsNowCompleteTimeToSecure": "اكتمل الإعداد الآن! حان وقت تأمين بياناتك.",
+  "proScreenThankYou": "شكرًا لك",
+  "proScreenYourSubscriptionIsConfirmed": "تم تأكيد اشتراكك.",
+  "proScreenCurrent": "الحالي",
+  "proScreenAdvancedStealthMode": "وضع Stealth+ المتقدم",
+  "proScreenUnlockStealthTransportModesForRestrictiveNetworks": "افتح أوضاع نقل خفية للشبكات المقيّدة.",
+  "proScreenGlobalServerAccess": "الوصول إلى الخوادم العالمية",
+  "proScreenAccessEveryVPNServerLocationIncludingPremium": "تمتع بالوصول إلى كل مواقع خوادم VPN، بما في ذلك المناطق المميزة عالية السرعة.",
+  "proScreenBilledMonthly": "تتم الفوترة شهريًا",
+  "proScreenMo": "{monthlyInfo}/شهر",
+  "@proScreenMo": {
+    "placeholders": {
+      "monthlyInfo": {}
+    }
+  },
+  "proScreenMo2": "{currencyCode}/شهر",
+  "@proScreenMo2": {
+    "placeholders": {
+      "currencyCode": {}
+    }
+  },
+  "proScreenCurrentPlan": "الخطة الحالية",
+  "quarantineScreenQuarantineDataCorruptedResetting": "بيانات الحجر الصحي تالفة. جارٍ إعادة الضبط.",
+  "quarantineScreenUninstallApp": "إلغاء تثبيت التطبيق",
+  "quarantineScreenUninstall": "هل تريد إلغاء تثبيت {appName}؟",
+  "@quarantineScreenUninstall": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "quarantineScreenUninstall2": "إلغاء التثبيت",
+  "quarantineScreenFailedToLaunchUninstall": "فشل بدء إلغاء التثبيت",
+  "quarantineScreenFiles": "الملفات",
+  "cleanerAppManagerShizukuNotAvailable": "Shizuku غير متاح",
+  "cleanerAppManagerWithoutShizukuEachAppRequiresASeparate": "بدون Shizuku، يتطلب كل تطبيق تأكيدًا منفصلًا من النظام. هل تريد المتابعة؟",
+  "cleanerAppManagerAppsUninstalled": "تم إلغاء تثبيت {successCount} تطبيقات",
+  "@cleanerAppManagerAppsUninstalled": {
+    "placeholders": {
+      "successCount": {}
+    }
+  },
+  "cleanerAppManagerUninstalledFailed": "تم إلغاء تثبيت {successCount}، وفشل {failedCount}",
+  "@cleanerAppManagerUninstalledFailed": {
+    "placeholders": {
+      "successCount": {},
+      "failedCount": {}
+    }
+  },
+  "cleanerAppManagerStopped": "تم إيقاف {appName}",
+  "@cleanerAppManagerStopped": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerForceStopFailed": "فشل الإيقاف الإجباري",
+  "cleanerAppManagerClearAppData": "مسح بيانات التطبيق",
+  "cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": "هل تريد إعادة ضبط {appName}؟ سيؤدي ذلك إلى مسح حساباته وإعداداته وملفاته وذاكرة التخزين المؤقت.",
+  "@cleanerAppManagerResetThisClearsItsAccountsSettingsFiles": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearData": "مسح البيانات",
+  "cleanerAppManagerReset": "تمت إعادة ضبط {appName}",
+  "@cleanerAppManagerReset": {
+    "placeholders": {
+      "appName": {}
+    }
+  },
+  "cleanerAppManagerClearDataFailed": "فشل مسح البيانات",
+  "cleanerAppManagerOpenApp": "فتح التطبيق",
+  "cleanerAppManagerForceStop": "إيقاف إجباري",
+  "cleanerAppManagerUninstall": "إلغاء التثبيت",
+  "cleanerAppManagerSelected": "تم تحديد {selectedCount}",
+  "@cleanerAppManagerSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerAppManagerAppManager": "مدير التطبيقات",
+  "cleanerAppManagerDeselectAll": "إلغاء تحديد الكل",
+  "cleanerAppManagerUninstalling": "جارٍ إلغاء التثبيت {done} / {total}…",
+  "@cleanerAppManagerUninstalling": {
+    "placeholders": {
+      "done": {},
+      "total": {}
+    }
+  },
+  "cleanerAppManagerUninstall2": "إلغاء تثبيت {selectedCount}",
+  "@cleanerAppManagerUninstall2": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "cleanerProClearAppCaches": "مسح ذاكرة التخزين المؤقت للتطبيقات",
+  "cleanerProThisAsksAndroidToTrimAppCaches": "يطلب هذا من Android تقليص ذاكرات التخزين المؤقت للتطبيقات على الجهاز. لن يتم مسح بيانات التطبيقات أو الحسابات أو الإعدادات.",
+  "cleanerProClearCaches": "مسح ذاكرات التخزين المؤقت",
+  "cleanerProCacheTrimRequested": "تم طلب تقليص ذاكرة التخزين المؤقت",
+  "cleanerProCacheCleanerFailed": "فشل تنظيف ذاكرة التخزين المؤقت",
+  "cleanerProLogFiles": "ملفات السجل",
+  "cleanerProCacheCleaner": "منظف ذاكرة التخزين المؤقت",
+  "cleanerProLogCleaner": "منظف السجلات",
+  "cleanerProAppDataManager": "مدير بيانات التطبيقات",
+  "cleanerScreenCleaner": "المنظف",
+  "scanDetailDeleteFiles": "حذف الملفات",
+  "scanDetailDeleteFilesPermanently": "هل تريد حذف {selectedCount} ملفات نهائيًا؟",
+  "@scanDetailDeleteFilesPermanently": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailSelectedFilesDeleted": "تم حذف الملفات المحددة",
+  "scanDetailDeleteAllFiles": "حذف جميع الملفات",
+  "scanDetailDeleteAllFilesPermanently": "هل تريد حذف جميع الملفات البالغ عددها {fileCount} نهائيًا؟",
+  "@scanDetailDeleteAllFilesPermanently": {
+    "placeholders": {
+      "fileCount": {}
+    }
+  },
+  "scanDetailDeleteAll": "حذف الكل",
+  "scanDetailAllFilesDeleted": "تم حذف جميع الملفات",
+  "scanDetailSelected": "تم تحديد {selectedCount}",
+  "@scanDetailSelected": {
+    "placeholders": {
+      "selectedCount": {}
+    }
+  },
+  "scanDetailDeselectAll": "إلغاء تحديد الكل",
+  "scanDetailNewestFirst": "الأحدث أولًا",
+  "scanDetailOldestFirst": "الأقدم أولًا",
+  "scanDetailLargestFirst": "الأكبر أولًا",
+  "scanDetailSmallestFirst": "الأصغر أولًا",
+  "scanDetailNoFilesFound": "لم يتم العثور على ملفات",
+  "scanDetailDeleteAll2": "حذف الكل",
+  "scanInstalledAppsSearchApps": "البحث في التطبيقات...",
+  "scanInstalledAppsNoAppsFound": "لم يتم العثور على تطبيقات.",
+  "scanUiScanComplete": "اكتمل الفحص",
+  "scanUiScannedItems": "تم فحص: {scanned} عناصر",
+  "@scanUiScannedItems": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiProgress": "التقدم: {pct} ({scanned} / {total})",
+  "@scanUiProgress": {
+    "placeholders": {
+      "pct": {},
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanUiPreparingEngine": "جارٍ تجهيز المحرك...",
+  "scanUiLoadingTargetS": "جارٍ تحميل الهدف/الأهداف",
+  "scanUiAvarionxVPN": "AvarionX VPN",
+  "scanUiProtectYourInternetWithOurUnlimitedVPN": "احمِ اتصالك بالإنترنت باستخدام VPN غير المحدود لدينا",
+  "scanUiTapMe": "اضغط هنا!",
+  "scanUiScanned": "تم فحص {scanned}",
+  "@scanUiScanned": {
+    "placeholders": {
+      "scanned": {}
+    }
+  },
+  "scanUiReturn": "رجوع",
+  "scanLimitsSettingsUpdated": "تم تحديث الإعدادات",
+  "scanLimitsScanLimits": "حدود الفحص",
+  "scanLimitsLimitHowMuchTheEngineUsesYour": "حدد مقدار استخدام المحرك لوحدة المعالجة المركزية. عدد الخيوط: 0 يعني تلقائي.",
+  "scanLimitsMaxScanThreads": "الحد الأقصى لخيوط الفحص",
+  "scanLimits0AutoRange0ToCores": "0 = تلقائي. النطاق: من 0 إلى {maxThreads} (الأنوية: {coreCount}).",
+  "@scanLimits0AutoRange0ToCores": {
+    "placeholders": {
+      "maxThreads": {},
+      "coreCount": {}
+    }
+  },
+  "scanLegacyScanning": "جارٍ الفحص... {percent}%",
+  "@scanLegacyScanning": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "scanLegacySuspicious": "مشبوه: {infectedCount}",
+  "@scanLegacySuspicious": {
+    "placeholders": {
+      "infectedCount": {}
+    }
+  },
+  "scanLegacyClean": "سليم: {cleanCount}",
+  "@scanLegacyClean": {
+    "placeholders": {
+      "cleanCount": {}
+    }
+  },
+  "scanLegacyNoFilesToScan": "لا توجد ملفات للفحص",
+  "settingsSponsorsUnlock": "يفتحها الداعمون ❤️",
+  "settingsPickCertificate": "اختر الشهادة",
+  "settingsCertificateLoaded": "تم تحميل الشهادة",
+  "settingsEnterCode": "أدخل الرمز",
+  "settingsSupportFileMissing": "ملف الدعم مفقود",
+  "settingsInvalidSupportCode": "رمز الدعم غير صالح",
+  "settingsAvarionxSecurity": "أمان AvarionX",
+  "settingsAvarionxIsAMobileSecuritySuiteCreated": "AvarionX هو حزمة أمان للهواتف أنشأتها ColourSwift، ومقرها في برمنغهام بالمملكة المتحدة.\n\n",
+  "settingsContact": "التواصل: ",
+  "settingsExperimentalFeatures": "الميزات التجريبية",
+  "settingsEnablingShizukuUnlocksExperimentalWorkInProgress": "يؤدي تفعيل Shizuku إلى فتح ميزات تجريبية لا تزال قيد التطوير:\n\n",
+  "settingsAdvancedRansomwareProtection": "• حماية متقدمة من برامج الفدية\n",
+  "settingsCacheCleanerPlus": "• Cache Cleaner Plus\n\n",
+  "settingsExperimentalWarning": "تحذير بشأن الميزات التجريبية:\n",
+  "settingsTheseFeaturesUseAdvancedSystemAccessAnd": "تستخدم هذه الميزات وصولًا متقدمًا إلى النظام وقد تتصرف بشكل مختلف باختلاف الأجهزة وإصدارات Android وإعدادات Shizuku. قد تؤثر بعض الإجراءات في التطبيقات قيد التشغيل أو الملفات أو بيانات ذاكرة التخزين المؤقت بصورة مباشرة أكثر من الفحص العادي.\n\n",
+  "settingsOnlyEnableThisIfYouUnderstandShizuku": "فعّل هذا فقط إذا كنت تفهم Shizuku، وتقبل أن الميزة لا تزال قيد الاختبار، وقد أنشأت نسخة احتياطية من أي بيانات مهمة.\n\n",
+  "settingsPleaseReadTheDocumentationBeforeEnabling": "يرجى قراءة الوثائق قبل التفعيل.",
+  "settingsEnable": "تفعيل",
+  "settingsSigningOut": "جارٍ تسجيل الخروج...",
+  "settingsCheckingAccountStatus": "جارٍ التحقق من حالة الحساب...",
+  "settingsManageSignInPremiumAndPurchases": "إدارة تسجيل الدخول وPremium والمشتريات",
+  "settingsPremiumActive": "Premium نشط",
+  "settingsManagePremiumOptionsAndRestorePurchases": "إدارة خيارات Premium واستعادة المشتريات",
+  "settingsUnlockDeepAnalysisModeAndVPNFeatures": "افتح وضع التحليل العميق وميزات VPN",
+  "settingsAutoClearNotifications": "مسح الإشعارات تلقائيًا",
+  "settingsScanModes": "أوضاع الفحص",
+  "settingsAdvancedScanModes": "أوضاع الفحص المتقدمة",
+  "settingsDisableToUseTheDefaultScanningMode": "عطّل لاستخدام وضع الفحص الافتراضي",
+  "settingsToggleToEnableAllScanningModes": "بدّل لتفعيل جميع أوضاع الفحص",
+  "settingsApkSubmissions": "إرسال ملفات APK",
+  "settingsShareMaliciousAPKs": "مشاركة ملفات APK الضارة",
+  "settingsHelpingImproveDetectionForEveryone": "المساعدة في تحسين الاكتشاف للجميع",
+  "settingsOff": "إيقاف",
+  "settingsIncludeRealtimeProtectionCatches": "تضمين اكتشافات الحماية في الوقت الفعلي",
+  "settingsApksFlaggedByRealtimeProtectionAreIncluded": "يتم تضمين ملفات APK التي تكتشفها الحماية في الوقت الفعلي",
+  "settingsApksFlaggedByRealtimeProtectionAreExcluded": "يتم استبعاد ملفات APK التي تكتشفها الحماية في الوقت الفعلي",
+  "settingsIncludeManualAndScheduledScans": "تضمين عمليات الفحص اليدوية والمجدولة",
+  "settingsApksFlaggedByScansAreIncluded": "يتم تضمين ملفات APK التي تكتشفها عمليات الفحص",
+  "settingsApksFlaggedByScansAreExcluded": "يتم استبعاد ملفات APK التي تكتشفها عمليات الفحص",
+  "settingsWiFiOnly": "Wi-Fi فقط",
+  "settingsUploadsWaitForAWiFiConnection": "تنتظر عمليات الرفع اتصال Wi-Fi",
+  "settingsUploadsMayUseMobileData": "قد تستخدم عمليات الرفع بيانات الهاتف المحمول",
+  "settingsChargingOnly": "أثناء الشحن فقط",
+  "settingsUploadsWaitUntilTheDeviceIsCharging": "تنتظر عمليات الرفع حتى يبدأ شحن الجهاز",
+  "settingsUploadsAreNotLimitedToCharging": "عمليات الرفع غير مقيدة بحالة الشحن",
+  "settingsChooseWhichAppsUpload": "اختر التطبيقات التي سيتم رفعها",
+  "settingsReviewAndPickAppsEachTimeBefore": "راجع التطبيقات واخترها في كل مرة قبل الرفع",
+  "settingsFlaggedAppsUploadAutomatically": "يتم رفع التطبيقات المعلّمة تلقائيًا",
+  "settingsEnableProDebug": "تفعيل Pro (تصحيح الأخطاء)",
+  "settingsLocalUnlockForUITesting": "فتح محلي لاختبار واجهة المستخدم",
+  "settingsRestorePurchases": "استعادة المشتريات",
+  "settingsReCheckPlayBilling": "إعادة التحقق من فوترة Play",
+  "settingsCheckingAccount": "جارٍ التحقق من الحساب...",
+  "settingsAvarionxAccountConnected": "حساب AvarionX متصل",
+  "settingsAccountID": "معرّف الحساب: {accountId}",
+  "@settingsAccountID": {
+    "placeholders": {
+      "accountId": {}
+    }
+  },
+  "settingsSignInToManagePurchasesAndAccount": "سجّل الدخول لإدارة المشتريات وميزات الحساب.",
+  "settingsOpenTheAvarionXAccountPortal": "فتح بوابة حساب AvarionX",
+  "settingsAccountDashboard": "لوحة تحكم الحساب",
+  "settingsOpenBillingAndAccountSettings": "فتح إعدادات الفوترة والحساب",
+  "settingsRemoveThisAccountFromTheApp": "إزالة هذا الحساب من التطبيق",
+  "settingsPremiumFeaturesAreAvailableOnThisDevice": "ميزات Premium متاحة على هذا الجهاز",
+  "settingsViewOptionalPremiumFeatures": "عرض ميزات Premium الاختيارية",
+  "settingsReCheckPlayBillingEntitlement": "إعادة التحقق من استحقاق Play Billing",
+  "settingsRtpNotificationAutoClearNotifications": "مسح الإشعارات تلقائيًا",
+  "settingsRtpNotificationNever": "أبدًا",
+  "settingsRtpNotification5Minutes": "5 دقائق",
+  "settingsRtpNotification10Minutes": "10 دقائق",
+  "settingsRtpNotification30Minutes": "30 دقيقة",
+  "settingsThemeBlack": "أسود",
+  "settingsThemeWhite": "أبيض",
+  "settingsThemeGrey": "رمادي",
+  "settingsThemeEmerald": "زمردي",
+  "settingsThemePurple": "أرجواني",
+  "settingsThemeRoyalBlue": "أزرق ملكي",
+  "settingsAccountCardSyncPurchasesAndUnlockProAcrossApps": "زامن المشتريات وافتح Pro عبر التطبيقات.",
+  "settingsAccountCardLoading": "جارٍ التحميل...",
+  "settingsAccountCardDashboard": "لوحة التحكم",
+  "settingsProCardChangePlan": "تغيير الخطة",
+  "advancedNetworkProtectionEnterYourOwnResolver": "أدخل محلل DNS الخاص بك",
+  "advancedNetworkProtectionCloudProtectionMode": "وضع الحماية السحابية",
+  "advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud": "يوجّه جميع استعلامات DNS إلى المحرك السحابي، مما يتيح تحديثات قوائم الحظر المباشرة والتحقق من سمعة النطاقات والمزيد.",
+  "advancedNetworkProtectionRefreshProStatus": "تحديث حالة Pro",
+  "advancedNetworkProtectionProActive": "Pro نشط",
+  "advancedNetworkProtectionFreePlan": "الخطة المجانية",
+  "advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith": "يتحقق من استحقاقك ويزامنه مع ميزات السحابة. يفتح Pro حظر الإعلانات على مستوى النظام.",
+  "advancedNetworkProtectionMalwareProtection": "الحماية من البرمجيات الضارة",
+  "advancedNetworkProtectionBlocksKnownMaliciousDomains": "يحظر النطاقات الضارة المعروفة",
+  "advancedNetworkProtectionTrackerProtection": "الحماية من أدوات التتبع",
+  "advancedNetworkProtectionReducesTrackingDomains": "يقلل نطاقات التتبع",
+  "advancedNetworkProtectionAdProtection": "الحماية من الإعلانات",
+  "advancedNetworkProtectionBlocksCommonAdDomains": "يحظر نطاقات الإعلانات الشائعة",
+  "advancedNetworkProtectionAdultFilter": "فلتر محتوى البالغين",
+  "advancedNetworkProtectionUses1113Upstream": "يستخدم 1.1.1.3 كخادم upstream",
+  "advancedNetworkProtectionLockedUntilProIsActiveAndCloud": "مقفل حتى يصبح Pro نشطًا ويتم تفعيل الوضع السحابي.",
+  "advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer": "أحداث DNS مباشرة من طبقة VPN.",
+  "advancedNetworkProtectionAdvanced": "متقدم",
+  "advancedNetworkProtectionDns": "DNS",
+  "advancedNetworkProtectionCloudDNSMode": "وضع DNS السحابي",
+  "networkProtectionEnterYourOwnResolver": "أدخل محلل DNS الخاص بك",
+  "networkAppControlEnableVPNToggles": "تفعيل مفاتيح VPN",
+  "networkAppControlOpenSettings": "فتح الإعدادات",
+  "networkAppControlAppControl": "التحكم بالتطبيقات",
+  "networkAppControlNoAppsFound": "لم يتم العثور على تطبيقات.",
+  "networkSpeedTestCountry": "الدولة",
+  "networkSpeedTestRunning": "قيد التشغيل",
+  "networkSpeedTestRunTest": "تشغيل الاختبار",
+  "networkSpeedTestNoResultsYet": "لا توجد نتائج بعد.",
+  "networkSpeedTestDnsTLS": "DNS: {dns}  •  TLS: {tls}",
+  "@networkSpeedTestDnsTLS": {
+    "placeholders": {
+      "dns": {},
+      "tls": {}
+    }
+  },
+  "networkSpeedTestFail": "فشل",
+  "dnsNetworkProtectionEnterYourOwnResolver": "أدخل محلل DNS الخاص بك",
+  "dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure": "تصفية DNS منفصلة عن Secure VPN. يمكنها حظر البرمجيات الضارة المعروفة والإعلانات (عبر جميع التطبيقات) وأدوات التتبع والمحتوى من الفئات غير المرغوب فيها قبل تحميله.",
+  "fullVpnSignedIn": "تم تسجيل الدخول.",
+  "fullVpnSignInRequired": "تسجيل الدخول مطلوب",
+  "fullVpnClose": "إغلاق",
+  "fullVpnLoadingUsage": "جارٍ تحميل الاستخدام...",
+  "fullVpnSyncing": "جارٍ المزامنة",
+  "fullVpnUsedThisMonth": "تم استخدام {usedBytes} هذا الشهر",
+  "@fullVpnUsedThisMonth": {
+    "placeholders": {
+      "usedBytes": {}
+    }
+  },
+  "blockedScreenUnsupportedEnvironment": "بيئة غير مدعومة",
+  "updateLogUpdateV": "التحديث: v{version}",
+  "@updateLogUpdateV": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "updateLogHiThereAvarionXHasBeenUpdatedBelow": "مرحبًا! تم تحديث AvarionX، وفيما يلي التغييرات:",
+  "updateLogNoUserFacingChangesInThisUpdate": "لا توجد تغييرات مرئية للمستخدم في هذا التحديث.",
+  "updateLogContinue": "متابعة",
+  "featuresRealtimeProtectionBody": "يراقب الملفات الجديدة والمعدلة في الخلفية ويحظر التهديدات فور ظهورها.",
+  "featuresTriLayerEngineTitle": "محرك ثلاثي الطبقات",
+  "featuresTriLayerEngineBody": "نواة كشف من ثلاث مراحل تجمع بين ترشيح Bloom وفحص التوقيعات وتحليل البايتات المخصص لملفات APK لتحقيق دقة وسرعة عاليتين.",
+  "featuresMachineLearningTitle": "التعلم الآلي",
+  "featuresMachineLearningBody": "نموذج خفيف يعمل على الجهاز ومدرّب للتعرف على أنماط سلوك ملفات APK الضارة.",
+  "featuresCleanerProTitle": "Cleaner Pro",
+  "featuresCleanerProBody": "وحدة تنظيف متطورة تحدد الملفات المكررة وذاكرة التخزين المؤقت والتطبيقات غير المستخدمة لاستعادة مساحة التخزين.",
+  "featuresWifiProtectionTitle": "حماية Wi-Fi",
+  "featuresWifiProtectionBody": "يكتشف شبكات Wi-Fi غير الآمنة أو المشبوهة باستخدام تحليل على الجهاز.",
+  "featuresRootLevelProtectionTitle": "حماية على مستوى Root",
+  "featuresRootLevelProtectionBody": "دفاع عميق على مستوى النظام مصمم للأجهزة ذات صلاحيات root والمستخدمين المتقدمين.",
+  "featuresPcCompanionTitle": "رفيق الكمبيوتر",
+  "featuresPcCompanionBody": "إصدار سطح مكتب قادم لتكامل مكافحة الفيروسات عبر المنصات.",
+  "deviceSecurityNoRisksFound": "لم يتم العثور على مخاطر بالجهاز",
+  "deviceSecurityOneCheckNeedsAttention": "فحص واحد للجهاز يحتاج إلى الانتباه",
+  "deviceSecurityChecksNeedAttention": "{count} من فحوصات الجهاز تحتاج إلى الانتباه",
+  "@deviceSecurityChecksNeedAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityHealthSectionBody": "تؤثر هذه الإعدادات مباشرة في وضع أمان جهازك.",
+  "deviceSecurityRecommendationsSectionBody": "تُعد هذه الإعدادات من ممارسات الأمان الجيدة الشائعة.",
+  "deviceSecuritySignalUnavailable": "المؤشر غير متاح",
+  "deviceSecurityIgnoredByYou": "تم تجاهله بواسطتك",
+  "deviceSecurityScreenLockInactiveTitle": "قفل الشاشة",
+  "deviceSecurityScreenLockActiveLabel": "غير آمن، لم يتم تعيين قفل شاشة آمن",
+  "deviceSecurityScreenLockInactiveLabel": "قفل الشاشة نشط",
+  "deviceSecurityScreenLockDetail": "يحمي قفل الشاشة الآمن جهازك إذا فُقد أو سُرق أو تُرك دون مراقبة. بدون رقم PIN أو كلمة مرور أو نمط أو بصمة إصبع أو فتح بالوجه مدعوم بطريقة قفل آمنة، يمكن لأي شخص لديه وصول فعلي إلى الجهاز فتحه بسهولة أكبر.",
+  "deviceSecurityScreenLockHelp": "افتح إعدادات أمان Android واضبط قفل شاشة آمن.",
+  "deviceSecurityCheckSetting": "فحص الإعداد",
+  "deviceSecurityPrivilegedInactiveTitle": "لا يوجد وصول مميز",
+  "deviceSecurityPrivilegedActiveLabel": "تم اكتشاف وصول مميز",
+  "deviceSecurityPrivilegedInactiveLabel": "لم يتم اكتشاف وصول مميز",
+  "deviceSecurityPrivilegedDetail": "يمكن أن يكون Root وShizuku مفيدين لك، لكنهما يزيدان أيضًا من أثر أي تطبيق ضار إذا أُسيء استخدام الوصول. قد تتمكن التطبيقات ذات الوصول المميز من تنفيذ إجراءات لا تستطيع تطبيقات Android العادية تنفيذها.",
+  "deviceSecurityPrivilegedHelp": "راجع إعدادات root أو Magisk أو Shizuku يدويًا.",
+  "deviceSecurityReviewSetting": "مراجعة الإعداد",
+  "deviceSecurityAppVerificationInactiveTitle": "التحقق من التطبيقات",
+  "deviceSecurityAppVerificationActiveLabel": "غير آمن، يبدو أن التحقق من التطبيقات معطّل",
+  "deviceSecurityAppVerificationInactiveLabel": "يبدو أن التحقق من التطبيقات مفعّل",
+  "deviceSecurityAppVerificationDetail": "يساعد التحقق من تطبيقات Android في فحص التطبيقات قبل التثبيت أو بعده. إذا كانت هذه الحماية معطلة أو غير متاحة، فقد تقل احتمالية حظر التطبيقات الضارة قبل تشغيلها.",
+  "deviceSecurityAppVerificationHelp": "افتح إعدادات أمان Android وراجع التحقق من التطبيقات.",
+  "deviceSecuritySecurityPatchInactiveTitle": "تصحيح الأمان محدّث",
+  "deviceSecuritySecurityPatchActiveLabel": "مستوى تصحيح الأمان قديم",
+  "deviceSecuritySecurityPatchInactiveLabel": "مستوى تصحيح الأمان محدّث",
+  "deviceSecuritySecurityPatchDetail": "تُصلح تصحيحات أمان Android مشكلات معروفة في النظام وموردي الأجهزة. إذا كان مستوى التصحيح قديمًا، فقد يكون الجهاز عرضة لثغرات تم إصلاحها بالفعل في الإصدارات الأحدث.",
+  "deviceSecuritySecurityPatchHelp": "افتح إعدادات تحديث نظام Android وتحقق من وجود تحديثات.",
+  "deviceSecurityCheckUpdates": "التحقق من التحديثات",
+  "deviceSecurityDeveloperModeInactiveTitle": "وضع المطور",
+  "deviceSecurityDeveloperModeActiveLabel": "خيارات المطور مفعّلة",
+  "deviceSecurityDeveloperModeInactiveLabel": "خيارات المطور معطّلة",
+  "deviceSecurityDeveloperModeDetail": "وضع المطور أمر طبيعي للمطورين والمختبرين، لكنه يتيح إعدادات متقدمة يمكن أن تقلل أمان الجهاز إذا تم تغييرها عن طريق الخطأ أو أُسيء استخدامها من شخص لديه وصول إلى الجهاز.",
+  "deviceSecurityDeveloperModeHelp": "افتح خيارات المطور وأوقف الإعدادات التي لا تحتاج إليها.",
+  "deviceSecurityUsbDebuggingInactiveTitle": "تصحيح أخطاء USB",
+  "deviceSecurityUsbDebuggingActiveLabel": "غير آمن، تصحيح أخطاء USB مفعّل",
+  "deviceSecurityUsbDebuggingInactiveLabel": "تصحيح أخطاء USB معطّل",
+  "deviceSecurityUsbDebuggingDetail": "يسمح تصحيح أخطاء USB لجهاز كمبيوتر متصل بالتفاعل مع جهازك عبر Android Debug Bridge. إذا تُرك مفعّلًا، فإنه يزيد خطر الوصول غير المصرح به عند الاتصال بجهاز كمبيوتر غير موثوق.",
+  "deviceSecurityUsbDebuggingHelp": "افتح خيارات المطور وأوقف تصحيح أخطاء USB.",
+  "deviceSecurityUnknownSourcesInactiveTitle": "مصادر غير معروفة",
+  "deviceSecurityUnknownSourcesActiveLabel": "تثبيت التطبيقات غير المعروفة مسموح",
+  "deviceSecurityUnknownSourcesInactiveLabel": "تثبيت التطبيقات غير المعروفة مقيّد",
+  "deviceSecurityUnknownSourcesDetail": "قد يكون السماح بتثبيت تطبيقات من مصادر غير معروفة مفيدًا لملفات APK الموثوقة، لكنه يزيد أيضًا احتمال تثبيت تطبيقات من مصادر غير آمنة. اسمح بذلك فقط للتطبيقات والمتاجر التي تثق بها.",
+  "deviceSecurityUnknownSourcesHelp": "افتح إعدادات Android وراجع صلاحية تثبيت التطبيقات غير المعروفة.",
+  "deviceSecurityAccessibilityInactiveTitle": "خدمات إمكانية الوصول",
+  "deviceSecurityAccessibilityActiveLabel": "خدمة إمكانية وصول تابعة لجهة خارجية مفعّلة",
+  "deviceSecurityAccessibilityInactiveLabel": "لم يتم العثور على خدمات إمكانية وصول خطرة",
+  "deviceSecurityAccessibilityDetail": "خدمات إمكانية الوصول قوية لأنها تستطيع مراقبة محتوى الشاشة وتنفيذ إجراءات نيابة عن المستخدم. وهذا مفيد للأدوات المشروعة، لكنه أيضًا شائع الاستخدام من قبل التطبيقات الضارة.",
+  "deviceSecurityAccessibilityHelp": "افتح إعدادات إمكانية الوصول وراجع الخدمات المفعّلة.",
+  "deviceSecurityChecking": "جارٍ فحص أمان الجهاز",
+  "deviceSecurityReadingSignals": "جارٍ قراءة مؤشرات وضع الجهاز...",
+  "deviceSecurityOneCheckAttention": "فحص واحد يحتاج إلى الانتباه",
+  "deviceSecurityChecksAttention": "{count} فحوصات تحتاج إلى الانتباه",
+  "@deviceSecurityChecksAttention": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "deviceSecurityTapSignal": "اضغط على مؤشر أدناه لمعرفة المزيد.",
+  "deviceSecurityIgnoredChecks": "عدد الفحوصات النشطة التي تجاهلتها: {count}.{plural, select, s {} other {}}",
+  "@deviceSecurityIgnoredChecks": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceSecurityPostureNormal": "تبدو فحوصات وضع أمان جهازك طبيعية.",
+  "timeJustNow": "الآن",
+  "timeMinutesAgo": "منذ {minutes} د",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "timeHoursAgo": "منذ {hours} س",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "timeDaysAgo": "منذ {days} ي",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "securityNoReportDataYet": "لا توجد بيانات تقرير بعد",
+  "securityLastActivity": "آخر نشاط {relative}",
+  "@securityLastActivity": {
+    "placeholders": {
+      "relative": {}
+    }
+  },
+  "securityReportSharePdfTitle": "تقرير أمان Avarionx",
+  "securityReportCsvField": "الحقل",
+  "securityReportCsvValue": "القيمة",
+  "securityReportGeneratedAt": "تم الإنشاء في",
+  "securityReportOverallStatus": "الحالة العامة",
+  "securityReportLastManualScan": "آخر فحص يدوي",
+  "securityReportLastRealtimeEvent": "آخر حدث في الوقت الفعلي",
+  "securityReportLastScheduledScan": "آخر فحص مجدول",
+  "securityReportShareCsvTitle": "تقرير أمان Avarionx بصيغة CSV",
+  "securityReportReviewRecommended": "يوصى بالمراجعة",
+  "securityReportNoKnownThreatDetected": "لم يتم اكتشاف تهديد معروف",
+  "securityReportGeneratedLine": "تم الإنشاء: {generatedAt}",
+  "@securityReportGeneratedLine": {
+    "placeholders": {
+      "generatedAt": {}
+    }
+  },
+  "securityReportStatusLine": "الحالة: {status}",
+  "@securityReportStatusLine": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "securityReportLatestActivityLine": "أحدث نشاط: {latest}",
+  "@securityReportLatestActivityLine": {
+    "placeholders": {
+      "latest": {}
+    }
+  },
+  "securityReportManualScansLine": "عمليات الفحص اليدوية: {count}",
+  "@securityReportManualScansLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportRealtimeChecksLine": "فحوصات الوقت الفعلي: {count}",
+  "@securityReportRealtimeChecksLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportTotalFilesScannedLine": "إجمالي الملفات التي تم فحصها: {count}",
+  "@securityReportTotalFilesScannedLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportThreatsFoundLine": "التهديدات المكتشفة: {count}",
+  "@securityReportThreatsFoundLine": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "securityReportLastManualScanLine": "آخر فحص يدوي: {value}",
+  "@securityReportLastManualScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastRealtimeEventLine": "آخر حدث في الوقت الفعلي: {value}",
+  "@securityReportLastRealtimeEventLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportLastScheduledScanLine": "آخر فحص مجدول: {value}",
+  "@securityReportLastScheduledScanLine": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "securityReportNotRecorded": "غير مسجل",
+  "safeViewNavigationBlocked": "تم حظر التنقل",
+  "safeViewInvalidDestination": "وجهة غير صالحة",
+  "safeViewUnsupportedScheme": "مخطط غير مدعوم",
+  "safeViewUnableToResolveDestination": "تعذر تحديد الوجهة",
+  "safeViewDestinationBlocked": "تم حظر الوجهة",
+  "safeViewUnableToVerifyDestination": "تعذر التحقق من الوجهة",
+  "proScreenCurrentStatus": "الحالة الحالية: {status}",
+  "@proScreenCurrentStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "proScreenBilledAnnuallyAt": "تتم الفوترة سنويًا بسعر {price}",
+  "@proScreenBilledAnnuallyAt": {
+    "placeholders": {
+      "price": {}
+    }
+  },
+  "quarantineUnknownApp": "تطبيق غير معروف",
+  "cleanerScanCancelled": "تم إلغاء الفحص",
+  "cleanerProClearingCaches": "جارٍ مسح ذاكرات التخزين المؤقت…",
+  "cleanerProTrimAppCaches": "تقليص ذاكرات التخزين المؤقت للتطبيقات على الجهاز.",
+  "cleanerProEnableShizuku": "فعّل Shizuku في الإعدادات لاستخدام هذا.",
+  "cleanerProScanningStorage": "جارٍ فحص مساحة التخزين…",
+  "cleanerProFindLogFiles": "البحث عن ملفات .log و.trace و.crash و.dmp.",
+  "cleanerProLogFileCount": "{count} ملفات • {size}",
+  "@cleanerProLogFileCount": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cleanerProAppManagerReady": "إيقاف التطبيقات إجباريًا ومسح بياناتها وإلغاء تثبيتها دفعة واحدة.",
+  "cleanerProAppManagerLimited": "يعمل إلغاء التثبيت بشكل طبيعي. يتطلب الإيقاف الإجباري ومسح البيانات Shizuku.",
+  "cleanerProCheckingShizuku": "جارٍ التحقق من Shizuku…",
+  "cleanerProShizukuNotRunning": "Shizuku لا يعمل. فعّله من الإعدادات عند الحاجة.",
+  "cleanerProShizukuPermissionMissing": "لم يتم منح إذن Shizuku. فعّله من الإعدادات.",
+  "cleanerProShizukuNotBound": "خدمة Shizuku غير مرتبطة بعد. افتح الإعدادات وحدّث هذه الشاشة بعد تفعيلها.",
+  "cleanerLiteTab": "Lite",
+  "cleanerProTab": "Pro",
+  "scanCancelled": "تم إلغاء الفحص",
+  "scanPreparing": "جارٍ تحضير الفحص...",
+  "scanSuspiciousItemsFound": "العناصر المشبوهة التي تم العثور عليها: {count}.{plural, select, s {} other {}}",
+  "@scanSuspiciousItemsFound": {
+    "placeholders": {
+      "count": {},
+      "plural": {
+        "type": "String"
+      }
+    }
+  },
+  "scanSuspiciousCount": "{count} مشبوه",
+  "@scanSuspiciousCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanCleanCount": "{count} سليم",
+  "@scanCleanCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationFullItems": "تم الفحص: {count} عناصر",
+  "@scanNotificationFullItems": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanNotificationCurrent": "تم الفحص: {count} • {file}",
+  "@scanNotificationCurrent": {
+    "placeholders": {
+      "count": {},
+      "file": {}
+    }
+  },
+  "scanNotificationProgress": "{scanned} / {total}",
+  "@scanNotificationProgress": {
+    "placeholders": {
+      "scanned": {},
+      "total": {}
+    }
+  },
+  "scanNotificationProgressCurrent": "{scanned} / {total} • {file}",
+  "@scanNotificationProgressCurrent": {
+    "placeholders": {
+      "scanned": {},
+      "total": {},
+      "file": {}
+    }
+  },
+  "settingsThemeRoyalBluePremium": "أزرق ملكي (Premium)",
+  "settingsIconDefault": "افتراضي",
+  "settingsIconBird": "طائر",
+  "settingsIconNeon": "نيون",
+  "settingsIconOriginal": "أصلي",
+  "homeRealtimeProtectionTitle": "الحماية في الوقت الفعلي",
+  "networkCardStatusLocked": "مقفل",
+  "networkSectionConnection": "الاتصال",
+  "networkSectionBlocklists": "قوائم الحظر",
+  "networkSectionResolver": "المحلل",
+  "networkAppControlOtherVpnSetupInstructions": "تم تحديد VPN آخر حاليًا ليعمل دائمًا.\n\nلحظر التطبيقات بشكل موثوق:\n\n1) افتح إعدادات VPN في Android\n2) اختر AvarionX كشبكة VPN\n3) فعّل VPN دائم التشغيل\n4) فعّل حظر الاتصالات بدون VPN",
+  "networkAppControlSetupInstructions": "لحظر التطبيقات بشكل موثوق:\n\n1) افتح إعدادات VPN في Android\n2) اختر AvarionX كشبكة VPN\n3) فعّل VPN دائم التشغيل\n4) فعّل حظر الاتصالات بدون VPN",
+  "networkAppControlBlockingActive": "حظر التطبيقات نشط.",
+  "networkAppControlOtherVpnWarning": "تم تعيين VPN آخر ليعمل دائمًا. فعّل دائم التشغيل + الحظر بدون VPN لـ AvarionX.",
+  "networkAppControlSetupWarning": "فعّل دائم التشغيل + الحظر بدون VPN لـ AvarionX لكي يعمل حظر التطبيقات.",
+  "countryUnitedKingdom": "المملكة المتحدة",
+  "countryUnitedStates": "الولايات المتحدة",
+  "countryCanada": "كندا",
+  "countryIreland": "أيرلندا",
+  "countryFrance": "فرنسا",
+  "countryGermany": "ألمانيا",
+  "countryNetherlands": "هولندا",
+  "countrySpain": "إسبانيا",
+  "countryItaly": "إيطاليا",
+  "countrySweden": "السويد",
+  "countryNorway": "النرويج",
+  "countryDenmark": "الدنمارك",
+  "countryPoland": "بولندا",
+  "countryTurkey": "تركيا",
+  "countryGreece": "اليونان",
+  "countryRomania": "رومانيا",
+  "countryUkraine": "أوكرانيا",
+  "countryRussia": "روسيا",
+  "countryIndia": "الهند",
+  "countryPakistan": "باكستان",
+  "countryBangladesh": "بنغلاديش",
+  "countrySriLanka": "سريلانكا",
+  "countryNepal": "نيبال",
+  "countryJapan": "اليابان",
+  "countrySouthKorea": "كوريا الجنوبية",
+  "countrySingapore": "سنغافورة",
+  "countryMalaysia": "ماليزيا",
+  "countryThailand": "تايلاند",
+  "countryVietnam": "فيتنام",
+  "countryPhilippines": "الفلبين",
+  "countryIndonesia": "إندونيسيا",
+  "countryAustralia": "أستراليا",
+  "countryNewZealand": "نيوزيلندا",
+  "countryBrazil": "البرازيل",
+  "countryArgentina": "الأرجنتين",
+  "countryChile": "تشيلي",
+  "countryMexico": "المكسيك",
+  "countryColombia": "كولومبيا",
+  "countryPeru": "بيرو",
+  "countrySouthAfrica": "جنوب أفريقيا",
+  "countryNigeria": "نيجيريا",
+  "countryKenya": "كينيا",
+  "countryEgypt": "مصر",
+  "countryUAE": "الإمارات العربية المتحدة",
+  "countrySaudiArabia": "المملكة العربية السعودية",
+  "countryIsrael": "إسرائيل",
+  "networkSpeedTestTesting": "جارٍ الاختبار {current}/{total} • {domain}",
+  "@networkSpeedTestTesting": {
+    "placeholders": {
+      "current": {},
+      "total": {},
+      "domain": {}
+    }
+  },
+  "networkSpeedTestDone": "تم",
+  "vpnFooterCustomisation": "التخصيص",
+  "apkClipboardReportTitle": "VTTI Cloud - تقرير تحليل APK",
+  "apkClipboardAppName": "اسم التطبيق: {name}",
+  "@apkClipboardAppName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkClipboardPackageId": "معرّف الحزمة: {packageId}",
+  "@apkClipboardPackageId": {
+    "placeholders": {
+      "packageId": {}
+    }
+  },
+  "apkClipboardVersion": "الإصدار: {version}",
+  "@apkClipboardVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "apkClipboardFileSize": "حجم الملف: {size}",
+  "@apkClipboardFileSize": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "apkClipboardMinSdk": "الحد الأدنى لـ SDK: {sdk}",
+  "@apkClipboardMinSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardTargetSdk": "SDK المستهدف: {sdk}",
+  "@apkClipboardTargetSdk": {
+    "placeholders": {
+      "sdk": {}
+    }
+  },
+  "apkClipboardSignature": "التوقيع: {signature}",
+  "@apkClipboardSignature": {
+    "placeholders": {
+      "signature": {}
+    }
+  },
+  "apkClipboardMalwareRisk": "مخاطر البرمجيات الضارة: {risk}",
+  "@apkClipboardMalwareRisk": {
+    "placeholders": {
+      "risk": {}
+    }
+  },
+  "apkClipboardRiskLabel": "تصنيف المخاطر: {label}",
+  "@apkClipboardRiskLabel": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "apkClipboardHashVerdict": "حكم التجزئة: {verdict}",
+  "@apkClipboardHashVerdict": {
+    "placeholders": {
+      "verdict": {}
+    }
+  },
+  "apkClipboardRationale": "التعليل: {rationale}",
+  "@apkClipboardRationale": {
+    "placeholders": {
+      "rationale": {}
+    }
+  },
+  "apkReportUnusualFlags": "علامات غير معتادة",
+  "apkReportUnverifiedItems": "عناصر غير متحقق منها",
+  "apkReportKnownMalware": "برمجيات ضارة معروفة",
+  "apkReportSuspiciousHash": "تجزئة مشبوهة",
+  "apkReportCleanHash": "تجزئة سليمة",
+  "apkReportHashNotChecked": "لم يتم فحص التجزئة",
+  "apkReportHashUnknown": "تجزئة غير معروفة",
+  "apkMetadataPackage": "الحزمة",
+  "apkMetadataPackageId": "معرّف الحزمة",
+  "apkMetadataEngine": "المحرك",
+  "apkMetadataSize": "الحجم",
+  "apkMetadataMinSdk": "الحد الأدنى لـ SDK",
+  "apkMetadataTargetSdk": "SDK المستهدف",
+  "apkMetadataSignature": "التوقيع",
+  "apkAnalyserStageDeconstructing": "جارٍ تفكيك APK",
+  "apkAnalyserStageAnalysing": "جارٍ تحليل المحتوى",
+  "apkAnalyserSignInRequired": "يرجى تسجيل الدخول عبر الإعدادات لاستخدام Cloud Analysis.",
+  "apkAnalyserStageCheckingCloud": "جارٍ التحقق من VTTI Cloud",
+  "apkAnalyserDailyLimitReached": "لقد وصلت إلى حدك اليومي البالغ {limit} من التحليلات.",
+  "@apkAnalyserDailyLimitReached": {
+    "placeholders": {
+      "limit": {}
+    }
+  },
+  "apkAnalyserCloudAnalysisFailed": "فشل التحليل السحابي",
+  "apkAnalyserStageGeneratingReport": "جارٍ إنشاء التقرير",
+  "apkAnalyserAnalysisFailed": "فشل معالجة تحليل APK",
+  "genericError": "خطأ",
+  "apkReportEngineVttiCloud": "محرك VTTI Cloud",
+  "apkReportCertificateDetected": "تم اكتشاف شهادة",
+  "apkReportNoCertificateData": "لا توجد بيانات شهادة",
+  "apkExportOverview": "نظرة عامة",
+  "apkExportMalwareAssessment": "تقييم البرمجيات الضارة",
+  "apkExportRiskScore": "درجة المخاطر",
+  "apkExportRiskLabel": "تصنيف المخاطر",
+  "apkExportHashVerdict": "حكم التجزئة",
+  "apkExportScoreRationale": "تعليل الدرجة",
+  "apkExportContributingSignals": "المؤشرات المساهمة",
+  "apkExportDampeningFactors": "العوامل المخفِّضة",
+  "apkExportPermissionsRequested": "الأذونات المطلوبة",
+  "apkExportExtraFlagsUnusual": "علامات إضافية (غير معتادة)",
+  "apkExportExtraFlagsUnverified": "علامات إضافية (غير متحقق منها)",
+  "apkExportDiscoveredSources": "المصادر المكتشفة",
+  "apkExportRequestedPermissions": "الأذونات المطلوبة",
+  "apkExportRationale": "التعليل",
+  "apkExportCsvShareText": "ملف CSV لتحليل APK الخاص بـ {name}",
+  "@apkExportCsvShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkExportPdfTitle": "VTTI Cloud - تحليل APK",
+  "apkExportPdfShareText": "ملف PDF لتحليل APK الخاص بـ {name}",
+  "@apkExportPdfShareText": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "apkMetadataAppName": "اسم التطبيق",
+  "apkMetadataFileSize": "حجم الملف",
+  "vpnBackendFailedOpenBrowser": "فشل فتح المتصفح.",
+  "vpnBackendSignedIn": "تم تسجيل الدخول.",
+  "vpnBackendSignedOut": "تم تسجيل الخروج.",
+  "vpnBackendSessionExpiredSignIn": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+  "vpnBackendFailedLoadAccountStatus": "فشل تحميل الحساب ({status}).",
+  "@vpnBackendFailedLoadAccountStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendFailedLoadAccountError": "فشل تحميل الحساب ({error}).",
+  "@vpnBackendFailedLoadAccountError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendSignInFirst": "سجّل الدخول أولًا.",
+  "vpnBackendConnecting": "جارٍ الاتصال...",
+  "vpnBackendNotificationsPermissionRequired": "إذن الإشعارات مطلوب.",
+  "vpnBackendPermissionNotGranted": "لم يتم منح إذن VPN.",
+  "vpnBackendAnotherVpnActive": "هناك VPN آخر نشط. عطّله أولًا.",
+  "vpnBackendProvisionIncomplete": "أعادت عملية التهيئة إعدادات غير مكتملة.",
+  "vpnBackendSecuringConnection": "جارٍ تأمين الاتصال...",
+  "vpnBackendConnected": "تم الاتصال.",
+  "vpnBackendWireGuardFailed": "فشل بدء WireGuard ({error}).",
+  "@vpnBackendWireGuardFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "vpnBackendDisconnecting": "جارٍ قطع الاتصال...",
+  "vpnBackendDisconnected": "تم قطع الاتصال.",
+  "vpnBackendSelectedServer": "تم اختيار {server}",
+  "@vpnBackendSelectedServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendSwitchingServer": "جارٍ التبديل إلى {server}...",
+  "@vpnBackendSwitchingServer": {
+    "placeholders": {
+      "server": {}
+    }
+  },
+  "vpnBackendKeyNotFound": "لم يتم العثور على مفتاح VPN.",
+  "vpnBackendDnsUpdated": "تم تحديث إعدادات DNS.",
+  "vpnBackendSessionExpired": "انتهت صلاحية الجلسة.",
+  "vpnBackendFailedStatus": "فشل ({status}).",
+  "@vpnBackendFailedStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "vpnBackendPlanNotAllowed": "خطتك لا تسمح باستخدام Full VPN.",
+  "vpnBackendProvisionFailed": "فشلت التهيئة ({status}).",
+  "@vpnBackendProvisionFailed": {
+    "placeholders": {
+      "status": {}
     }
   }
 }

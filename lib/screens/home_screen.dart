@@ -12,6 +12,7 @@ import '../constants/build_flags.dart';
 import '../services/defs_auto_update_service.dart';
 import '../services/pro_temp_service.dart';
 import '../services/realtime_protection_service.dart';
+import '../services/scan api/scan_types.dart';
 import '../services/scan_scheduler.dart';
 import '../services/update_service.dart';
 import '../translations/app_localizations.dart';
@@ -19,7 +20,7 @@ import '../utils/animated_route.dart';
 import '../widgets/ads/ads_config.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'link checker/link_check_screen.dart';
-import 'scan_ui_screen.dart';
+import 'scan/main_scan_ui/scan_screen.dart';
 import '../services/service_manager.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
@@ -98,7 +99,7 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     await prefs.setBool('isPro', newStatus);
     setState(() => isPro = newStatus);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(newStatus ? 'Pro activated' : 'Pro deactivated')),
+      SnackBar(content: Text(newStatus ? AppLocalizations.of(context)!.homeLegacyProActivated : AppLocalizations.of(context)!.homeLegacyProDeactivated)),
     );
   }
 
@@ -298,11 +299,10 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                 await UpdateService.setLocalVersion(newRemoteVersion);
 
                 final dir = await getApplicationDocumentsDirectory();
-                final defsPath = '${dir.path}/defs.vxpack';
-                final keyPath = '${dir.path}/defs_key.bin';
+                final defsPath = '${dir.path}/defs.cs';
 
                 try {
-                  AntivirusBridge().reload(defsPath, keyPath);
+                  AntivirusBridge().reload(defsPath);
                 } catch (e) {
                   debugPrint('[DefsUpdate] Engine reload failed: $e');
                 }

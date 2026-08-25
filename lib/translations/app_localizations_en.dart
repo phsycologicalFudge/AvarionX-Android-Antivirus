@@ -66,7 +66,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDbUpdateFailed => 'Database update failed';
 
   @override
-  String get engineReadyBanner => 'VX-TITANIUM-v8';
+  String get engineReadyBanner => 'VX-TITANIUM-v9';
 
   @override
   String get scanButton => 'Scan';
@@ -137,7 +137,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dbVersionAutoUpdated(Object version) {
-    return 'Database v$version • Auto updated';
+    return 'Database v$version';
   }
 
   @override
@@ -1892,7 +1892,2221 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quarantineDeleteDialogTitle => 'Delete selected files?';
 
   @override
-  String quarantineDeleteDialogBody(Object count, Object plural) {
+  String quarantineDeleteDialogBody(Object count, String plural) {
     return 'This will permanently delete $count item$plural.';
+  }
+
+  @override
+  String get howThisAppWorksHowAvarionXWorks => 'How AvarionX Works';
+
+  @override
+  String get howThisAppWorksAvarionxIsAMobileSecurityAppThat =>
+      'AvarionX is a mobile security app that combines on device antivirus scanning, network protection, and optional VPN features. ';
+
+  @override
+  String get howThisAppWorksTheAntivirusEngineIsPoweredByVX =>
+      'The antivirus engine is powered by VX-Titanium.';
+
+  @override
+  String get howThisAppWorksIfYouUseNetworkProtectionOrVPN =>
+      'If you use network protection or VPN features, the app connects to ColourSwift services to apply your settings, manage your account access, and route protected traffic.';
+
+  @override
+  String get howThisAppWorksKeyFeatures => 'Key Features';
+
+  @override
+  String get howThisAppWorksRealTimeProtectionForDownloadedThreats =>
+      '• Real-time protection for downloaded threats';
+
+  @override
+  String get howThisAppWorksNetworkProtectionWithDNSFiltering =>
+      '• Network protection with DNS filtering';
+
+  @override
+  String get howThisAppWorksOptionalSecureVPNMode =>
+      '• Optional Secure VPN mode';
+
+  @override
+  String get howThisAppWorksBuiltInToolsSuchAsLinkChecker =>
+      '• Built in tools such as Link Checker';
+
+  @override
+  String get howThisAppWorksNotes => 'Notes';
+
+  @override
+  String get howThisAppWorksSomeFeaturesMayRequireSignInAn =>
+      'Some features may require sign in, an active plan, or device permissions to work properly.';
+
+  @override
+  String get apkAnalyserCopyCurrentReport => 'Copy Current Report';
+
+  @override
+  String get apkAnalyserReportCopiedToClipboard => 'Report copied to clipboard';
+
+  @override
+  String get apkAnalyserExportCurrentAsPDF => 'Export Current as PDF';
+
+  @override
+  String get apkAnalyserFailedToExportPDF => 'Failed to export PDF';
+
+  @override
+  String get apkAnalyserExportCurrentAsCSV => 'Export Current as CSV';
+
+  @override
+  String get apkAnalyserFailedToExportCSV => 'Failed to export CSV';
+
+  @override
+  String get apkAnalyserViewSavedReports => 'View Saved Reports';
+
+  @override
+  String get apkAnalyserClearHistory => 'Clear History';
+
+  @override
+  String get apkAnalyserReportHistoryCleared => 'Report history cleared';
+
+  @override
+  String get apkAnalyserSavedReports => 'Saved Reports';
+
+  @override
+  String get apkAnalyserNoSavedReportsFound => 'No saved reports found.';
+
+  @override
+  String get apkAnalyserChooseTarget => 'Choose Target';
+
+  @override
+  String get apkAnalyserSelectASourceToAnalyseWithVTTI =>
+      'Select a source to analyse with VTTI Cloud.';
+
+  @override
+  String get apkAnalyserApkFile => 'APK File';
+
+  @override
+  String get apkAnalyserPickAnApkFromStorage => 'Pick an .apk from storage';
+
+  @override
+  String get apkAnalyserInstalledApp => 'Installed App';
+
+  @override
+  String get apkAnalyserChooseFromAppsOnThisDevice =>
+      'Choose from apps on this device';
+
+  @override
+  String apkAnalyserAnalysingIn(Object countdown) {
+    return 'Analysing in $countdown...';
+  }
+
+  @override
+  String get apkAnalyserStartingAnalysis => 'Starting analysis...';
+
+  @override
+  String get apkAnalyserApkFileOrInstalledApp => 'APK file or installed app';
+
+  @override
+  String get apkAnalyserDeepAnalysisMode => 'Deep analysis mode';
+
+  @override
+  String get apkAnalyserAMoreComplexAnalysisUsingGlobalData =>
+      'A more complex analysis using global data sources';
+
+  @override
+  String get apkAnalyserRequiresProToUnlockDeeperAnalysis =>
+      'Requires Pro to unlock deeper analysis';
+
+  @override
+  String get apkAnalyserApkAnalyser => 'APK Analyser';
+
+  @override
+  String get apkAnalyserPleaseSignInViaSettingsToEnable =>
+      'Please sign in via Settings to enable Cloud Analysis.';
+
+  @override
+  String get apkAnalyserAdvancedOPTIONS => 'ADVANCED OPTIONS';
+
+  @override
+  String apkAnalyserDailyLimit(Object remaining, Object limit) {
+    return 'Daily Limit: $remaining / $limit';
+  }
+
+  @override
+  String get apkAnalyserDailyLimitDataUnavailable =>
+      'Daily Limit Data Unavailable';
+
+  @override
+  String get apkAnalyserPoweredByVTTICloud => 'Powered by VTTI Cloud';
+
+  @override
+  String get apkAnalyserSearchApps => 'Search apps...';
+
+  @override
+  String get apkAnalyserFailedToLoadApps => 'Failed to load apps.';
+
+  @override
+  String get apkAnalyserNoAppsFound => 'No apps found.';
+
+  @override
+  String get apkReportSummary => 'Summary';
+
+  @override
+  String get apkReportPermissions => 'Permissions';
+
+  @override
+  String get apkReportExtraFlags => 'Extra Flags';
+
+  @override
+  String get apkReportRiskSignals => 'Risk Signals';
+
+  @override
+  String get apkReportSources => 'Sources';
+
+  @override
+  String get apkReportMetadata => 'Metadata';
+
+  @override
+  String get apkReportCopyReport => 'Copy Report';
+
+  @override
+  String get apkReportReportCopiedToClipboard => 'Report copied to clipboard';
+
+  @override
+  String get apkReportExportAsPDF => 'Export as PDF';
+
+  @override
+  String get apkReportFailedToExportPDF => 'Failed to export PDF';
+
+  @override
+  String get apkReportExportAsCSV => 'Export as CSV';
+
+  @override
+  String get apkReportFailedToExportCSV => 'Failed to export CSV';
+
+  @override
+  String get apkReportAnalysisReport => 'Analysis Report';
+
+  @override
+  String get apkReportMalwareRisk => 'Malware Risk';
+
+  @override
+  String get apkReportNoSummaryGenerated => 'No summary generated.';
+
+  @override
+  String get apkReportNoRequestedPermissionsExtracted =>
+      'No requested permissions extracted.';
+
+  @override
+  String get apkReportContributing => 'Contributing';
+
+  @override
+  String get apkReportDampening => 'Dampening';
+
+  @override
+  String get bootOptimisingYourProtection => 'Optimising your protection';
+
+  @override
+  String get exclusionsFolders => 'Folders';
+
+  @override
+  String get exclusionsNone => 'None';
+
+  @override
+  String get exclusionsFiles => 'Files';
+
+  @override
+  String get exploreApkAnalyser => 'APK Analyser';
+
+  @override
+  String get exploreCreateADetailedAnalysisOnAnyAPK =>
+      'Create a detailed analysis on any APK';
+
+  @override
+  String get featuresComingSoon => 'Coming Soon';
+
+  @override
+  String get featuresWantToLearnMore => 'Want to learn more?';
+
+  @override
+  String get homeDrawerApkAnalyser => 'APK Analyser';
+
+  @override
+  String get homeDrawerAdvanced => 'Advanced';
+
+  @override
+  String get homeDrawerQuarantine => 'Quarantine';
+
+  @override
+  String get homeDrawerUpgradeToPro => 'Upgrade to Pro';
+
+  @override
+  String get homeDrawerAvarionxVPN => 'AvarionX VPN';
+
+  @override
+  String get homeDrawerProtectYourInternetWithOurUnlimitedVPN =>
+      'Protect your internet with our unlimited VPN';
+
+  @override
+  String get deviceSecurityDeviceSecurity => 'Device Security';
+
+  @override
+  String get deviceSecurityDeviceHealthStatus => 'Device health status';
+
+  @override
+  String get deviceSecurityDeviceSecurityRecommendations =>
+      'Device security recommendations';
+
+  @override
+  String get deviceSecurityStopIgnoring => 'Stop ignoring';
+
+  @override
+  String get deviceSecurityIgnoreCheck => 'Ignore check';
+
+  @override
+  String get deviceSecurityNoScreenLock => 'No Screen Lock';
+
+  @override
+  String get deviceSecurityAMissingSecureLockMakesLocalAccess =>
+      'A missing secure lock makes local access easier.';
+
+  @override
+  String get deviceSecurityRootShizukuActive => 'Root/Shizuku Active';
+
+  @override
+  String get deviceSecurityRootOrShizukuCanGrantPowerfulDevice =>
+      'Root or Shizuku can grant powerful device control.';
+
+  @override
+  String get deviceSecurityDisabledAppVerification =>
+      'Disabled App Verification';
+
+  @override
+  String get deviceSecurityAppVerificationHelpsDetectHarmfulInstalls =>
+      'App verification helps detect harmful installs.';
+
+  @override
+  String get deviceSecurityOldAndroidSecurityPatch =>
+      'Old Android Security Patch';
+
+  @override
+  String get deviceSecurityOlderPatchLevelsMayLeaveKnownIssues =>
+      'Older patch levels may leave known issues unpatched.';
+
+  @override
+  String get deviceSecurityDeveloperModeOn => 'Developer Mode On';
+
+  @override
+  String get deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls =>
+      'Developer options expose advanced device controls.';
+
+  @override
+  String get deviceSecurityUsbDebuggingOn => 'USB Debugging On';
+
+  @override
+  String get deviceSecurityUsbDebuggingAllowsADBControlFromTrusted =>
+      'USB debugging allows ADB control from trusted computers.';
+
+  @override
+  String get deviceSecurityUnknownSourcesAllowed => 'Unknown Sources Allowed';
+
+  @override
+  String get deviceSecuritySideloadingCanBypassNormalAppStoreChecks =>
+      'Sideloading can bypass normal app store checks.';
+
+  @override
+  String get deviceSecurityAccessibilityAbuseRisk => 'Accessibility Abuse Risk';
+
+  @override
+  String get deviceSecurityAccessibilityServicesCanReadAndControlScreen =>
+      'Accessibility services can read and control screen actions.';
+
+  @override
+  String get homeHelpImproveDetectionsForEverybody =>
+      'Help improve detections for everybody';
+
+  @override
+  String get homeApkSAndroidAppsFoundToBe =>
+      'APK\'s (android apps) found to be malicious ';
+
+  @override
+  String get homeCanBeUploadedTo => 'can be uploaded to ';
+
+  @override
+  String get homeAndSharedWithTheCommunityThisIs =>
+      ' and shared with the community. This is ';
+
+  @override
+  String get homeStrictlyLimitedToAPKFilesNOTYour =>
+      'strictly limited to APK files, NOT your personal ';
+
+  @override
+  String get homeDocuments => 'documents.\n\n';
+
+  @override
+  String get homeThisWillImproveDetectionsForEveryoneThat =>
+      'This will improve detections for everyone that ';
+
+  @override
+  String get homeUsesAvarionXNoPressureThough =>
+      'uses AvarionX. No pressure though!\n\n';
+
+  @override
+  String get homeThanks => 'Thanks,\n';
+
+  @override
+  String get homeRyanfromcolourswift => 'RyanFromColourswift';
+
+  @override
+  String get homeSure => 'Sure!';
+
+  @override
+  String get homeNoThanks => 'No Thanks!';
+
+  @override
+  String get homePsstCustomiseItHere => 'Psst...customise it here';
+
+  @override
+  String get homeScanNow => 'Scan Now';
+
+  @override
+  String get homeManuallyCheckYourDeviceForMalware =>
+      'Manually check your device for malware';
+
+  @override
+  String get homeDeviceSecurity => 'Device Security';
+
+  @override
+  String get homeScanModes => 'Scan Modes';
+
+  @override
+  String get homeCloudAssistedChecksEnabled => 'Cloud-assisted checks enabled';
+
+  @override
+  String get homeLocalScanEngineOnly => 'Local scan engine only';
+
+  @override
+  String get homeProtectedByVXTITANIUM => 'Protected by VX-TITANIUM';
+
+  @override
+  String get homeSecurityOverview => 'Security Overview';
+
+  @override
+  String get homeFilesChecked => 'Files checked';
+
+  @override
+  String get homeThreats => 'Threats';
+
+  @override
+  String get securityReportAvarionxSecurityReport => 'Avarionx Security Report';
+
+  @override
+  String get securityReportSecurityReport => 'Security Report';
+
+  @override
+  String get securityReportManualScans => 'Manual scans';
+
+  @override
+  String get securityReportRealtimeChecks => 'Realtime checks';
+
+  @override
+  String get securityReportTotalFilesScanned => 'Total files scanned';
+
+  @override
+  String get securityReportThreatsFound => 'Threats found';
+
+  @override
+  String get securityReportGenerateReport => 'Generate report';
+
+  @override
+  String get securityReportLiveReport => 'Live report';
+
+  @override
+  String get securityReportThisBoxUpdatesAsScanServicesWrite =>
+      'This box updates as scan services write report data.';
+
+  @override
+  String get securityReportExportPDF => 'Export PDF';
+
+  @override
+  String get securityReportExportCSV => 'Export CSV';
+
+  @override
+  String get homeLegacyProActivated => 'Pro activated';
+
+  @override
+  String get homeLegacyProDeactivated => 'Pro deactivated';
+
+  @override
+  String get linkCheckPoweredByVTTICloud => 'Powered by VTTI Cloud';
+
+  @override
+  String get safeViewSafeView => 'Safe View';
+
+  @override
+  String get passwordSettingsChangingThisAltersAllPasswords =>
+      'Changing this alters all passwords.\n';
+
+  @override
+  String get passwordSettingsUsingTheSameMetaPassRestoresThem =>
+      'Using the same MetaPass restores them.';
+
+  @override
+  String get passwordSettingsPasswordsAreNeverStored =>
+      'Passwords are never stored.\n\n';
+
+  @override
+  String get passwordSettingsTheRestoreCodeContainsOnlyStructureData =>
+      'The restore code contains only structure data. ';
+
+  @override
+  String get passwordSettingsCombinedWithYourMetaPassItRebuildsYour =>
+      'Combined with your MetaPass, it rebuilds your vault.';
+
+  @override
+  String get passwordManagerContinue => 'Continue';
+
+  @override
+  String passwordManagerFailedToLoadApps(Object e) {
+    return 'Failed to load apps: $e';
+  }
+
+  @override
+  String passwordManagerFailedToGeneratePassword(Object e) {
+    return 'Failed to generate password: $e';
+  }
+
+  @override
+  String get passwordManagerPasswordsAreNeverStored =>
+      'Passwords are never stored.\n\n';
+
+  @override
+  String get passwordManagerEachEntryDerivesAPasswordFrom =>
+      'Each entry derives a password from:\n';
+
+  @override
+  String get passwordManagerYourMetaPassword => '• Your meta password\n';
+
+  @override
+  String get passwordManagerTheLabelName => '• The label(name)\n';
+
+  @override
+  String get passwordManagerTheVersionAndLength =>
+      '• The version and length\n\n';
+
+  @override
+  String get passwordManagerReinstallingTheAppWithTheSameMeta =>
+      'Reinstalling the app with the same meta password and labels regenerates the same passwords.';
+
+  @override
+  String get permissionsIntroSetupIsNowCompleteTimeToSecure =>
+      'Setup is now complete! Time to secure your data.';
+
+  @override
+  String get proScreenThankYou => 'Thank you';
+
+  @override
+  String get proScreenYourSubscriptionIsConfirmed =>
+      'Your subscription is confirmed.';
+
+  @override
+  String get proScreenCurrent => 'Current';
+
+  @override
+  String get proScreenAdvancedStealthMode => 'Advanced Stealth+ Mode';
+
+  @override
+  String get proScreenUnlockStealthTransportModesForRestrictiveNetworks =>
+      'Unlock stealth transport modes for restrictive networks.';
+
+  @override
+  String get proScreenGlobalServerAccess => 'Global Server Access';
+
+  @override
+  String get proScreenAccessEveryVPNServerLocationIncludingPremium =>
+      'Access every VPN server location, including premium high-speed regions.';
+
+  @override
+  String get proScreenBilledMonthly => 'Billed monthly';
+
+  @override
+  String proScreenMo(Object monthlyInfo) {
+    return '$monthlyInfo/mo';
+  }
+
+  @override
+  String proScreenMo2(Object currencyCode) {
+    return '$currencyCode/mo';
+  }
+
+  @override
+  String get proScreenCurrentPlan => 'Current plan';
+
+  @override
+  String get quarantineScreenQuarantineDataCorruptedResetting =>
+      'Quarantine data corrupted. Resetting.';
+
+  @override
+  String get quarantineScreenUninstallApp => 'Uninstall App';
+
+  @override
+  String quarantineScreenUninstall(Object appName) {
+    return 'Uninstall $appName?';
+  }
+
+  @override
+  String get quarantineScreenUninstall2 => 'Uninstall';
+
+  @override
+  String get quarantineScreenFailedToLaunchUninstall =>
+      'Failed to launch uninstall';
+
+  @override
+  String get quarantineScreenFiles => 'Files';
+
+  @override
+  String get cleanerAppManagerShizukuNotAvailable => 'Shizuku not available';
+
+  @override
+  String get cleanerAppManagerWithoutShizukuEachAppRequiresASeparate =>
+      'Without Shizuku each app requires a separate system confirmation. Continue?';
+
+  @override
+  String cleanerAppManagerAppsUninstalled(Object successCount) {
+    return '$successCount apps uninstalled';
+  }
+
+  @override
+  String cleanerAppManagerUninstalledFailed(
+      Object successCount, Object failedCount) {
+    return '$successCount uninstalled, $failedCount failed';
+  }
+
+  @override
+  String cleanerAppManagerStopped(Object appName) {
+    return '$appName stopped';
+  }
+
+  @override
+  String get cleanerAppManagerForceStopFailed => 'Force stop failed';
+
+  @override
+  String get cleanerAppManagerClearAppData => 'Clear app data';
+
+  @override
+  String cleanerAppManagerResetThisClearsItsAccountsSettingsFiles(
+      Object appName) {
+    return 'Reset $appName? This clears its accounts, settings, files and cache.';
+  }
+
+  @override
+  String get cleanerAppManagerClearData => 'Clear data';
+
+  @override
+  String cleanerAppManagerReset(Object appName) {
+    return '$appName reset';
+  }
+
+  @override
+  String get cleanerAppManagerClearDataFailed => 'Clear data failed';
+
+  @override
+  String get cleanerAppManagerOpenApp => 'Open app';
+
+  @override
+  String get cleanerAppManagerForceStop => 'Force stop';
+
+  @override
+  String get cleanerAppManagerUninstall => 'Uninstall';
+
+  @override
+  String cleanerAppManagerSelected(Object selectedCount) {
+    return '$selectedCount selected';
+  }
+
+  @override
+  String get cleanerAppManagerAppManager => 'App Manager';
+
+  @override
+  String get cleanerAppManagerDeselectAll => 'Deselect all';
+
+  @override
+  String cleanerAppManagerUninstalling(Object done, Object total) {
+    return 'Uninstalling $done / $total…';
+  }
+
+  @override
+  String cleanerAppManagerUninstall2(Object selectedCount) {
+    return 'Uninstall $selectedCount';
+  }
+
+  @override
+  String get cleanerProClearAppCaches => 'Clear app caches';
+
+  @override
+  String get cleanerProThisAsksAndroidToTrimAppCaches =>
+      'This asks Android to trim app caches across the device. App data, accounts and settings are not cleared.';
+
+  @override
+  String get cleanerProClearCaches => 'Clear caches';
+
+  @override
+  String get cleanerProCacheTrimRequested => 'Cache trim requested';
+
+  @override
+  String get cleanerProCacheCleanerFailed => 'Cache cleaner failed';
+
+  @override
+  String get cleanerProLogFiles => 'Log files';
+
+  @override
+  String get cleanerProCacheCleaner => 'Cache Cleaner';
+
+  @override
+  String get cleanerProLogCleaner => 'Log Cleaner';
+
+  @override
+  String get cleanerProAppDataManager => 'App Data Manager';
+
+  @override
+  String get cleanerScreenCleaner => 'Cleaner';
+
+  @override
+  String get scanDetailDeleteFiles => 'Delete Files';
+
+  @override
+  String scanDetailDeleteFilesPermanently(Object selectedCount) {
+    return 'Delete $selectedCount files permanently?';
+  }
+
+  @override
+  String get scanDetailSelectedFilesDeleted => 'Selected files deleted';
+
+  @override
+  String get scanDetailDeleteAllFiles => 'Delete All Files';
+
+  @override
+  String scanDetailDeleteAllFilesPermanently(Object fileCount) {
+    return 'Delete all $fileCount files permanently?';
+  }
+
+  @override
+  String get scanDetailDeleteAll => 'Delete All';
+
+  @override
+  String get scanDetailAllFilesDeleted => 'All files deleted';
+
+  @override
+  String scanDetailSelected(Object selectedCount) {
+    return '$selectedCount selected';
+  }
+
+  @override
+  String get scanDetailDeselectAll => 'Deselect all';
+
+  @override
+  String get scanDetailNewestFirst => 'Newest first';
+
+  @override
+  String get scanDetailOldestFirst => 'Oldest first';
+
+  @override
+  String get scanDetailLargestFirst => 'Largest first';
+
+  @override
+  String get scanDetailSmallestFirst => 'Smallest first';
+
+  @override
+  String get scanDetailNoFilesFound => 'No files found';
+
+  @override
+  String get scanDetailDeleteAll2 => 'Delete all';
+
+  @override
+  String get scanInstalledAppsSearchApps => 'Search apps...';
+
+  @override
+  String get scanInstalledAppsNoAppsFound => 'No apps found.';
+
+  @override
+  String get scanUiScanComplete => 'Scan complete';
+
+  @override
+  String scanUiScannedItems(Object scanned) {
+    return 'Scanned: $scanned items';
+  }
+
+  @override
+  String scanUiProgress(Object pct, Object scanned, Object total) {
+    return 'Progress: $pct ($scanned / $total)';
+  }
+
+  @override
+  String get scanUiPreparingEngine => 'Preparing Engine...';
+
+  @override
+  String get scanUiLoadingTargetS => 'Loading target(s)';
+
+  @override
+  String get scanUiAvarionxVPN => 'AvarionX VPN';
+
+  @override
+  String get scanUiProtectYourInternetWithOurUnlimitedVPN =>
+      'Protect your internet with our unlimited VPN';
+
+  @override
+  String get scanUiTapMe => 'Tap me!';
+
+  @override
+  String scanUiScanned(Object scanned) {
+    return '$scanned scanned';
+  }
+
+  @override
+  String get scanUiReturn => 'Return';
+
+  @override
+  String get scanLimitsSettingsUpdated => 'Settings updated';
+
+  @override
+  String get scanLimitsScanLimits => 'Scan limits';
+
+  @override
+  String get scanLimitsLimitHowMuchTheEngineUsesYour =>
+      'Limit how much the engine uses your CPU. Threads: 0 means auto.';
+
+  @override
+  String get scanLimitsMaxScanThreads => 'Max scan threads';
+
+  @override
+  String scanLimits0AutoRange0ToCores(Object maxThreads, Object coreCount) {
+    return '0 = auto. Range: 0 to $maxThreads (cores: $coreCount).';
+  }
+
+  @override
+  String scanLegacyScanning(Object percent) {
+    return 'Scanning... $percent%';
+  }
+
+  @override
+  String scanLegacySuspicious(Object infectedCount) {
+    return 'Suspicious: $infectedCount';
+  }
+
+  @override
+  String scanLegacyClean(Object cleanCount) {
+    return 'Clean: $cleanCount';
+  }
+
+  @override
+  String get scanLegacyNoFilesToScan => 'No files to scan';
+
+  @override
+  String get settingsSponsorsUnlock => 'Sponsors unlock ❤️';
+
+  @override
+  String get settingsPickCertificate => 'Pick Certificate';
+
+  @override
+  String get settingsCertificateLoaded => 'Certificate loaded';
+
+  @override
+  String get settingsEnterCode => 'enter code';
+
+  @override
+  String get settingsSupportFileMissing => 'Support file missing';
+
+  @override
+  String get settingsInvalidSupportCode => 'Invalid support code';
+
+  @override
+  String get settingsAvarionxSecurity => 'AvarionX Security';
+
+  @override
+  String get settingsAvarionxIsAMobileSecuritySuiteCreated =>
+      'AvarionX is a mobile security suite created by ColourSwift, based in Birmingham, UK.\n\n';
+
+  @override
+  String get settingsContact => 'Contact: ';
+
+  @override
+  String get settingsExperimentalFeatures => 'Experimental Features';
+
+  @override
+  String get settingsEnablingShizukuUnlocksExperimentalWorkInProgress =>
+      'Enabling Shizuku unlocks experimental work-in-progress features:\n\n';
+
+  @override
+  String get settingsAdvancedRansomwareProtection =>
+      '• Advanced Ransomware Protection\n';
+
+  @override
+  String get settingsCacheCleanerPlus => '• Cache Cleaner Plus\n\n';
+
+  @override
+  String get settingsExperimentalWarning => 'Experimental warning:\n';
+
+  @override
+  String get settingsTheseFeaturesUseAdvancedSystemAccessAnd =>
+      'These features use advanced system access and may behave differently across devices, Android versions, and Shizuku setups. Some actions may affect running apps, files, or cache data more directly than normal scanning.\n\n';
+
+  @override
+  String get settingsOnlyEnableThisIfYouUnderstandShizuku =>
+      'Only enable this if you understand Shizuku, accept that the feature is still being tested, and have backed up anything important.\n\n';
+
+  @override
+  String get settingsPleaseReadTheDocumentationBeforeEnabling =>
+      'Please read the documentation before enabling.';
+
+  @override
+  String get settingsEnable => 'Enable';
+
+  @override
+  String get settingsSigningOut => 'Signing out...';
+
+  @override
+  String get settingsCheckingAccountStatus => 'Checking account status...';
+
+  @override
+  String get settingsManageSignInPremiumAndPurchases =>
+      'Manage sign in, Premium, and purchases';
+
+  @override
+  String get settingsPremiumActive => 'Premium active';
+
+  @override
+  String get settingsManagePremiumOptionsAndRestorePurchases =>
+      'Manage Premium options and restore purchases';
+
+  @override
+  String get settingsUnlockDeepAnalysisModeAndVPNFeatures =>
+      'Unlock Deep analysis mode and VPN features';
+
+  @override
+  String get settingsAutoClearNotifications => 'Auto-clear notifications';
+
+  @override
+  String get settingsScanModes => 'Scan Modes';
+
+  @override
+  String get settingsAdvancedScanModes => 'Advanced scan modes';
+
+  @override
+  String get settingsDisableToUseTheDefaultScanningMode =>
+      'Disable to use the default scanning mode';
+
+  @override
+  String get settingsToggleToEnableAllScanningModes =>
+      'Toggle to enable all scanning modes';
+
+  @override
+  String get settingsApkSubmissions => 'APK Submissions';
+
+  @override
+  String get settingsShareMaliciousAPKs => 'Share malicious APKs';
+
+  @override
+  String get settingsHelpingImproveDetectionForEveryone =>
+      'Helping improve detection for everyone';
+
+  @override
+  String get settingsOff => 'Off';
+
+  @override
+  String get settingsIncludeRealtimeProtectionCatches =>
+      'Include Realtime Protection catches';
+
+  @override
+  String get settingsApksFlaggedByRealtimeProtectionAreIncluded =>
+      'APKs flagged by Realtime Protection are included';
+
+  @override
+  String get settingsApksFlaggedByRealtimeProtectionAreExcluded =>
+      'APKs flagged by Realtime Protection are excluded';
+
+  @override
+  String get settingsIncludeManualAndScheduledScans =>
+      'Include manual and scheduled scans';
+
+  @override
+  String get settingsApksFlaggedByScansAreIncluded =>
+      'APKs flagged by scans are included';
+
+  @override
+  String get settingsApksFlaggedByScansAreExcluded =>
+      'APKs flagged by scans are excluded';
+
+  @override
+  String get settingsWiFiOnly => 'Wi-Fi only';
+
+  @override
+  String get settingsUploadsWaitForAWiFiConnection =>
+      'Uploads wait for a Wi-Fi connection';
+
+  @override
+  String get settingsUploadsMayUseMobileData => 'Uploads may use mobile data';
+
+  @override
+  String get settingsChargingOnly => 'Charging only';
+
+  @override
+  String get settingsUploadsWaitUntilTheDeviceIsCharging =>
+      'Uploads wait until the device is charging';
+
+  @override
+  String get settingsUploadsAreNotLimitedToCharging =>
+      'Uploads are not limited to charging';
+
+  @override
+  String get settingsChooseWhichAppsUpload => 'Choose which apps upload';
+
+  @override
+  String get settingsReviewAndPickAppsEachTimeBefore =>
+      'Review and pick apps each time before uploading';
+
+  @override
+  String get settingsFlaggedAppsUploadAutomatically =>
+      'Flagged apps upload automatically';
+
+  @override
+  String get settingsEnableProDebug => 'Enable Pro (debug)';
+
+  @override
+  String get settingsLocalUnlockForUITesting => 'Local unlock for UI testing';
+
+  @override
+  String get settingsRestorePurchases => 'Restore purchases';
+
+  @override
+  String get settingsReCheckPlayBilling => 'Re-check Play Billing';
+
+  @override
+  String get settingsCheckingAccount => 'Checking account...';
+
+  @override
+  String get settingsAvarionxAccountConnected => 'AvarionX account connected';
+
+  @override
+  String settingsAccountID(Object accountId) {
+    return 'Account ID: $accountId';
+  }
+
+  @override
+  String get settingsSignInToManagePurchasesAndAccount =>
+      'Sign in to manage purchases and account features.';
+
+  @override
+  String get settingsOpenTheAvarionXAccountPortal =>
+      'Open the AvarionX account portal';
+
+  @override
+  String get settingsAccountDashboard => 'Account dashboard';
+
+  @override
+  String get settingsOpenBillingAndAccountSettings =>
+      'Open billing and account settings';
+
+  @override
+  String get settingsRemoveThisAccountFromTheApp =>
+      'Remove this account from the app';
+
+  @override
+  String get settingsPremiumFeaturesAreAvailableOnThisDevice =>
+      'Premium features are available on this device';
+
+  @override
+  String get settingsViewOptionalPremiumFeatures =>
+      'View optional Premium features';
+
+  @override
+  String get settingsReCheckPlayBillingEntitlement =>
+      'Re-check Play Billing entitlement';
+
+  @override
+  String get settingsRtpNotificationAutoClearNotifications =>
+      'Auto-clear notifications';
+
+  @override
+  String get settingsRtpNotificationNever => 'Never';
+
+  @override
+  String get settingsRtpNotification5Minutes => '5 minutes';
+
+  @override
+  String get settingsRtpNotification10Minutes => '10 minutes';
+
+  @override
+  String get settingsRtpNotification30Minutes => '30 minutes';
+
+  @override
+  String get settingsThemeBlack => 'Black';
+
+  @override
+  String get settingsThemeWhite => 'White';
+
+  @override
+  String get settingsThemeGrey => 'Grey';
+
+  @override
+  String get settingsThemeEmerald => 'Emerald';
+
+  @override
+  String get settingsThemePurple => 'Purple';
+
+  @override
+  String get settingsThemeRoyalBlue => 'Royal Blue';
+
+  @override
+  String get settingsAccountCardSyncPurchasesAndUnlockProAcrossApps =>
+      'Sync purchases and unlock Pro across apps.';
+
+  @override
+  String get settingsAccountCardLoading => 'Loading...';
+
+  @override
+  String get settingsAccountCardDashboard => 'Dashboard';
+
+  @override
+  String get settingsProCardChangePlan => 'Change plan';
+
+  @override
+  String get advancedNetworkProtectionEnterYourOwnResolver =>
+      'Enter your own resolver';
+
+  @override
+  String get advancedNetworkProtectionCloudProtectionMode =>
+      'Cloud protection mode';
+
+  @override
+  String get advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud =>
+      'Routes all DNS queries to the cloud engine, enabling live blocklist updates, domain reputation checking, and more.';
+
+  @override
+  String get advancedNetworkProtectionRefreshProStatus => 'Refresh pro status';
+
+  @override
+  String get advancedNetworkProtectionProActive => 'Pro active';
+
+  @override
+  String get advancedNetworkProtectionFreePlan => 'Free plan';
+
+  @override
+  String get advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith =>
+      'Checks your entitlement and syncs it with cloud features. Pro unlocks system wide ad blocking.';
+
+  @override
+  String get advancedNetworkProtectionMalwareProtection => 'Malware protection';
+
+  @override
+  String get advancedNetworkProtectionBlocksKnownMaliciousDomains =>
+      'Blocks known malicious domains';
+
+  @override
+  String get advancedNetworkProtectionTrackerProtection => 'Tracker protection';
+
+  @override
+  String get advancedNetworkProtectionReducesTrackingDomains =>
+      'Reduces tracking domains';
+
+  @override
+  String get advancedNetworkProtectionAdProtection => 'Ad protection';
+
+  @override
+  String get advancedNetworkProtectionBlocksCommonAdDomains =>
+      'Blocks common ad domains';
+
+  @override
+  String get advancedNetworkProtectionAdultFilter => 'Adult filter';
+
+  @override
+  String get advancedNetworkProtectionUses1113Upstream =>
+      'Uses 1.1.1.3 upstream';
+
+  @override
+  String get advancedNetworkProtectionLockedUntilProIsActiveAndCloud =>
+      'Locked until Pro is active and cloud mode is enabled.';
+
+  @override
+  String get advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer =>
+      'Live DNS events from the VPN layer.';
+
+  @override
+  String get advancedNetworkProtectionAdvanced => 'Advanced';
+
+  @override
+  String get advancedNetworkProtectionDns => 'DNS';
+
+  @override
+  String get advancedNetworkProtectionCloudDNSMode => 'Cloud DNS mode';
+
+  @override
+  String get networkProtectionEnterYourOwnResolver => 'Enter your own resolver';
+
+  @override
+  String get networkAppControlEnableVPNToggles => 'Enable VPN toggles';
+
+  @override
+  String get networkAppControlOpenSettings => 'Open settings';
+
+  @override
+  String get networkAppControlAppControl => 'App control';
+
+  @override
+  String get networkAppControlNoAppsFound => 'No apps found.';
+
+  @override
+  String get networkSpeedTestCountry => 'Country';
+
+  @override
+  String get networkSpeedTestRunning => 'Running';
+
+  @override
+  String get networkSpeedTestRunTest => 'Run test';
+
+  @override
+  String get networkSpeedTestNoResultsYet => 'No results yet.';
+
+  @override
+  String networkSpeedTestDnsTLS(Object dns, Object tls) {
+    return 'DNS: $dns  •  TLS: $tls';
+  }
+
+  @override
+  String get networkSpeedTestFail => 'Fail';
+
+  @override
+  String get dnsNetworkProtectionEnterYourOwnResolver =>
+      'Enter your own resolver';
+
+  @override
+  String get dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure =>
+      'DNS filtering is seperate from the Secure VPN. It can block known malware, ads (across all apps), trackers, and content from unwanted categories before they load.';
+
+  @override
+  String get fullVpnSignedIn => 'Signed in.';
+
+  @override
+  String get fullVpnSignInRequired => 'Sign in required';
+
+  @override
+  String get fullVpnClose => 'Close';
+
+  @override
+  String get fullVpnLoadingUsage => 'Loading usage...';
+
+  @override
+  String get fullVpnSyncing => 'Syncing';
+
+  @override
+  String fullVpnUsedThisMonth(Object usedBytes) {
+    return '$usedBytes used this month';
+  }
+
+  @override
+  String get blockedScreenUnsupportedEnvironment => 'Unsupported environment';
+
+  @override
+  String updateLogUpdateV(Object version) {
+    return 'Update: v$version';
+  }
+
+  @override
+  String get updateLogHiThereAvarionXHasBeenUpdatedBelow =>
+      'Hi there! AvarionX has been updated, below are the changes:';
+
+  @override
+  String get updateLogNoUserFacingChangesInThisUpdate =>
+      'No user-facing changes in this update.';
+
+  @override
+  String get updateLogContinue => 'Continue';
+
+  @override
+  String get featuresRealtimeProtectionBody =>
+      'Monitors new and modified files in the background and blocks threats the moment they appear.';
+
+  @override
+  String get featuresTriLayerEngineTitle => 'Tri-Layer Engine';
+
+  @override
+  String get featuresTriLayerEngineBody =>
+      'A three-stage detection core combining Bloom filtering, signature scanning, and APK-focused byte analysis for high accuracy and speed.';
+
+  @override
+  String get featuresMachineLearningTitle => 'Machine Learning';
+
+  @override
+  String get featuresMachineLearningBody =>
+      'A lightweight on-device model trained to recognise malicious APK behaviour patterns.';
+
+  @override
+  String get featuresCleanerProTitle => 'Cleaner Pro';
+
+  @override
+  String get featuresCleanerProBody =>
+      'An evolving cleaning module that identifies duplicates, cache, and unused apps to reclaim storage.';
+
+  @override
+  String get featuresWifiProtectionTitle => 'Wi-Fi Protection';
+
+  @override
+  String get featuresWifiProtectionBody =>
+      'Detects unsafe or suspicious Wi-Fi networks using on-device analysis.';
+
+  @override
+  String get featuresRootLevelProtectionTitle => 'Root-Level Protection';
+
+  @override
+  String get featuresRootLevelProtectionBody =>
+      'Deep system-level defense designed for rooted devices and advanced users.';
+
+  @override
+  String get featuresPcCompanionTitle => 'PC Companion';
+
+  @override
+  String get featuresPcCompanionBody =>
+      'Upcoming desktop version for cross-platform antivirus integration.';
+
+  @override
+  String get deviceSecurityNoRisksFound => 'No device risks found';
+
+  @override
+  String get deviceSecurityOneCheckNeedsAttention =>
+      '1 device check needs attention';
+
+  @override
+  String deviceSecurityChecksNeedAttention(Object count) {
+    return '$count device checks need attention';
+  }
+
+  @override
+  String get deviceSecurityHealthSectionBody =>
+      'These settings directly affect your device posture.';
+
+  @override
+  String get deviceSecurityRecommendationsSectionBody =>
+      'These settings are common security good practice.';
+
+  @override
+  String get deviceSecuritySignalUnavailable => 'Signal unavailable';
+
+  @override
+  String get deviceSecurityIgnoredByYou => 'Ignored by you';
+
+  @override
+  String get deviceSecurityScreenLockInactiveTitle => 'Screen Lock';
+
+  @override
+  String get deviceSecurityScreenLockActiveLabel =>
+      'Unsafe, no secure screen lock is set';
+
+  @override
+  String get deviceSecurityScreenLockInactiveLabel => 'Screen lock is active';
+
+  @override
+  String get deviceSecurityScreenLockDetail =>
+      'A secure screen lock protects your device if it is lost, stolen, or left unattended. Without a PIN, password, pattern, fingerprint, or face unlock backed by a secure lock method, anyone with physical access can open the device more easily.';
+
+  @override
+  String get deviceSecurityScreenLockHelp =>
+      'Open Android security settings and set a secure screen lock.';
+
+  @override
+  String get deviceSecurityCheckSetting => 'Check setting';
+
+  @override
+  String get deviceSecurityPrivilegedInactiveTitle => 'No Privileged Access';
+
+  @override
+  String get deviceSecurityPrivilegedActiveLabel =>
+      'Privileged access detected';
+
+  @override
+  String get deviceSecurityPrivilegedInactiveLabel =>
+      'No privileged access detected';
+
+  @override
+  String get deviceSecurityPrivilegedDetail =>
+      'Root and Shizuku can be useful for you, but it also increase the impact of a malicious app if access is abused. Apps with privileged access may be able to perform actions that normal Android apps cannot.';
+
+  @override
+  String get deviceSecurityPrivilegedHelp =>
+      'Review your root, Magisk, or Shizuku settings manually.';
+
+  @override
+  String get deviceSecurityReviewSetting => 'Review setting';
+
+  @override
+  String get deviceSecurityAppVerificationInactiveTitle => 'App Verification';
+
+  @override
+  String get deviceSecurityAppVerificationActiveLabel =>
+      'Unsafe, app verification appears disabled';
+
+  @override
+  String get deviceSecurityAppVerificationInactiveLabel =>
+      'App verification appears enabled';
+
+  @override
+  String get deviceSecurityAppVerificationDetail =>
+      'Android app verification helps check apps before or after installation. If this protection is disabled or unavailable, harmful apps may be less likely to be blocked before they run.';
+
+  @override
+  String get deviceSecurityAppVerificationHelp =>
+      'Open Android security settings and review app verification.';
+
+  @override
+  String get deviceSecuritySecurityPatchInactiveTitle =>
+      'Security Patch Current';
+
+  @override
+  String get deviceSecuritySecurityPatchActiveLabel =>
+      'Security patch level is outdated';
+
+  @override
+  String get deviceSecuritySecurityPatchInactiveLabel =>
+      'Security patch level is current';
+
+  @override
+  String get deviceSecuritySecurityPatchDetail =>
+      'Android security patches fix known platform and vendor issues. If the patch level is old, the device may be exposed to vulnerabilities that have already been fixed on newer builds.';
+
+  @override
+  String get deviceSecuritySecurityPatchHelp =>
+      'Open Android system update settings and check for updates.';
+
+  @override
+  String get deviceSecurityCheckUpdates => 'Check updates';
+
+  @override
+  String get deviceSecurityDeveloperModeInactiveTitle => 'Developer Mode';
+
+  @override
+  String get deviceSecurityDeveloperModeActiveLabel =>
+      'Developer options are enabled';
+
+  @override
+  String get deviceSecurityDeveloperModeInactiveLabel =>
+      'Developer options are disabled';
+
+  @override
+  String get deviceSecurityDeveloperModeDetail =>
+      'Developer Mode is normal for developers and testers, but it exposes advanced settings that can reduce device security if changed accidentally or abused by someone with access to the device.';
+
+  @override
+  String get deviceSecurityDeveloperModeHelp =>
+      'Open Developer Options and turn off settings you do not need.';
+
+  @override
+  String get deviceSecurityUsbDebuggingInactiveTitle => 'USB Debugging';
+
+  @override
+  String get deviceSecurityUsbDebuggingActiveLabel =>
+      'Unsafe, USB debugging is turned on';
+
+  @override
+  String get deviceSecurityUsbDebuggingInactiveLabel =>
+      'USB debugging is turned off';
+
+  @override
+  String get deviceSecurityUsbDebuggingDetail =>
+      'USB debugging allows a connected computer to interact with your device through Android Debug Bridge. If left enabled, it increases the risk of unauthorised access when connected to an untrusted machine.';
+
+  @override
+  String get deviceSecurityUsbDebuggingHelp =>
+      'Open Developer Options and turn USB debugging off.';
+
+  @override
+  String get deviceSecurityUnknownSourcesInactiveTitle => 'Unknown Sources';
+
+  @override
+  String get deviceSecurityUnknownSourcesActiveLabel =>
+      'Installing unknown apps is allowed';
+
+  @override
+  String get deviceSecurityUnknownSourcesInactiveLabel =>
+      'Installing unknown apps is restricted';
+
+  @override
+  String get deviceSecurityUnknownSourcesDetail =>
+      'Allowing unknown app installs can be useful for trusted APKs, but it also increases the chance of installing apps from unsafe sources. Only allow this for apps and stores you trust.';
+
+  @override
+  String get deviceSecurityUnknownSourcesHelp =>
+      'Open Android settings and review install unknown apps access.';
+
+  @override
+  String get deviceSecurityAccessibilityInactiveTitle =>
+      'Accessibility Services';
+
+  @override
+  String get deviceSecurityAccessibilityActiveLabel =>
+      'Third-party accessibility service enabled';
+
+  @override
+  String get deviceSecurityAccessibilityInactiveLabel =>
+      'No risky accessibility services found';
+
+  @override
+  String get deviceSecurityAccessibilityDetail =>
+      'Accessibility services are powerful because they can observe screen content and perform actions on behalf of the user. This is useful for legitimate tools, but it is also commonly abused by malicious apps.';
+
+  @override
+  String get deviceSecurityAccessibilityHelp =>
+      'Open Accessibility settings and review enabled services.';
+
+  @override
+  String get deviceSecurityChecking => 'Checking device security';
+
+  @override
+  String get deviceSecurityReadingSignals =>
+      'Reading device posture signals...';
+
+  @override
+  String get deviceSecurityOneCheckAttention => '1 check needs attention';
+
+  @override
+  String deviceSecurityChecksAttention(Object count) {
+    return '$count checks need attention';
+  }
+
+  @override
+  String get deviceSecurityTapSignal => 'Tap a signal below to learn more.';
+
+  @override
+  String deviceSecurityIgnoredChecks(Object count, String plural) {
+    return '$count active check$plural ignored by you.';
+  }
+
+  @override
+  String get deviceSecurityPostureNormal =>
+      'Your device posture checks look normal.';
+
+  @override
+  String get timeJustNow => 'just now';
+
+  @override
+  String timeMinutesAgo(Object minutes) {
+    return '${minutes}m ago';
+  }
+
+  @override
+  String timeHoursAgo(Object hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String timeDaysAgo(Object days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String get securityNoReportDataYet => 'No report data yet';
+
+  @override
+  String securityLastActivity(Object relative) {
+    return 'Last activity $relative';
+  }
+
+  @override
+  String get securityReportSharePdfTitle => 'Avarionx Security Report';
+
+  @override
+  String get securityReportCsvField => 'Field';
+
+  @override
+  String get securityReportCsvValue => 'Value';
+
+  @override
+  String get securityReportGeneratedAt => 'Generated at';
+
+  @override
+  String get securityReportOverallStatus => 'Overall status';
+
+  @override
+  String get securityReportLastManualScan => 'Last manual scan';
+
+  @override
+  String get securityReportLastRealtimeEvent => 'Last realtime event';
+
+  @override
+  String get securityReportLastScheduledScan => 'Last scheduled scan';
+
+  @override
+  String get securityReportShareCsvTitle => 'Avarionx Security Report CSV';
+
+  @override
+  String get securityReportReviewRecommended => 'Review recommended';
+
+  @override
+  String get securityReportNoKnownThreatDetected => 'No known threat detected';
+
+  @override
+  String securityReportGeneratedLine(Object generatedAt) {
+    return 'Generated: $generatedAt';
+  }
+
+  @override
+  String securityReportStatusLine(Object status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String securityReportLatestActivityLine(Object latest) {
+    return 'Latest activity: $latest';
+  }
+
+  @override
+  String securityReportManualScansLine(Object count) {
+    return 'Manual scans: $count';
+  }
+
+  @override
+  String securityReportRealtimeChecksLine(Object count) {
+    return 'Realtime checks: $count';
+  }
+
+  @override
+  String securityReportTotalFilesScannedLine(Object count) {
+    return 'Total files scanned: $count';
+  }
+
+  @override
+  String securityReportThreatsFoundLine(Object count) {
+    return 'Threats found: $count';
+  }
+
+  @override
+  String securityReportLastManualScanLine(Object value) {
+    return 'Last manual scan: $value';
+  }
+
+  @override
+  String securityReportLastRealtimeEventLine(Object value) {
+    return 'Last realtime event: $value';
+  }
+
+  @override
+  String securityReportLastScheduledScanLine(Object value) {
+    return 'Last scheduled scan: $value';
+  }
+
+  @override
+  String get securityReportNotRecorded => 'Not recorded';
+
+  @override
+  String get safeViewNavigationBlocked => 'Navigation blocked';
+
+  @override
+  String get safeViewInvalidDestination => 'Invalid destination';
+
+  @override
+  String get safeViewUnsupportedScheme => 'Unsupported scheme';
+
+  @override
+  String get safeViewUnableToResolveDestination =>
+      'Unable to resolve destination';
+
+  @override
+  String get safeViewDestinationBlocked => 'Destination blocked';
+
+  @override
+  String get safeViewUnableToVerifyDestination =>
+      'Unable to verify destination';
+
+  @override
+  String proScreenCurrentStatus(Object status) {
+    return 'Current status: $status';
+  }
+
+  @override
+  String proScreenBilledAnnuallyAt(Object price) {
+    return 'Billed annually at $price';
+  }
+
+  @override
+  String get quarantineUnknownApp => 'Unknown App';
+
+  @override
+  String get cleanerScanCancelled => 'Scan cancelled';
+
+  @override
+  String get cleanerProClearingCaches => 'Clearing caches…';
+
+  @override
+  String get cleanerProTrimAppCaches => 'Trim app caches across the device.';
+
+  @override
+  String get cleanerProEnableShizuku =>
+      'Enable Shizuku in Settings to use this.';
+
+  @override
+  String get cleanerProScanningStorage => 'Scanning storage…';
+
+  @override
+  String get cleanerProFindLogFiles =>
+      'Find .log, .trace, .crash and .dmp files.';
+
+  @override
+  String cleanerProLogFileCount(Object count, Object size) {
+    return '$count files • $size';
+  }
+
+  @override
+  String get cleanerProAppManagerReady =>
+      'Force stop, clear data and batch uninstall apps.';
+
+  @override
+  String get cleanerProAppManagerLimited =>
+      'Uninstall works normally. Force stop and clear data require Shizuku.';
+
+  @override
+  String get cleanerProCheckingShizuku => 'Checking Shizuku…';
+
+  @override
+  String get cleanerProShizukuNotRunning =>
+      'Shizuku is not running. Enable it from Settings when needed.';
+
+  @override
+  String get cleanerProShizukuPermissionMissing =>
+      'Shizuku permission is not granted. Enable it from Settings.';
+
+  @override
+  String get cleanerProShizukuNotBound =>
+      'Shizuku service is not bound yet. Open Settings and refresh this screen after enabling it.';
+
+  @override
+  String get cleanerLiteTab => 'Lite';
+
+  @override
+  String get cleanerProTab => 'Pro';
+
+  @override
+  String get scanCancelled => 'Scan cancelled';
+
+  @override
+  String get scanPreparing => 'Preparing scan...';
+
+  @override
+  String scanSuspiciousItemsFound(Object count, String plural) {
+    return '$count suspicious item$plural found';
+  }
+
+  @override
+  String scanSuspiciousCount(Object count) {
+    return '$count suspicious';
+  }
+
+  @override
+  String scanCleanCount(Object count) {
+    return '$count clean';
+  }
+
+  @override
+  String scanNotificationFullItems(Object count) {
+    return 'Scanned: $count items';
+  }
+
+  @override
+  String scanNotificationCurrent(Object count, Object file) {
+    return 'Scanned: $count • $file';
+  }
+
+  @override
+  String scanNotificationProgress(Object scanned, Object total) {
+    return '$scanned / $total';
+  }
+
+  @override
+  String scanNotificationProgressCurrent(
+      Object scanned, Object total, Object file) {
+    return '$scanned / $total • $file';
+  }
+
+  @override
+  String get settingsThemeRoyalBluePremium => 'Royal Blue (Premium)';
+
+  @override
+  String get settingsIconDefault => 'Default';
+
+  @override
+  String get settingsIconBird => 'Bird';
+
+  @override
+  String get settingsIconNeon => 'Neon';
+
+  @override
+  String get settingsIconOriginal => 'Original';
+
+  @override
+  String get homeRealtimeProtectionTitle => 'Real-Time Protection';
+
+  @override
+  String get networkCardStatusLocked => 'Locked';
+
+  @override
+  String get networkSectionConnection => 'Connection';
+
+  @override
+  String get networkSectionBlocklists => 'Blocklists';
+
+  @override
+  String get networkSectionResolver => 'Resolver';
+
+  @override
+  String get networkAppControlOtherVpnSetupInstructions =>
+      'Another VPN is currently selected as Always-on.\\n\\nTo block apps reliably:\\n\\n1) Open Android VPN settings\\n2) Select AvarionX as the VPN\\n3) Enable Always-on VPN\\n4) Enable Block connections without VPN';
+
+  @override
+  String get networkAppControlSetupInstructions =>
+      'To block apps reliably:\\n\\n1) Open Android VPN settings\\n2) Select AvarionX as the VPN\\n3) Enable Always-on VPN\\n4) Enable Block connections without VPN';
+
+  @override
+  String get networkAppControlBlockingActive => 'App blocking is active.';
+
+  @override
+  String get networkAppControlOtherVpnWarning =>
+      'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AvarionX.';
+
+  @override
+  String get networkAppControlSetupWarning =>
+      'Enable Always-on + Block without VPN for AvarionX to make app blocking work.';
+
+  @override
+  String get countryUnitedKingdom => 'United Kingdom';
+
+  @override
+  String get countryUnitedStates => 'United States';
+
+  @override
+  String get countryCanada => 'Canada';
+
+  @override
+  String get countryIreland => 'Ireland';
+
+  @override
+  String get countryFrance => 'France';
+
+  @override
+  String get countryGermany => 'Germany';
+
+  @override
+  String get countryNetherlands => 'Netherlands';
+
+  @override
+  String get countrySpain => 'Spain';
+
+  @override
+  String get countryItaly => 'Italy';
+
+  @override
+  String get countrySweden => 'Sweden';
+
+  @override
+  String get countryNorway => 'Norway';
+
+  @override
+  String get countryDenmark => 'Denmark';
+
+  @override
+  String get countryPoland => 'Poland';
+
+  @override
+  String get countryTurkey => 'Turkey';
+
+  @override
+  String get countryGreece => 'Greece';
+
+  @override
+  String get countryRomania => 'Romania';
+
+  @override
+  String get countryUkraine => 'Ukraine';
+
+  @override
+  String get countryRussia => 'Russia';
+
+  @override
+  String get countryIndia => 'India';
+
+  @override
+  String get countryPakistan => 'Pakistan';
+
+  @override
+  String get countryBangladesh => 'Bangladesh';
+
+  @override
+  String get countrySriLanka => 'Sri Lanka';
+
+  @override
+  String get countryNepal => 'Nepal';
+
+  @override
+  String get countryJapan => 'Japan';
+
+  @override
+  String get countrySouthKorea => 'South Korea';
+
+  @override
+  String get countrySingapore => 'Singapore';
+
+  @override
+  String get countryMalaysia => 'Malaysia';
+
+  @override
+  String get countryThailand => 'Thailand';
+
+  @override
+  String get countryVietnam => 'Vietnam';
+
+  @override
+  String get countryPhilippines => 'Philippines';
+
+  @override
+  String get countryIndonesia => 'Indonesia';
+
+  @override
+  String get countryAustralia => 'Australia';
+
+  @override
+  String get countryNewZealand => 'New Zealand';
+
+  @override
+  String get countryBrazil => 'Brazil';
+
+  @override
+  String get countryArgentina => 'Argentina';
+
+  @override
+  String get countryChile => 'Chile';
+
+  @override
+  String get countryMexico => 'Mexico';
+
+  @override
+  String get countryColombia => 'Colombia';
+
+  @override
+  String get countryPeru => 'Peru';
+
+  @override
+  String get countrySouthAfrica => 'South Africa';
+
+  @override
+  String get countryNigeria => 'Nigeria';
+
+  @override
+  String get countryKenya => 'Kenya';
+
+  @override
+  String get countryEgypt => 'Egypt';
+
+  @override
+  String get countryUAE => 'UAE';
+
+  @override
+  String get countrySaudiArabia => 'Saudi Arabia';
+
+  @override
+  String get countryIsrael => 'Israel';
+
+  @override
+  String networkSpeedTestTesting(Object current, Object total, Object domain) {
+    return 'Testing $current/$total • $domain';
+  }
+
+  @override
+  String get networkSpeedTestDone => 'Done';
+
+  @override
+  String get vpnFooterCustomisation => 'Customisation';
+
+  @override
+  String get apkClipboardReportTitle => 'VTTI Cloud - APK Analysis Report';
+
+  @override
+  String apkClipboardAppName(Object name) {
+    return 'App Name: $name';
+  }
+
+  @override
+  String apkClipboardPackageId(Object packageId) {
+    return 'Package ID: $packageId';
+  }
+
+  @override
+  String apkClipboardVersion(Object version) {
+    return 'Version: $version';
+  }
+
+  @override
+  String apkClipboardFileSize(Object size) {
+    return 'File Size: $size';
+  }
+
+  @override
+  String apkClipboardMinSdk(Object sdk) {
+    return 'Min SDK: $sdk';
+  }
+
+  @override
+  String apkClipboardTargetSdk(Object sdk) {
+    return 'Target SDK: $sdk';
+  }
+
+  @override
+  String apkClipboardSignature(Object signature) {
+    return 'Signature: $signature';
+  }
+
+  @override
+  String apkClipboardMalwareRisk(Object risk) {
+    return 'Malware Risk: $risk';
+  }
+
+  @override
+  String apkClipboardRiskLabel(Object label) {
+    return 'Risk Label: $label';
+  }
+
+  @override
+  String apkClipboardHashVerdict(Object verdict) {
+    return 'Hash Verdict: $verdict';
+  }
+
+  @override
+  String apkClipboardRationale(Object rationale) {
+    return 'Rationale: $rationale';
+  }
+
+  @override
+  String get apkReportUnusualFlags => 'Unusual Flags';
+
+  @override
+  String get apkReportUnverifiedItems => 'Unverified Items';
+
+  @override
+  String get apkReportKnownMalware => 'Known Malware';
+
+  @override
+  String get apkReportSuspiciousHash => 'Suspicious Hash';
+
+  @override
+  String get apkReportCleanHash => 'Clean Hash';
+
+  @override
+  String get apkReportHashNotChecked => 'Hash Not Checked';
+
+  @override
+  String get apkReportHashUnknown => 'Hash Unknown';
+
+  @override
+  String get apkMetadataPackage => 'Package';
+
+  @override
+  String get apkMetadataPackageId => 'Package ID';
+
+  @override
+  String get apkMetadataEngine => 'Engine';
+
+  @override
+  String get apkMetadataSize => 'Size';
+
+  @override
+  String get apkMetadataMinSdk => 'Min SDK';
+
+  @override
+  String get apkMetadataTargetSdk => 'Target SDK';
+
+  @override
+  String get apkMetadataSignature => 'Signature';
+
+  @override
+  String get apkAnalyserStageDeconstructing => 'Deconstructing APK';
+
+  @override
+  String get apkAnalyserStageAnalysing => 'Analysing content';
+
+  @override
+  String get apkAnalyserSignInRequired =>
+      'Please sign in via Settings to use Cloud Analysis.';
+
+  @override
+  String get apkAnalyserStageCheckingCloud => 'Checking VTTI Cloud';
+
+  @override
+  String apkAnalyserDailyLimitReached(Object limit) {
+    return 'You have reached your daily limit of $limit analyses.';
+  }
+
+  @override
+  String get apkAnalyserCloudAnalysisFailed => 'Cloud analysis failed';
+
+  @override
+  String get apkAnalyserStageGeneratingReport => 'Generating report';
+
+  @override
+  String get apkAnalyserAnalysisFailed => 'Failed to process APK analysis';
+
+  @override
+  String get genericError => 'Error';
+
+  @override
+  String get apkReportEngineVttiCloud => 'VTTI Cloud Engine';
+
+  @override
+  String get apkReportCertificateDetected => 'Certificate detected';
+
+  @override
+  String get apkReportNoCertificateData => 'No certificate data';
+
+  @override
+  String get apkExportOverview => 'Overview';
+
+  @override
+  String get apkExportMalwareAssessment => 'Malware Assessment';
+
+  @override
+  String get apkExportRiskScore => 'Risk Score';
+
+  @override
+  String get apkExportRiskLabel => 'Risk Label';
+
+  @override
+  String get apkExportHashVerdict => 'Hash Verdict';
+
+  @override
+  String get apkExportScoreRationale => 'Score Rationale';
+
+  @override
+  String get apkExportContributingSignals => 'Contributing Signals';
+
+  @override
+  String get apkExportDampeningFactors => 'Dampening Factors';
+
+  @override
+  String get apkExportPermissionsRequested => 'Permissions Requested';
+
+  @override
+  String get apkExportExtraFlagsUnusual => 'Extra Flags (Unusual)';
+
+  @override
+  String get apkExportExtraFlagsUnverified => 'Extra Flags (Unverified)';
+
+  @override
+  String get apkExportDiscoveredSources => 'Discovered Sources';
+
+  @override
+  String get apkExportRequestedPermissions => 'Requested Permissions';
+
+  @override
+  String get apkExportRationale => 'Rationale';
+
+  @override
+  String apkExportCsvShareText(Object name) {
+    return 'APK Analysis CSV for $name';
+  }
+
+  @override
+  String get apkExportPdfTitle => 'VTTI Cloud - APK Analysis';
+
+  @override
+  String apkExportPdfShareText(Object name) {
+    return 'APK Analysis PDF for $name';
+  }
+
+  @override
+  String get apkMetadataAppName => 'App Name';
+
+  @override
+  String get apkMetadataFileSize => 'File Size';
+
+  @override
+  String get vpnBackendFailedOpenBrowser => 'Failed to open browser.';
+
+  @override
+  String get vpnBackendSignedIn => 'Signed in.';
+
+  @override
+  String get vpnBackendSignedOut => 'Signed out.';
+
+  @override
+  String get vpnBackendSessionExpiredSignIn =>
+      'Session expired. Sign in again.';
+
+  @override
+  String vpnBackendFailedLoadAccountStatus(Object status) {
+    return 'Failed to load account ($status).';
+  }
+
+  @override
+  String vpnBackendFailedLoadAccountError(Object error) {
+    return 'Failed to load account ($error).';
+  }
+
+  @override
+  String get vpnBackendSignInFirst => 'Sign in first.';
+
+  @override
+  String get vpnBackendConnecting => 'Connecting...';
+
+  @override
+  String get vpnBackendNotificationsPermissionRequired =>
+      'Notifications permission required.';
+
+  @override
+  String get vpnBackendPermissionNotGranted => 'VPN permission not granted.';
+
+  @override
+  String get vpnBackendAnotherVpnActive =>
+      'Another VPN is active. Disable it first.';
+
+  @override
+  String get vpnBackendProvisionIncomplete =>
+      'Provision returned incomplete settings.';
+
+  @override
+  String get vpnBackendSecuringConnection => 'Securing connection...';
+
+  @override
+  String get vpnBackendConnected => 'Connected.';
+
+  @override
+  String vpnBackendWireGuardFailed(Object error) {
+    return 'Failed to start WireGuard ($error).';
+  }
+
+  @override
+  String get vpnBackendDisconnecting => 'Disconnecting...';
+
+  @override
+  String get vpnBackendDisconnected => 'Disconnected.';
+
+  @override
+  String vpnBackendSelectedServer(Object server) {
+    return 'Selected $server';
+  }
+
+  @override
+  String vpnBackendSwitchingServer(Object server) {
+    return 'Switching to $server...';
+  }
+
+  @override
+  String get vpnBackendKeyNotFound => 'VPN key not found.';
+
+  @override
+  String get vpnBackendDnsUpdated => 'DNS settings updated.';
+
+  @override
+  String get vpnBackendSessionExpired => 'Session expired.';
+
+  @override
+  String vpnBackendFailedStatus(Object status) {
+    return 'Failed ($status).';
+  }
+
+  @override
+  String get vpnBackendPlanNotAllowed =>
+      'Your plan is not allowed to use Full VPN.';
+
+  @override
+  String vpnBackendProvisionFailed(Object status) {
+    return 'Provision failed ($status).';
   }
 }

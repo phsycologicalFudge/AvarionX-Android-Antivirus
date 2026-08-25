@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'explore tab/explore_screen.dart';
 import 'home/home_screen.dart';
-import 'scan_ui_screen.dart';
+import 'scan/main_scan_ui/scan_screen.dart';
 import 'settings/settings_screen.dart';
 import 'quarantine/quarantine_screen.dart';
 import 'package:app_links/app_links.dart';
@@ -9,6 +9,8 @@ import 'dart:async';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
+  static _MainShellState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_MainShellState>();
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -23,22 +25,6 @@ class _MainShellState extends State<MainShell> {
   StreamSubscription<Uri>? _linkSub;
   Key _exploreKey = UniqueKey();
   Key _quarantineKey = UniqueKey();
-
-  int get _index {
-    switch (_active) {
-      case 'scan':
-        return 1;
-      case 'explore':
-        return 2;
-      case 'quarantine':
-        return 3;
-      case 'settings':
-        return 4;
-      case 'home':
-      default:
-        return 0;
-    }
-  }
 
   void _setActiveTab(String tab) {
     setState(() {
@@ -60,6 +46,8 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
+  void goHome() => _setActiveTab('home');
+
   @override
   void initState() {
     super.initState();
@@ -71,18 +59,31 @@ class _MainShellState extends State<MainShell> {
     super.dispose();
   }
 
+  Widget _tab(String name, Widget child) {
+    final visible = _active == name;
+    return AnimatedOpacity(
+      opacity: visible ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeInOut,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: IndexedStack(
-        index: _index,
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          AvHomeScreen(key: _homeKey),
-          const ScanScreen(),
-          ExploreScreen(key: _exploreKey),
-          QuarantineScreen(key: _quarantineKey),
-          SettingsScreen(key: _settingsKey),
+          _tab('home', AvHomeScreen(key: _homeKey)),
+          _tab('scan', const ScanScreen()),
+          _tab('explore', ExploreScreen(key: _exploreKey)),
+          _tab('quarantine', QuarantineScreen(key: _quarantineKey)),
+          _tab('settings', SettingsScreen(key: _settingsKey)),
         ],
       ),
     );

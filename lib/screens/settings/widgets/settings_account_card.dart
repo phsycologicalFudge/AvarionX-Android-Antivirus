@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../translations/app_localizations.dart';
 class SettingsAccountCard extends StatelessWidget {
   final bool signedIn;
   final bool accountLoading;
@@ -29,7 +30,7 @@ class SettingsAccountCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Account',
+          AppLocalizations.of(context)!.settingsAccountTitle,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,
             color: scheme.onSurface.withOpacity(0.92),
@@ -49,7 +50,7 @@ class SettingsAccountCard extends StatelessWidget {
               children: [
                 if (!signedIn) ...[
                   Text(
-                    'Sign in to continue',
+                    AppLocalizations.of(context)!.vpnSettingsSignInToContinue,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: scheme.onSurface,
@@ -57,7 +58,7 @@ class SettingsAccountCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Sync purchases and unlock Pro across apps.',
+                    AppLocalizations.of(context)!.settingsAccountCardSyncPurchasesAndUnlockProAcrossApps,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -77,14 +78,14 @@ class SettingsAccountCard extends StatelessWidget {
                         ),
                         textStyle: const TextStyle(fontWeight: FontWeight.w800),
                       ),
-                      child: const Text('Sign in'),
+                      child:  Text(AppLocalizations.of(context)!.vpnSignIn),
                     ),
                   ),
                 ] else ...[
                   Text(
                     accountEmail ??
                         accountId ??
-                        (accountLoading ? 'Loading...' : 'Signed in'),
+                        (accountLoading ? AppLocalizations.of(context)!.settingsAccountCardLoading : AppLocalizations.of(context)!.vpnSettingsSignedIn),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: scheme.onSurface,
@@ -106,7 +107,7 @@ class SettingsAccountCard extends StatelessWidget {
                             ),
                             textStyle: const TextStyle(fontWeight: FontWeight.w800),
                           ),
-                          child: const Text('Dashboard'),
+                          child:  Text(AppLocalizations.of(context)!.settingsAccountCardDashboard),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -124,7 +125,7 @@ class SettingsAccountCard extends StatelessWidget {
                             ),
                             textStyle: const TextStyle(fontWeight: FontWeight.w800),
                           ),
-                          child: const Text('Sign out'),
+                          child:  Text(AppLocalizations.of(context)!.vpnSettingsSignOut),
                         ),
                       ),
                     ],

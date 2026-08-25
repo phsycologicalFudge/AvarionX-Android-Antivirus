@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../translations/app_localizations.dart';
 class SecurityReportScreen extends StatefulWidget {
   const SecurityReportScreen({super.key});
 
@@ -51,17 +52,18 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
   Future<void> _exportPdf(_SecurityReportSnapshot data) async {
     if (_exportingPdf) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _exportingPdf = true);
 
     try {
-      final report = data.reportText;
+      final report = data.reportText(l10n);
       final pdf = pw.Document();
 
       pdf.addPage(
         pw.MultiPage(
           build: (context) => [
             pw.Text(
-              'Avarionx Security Report',
+              l10n.securityReportAvarionxSecurityReport,
               style: pw.TextStyle(
                 fontSize: 22,
                 fontWeight: pw.FontWeight.bold,
@@ -82,7 +84,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'Avarionx Security Report',
+        text: l10n.securityReportSharePdfTitle,
       );
     } finally {
       if (mounted) {
@@ -94,20 +96,21 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
   Future<void> _exportCsv(_SecurityReportSnapshot data) async {
     if (_exportingCsv) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _exportingCsv = true);
 
     try {
       final rows = [
-        ['Field', 'Value'],
-        ['Generated at', data.generatedAtLabel],
-        ['Overall status', data.statusLabel],
-        ['Manual scans', data.manualScans],
-        ['Realtime checks', data.rtpScans],
-        ['Total files scanned', data.filesScanned],
-        ['Threats found', data.threats],
-        ['Last manual scan', data.formatOptionalTime(data.lastManualScanAt)],
-        ['Last realtime event', data.formatOptionalTime(data.lastRtpEventAt)],
-        ['Last scheduled scan', data.formatOptionalTime(data.lastScheduledScanAt)],
+        [l10n.securityReportCsvField, l10n.securityReportCsvValue],
+        [l10n.securityReportGeneratedAt, data.generatedAtLabel],
+        [l10n.securityReportOverallStatus, data.statusLabel(l10n)],
+        [l10n.securityReportManualScans, data.manualScans],
+        [l10n.securityReportRealtimeChecks, data.rtpScans],
+        [l10n.securityReportTotalFilesScanned, data.filesScanned],
+        [l10n.securityReportThreatsFound, data.threats],
+        [l10n.securityReportLastManualScan, data.formatOptionalTime(data.lastManualScanAt, l10n)],
+        [l10n.securityReportLastRealtimeEvent, data.formatOptionalTime(data.lastRtpEventAt, l10n)],
+        [l10n.securityReportLastScheduledScan, data.formatOptionalTime(data.lastScheduledScanAt, l10n)],
       ];
 
       final csv = const ListToCsvConverter().convert(rows);
@@ -120,7 +123,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'Avarionx Security Report CSV',
+        text: l10n.securityReportShareCsvTitle,
       );
     } finally {
       if (mounted) {
@@ -133,12 +136,13 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text(
-          'Security Report',
+        title:  Text(
+          AppLocalizations.of(context)!.securityReportSecurityReport,
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
         backgroundColor: Colors.transparent,
@@ -164,7 +168,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
                   children: [
                     Expanded(
                       child: _ReportMetricCard(
-                        label: 'Manual scans',
+                        label: AppLocalizations.of(context)!.securityReportManualScans,
                         value: data.manualScans.toString(),
                         icon: Icons.manage_search_rounded,
                       ),
@@ -172,7 +176,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _ReportMetricCard(
-                        label: 'Realtime checks',
+                        label: AppLocalizations.of(context)!.securityReportRealtimeChecks,
                         value: data.rtpScans.toString(),
                         icon: Icons.visibility_rounded,
                       ),
@@ -184,7 +188,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
                   children: [
                     Expanded(
                       child: _ReportMetricCard(
-                        label: 'Total files scanned',
+                        label: AppLocalizations.of(context)!.securityReportTotalFilesScanned,
                         value: data.filesScanned.toString(),
                         icon: Icons.insert_drive_file_rounded,
                       ),
@@ -192,7 +196,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _ReportMetricCard(
-                        label: 'Threats found',
+                        label: AppLocalizations.of(context)!.securityReportThreatsFound,
                         value: data.threats.toString(),
                         icon: Icons.bug_report_outlined,
                       ),
@@ -201,7 +205,7 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Generate report',
+                  AppLocalizations.of(context)!.securityReportGenerateReport,
                   style: text.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: theme.colorScheme.onSurface.withOpacity(0.9),
@@ -236,6 +240,7 @@ class _ReportHeroCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final hasThreats = data.threats > 0;
 
     return Container(
@@ -279,7 +284,7 @@ class _ReportHeroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    data.statusLabel,
+                    data.statusLabel(l10n),
                     style: text.titleMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                       color: scheme.onSurface.withOpacity(0.94),
@@ -287,7 +292,7 @@ class _ReportHeroCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    data.latestLabel,
+                    data.latestLabel(l10n),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: text.bodySmall?.copyWith(
@@ -392,6 +397,7 @@ class _GeneratedReportCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -415,7 +421,7 @@ class _GeneratedReportCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Live report',
+              AppLocalizations.of(context)!.securityReportLiveReport,
               style: text.titleSmall?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: scheme.onSurface.withOpacity(0.92),
@@ -423,7 +429,7 @@ class _GeneratedReportCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'This box updates as scan services write report data.',
+              AppLocalizations.of(context)!.securityReportThisBoxUpdatesAsScanServicesWrite,
               style: text.bodySmall?.copyWith(
                 height: 1.35,
                 color: scheme.onSurface.withOpacity(0.52),
@@ -440,7 +446,7 @@ class _GeneratedReportCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Text(
-                data.reportText,
+                data.reportText(l10n),
                 style: text.bodySmall?.copyWith(
                   height: 1.45,
                   color: scheme.onSurface.withOpacity(0.76),
@@ -463,7 +469,7 @@ class _GeneratedReportCard extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                         : const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                    label: const Text('Export PDF'),
+                    label:  Text(AppLocalizations.of(context)!.securityReportExportPDF),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -477,7 +483,7 @@ class _GeneratedReportCard extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                         : const Icon(Icons.table_chart_rounded, size: 18),
-                    label: const Text('Export CSV'),
+                    label:  Text(AppLocalizations.of(context)!.securityReportExportCSV),
                   ),
                 ),
               ],
@@ -539,12 +545,12 @@ class _SecurityReportSnapshot {
     );
   }
 
-  String get statusLabel {
-    if (threats > 0) return 'Review recommended';
-    return 'No known threat detected';
+  String statusLabel(AppLocalizations l10n) {
+    if (threats > 0) return l10n.securityReportReviewRecommended;
+    return l10n.securityReportNoKnownThreatDetected;
   }
 
-  String get latestLabel {
+  String latestLabel(AppLocalizations l10n) {
     final latest = [
       lastManualScanAt,
       lastRtpEventAt,
@@ -554,8 +560,8 @@ class _SecurityReportSnapshot {
       return value > prev ? value : prev;
     });
 
-    if (latest == null) return 'No report data yet';
-    return 'Last activity ${_relativeTime(latest)}';
+    if (latest == null) return l10n.securityNoReportDataYet;
+    return l10n.securityLastActivity(_relativeTime(latest, l10n));
   }
 
   String get generatedAtLabel {
@@ -564,27 +570,27 @@ class _SecurityReportSnapshot {
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
   }
 
-  String get reportText {
+  String reportText(AppLocalizations l10n) {
     return [
-      'Avarionx Security Report',
-      'Generated: $generatedAtLabel',
+      l10n.securityReportAvarionxSecurityReport,
+      l10n.securityReportGeneratedLine(generatedAtLabel),
       '',
-      'Status: $statusLabel',
-      'Latest activity: $latestLabel',
+      l10n.securityReportStatusLine(statusLabel(l10n)),
+      l10n.securityReportLatestActivityLine(latestLabel(l10n)),
       '',
-      'Manual scans: $manualScans',
-      'Realtime checks: $rtpScans',
-      'Total files scanned: $filesScanned',
-      'Threats found: $threats',
+      l10n.securityReportManualScansLine(manualScans),
+      l10n.securityReportRealtimeChecksLine(rtpScans),
+      l10n.securityReportTotalFilesScannedLine(filesScanned),
+      l10n.securityReportThreatsFoundLine(threats),
       '',
-      'Last manual scan: ${formatOptionalTime(lastManualScanAt)}',
-      'Last realtime event: ${formatOptionalTime(lastRtpEventAt)}',
-      'Last scheduled scan: ${formatOptionalTime(lastScheduledScanAt)}',
+      l10n.securityReportLastManualScanLine(formatOptionalTime(lastManualScanAt, l10n)),
+      l10n.securityReportLastRealtimeEventLine(formatOptionalTime(lastRtpEventAt, l10n)),
+      l10n.securityReportLastScheduledScanLine(formatOptionalTime(lastScheduledScanAt, l10n)),
     ].join('\n');
   }
 
-  String formatOptionalTime(int? millis) {
-    if (millis == null) return 'Not recorded';
+  String formatOptionalTime(int? millis, AppLocalizations l10n) {
+    if (millis == null) return l10n.securityReportNotRecorded;
 
     final d = DateTime.fromMillisecondsSinceEpoch(millis);
 
@@ -592,14 +598,14 @@ class _SecurityReportSnapshot {
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
   }
 
-  static String _relativeTime(int millis) {
+  static String _relativeTime(int millis, AppLocalizations l10n) {
     final date = DateTime.fromMillisecondsSinceEpoch(millis);
     final diff = DateTime.now().difference(date);
 
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.timeJustNow;
+    if (diff.inMinutes < 60) return l10n.timeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeDaysAgo(diff.inDays);
 
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }

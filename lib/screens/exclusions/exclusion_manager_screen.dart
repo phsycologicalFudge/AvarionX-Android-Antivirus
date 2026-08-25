@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:colourswift_av/services/exclusion_service.dart';
 
 
+import '../../translations/app_localizations.dart';
 class ExclusionManagerScreen extends StatefulWidget {
   ExclusionManagerScreen({super.key});
   @override
@@ -53,17 +54,17 @@ class _ExclusionManagerScreenState extends State<ExclusionManagerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exclusions'),
+        title:  Text(AppLocalizations.of(context)!.settingsExclusions),
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Folders', style: text.titleMedium),
+          Text(AppLocalizations.of(context)!.exclusionsFolders, style: text.titleMedium),
           const SizedBox(height: 10),
           if (folders.isEmpty)
-            Text('None', style: text.bodySmall)
+            Text(AppLocalizations.of(context)!.exclusionsNone, style: text.bodySmall)
           else
             ...folders.map((f) {
               final name = f.split('/').last;
@@ -91,10 +92,10 @@ class _ExclusionManagerScreenState extends State<ExclusionManagerScreen> {
               );
             }).toList(),
           const SizedBox(height: 20),
-          Text('Files', style: text.titleMedium),
+          Text(AppLocalizations.of(context)!.exclusionsFiles, style: text.titleMedium),
           const SizedBox(height: 10),
           if (shas.isEmpty)
-            Text('None', style: text.bodySmall)
+            Text(AppLocalizations.of(context)!.exclusionsNone, style: text.bodySmall)
           else
             ...shas.map((s) {
               final short = '${s.substring(0, 10)}...';

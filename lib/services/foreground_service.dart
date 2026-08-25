@@ -7,10 +7,31 @@ class ForegroundService {
     String title = 'Avarionx Security',
     String text = 'Realtime protection active',
   }) async {
+    await startRtp(title: title, text: text);
+  }
+
+  static Future<void> startRtp({
+    String title = 'Avarionx Security',
+    String text = 'Realtime protection active',
+  }) async {
     try {
       await _channel.invokeMethod('startService', {
         'title': title,
         'text': text,
+        'mode': 'rtp',
+      });
+    } catch (_) {}
+  }
+
+  static Future<void> startUploadHost({
+    String title = 'AvarionX',
+    String text = 'Uploading security samples',
+  }) async {
+    try {
+      await _channel.invokeMethod('startService', {
+        'title': title,
+        'text': text,
+        'mode': 'upload',
       });
     } catch (_) {}
   }
@@ -22,8 +43,18 @@ class ForegroundService {
   }
 
   static Future<void> stop() async {
+    await stopRtp();
+  }
+
+  static Future<void> stopRtp() async {
     try {
-      await _channel.invokeMethod('stopService');
+      await _channel.invokeMethod('stopService', {'mode': 'rtp'});
+    } catch (_) {}
+  }
+
+  static Future<void> stopUploadHost() async {
+    try {
+      await _channel.invokeMethod('stopService', {'mode': 'upload'});
     } catch (_) {}
   }
 

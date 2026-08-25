@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
 
+import '../../translations/app_localizations.dart';
 class PasswordSettingsScreen extends StatefulWidget {
   const PasswordSettingsScreen({super.key});
 
@@ -86,7 +87,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
     await Clipboard.setData(ClipboardData(text: _restoreCode!));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Restore code copied')),
+       SnackBar(content: Text(AppLocalizations.of(context)!.passwordSettingsRestoreCodeCopied)),
     );
   }
 
@@ -140,7 +141,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
     await prefs.setStringList(_vaultKey, normalized);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Vault restored')),
+       SnackBar(content: Text(AppLocalizations.of(context)!.passwordSettingsVaultRestored)),
     );
 
     Navigator.pop(context);
@@ -156,7 +157,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Set MetaPass'),
+              title:  Text(AppLocalizations.of(context)!.passwordSettingsSetMetaPassTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -164,7 +165,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
                     controller: controller,
                     obscureText: obscure,
                     decoration: InputDecoration(
-                      labelText: 'Meta password',
+                      labelText: AppLocalizations.of(context)!.passwordSettingsMetaPasswordTitle,
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscure
@@ -178,9 +179,9 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Changing this alters all passwords.\n'
-                        'Using the same MetaPass restores them.',
+                   Text(
+                    AppLocalizations.of(context)!.passwordSettingsChangingThisAltersAllPasswords +
+                        AppLocalizations.of(context)!.passwordSettingsUsingTheSameMetaPassRestoresThem,
                     style: TextStyle(fontSize: 12),
                   ),
                 ],
@@ -188,12 +189,12 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child:  Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () =>
                       Navigator.pop(context, controller.text.trim()),
-                  child: const Text('Save'),
+                  child:  Text(AppLocalizations.of(context)!.vpnSave),
                 ),
               ],
             );
@@ -223,12 +224,12 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Password settings')),
+      appBar: AppBar(title:  Text(AppLocalizations.of(context)!.passwordSettingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            'MetaPass',
+            AppLocalizations.of(context)!.passwordSettingsSectionMetaPass,
             style: text.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -237,21 +238,21 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.key_rounded),
-              title: const Text('Meta password'),
+              title:  Text(AppLocalizations.of(context)!.passwordSettingsMetaPasswordTitle),
               subtitle: Text(
                 _meta == null
-                    ? 'Not set'
-                    : 'Stored securely on this device',
+                    ? AppLocalizations.of(context)!.passwordSettingsMetaNotSet
+                    : AppLocalizations.of(context)!.passwordSettingsMetaStoredSecurely,
               ),
               trailing: TextButton(
                 onPressed: _changeMetaPassword,
-                child: const Text('Change'),
+                child:  Text(AppLocalizations.of(context)!.passwordSettingsChange),
               ),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            'Restore code',
+            AppLocalizations.of(context)!.passwordSettingsRestoreCodeLabel,
             style: text.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -266,7 +267,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
                   if (_restoreCode == null)
                     FilledButton(
                       onPressed: _generateRestoreCode,
-                      child: const Text('Generate restore code'),
+                      child:  Text(AppLocalizations.of(context)!.passwordSettingsGenerateRestoreCode),
                     )
                   else ...[
                     SelectableText(
@@ -281,7 +282,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
                       child: TextButton.icon(
                         onPressed: _copyRestoreCode,
                         icon: const Icon(Icons.copy_rounded),
-                        label: const Text('Copy'),
+                        label:  Text(AppLocalizations.of(context)!.passwordSettingsCopy),
                       ),
                     ),
                   ],
@@ -291,7 +292,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Restore from code',
+            AppLocalizations.of(context)!.passwordSettingsSectionRestoreFromCode,
             style: text.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -306,9 +307,9 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Passwords are never stored.\n\n'
-                    'The restore code contains only structure data. '
-                    'Combined with your MetaPass, it rebuilds your vault.',
+                AppLocalizations.of(context)!.passwordSettingsPasswordsAreNeverStored +
+                    AppLocalizations.of(context)!.passwordSettingsTheRestoreCodeContainsOnlyStructureData +
+                    AppLocalizations.of(context)!.passwordSettingsCombinedWithYourMetaPassItRebuildsYour,
                 style: text.bodySmall,
               ),
             ),
@@ -357,8 +358,8 @@ class _RestoreInputState extends State<_RestoreInput> {
           children: [
             TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Restore code',
+              decoration:  InputDecoration(
+                labelText: AppLocalizations.of(context)!.passwordSettingsRestoreCodeLabel,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -369,7 +370,7 @@ class _RestoreInputState extends State<_RestoreInput> {
                 onPressed: canRestore
                     ? () => widget.onRestore(controller.text.trim())
                     : null,
-                child: const Text('Restore'),
+                child:  Text(AppLocalizations.of(context)!.quarantineRestore),
               ),
             ),
           ],

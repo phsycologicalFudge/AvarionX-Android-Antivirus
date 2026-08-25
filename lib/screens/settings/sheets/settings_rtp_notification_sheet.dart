@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../translations/app_localizations.dart';
 Future<void> showSettingsRtpNotificationSheet({
   required BuildContext context,
   required int currentSeconds,
@@ -47,16 +48,16 @@ Future<void> showSettingsRtpNotificationSheet({
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Auto-clear notifications',
+                    AppLocalizations.of(context)!.settingsRtpNotificationAutoClearNotifications,
                     style: text.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  option(title: 'Never', value: 0),
-                  option(title: '5 minutes', value: 300),
-                  option(title: '10 minutes', value: 600),
-                  option(title: '30 minutes', value: 1800),
+                  option(title: AppLocalizations.of(context)!.settingsRtpNotificationNever, value: 0),
+                  option(title: AppLocalizations.of(context)!.settingsRtpNotification5Minutes, value: 300),
+                  option(title: AppLocalizations.of(context)!.settingsRtpNotification10Minutes, value: 600),
+                  option(title: AppLocalizations.of(context)!.settingsRtpNotification30Minutes, value: 1800),
                 ],
               ),
             ),

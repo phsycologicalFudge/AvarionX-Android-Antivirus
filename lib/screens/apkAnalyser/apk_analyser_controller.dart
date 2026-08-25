@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../services/pro_temp_service.dart';
 import '../../services/purchase_service.dart';
+import '../../translations/app_localizations.dart';
 
 class ApkReport {
   final String path;
@@ -359,10 +360,11 @@ class ApkAnalyserController extends ChangeNotifier {
 
   Future<void> analyseApk(BuildContext context, VoidCallback onSuccess) async {
     if (analysing || selectedApkPath.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
 
     analysing = true;
     report = null;
-    loadingStage = 'Deconstructing APK';
+    loadingStage = l10n.apkAnalyserStageDeconstructing;
     notifyListeners();
 
     HttpClient? client;
@@ -372,7 +374,7 @@ class ApkAnalyserController extends ChangeNotifier {
       final payload = await _apkChannel.invokeMethod('extractApkEvidence', {'apkPath': selectedApkPath});
       if (!analysing) return;
 
-      loadingStage = 'Analysing content';
+      loadingStage = l10n.apkAnalyserStageAnalysing;
       notifyListeners();
       await Future.delayed(const Duration(milliseconds: 1500));
       if (!analysing) return;
@@ -384,10 +386,10 @@ class ApkAnalyserController extends ChangeNotifier {
       final userToken = (prefs.getString('cs_auth_token') ?? '').trim();
 
       if (userToken.isEmpty) {
-        throw PlatformException(code: 'UNAUTHORIZED', message: 'Please sign in via Settings to use Cloud Analysis.');
+        throw PlatformException(code: 'UNAUTHORIZED', message: l10n.apkAnalyserSignInRequired);
       }
 
-      loadingStage = 'Checking VTTI Cloud';
+      loadingStage = l10n.apkAnalyserStageCheckingCloud;
       notifyListeners();
       if (!analysing) return;
 
@@ -409,11 +411,11 @@ class ApkAnalyserController extends ChangeNotifier {
         remainingGenerations = 0;
         dailyLimit = limit;
         notifyListeners();
-        throw PlatformException(code: 'RATE_LIMIT', message: 'You have reached your daily limit of $limit analyses.');
+        throw PlatformException(code: 'RATE_LIMIT', message: l10n.apkAnalyserDailyLimitReached(limit));
       }
 
       if (response.statusCode != 200 || cloudResponse['ok'] != true) {
-        throw PlatformException(code: 'CLOUD_ERROR', message: cloudResponse['error'] ?? 'Cloud analysis failed');
+        throw PlatformException(code: 'CLOUD_ERROR', message: cloudResponse['error'] ?? l10n.apkAnalyserCloudAnalysisFailed);
       }
 
       final usage = cloudResponse['usage'];
@@ -422,7 +424,7 @@ class ApkAnalyserController extends ChangeNotifier {
         dailyLimit = usage['limit'] as int?;
       }
 
-      loadingStage = 'Generating report';
+      loadingStage = l10n.apkAnalyserStageGeneratingReport;
       notifyListeners();
       if (!analysing) return;
 
@@ -430,7 +432,7 @@ class ApkAnalyserController extends ChangeNotifier {
           ? cloudResponse['result'] as Map<dynamic, dynamic>
           : <dynamic, dynamic>{};
 
-      report = _buildReportFromCloud(selectedApkPath, normalizedPayload, cloudOuter);
+      report = _buildReportFromCloud(selectedApkPath, normalizedPayload, cloudOuter, l10n);
       await saveReportToHistory(report!);
 
       analysing = false;
@@ -446,7 +448,7 @@ class ApkAnalyserController extends ChangeNotifier {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e is PlatformException ? (e.message ?? 'Error') : 'Failed to process APK analysis')),
+          SnackBar(content: Text(e is PlatformException ? (e.message ?? l10n.genericError) : l10n.apkAnalyserAnalysisFailed)),
         );
       }
     } finally {
@@ -513,6 +515,7 @@ class ApkAnalyserController extends ChangeNotifier {
       String path,
       Map<String, dynamic> localPayload,
       Map<dynamic, dynamic> cloudOuter,
+      AppLocalizations l10n,
       ) {
     final aiResult = (cloudOuter['result'] as Map?)?.cast<dynamic, dynamic>() ?? <dynamic, dynamic>{};
     final sourcesData = (cloudOuter['discovered_sources'] as Map?)?.cast<dynamic, dynamic>() ?? <dynamic, dynamic>{};
@@ -562,16 +565,17 @@ class ApkAnalyserController extends ChangeNotifier {
           : _extractName(path),
       packageName: (app['package_name'] ?? '').toString(),
       extracted: true,
-      engineLabel: 'VTTI Cloud Engine',
+      engineLabel: l10n.apkReportEngineVttiCloud,
       fileSizeLabel: _formatBytes(
         ((evidence['file_info'] as Map?)?.cast<dynamic, dynamic>() ?? {})['apk_size_bytes'] as int? ?? 0,
+        l10n,
       ),
-      minSdkLabel: (evidence['min_sdk'] ?? 'Unknown').toString(),
-      targetSdkLabel: (evidence['target_sdk'] ?? 'Unknown').toString(),
-      signatureLabel: certs.isNotEmpty ? 'Certificate detected' : 'No certificate data',
-      versionLabel: (app['version_name'] ?? 'Unknown').toString(),
+      minSdkLabel: (evidence['min_sdk'] ?? l10n.genericUnknownAppName).toString(),
+      targetSdkLabel: (evidence['target_sdk'] ?? l10n.genericUnknownAppName).toString(),
+      signatureLabel: certs.isNotEmpty ? l10n.apkReportCertificateDetected : l10n.apkReportNoCertificateData,
+      versionLabel: (app['version_name'] ?? l10n.genericUnknownAppName).toString(),
       permissions: requestedPermissions,
-      summary: (aiResult['summary'] ?? 'No summary generated.').toString(),
+      summary: (aiResult['summary'] ?? l10n.apkReportNoSummaryGenerated).toString(),
       unusualItems: aiResult['odd_or_unusual_items'] is List
           ? (aiResult['odd_or_unusual_items'] as List).map((e) => e.toString()).toList()
           : [],
@@ -591,8 +595,8 @@ class ApkAnalyserController extends ChangeNotifier {
     );
   }
 
-  String _formatBytes(int bytes) {
-    if (bytes <= 0) return 'Unknown';
+  String _formatBytes(int bytes, AppLocalizations l10n) {
+    if (bytes <= 0) return l10n.genericUnknownAppName;
     const units = ['B', 'KB', 'MB', 'GB'];
     double size = bytes.toDouble();
     int unitIndex = 0;

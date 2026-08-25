@@ -605,7 +605,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Text(
-            'Powered by VTTI Cloud',
+            AppLocalizations.of(context)!.linkCheckPoweredByVTTICloud,
             style: text.bodySmall?.copyWith(
               fontSize: 11,
               letterSpacing: 0.6,

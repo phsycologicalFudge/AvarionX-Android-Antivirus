@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../translations/app_localizations.dart';
 class HowThisAppWorksScreen extends StatelessWidget {
   const HowThisAppWorksScreen({super.key});
 
@@ -12,7 +13,7 @@ class HowThisAppWorksScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'How This App Works',
+          AppLocalizations.of(context)!.settingsHowThisAppWorks,
           style: text.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: text.bodyLarge?.color,
@@ -28,7 +29,7 @@ class HowThisAppWorksScreen extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           children: [
             Text(
-              'How AvarionX Works',
+              AppLocalizations.of(context)!.howThisAppWorksHowAvarionXWorks,
               style: text.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
@@ -36,33 +37,33 @@ class HowThisAppWorksScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'AvarionX is a mobile security app that combines on device antivirus scanning, network protection, and optional VPN features. '
-                  'The antivirus engine is powered by VX-Titanium.',
+              AppLocalizations.of(context)!.howThisAppWorksAvarionxIsAMobileSecurityAppThat +
+                  AppLocalizations.of(context)!.howThisAppWorksTheAntivirusEngineIsPoweredByVX,
               style: text.bodyMedium,
             ),
             const SizedBox(height: 12),
             Text(
-              'If you use network protection or VPN features, the app connects to ColourSwift services to apply your settings, manage your account access, and route protected traffic.',
+              AppLocalizations.of(context)!.howThisAppWorksIfYouUseNetworkProtectionOrVPN,
               style: text.bodyMedium,
             ),
             const SizedBox(height: 20),
             Text(
-              'Key Features',
+              AppLocalizations.of(context)!.howThisAppWorksKeyFeatures,
               style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            const Text('• Real-time protection for downloaded threats'),
-            const Text('• Network protection with DNS filtering'),
-            const Text('• Optional Secure VPN mode'),
-            const Text('• Built in tools such as Link Checker'),
+             Text(AppLocalizations.of(context)!.howThisAppWorksRealTimeProtectionForDownloadedThreats),
+             Text(AppLocalizations.of(context)!.howThisAppWorksNetworkProtectionWithDNSFiltering),
+             Text(AppLocalizations.of(context)!.howThisAppWorksOptionalSecureVPNMode),
+             Text(AppLocalizations.of(context)!.howThisAppWorksBuiltInToolsSuchAsLinkChecker),
             const SizedBox(height: 20),
             Text(
-              'Notes',
+              AppLocalizations.of(context)!.howThisAppWorksNotes,
               style: text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              'Some features may require sign in, an active plan, or device permissions to work properly.',
+              AppLocalizations.of(context)!.howThisAppWorksSomeFeaturesMayRequireSignInAn,
               style: text.bodyMedium,
             ),
             const SizedBox(height: 12),

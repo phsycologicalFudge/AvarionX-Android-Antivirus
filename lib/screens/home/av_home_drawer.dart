@@ -81,7 +81,7 @@ class AvHomeDrawer extends StatelessWidget {
                             color: scheme.onSurface.withOpacity(0.62),
                           ),
                           title: Text(
-                            'Features',
+                            AppLocalizations.of(context)!.featuresDrawerTitle,
                             style: text.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: scheme.onSurface.withOpacity(0.86),
@@ -92,7 +92,7 @@ class AvHomeDrawer extends StatelessWidget {
                           children: [
                             _DrawerSubItem(
                               icon: Icons.android_rounded,
-                              label: 'APK Analyser',
+                              label: AppLocalizations.of(context)!.homeDrawerApkAnalyser,
                               onTap: () => _navigate(context, 'apk_analyser'),
                             ),
                             _DrawerSubItem(
@@ -129,7 +129,7 @@ class AvHomeDrawer extends StatelessWidget {
                             color: scheme.onSurface.withOpacity(0.62),
                           ),
                           title: Text(
-                            'Advanced',
+                            AppLocalizations.of(context)!.homeDrawerAdvanced,
                             style: text.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: scheme.onSurface.withOpacity(0.86),
@@ -156,18 +156,18 @@ class AvHomeDrawer extends StatelessWidget {
                       const SizedBox(height: 6),
                       _DrawerItem(
                         icon: Icons.settings_outlined,
-                        label: 'Settings',
+                        label: AppLocalizations.of(context)!.footerSettings,
                         onTap: () => _navigate(context, 'settings'),
                       ),
                       _DrawerItem(
                         icon: Icons.inventory_2_outlined,
-                        label: 'Quarantine',
+                        label: AppLocalizations.of(context)!.homeDrawerQuarantine,
                         onTap: () => _navigate(context, 'quarantine'),
                       ),
                       if (!isPro)
                         _DrawerItem(
                           icon: Icons.workspace_premium_rounded,
-                          label: 'Upgrade to Pro',
+                          label: AppLocalizations.of(context)!.homeDrawerUpgradeToPro,
                           iconColor: scheme.onSurface.withOpacity(0.64),
                           labelColor: scheme.onSurface.withOpacity(0.82),
                           onTap: () => _navigate(context, 'upgrade_pro'),
@@ -205,7 +205,7 @@ class AvHomeDrawer extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'AvarionX VPN',
+                              AppLocalizations.of(context)!.homeDrawerAvarionxVPN,
                               style: text.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: scheme.onSurface.withOpacity(0.75),
@@ -214,7 +214,7 @@ class AvHomeDrawer extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Protect your internet with our unlimited VPN',
+                              AppLocalizations.of(context)!.homeDrawerProtectYourInternetWithOurUnlimitedVPN,
                               style: text.bodySmall?.copyWith(
                                 fontSize: 10,
                                 height: 1.2,

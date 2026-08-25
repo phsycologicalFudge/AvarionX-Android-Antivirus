@@ -1,11 +1,16 @@
 package com.colourswift.cssecurity.rtp
 
+import android.os.ParcelFileDescriptor
+import android.util.Log
 import com.colourswift.cssecurity.ISystemWatcherService
+import com.colourswift.cssecurity.terminal.bridge.PtyHelper
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.util.ArrayDeque
 import java.util.concurrent.ConcurrentHashMap
+import java.util.zip.GZIPInputStream
 
 class SystemWatcherUserService : ISystemWatcherService.Stub() {
 
@@ -33,13 +38,115 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
     )
 
     private val rootStates = ConcurrentHashMap<String, MutableMap<String, FileState>>()
-
-    // Extensions seen at baseline per root — used to detect uniform new extensions
     private val rootBaselineExts = ConcurrentHashMap<String, Set<String>>()
 
     companion object {
-        // How many files must share the same new unknown extension to flag as suspicious
         private const val NEW_EXT_UNIFORM_THRESHOLD = 5
+    }
+
+    override fun spawnPty(
+        rows: Int, cols: Int,
+        busyboxPath: String, homePath: String,
+        prootPath: String, rootfsPath: String,
+        cachePath: String, nativeLibDir: String,
+    ): ParcelFileDescriptor? {
+        Log.d("AXTerminal", "spawnPty svc: busybox=$busyboxPath exists=${File(busyboxPath).exists()}")
+        Log.d("AXTerminal", "spawnPty svc: proot=$prootPath exists=${File(prootPath).exists()}")
+        Log.d("AXTerminal", "spawnPty svc: rootfs=$rootfsPath exists=${File(rootfsPath).exists()}")
+        Log.d("AXTerminal", "spawnPty svc: cache=$cachePath exists=${File(cachePath).exists()}")
+
+        File("$cachePath").mkdirs()
+        val masterFd = PtyHelper.openMaster(rows, cols)
+        if (masterFd < 0) return null
+
+        val slaveName = PtyHelper.getSlaveName(masterFd)
+        if (slaveName == null) {
+            PtyHelper.close(masterFd)
+            return null
+        }
+
+        val childPid = PtyHelper.spawnShell(
+            masterFd, slaveName,
+            busyboxPath, homePath,
+            prootPath, rootfsPath,
+            cachePath,
+            nativeLibDir,
+        )
+        if (childPid < 0) {
+            PtyHelper.close(masterFd)
+            return null
+        }
+
+        return try {
+            ParcelFileDescriptor.fromFd(masterFd)
+        } catch (e: Exception) {
+            PtyHelper.close(masterFd)
+            null
+        }
+    }
+
+    override fun isAlpineInstalled(targetDir: String?): Boolean {
+        if (targetDir == null) return false
+        val shellBinary = File(targetDir, "bin/sh")
+        return shellBinary.exists() && shellBinary.canExecute()
+    }
+
+    override fun installAlpine(tarballPfd: ParcelFileDescriptor?, targetDir: String?): Boolean {
+        if (tarballPfd == null || targetDir == null) return false
+        return try {
+            val destFolder = File(targetDir)
+            if (!destFolder.exists()) destFolder.mkdirs()
+
+            ParcelFileDescriptor.AutoCloseInputStream(tarballPfd).use { inputStream ->
+                TarArchiveInputStream(GZIPInputStream(inputStream)).use { tar ->
+                    var entry = tar.nextTarEntry
+                    while (entry != null) {
+                        val targetFile = File(destFolder, entry.name)
+                        if (entry.isDirectory) {
+                            targetFile.mkdirs()
+                        } else {
+                            if (entry.isSymbolicLink || entry.isLink) {
+                                try {
+                                    Runtime.getRuntime().exec(arrayOf("ln", "-sf", entry.linkName, targetFile.absolutePath)).waitFor()
+                                } catch (e: Exception) {
+                                    Log.e("SystemWatcherUserService", "Failed symlink extraction: ${entry.name}", e)
+                                }
+                            } else {
+                                targetFile.parentFile?.mkdirs()
+                                targetFile.outputStream().use { out -> tar.copyTo(out) }
+                                if ((entry.mode and 0b001_001_001) != 0) {
+                                    targetFile.setExecutable(true, false)
+                                    targetFile.setReadable(true, false)
+                                }
+                            }
+                        }
+                        entry = tar.nextTarEntry
+                    }
+                }
+            }
+
+            val resolv = File(destFolder, "etc/resolv.conf")
+            resolv.parentFile?.mkdirs()
+            resolv.writeText("nameserver 8.8.8.8\nnameserver 8.8.4.4\n")
+            File(destFolder, "root").mkdirs()
+
+            val tmp = File(destFolder, "tmp")
+            tmp.mkdirs()
+
+            val apkDb = File(targetDir, "lib/apk/db")
+            apkDb.mkdirs()
+            apkDb.walkTopDown().forEach { it.setWritable(true, false) }
+            val varCache = File(targetDir, "var/cache/apk")
+            varCache.mkdirs()
+            varCache.setWritable(true, false)
+
+            Runtime.getRuntime().exec(arrayOf("chmod", "-R", "777", targetDir)).waitFor()
+            Log.i("SystemWatcherUserService", "Alpine successfully deployed to $targetDir")
+            true
+        } catch (e: Exception) {
+            Log.e("SystemWatcherUserService", "Extraction failed inside shell domain", e)
+            false
+        }
     }
 
     override fun ps(): String {
@@ -159,11 +266,7 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
         val summary = ScanSummary()
         val queue = ArrayDeque<File>()
 
-        // Track new/modified file extensions this cycle for uniformity detection
-        // ext → count of new/modified files bearing it
         val newExtCounts = HashMap<String, Int>()
-
-        // Collect all extensions during baseline walk
         val baselineExtCollector = if (previous.isEmpty()) HashSet<String>() else null
 
         queue.add(base)
@@ -188,37 +291,33 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
                     val lower = path.lowercase()
 
                     if (file.isDirectory) {
-                        if (shouldEnterDirectory(lower)) {
-                            queue.add(file)
-                        }
-                    } else if (file.isFile && shouldTrackPath(lower)) {
-                        val size = file.length()
-                        val modified = file.lastModified()
-                        val state = FileState(size, modified)
-                        val old = previous[path]
+                        if (shouldEnterDirectory(lower)) queue.add(file)
+                        continue
+                    }
 
-                        current[path] = state
-                        seen.add(path)
-                        summary.files++
+                    val size = file.length()
+                    val modified = file.lastModified()
+                    val old = previous[path]
 
-                        // Collect extensions during baseline pass
-                        baselineExtCollector?.let { collector ->
+                    current[path] = FileState(size, modified)
+                    seen.add(path)
+                    summary.files++
+
+                    baselineExtCollector?.let { collector ->
+                        val ext = lower.substringAfterLast('.', missingDelimiterValue = "")
+                        if (ext.isNotBlank() && ext.length <= 12) collector.add(ext)
+                    }
+
+                    if (previous.isNotEmpty()) {
+                        val isNew = old == null
+                        val isModified = !isNew && (old!!.size != size || old.modified != modified)
+
+                        if (isNew || isModified) {
+                            recordEvent(summary, path, size, isDelete = false, isCreate = isNew)
+
                             val ext = lower.substringAfterLast('.', missingDelimiterValue = "")
-                            if (ext.isNotBlank() && ext.length <= 12) collector.add(ext)
-                        }
-
-                        if (previous.isNotEmpty()) {
-                            val isNew = old == null
-                            val isModified = !isNew && (old!!.size != size || old.modified != modified)
-
-                            if (isNew || isModified) {
-                                recordEvent(summary, path, size, isDelete = false, isCreate = isNew)
-
-                                // Track ext for uniformity check — only for non-baseline scans
-                                val ext = lower.substringAfterLast('.', missingDelimiterValue = "")
-                                if (ext.isNotBlank() && ext.length <= 12) {
-                                    newExtCounts[ext] = (newExtCounts[ext] ?: 0) + 1
-                                }
+                            if (ext.isNotBlank() && ext.length <= 12) {
+                                newExtCounts[ext] = (newExtCounts[ext] ?: 0) + 1
                             }
                         }
                     }
@@ -230,7 +329,6 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
         if (previous.isEmpty()) {
             previous.clear()
             previous.putAll(current)
-            // Save baseline extensions for this root
             rootBaselineExts[root] = baselineExtCollector ?: emptySet()
             summary.baseline = 1
             return encodeSummary(summary)
@@ -244,12 +342,9 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
             }
         }
 
-        // Uniformity check: any new unknown extension appearing on >= threshold files
-        // is suspicious regardless of what the extension name is
         val baselineExts = rootBaselineExts[root] ?: emptySet()
         for ((ext, count) in newExtCounts) {
             if (count >= NEW_EXT_UNIFORM_THRESHOLD && !baselineExts.contains(ext)) {
-                // Each file with this unknown uniform extension counts as suspicious
                 summary.suspicious += count
             }
         }
@@ -362,36 +457,17 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
         }
 
         val dir = lower.substringBeforeLast('/', missingDelimiterValue = "")
-        if (dir.isNotBlank()) {
-            summary.dirs.add(dir)
-        }
+        if (dir.isNotBlank()) summary.dirs.add(dir)
 
         val ext = lower.substringAfterLast('.', missingDelimiterValue = "")
-        if (ext.isNotBlank() && ext.length <= 12) {
-            summary.exts.add(ext)
-        }
+        if (ext.isNotBlank() && ext.length <= 12) summary.exts.add(ext)
 
         if (!isDelete) {
-            if (isSuspiciousExt(lower)) {
-                summary.suspicious++
-            }
-
-            if (lower.endsWith(".locked")) {
-                summary.locked++
-            }
-
-            if (lower.contains("/copied/")) {
-                summary.copyLike++
-            }
-
-            if (lower.contains("/encrypted/") || isSuspiciousExt(lower)) {
-                summary.encryptLike++
-            }
-
-            if (lower.contains("/source/")) {
-                summary.sourceOnly++
-            }
-
+            if (isSuspiciousExt(lower)) summary.suspicious++
+            if (lower.endsWith(".locked")) summary.locked++
+            if (lower.contains("/copied/")) summary.copyLike++
+            if (lower.contains("/encrypted/") || isSuspiciousExt(lower)) summary.encryptLike++
+            if (lower.contains("/source/")) summary.sourceOnly++
             summary.bytes += size.coerceAtLeast(0L)
         }
     }
@@ -429,15 +505,11 @@ class SystemWatcherUserService : ISystemWatcherService.Stub() {
     private fun readUid(pidDir: File): Int? {
         return try {
             var result: Int? = null
-
             File(pidDir, "status").forEachLine { line ->
                 if (line.startsWith("Uid:")) {
-                    result = line.split("\\s+".toRegex())
-                        .getOrNull(1)
-                        ?.toIntOrNull()
+                    result = line.split("\\s+".toRegex()).getOrNull(1)?.toIntOrNull()
                 }
             }
-
             result
         } catch (_: Throwable) {
             null

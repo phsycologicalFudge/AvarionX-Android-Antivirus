@@ -11,6 +11,7 @@ import '../../../services/service_manager.dart';
 import 'package:latlong2/latlong.dart';
 import 'full_vpn_location_map.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../translations/app_localizations.dart';
 
 class FullVpnController extends ChangeNotifier {
   static const vpnChannel = MethodChannel("cs_vpn_control");
@@ -41,6 +42,7 @@ class FullVpnController extends ChangeNotifier {
 
   bool _busy = false;
   String _status = "";
+  String _statusArg = "";
   String _token = "";
   Map<String, dynamic>? _me;
   bool _connected = false;
@@ -101,7 +103,64 @@ class FullVpnController extends ChangeNotifier {
   };
 
   bool get busy => _busy;
-  String get status => _status;
+  bool get hasStatus => _status.isNotEmpty;
+
+  String statusText(AppLocalizations l10n) {
+    switch (_status) {
+      case 'failedOpenBrowser':
+        return l10n.vpnBackendFailedOpenBrowser;
+      case 'signedIn':
+        return l10n.vpnBackendSignedIn;
+      case 'signedOut':
+        return l10n.vpnBackendSignedOut;
+      case 'sessionExpiredSignIn':
+        return l10n.vpnBackendSessionExpiredSignIn;
+      case 'failedLoadAccountStatus':
+        return l10n.vpnBackendFailedLoadAccountStatus(_statusArg);
+      case 'failedLoadAccountError':
+        return l10n.vpnBackendFailedLoadAccountError(_statusArg);
+      case 'signInFirst':
+        return l10n.vpnBackendSignInFirst;
+      case 'connecting':
+        return l10n.vpnBackendConnecting;
+      case 'notificationsPermissionRequired':
+        return l10n.vpnBackendNotificationsPermissionRequired;
+      case 'vpnPermissionNotGranted':
+        return l10n.vpnBackendPermissionNotGranted;
+      case 'anotherVpnActive':
+        return l10n.vpnBackendAnotherVpnActive;
+      case 'provisionIncomplete':
+        return l10n.vpnBackendProvisionIncomplete;
+      case 'securingConnection':
+        return l10n.vpnBackendSecuringConnection;
+      case 'connected':
+        return l10n.vpnBackendConnected;
+      case 'wireGuardFailed':
+        return l10n.vpnBackendWireGuardFailed(_statusArg);
+      case 'disconnecting':
+        return l10n.vpnBackendDisconnecting;
+      case 'disconnected':
+        return l10n.vpnBackendDisconnected;
+      case 'selectedServer':
+        return l10n.vpnBackendSelectedServer(_statusArg);
+      case 'switchingServer':
+        return l10n.vpnBackendSwitchingServer(_statusArg);
+      case 'vpnKeyNotFound':
+        return l10n.vpnBackendKeyNotFound;
+      case 'dnsUpdated':
+        return l10n.vpnBackendDnsUpdated;
+      case 'sessionExpired':
+        return l10n.vpnBackendSessionExpired;
+      case 'failedStatus':
+        return l10n.vpnBackendFailedStatus(_statusArg);
+      case 'planNotAllowed':
+        return l10n.vpnBackendPlanNotAllowed;
+      case 'provisionFailed':
+        return l10n.vpnBackendProvisionFailed(_statusArg);
+      default:
+        return '';
+    }
+  }
   String get token => _token;
   Map<String, dynamic>? get me => _me;
   bool get connected => _connected;
@@ -121,7 +180,7 @@ class FullVpnController extends ChangeNotifier {
     final u = Uri.parse(loginUrl);
     final ok = await launchUrl(u, mode: LaunchMode.externalApplication);
     if (!ok) {
-      _status = "Failed to open browser.";
+      _status = "failedOpenBrowser";
       notifyListeners();
     }
   }
@@ -182,14 +241,14 @@ class FullVpnController extends ChangeNotifier {
     await refreshLocation(force: true);
     await fetchUsage(showSync: true);
     _startUsagePolling();
-    _status = "Signed in.";
+    _status = "signedIn";
     notifyListeners();
   }
 
   Future<void> signOut() async {
     await disconnect();
     await _clearSession();
-    _status = "Signed out.";
+    _status = "signedOut";
     notifyListeners();
   }
 
@@ -206,21 +265,24 @@ class FullVpnController extends ChangeNotifier {
         final j = jsonDecode(res.body) as Map<String, dynamic>;
         _me = (j["user"] as Map?)?.cast<String, dynamic>();
         _status = "";
+        _statusArg = "";
         notifyListeners();
         return;
       }
 
       if (res.statusCode == 401) {
         await _clearSession();
-        _status = "Session expired. Sign in again.";
+        _status = "sessionExpiredSignIn";
         notifyListeners();
         return;
       }
 
-      _status = "Failed to load account (${res.statusCode}).";
+      _status = "failedLoadAccountStatus";
+      _statusArg = res.statusCode.toString();
       notifyListeners();
     } catch (e) {
-      _status = "Failed to load account ($e).";
+      _status = "failedLoadAccountError";
+      _statusArg = e.toString();
       notifyListeners();
     }
   }
@@ -252,7 +314,7 @@ class FullVpnController extends ChangeNotifier {
     } catch (e) {
       if (e.toString().contains("unauthorized")) {
         await _clearSession();
-        _status = "Session expired. Sign in again.";
+        _status = "sessionExpiredSignIn";
         notifyListeners();
       }
     }
@@ -335,20 +397,20 @@ class FullVpnController extends ChangeNotifier {
 
   Future<void> connect() async {
     if (_token.isEmpty) {
-      _status = "Sign in first.";
+      _status = "signInFirst";
       notifyListeners();
       return;
     }
 
     await _runBusy(() async {
       _connectingUi = true;
-      _status = "Connecting...";
+      _status = "connecting";
       notifyListeners();
 
       final notif = await Permission.notification.request();
       if (!notif.isGranted) {
         _connectingUi = false;
-        _status = "Notifications permission required.";
+        _status = "notificationsPermissionRequired";
         notifyListeners();
         return;
       }
@@ -356,7 +418,7 @@ class FullVpnController extends ChangeNotifier {
       final ok = await _requestVpnPermission();
       if (!ok) {
         _connectingUi = false;
-        _status = "VPN permission not granted.";
+        _status = "vpnPermissionNotGranted";
         notifyListeners();
         return;
       }
@@ -364,7 +426,7 @@ class FullVpnController extends ChangeNotifier {
       final conflict = await _isAnotherVpnActive();
       if (conflict) {
         _connectingUi = false;
-        _status = "Another VPN is active. Disable it first.";
+        _status = "anotherVpnActive";
         notifyListeners();
         return;
       }
@@ -395,7 +457,7 @@ class FullVpnController extends ChangeNotifier {
 
       if (assignedIp.isEmpty || endpoint.isEmpty || serverPublicKey.isEmpty || allowed.isEmpty) {
         _connectingUi = false;
-        _status = "Provision returned incomplete settings.";
+        _status = "provisionIncomplete";
         notifyListeners();
         return;
       }
@@ -420,7 +482,7 @@ class FullVpnController extends ChangeNotifier {
         await vpnChannel.invokeMethod("startWireGuard", {"config": cfg});
         await _setGlobalModeFull();
 
-        _status = "Securing connection...";
+        _status = "securingConnection";
         notifyListeners();
 
         await _syncWithRuntime();
@@ -434,11 +496,12 @@ class FullVpnController extends ChangeNotifier {
         await refreshLocation(force: true);
 
         _connectingUi = false;
-        _status = "Connected.";
+        _status = "connected";
         notifyListeners();
       } catch (e) {
         _connectingUi = false;
-        _status = "Failed to start WireGuard ($e).";
+        _status = "wireGuardFailed";
+        _statusArg = e.toString();
         notifyListeners();
         await _syncWithRuntime();
       }
@@ -448,7 +511,7 @@ class FullVpnController extends ChangeNotifier {
   Future<void> disconnect() async {
     await _runBusy(() async {
       _connectingUi = false;
-      _status = "Disconnecting...";
+      _status = "disconnecting";
       notifyListeners();
 
       try {
@@ -461,7 +524,7 @@ class FullVpnController extends ChangeNotifier {
       await _syncWithRuntime();
       await refreshLocation(force: true);
 
-      _status = "Disconnected.";
+      _status = "disconnected";
       notifyListeners();
     });
   }
@@ -470,7 +533,8 @@ class FullVpnController extends ChangeNotifier {
     if (_busy) return;
 
     _selectedServerId = s.id;
-    _status = "Selected ${s.label}";
+    _status = "selectedServer";
+    _statusArg = s.label;
     notifyListeners();
 
     await _persistSelectedServer();
@@ -484,7 +548,8 @@ class FullVpnController extends ChangeNotifier {
       } catch (_) {}
 
       await _setGlobalModeOff();
-      _status = "Switching to ${s.label}...";
+      _status = "switchingServer";
+      _statusArg = s.label;
       notifyListeners();
 
       await _syncWithRuntime();
@@ -500,7 +565,7 @@ class FullVpnController extends ChangeNotifier {
 
   Future<void> saveDnsSettings() async {
     if (_token.isEmpty) {
-      _status = "Sign in first.";
+      _status = "signInFirst";
       notifyListeners();
       return;
     }
@@ -510,7 +575,7 @@ class FullVpnController extends ChangeNotifier {
       final pub = prefs.getString(kWgPub) ?? "";
 
       if (pub.isEmpty) {
-        _status = "VPN key not found.";
+        _status = "vpnKeyNotFound";
         notifyListeners();
         return;
       }
@@ -533,14 +598,15 @@ class FullVpnController extends ChangeNotifier {
 
       if (res.statusCode == 200) {
         await persistBlocklists();
-        _status = "DNS settings updated.";
+        _status = "dnsUpdated";
         notifyListeners();
       } else if (res.statusCode == 401) {
         await _clearSession();
-        _status = "Session expired.";
+        _status = "sessionExpired";
         notifyListeners();
       } else {
-        _status = "Failed (${res.statusCode}).";
+        _status = "failedStatus";
+        _statusArg = res.statusCode.toString();
         notifyListeners();
       }
     });
@@ -826,18 +892,19 @@ class FullVpnController extends ChangeNotifier {
 
     if (res.statusCode == 401) {
       await _clearSession();
-      _status = "Session expired. Sign in again.";
+      _status = "sessionExpiredSignIn";
       notifyListeners();
       return null;
     }
 
     if (res.statusCode == 403) {
-      _status = "Your plan is not allowed to use Full VPN.";
+      _status = "planNotAllowed";
       notifyListeners();
       return null;
     }
 
-    _status = "Provision failed (${res.statusCode}).";
+    _status = "provisionFailed";
+    _statusArg = res.statusCode.toString();
     notifyListeners();
     return null;
   }

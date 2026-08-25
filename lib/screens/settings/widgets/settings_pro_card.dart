@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../translations/app_localizations.dart';
 class SettingsProCard extends StatelessWidget {
   final bool isPro;
   final VoidCallback onOpenProOptions;
@@ -93,7 +94,7 @@ class SettingsProCard extends StatelessWidget {
                       horizontal: 6,
                     ),
                     child: Text(
-                      'Change plan',
+                      AppLocalizations.of(context)!.settingsProCardChangePlan,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w700,
                         decoration: TextDecoration.underline,
@@ -179,7 +180,7 @@ class SettingsProCard extends StatelessWidget {
                   height: 48,
                   child: OutlinedButton(
                     onPressed: onRestorePurchases,
-                    child: const Text('Restore'),
+                    child:  Text(AppLocalizations.of(context)!.quarantineRestore),
                   ),
                 ),
               ],

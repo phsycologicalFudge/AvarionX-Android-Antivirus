@@ -171,21 +171,17 @@ class AntivirusBridge {
 
   static int unpackVerdict(int r) => r;
 
-  int init(String defsPath, String keyPath) {
+  int init(String defsPath) {
     final defs = defsPath.toNativeUtf8();
-    final key = keyPath.toNativeUtf8();
-    final res = _init(defs, key);
+    final res = _init(defs, nullptr);
     malloc.free(defs);
-    malloc.free(key);
     return res;
   }
 
-  int reload(String defsPath, String keyPath) {
+  int reload(String defsPath) {
     final defs = defsPath.toNativeUtf8();
-    final key = keyPath.toNativeUtf8();
-    final res = _reload(defs, key);
+    final res = _reload(defs, nullptr);
     malloc.free(defs);
-    malloc.free(key);
     return res;
   }
 

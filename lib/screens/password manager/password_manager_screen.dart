@@ -11,6 +11,7 @@ import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
 import 'Password_Settings_Screen.dart';
 
+import '../../translations/app_localizations.dart';
 class PasswordTestScreen extends StatefulWidget {
   const PasswordTestScreen({super.key});
 
@@ -92,19 +93,19 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Set Meta Password'),
+              title:  Text(AppLocalizations.of(context)!.metaPassSetMetaTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Enter your meta password. It never leaves this device. All vault passwords rely on it.',
+                   Text(
+                    AppLocalizations.of(context)!.metaPassSetMetaBody,
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     obscureText: obscure,
                     onChanged: (v) => temp = v,
                     decoration: InputDecoration(
-                      labelText: 'Meta password',
+                      labelText: AppLocalizations.of(context)!.passwordSettingsMetaPasswordTitle,
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.key_rounded),
                       suffixIcon: IconButton(
@@ -123,17 +124,17 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                         onChanged: (v) =>
                             setState(() => remember = v ?? false),
                       ),
-                      const Expanded(
+                       Expanded(
                         child: Text(
-                          'Remember for this device (stored securely)',
+                          AppLocalizations.of(context)!.metaPassRememberThisDevice,
                           style: TextStyle(fontSize: 11),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Changing this later changes all generated passwords. Using the same meta password restores them.',
+                   Text(
+                    AppLocalizations.of(context)!.metaPassChangingMetaWarning,
                     style: TextStyle(fontSize: 10),
                   ),
                 ],
@@ -141,14 +142,14 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, null),
-                  child: const Text('Cancel'),
+                  child:  Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     if (temp.isEmpty) return;
                     Navigator.pop(context, temp);
                   },
-                  child: const Text('Continue'),
+                  child:  Text(AppLocalizations.of(context)!.passwordManagerContinue),
                 ),
               ],
             );
@@ -182,7 +183,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.apps_rounded),
-              title: const Text('Pick from installed apps'),
+              title:  Text(AppLocalizations.of(context)!.metaPassPickFromInstalledApps),
               onTap: () {
                 Navigator.pop(context);
                 _pickInstalledApp();
@@ -190,7 +191,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.language_rounded),
-              title: const Text('Add website or custom label'),
+              title:  Text(AppLocalizations.of(context)!.metaPassAddWebsiteOrLabel),
               onTap: () {
                 Navigator.pop(context);
                 _showManualAddDialog();
@@ -254,7 +255,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
               }
 
               return AlertDialog(
-                title: const Text('Select an app'),
+                title:  Text(AppLocalizations.of(context)!.metaPassSelectApp),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -262,9 +263,9 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                       TextField(
                         controller: controller,
                         onChanged: filter,
-                        decoration: const InputDecoration(
+                        decoration:  InputDecoration(
                           prefixIcon: Icon(Icons.search_rounded),
-                          hintText: 'Search apps',
+                          hintText: AppLocalizations.of(context)!.metaPassSearchApps,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -296,7 +297,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, null),
-                    child: const Text('Cancel'),
+                    child:  Text(AppLocalizations.of(context)!.cancel),
                   ),
                 ],
               );
@@ -316,7 +317,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
       if (mounted) Navigator.pop(context);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load apps: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordManagerFailedToLoadApps(e))),
       );
     }
   }
@@ -330,16 +331,16 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add entry'),
+          title:  Text(AppLocalizations.of(context)!.metaPassAddEntryTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: labelCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Name or URL',
-                    hintText: 'e.g. nextcloud, steam, example.com',
+                  decoration:  InputDecoration(
+                    labelText: AppLocalizations.of(context)!.metaPassNameOrUrl,
+                    hintText: AppLocalizations.of(context)!.metaPassNameOrUrlHint,
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -349,8 +350,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                     Expanded(
                       child: TextField(
                         controller: versionCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Version',
+                        decoration:  InputDecoration(
+                          labelText: AppLocalizations.of(context)!.metaPassVersion,
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -360,8 +361,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                     Expanded(
                       child: TextField(
                         controller: lengthCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Length',
+                        decoration:  InputDecoration(
+                          labelText: AppLocalizations.of(context)!.metaPassLength,
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -375,7 +376,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, null),
-              child: const Text('Cancel'),
+              child:  Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -391,7 +392,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                   'icon': null,
                 });
               },
-              child: const Text('Save'),
+              child:  Text(AppLocalizations.of(context)!.vpnSave),
             ),
           ],
         );
@@ -445,8 +446,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                     Expanded(
                       child: TextField(
                         controller: versionCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Version',
+                        decoration:  InputDecoration(
+                          labelText: AppLocalizations.of(context)!.metaPassVersion,
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -456,8 +457,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                     Expanded(
                       child: TextField(
                         controller: lengthCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Length',
+                        decoration:  InputDecoration(
+                          labelText: AppLocalizations.of(context)!.metaPassLength,
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -471,7 +472,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, null),
-              child: const Text('Cancel'),
+              child:  Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -482,7 +483,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                   'length': length,
                 });
               },
-              child: const Text('Save'),
+              child:  Text(AppLocalizations.of(context)!.vpnSave),
             ),
           ],
         );
@@ -572,16 +573,16 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove entry'),
-        content: Text('Remove "${entry['label']}" from your vault?'),
+        title:  Text(AppLocalizations.of(context)!.metaPassRemoveEntryTitle),
+        content: Text(AppLocalizations.of(context)!.metaPassRemoveEntryBody(entry['label'])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child:  Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            child:  Text(AppLocalizations.of(context)!.metaPassRemove),
           ),
         ],
       ),
@@ -623,13 +624,13 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Password copied for $label (v$v, $length chars)'),
+          content: Text(AppLocalizations.of(context)!.metaPassPasswordCopied(label, v, length)),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to generate password: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordManagerFailedToGeneratePassword(e))),
       );
     }
   }
@@ -709,19 +710,19 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('How MetaPass works'),
-        content: const Text(
-          'Passwords are never stored.\n\n'
-              'Each entry derives a password from:\n'
-              '• Your meta password\n'
-              '• The label(name)\n'
-              '• The version and length\n\n'
-              'Reinstalling the app with the same meta password and labels regenerates the same passwords.',
+        title:  Text(AppLocalizations.of(context)!.metaPassHowItWorks),
+        content:  Text(
+          AppLocalizations.of(context)!.passwordManagerPasswordsAreNeverStored +
+              AppLocalizations.of(context)!.passwordManagerEachEntryDerivesAPasswordFrom +
+              AppLocalizations.of(context)!.passwordManagerYourMetaPassword +
+              AppLocalizations.of(context)!.passwordManagerTheLabelName +
+              AppLocalizations.of(context)!.passwordManagerTheVersionAndLength +
+              AppLocalizations.of(context)!.passwordManagerReinstallingTheAppWithTheSameMeta,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child:  Text(AppLocalizations.of(context)!.ok),
           ),
         ],
       ),
@@ -737,7 +738,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('MetaPass'),
+        title:  Text(AppLocalizations.of(context)!.passwordSettingsSectionMetaPass),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_rounded),
@@ -768,7 +769,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
-                    'powered by VX-TITANIUM',
+                    AppLocalizations.of(context)!.metaPassPoweredBy,
                     style: text.bodySmall?.copyWith(
                       fontSize: 11,
                       color: text.bodySmall?.color?.withOpacity(0.4),
@@ -843,7 +844,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                               _buildVersionDropdown(entry, index),
                               const SizedBox(width: 8),
                               Text(
-                                '$length chars',
+                                AppLocalizations.of(context)!.metaPassChars(length),
                                 style: text.bodySmall?.copyWith(
                                   color: text.bodySmall?.color
                                       ?.withOpacity(0.7),
@@ -853,7 +854,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Tap to copy. Long-press to remove.',
+                            AppLocalizations.of(context)!.metaPassTapToCopyHint,
                             style: text.bodySmall?.copyWith(
                               fontSize: 10,
                               color: text.bodySmall?.color
@@ -867,7 +868,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                     IconButton(
                       icon: const Icon(Icons.copy_rounded, size: 20),
                       onPressed: () => _copyPasswordForEntry(entry),
-                      tooltip: 'Copy password',
+                      tooltip: AppLocalizations.of(context)!.metaPassCopyTooltip,
                     ),
                   ],
                 ),
@@ -899,14 +900,14 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No entries yet',
+              AppLocalizations.of(context)!.metaPassEmptyTitle,
               style: text.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Add an app or website.\nPasswords are generated on-device from your secret meta password.',
+              AppLocalizations.of(context)!.metaPassEmptyBody,
               style: text.bodySmall?.copyWith(
                 color: text.bodySmall?.color
                     ?.withOpacity(0.7),
@@ -918,8 +919,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
             FilledButton.icon(
               onPressed: _onAddPressed,
               icon: const Icon(Icons.add_rounded),
-              label: const Text(
-                  'Add first entry'),
+              label:  Text(
+                  AppLocalizations.of(context)!.metaPassAddFirstEntry),
             ),
           ],
         ),

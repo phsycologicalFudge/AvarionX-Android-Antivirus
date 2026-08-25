@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path/path.dart' as p;
@@ -173,6 +174,16 @@ class QuarantineService {
     return Uint8List.fromList(plain);
   }
 
+  static Future<Uint8List> readQuarantinedBytes(String qPath) async {
+    await init();
+    final file = File(qPath);
+    if (!await file.exists()) {
+      throw Exception('Quarantine file missing');
+    }
+    final all = await file.readAsBytes();
+    return _readPlainOrDecryptLegacy(Uint8List.fromList(all));
+  }
+
   static Future<void> restore(String id) async {
     await init();
 
@@ -250,6 +261,7 @@ class QuarantineService {
   }
 
   static Future<List<Map<String, dynamic>>> listAll() async {
+    _box = null;
     await init();
 
     final out = <Map<String, dynamic>>[];
@@ -293,7 +305,9 @@ class QuarantineService {
         continue;
       }
 
-      if (qPath is! String || qPath.isEmpty || orig is! String || orig.isEmpty) {
+      final isApp = v['type'] == 'app';
+
+      if (!isApp && (qPath is! String || qPath.isEmpty || orig is! String || orig.isEmpty)) {
         try {
           await _box!.delete(k);
         } catch (_) {}
@@ -370,6 +384,50 @@ class QuarantineService {
       await ExclusionsStore.instance.addTemporary(outPath, const Duration(hours: 24));
     }
     return result.map<String>((e) => e['outPath'] as String).toList();
+  }
+
+  static Future<Map<String, dynamic>> quarantineApp({
+    required String packageName,
+    required String appName,
+    required String apkPath,
+  }) async {
+    await init();
+
+    for (final k in _box!.keys) {
+      final raw = _box!.get(k);
+      if (raw is Map && raw['type'] == 'app' && raw['packageName'] == packageName) {
+        return Map<String, dynamic>.from(raw);
+      }
+    }
+
+    final id = _id();
+
+    final meta = <String, dynamic>{
+      'id': id,
+      'type': 'app',
+      'packageName': packageName,
+      'appName': appName,
+      'name': appName,
+      'originalPath': apkPath,
+      'iconBytes': null,
+      'size': 0,
+      'date': DateTime.now().toIso8601String(),
+      'fmt': 1,
+      'qPath': '',
+    };
+
+    await _box!.put(id, meta);
+    return meta;
+  }
+
+  static Future<void> uninstallApp(String packageName) async {
+    const ch = MethodChannel('cs.quarantine');
+    await ch.invokeMethod('uninstallApp', {'package': packageName});
+  }
+
+  static Future<void> deleteAppEntry(String id) async {
+    await init();
+    await _box!.delete(id);
   }
 }
 

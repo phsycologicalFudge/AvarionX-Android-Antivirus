@@ -4,6 +4,7 @@ import 'package:colourswift_av/screens/password%20manager/password_manager_scree
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -18,6 +19,8 @@ import '../../services/defs_auto_update_service.dart';
 import '../../services/pro_temp_service.dart';
 import '../../services/purchase_service.dart';
 import '../../services/realtime_protection_service.dart';
+import '../../services/scan api/community_submissions/community_submission_service.dart';
+import '../../services/scan api/scan_types.dart';
 import '../../services/scan_scheduler.dart';
 import '../../services/scan_session_service.dart';
 import '../../services/service_manager.dart';
@@ -30,7 +33,7 @@ import '../../widgets/mesh_background.dart';
 import '../link checker/link_check_screen.dart';
 import '../pro/pro_screen.dart';
 import '../quarantine/quarantine_screen.dart';
-import '../scan_ui_screen.dart';
+import '../scan/main_scan_ui/scan_screen.dart';
 import 'av_home_drawer.dart';
 import 'av_home_feature_row.dart';
 import 'av_home_primary_control.dart';
@@ -40,7 +43,7 @@ import 'security_report_screen.dart';
 import '../apkAnalyser/apk_analyser.dart';
 import '../scan/scan_limits_screen.dart';
 import '../settings/settings_screen.dart';
-import '../terminal_screen.dart';
+import '../../terminal/terminal_screen.dart';
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -184,7 +187,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
           try {
             AntivirusBridge().reload(
               paths['defsPath']!,
-              paths['keyPath']!,
             );
           } catch (_) {}
         }
@@ -294,6 +296,13 @@ class AvHomeScreenState extends State<AvHomeScreen>
       await _syncDefsOnForeground(forceServerCheck: true);
     });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (await CommunitySubmissionService.hasBeenAsked()) return;
+      if (!mounted) return;
+      _showApkSubmissionAsk();
+    });
+
     DefsAutoUpdateService.maybeRun().then((_) async {
       if (!mounted) return;
       await _loadDefsVersion();
@@ -341,6 +350,123 @@ class AvHomeScreenState extends State<AvHomeScreen>
       _loadDefsVersion();
       _syncDefsOnForeground(forceServerCheck: true);
     }
+  }
+
+  Future<void> _openVttiPlatform() async {
+    final url = Uri.parse('https://platform.colourswift.com');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _showApkSubmissionAsk() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+        final scheme = theme.colorScheme;
+
+        return AlertDialog(
+          backgroundColor: scheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            AppLocalizations.of(context)!.homeHelpImproveDetectionsForEverybody,
+            style: text.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  style: text.bodySmall?.copyWith(
+                    height: 1.4,
+                    color: text.bodySmall?.color?.withOpacity(0.85),
+                  ),
+                  children: [
+                     TextSpan(
+                      text: AppLocalizations.of(context)!.homeApkSAndroidAppsFoundToBe +
+                          AppLocalizations.of(context)!.homeCanBeUploadedTo,
+                    ),
+                    TextSpan(
+                      text: 'VTTI Cloud',
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = _openVttiPlatform,
+                    ),
+                     TextSpan(
+                      text: AppLocalizations.of(context)!.homeAndSharedWithTheCommunityThisIs +
+                          AppLocalizations.of(context)!.homeStrictlyLimitedToAPKFilesNOTYour +
+                          AppLocalizations.of(context)!.homeDocuments +
+                          AppLocalizations.of(context)!.homeThisWillImproveDetectionsForEveryoneThat +
+                          AppLocalizations.of(context)!.homeUsesAvarionXNoPressureThough +
+                          AppLocalizations.of(context)!.homeThanks +
+                          AppLocalizations.of(context)!.homeRyanfromcolourswift,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () async {
+                        await CommunitySubmissionService.setEnabled(true);
+                        await CommunitySubmissionService.markAsked();
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child:  Text(AppLocalizations.of(context)!.homeSure),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        await CommunitySubmissionService.setEnabled(false);
+                        await CommunitySubmissionService.markAsked();
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child:  Text(AppLocalizations.of(context)!.homeNoThanks),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  onPressed: () async {
+                    await CommunitySubmissionService.setEnabled(false);
+                    await CommunitySubmissionService.markAsked();
+                    if (context.mounted) Navigator.pop(context);
+                    Navigator.push(
+                        context, animatedRoute(const SettingsScreen()));
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.homePsstCustomiseItHere,
+                    style: text.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.55),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showRtpInfo() {
@@ -424,11 +550,10 @@ class AvHomeScreenState extends State<AvHomeScreen>
                   await UpdateService.setLocalVersion(newRemoteVersion);
 
                   final dir = await getApplicationDocumentsDirectory();
-                  final defsPath = '${dir.path}/defs.vxpack';
-                  final keyPath = '${dir.path}/defs_key.bin';
+                  final defsPath = '${dir.path}/defs.cs';
 
                   try {
-                    AntivirusBridge().reload(defsPath, keyPath);
+                    AntivirusBridge().reload(defsPath);
                   } catch (e) {
                     debugPrint('[DefsUpdate] Engine reload failed: $e');
                   }
@@ -828,7 +953,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
   String _stateLine1(AppLocalizations l10n) {
     if (!protectionEnabled) return l10n.stateOffLine1;
     if (shizukuRtpEnabled) return l10n.stateAdvancedActiveLine1;
-    return 'Real-Time Protection';
+    return l10n.homeRealtimeProtectionTitle;
   }
 
   LinearGradient _proHeaderGradient(ThemeData theme) {
@@ -922,41 +1047,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                           isPro: isPro,
                           onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                         ),
-                      if (_proStatusResolved && !isPro)
-                        Positioned(
-                          top: 10,
-                          right: 12,
-                          child: SizedBox(
-                            height: 34,
-                            child: FilledButton(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFFB8860B),
-                                foregroundColor: Colors.white,
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                              ),
-                              onPressed: () async {
-                                final res = await Navigator.push(
-                                  context,
-                                  animatedRoute(const ProScreen()),
-                                );
-                                if (res == true) {
-                                  await _loadProStatus();
-                                }
-                              },
-                              child: Text(
-                                l10n.homeUpgrade,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+
                     ],
                   ),
                   Padding(
@@ -980,22 +1071,26 @@ class AvHomeScreenState extends State<AvHomeScreen>
                         ),
                         const SizedBox(height: 20),
                         AvHomeFeatureRow(
-                          title: 'Scan Now',
-                          description: 'Manually check your device for malware',
+                          title: AppLocalizations.of(context)!.homeScanNow,
+                          description: AppLocalizations.of(context)!.homeManuallyCheckYourDeviceForMalware,
                           icon: Icons.search_rounded,
                           color: theme.colorScheme.primary,
                           onTap: _handleScanButton,
                         ),
                         const SizedBox(height: 8),
                         FutureBuilder<DeviceSecuritySummary>(
-                          future: DeviceSecurityScreen.loadSummary(),
+                          future: DeviceSecurityScreen.loadSummary(
+                            AppLocalizations.of(context)!,
+                          ),
                           builder: (context, snapshot) {
                             final summary =
                                 snapshot.data ?? const DeviceSecuritySummary.empty();
 
                             return AvHomeFeatureRow(
-                              title: 'Device Security',
-                              description: summary.homeLabel,
+                              title: AppLocalizations.of(context)!.homeDeviceSecurity,
+                              description: summary.homeLabel(
+                                AppLocalizations.of(context)!,
+                              ),
                               icon: Icons.security_rounded,
                               color: summary.hasRisk
                                   ? Colors.redAccent
@@ -1071,7 +1166,7 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
   }
 
   void _startMode(ScanMode mode) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       animatedRoute(ScanScreen(startMode: mode)),
     );
@@ -1089,7 +1184,7 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
       backgroundColor: scheme.surface,
       appBar: AppBar(
         title: Text(
-          'Scan Modes',
+          AppLocalizations.of(context)!.homeScanModes,
           style: text.titleLarge?.copyWith(
             fontWeight: FontWeight.w800,
             color: scheme.onSurface,
@@ -1187,8 +1282,8 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   localCloudScan
-                                      ? 'Cloud-assisted checks enabled'
-                                      : 'Local scan engine only',
+                                      ? AppLocalizations.of(context)!.homeCloudAssistedChecksEnabled
+                                      : AppLocalizations.of(context)!.homeLocalScanEngineOnly,
                                   style: text.bodySmall?.copyWith(
                                     height: 1.35,
                                     color: scheme.onSurface.withOpacity(0.54),
@@ -1324,7 +1419,7 @@ class _AvarionXSecurityFooter extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            'Protected by VX-TITANIUM',
+            AppLocalizations.of(context)!.homeProtectedByVXTITANIUM,
             style: text.labelSmall?.copyWith(
               letterSpacing: 0.2,
               color: scheme.onSurface.withOpacity(0.62),
@@ -1442,7 +1537,7 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Security Overview',
+                            AppLocalizations.of(context)!.homeSecurityOverview,
                             style: text.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: scheme.onSurface.withOpacity(0.88),
@@ -1450,7 +1545,7 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            data.latestLabel,
+                            data.latestLabel(AppLocalizations.of(context)!),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: text.bodySmall?.copyWith(
@@ -1463,14 +1558,14 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                             children: [
                               Expanded(
                                 child: _OverviewMetric(
-                                  label: 'Files checked',
+                                  label: AppLocalizations.of(context)!.homeFilesChecked,
                                   value: _compactCount(data.filesChecked),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _OverviewMetric(
-                                  label: 'Threats',
+                                  label: AppLocalizations.of(context)!.homeThreats,
                                   value: _compactCount(data.threats),
                                 ),
                               ),
@@ -1591,7 +1686,7 @@ class _HomeSecuritySnapshot {
         lastRtpEventAt = null,
         lastScheduledScanAt = null;
 
-  String get latestLabel {
+  String latestLabel(AppLocalizations l10n) {
     final latest = [
       lastManualScanAt,
       lastRtpEventAt,
@@ -1601,19 +1696,18 @@ class _HomeSecuritySnapshot {
       return value > prev ? value : prev;
     });
 
-    if (latest == null) return 'No report data yet';
-    return 'Last activity ${_relativeTime(latest)}';
+    if (latest == null) return l10n.securityNoReportDataYet;
+    return l10n.securityLastActivity(_relativeTime(latest, l10n));
   }
 
-  static String _relativeTime(int millis) {
+  static String _relativeTime(int millis, AppLocalizations l10n) {
     final date = DateTime.fromMillisecondsSinceEpoch(millis);
     final diff = DateTime.now().difference(date);
 
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.timeJustNow;
+    if (diff.inMinutes < 60) return l10n.timeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeDaysAgo(diff.inDays);
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }
-

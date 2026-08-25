@@ -219,7 +219,7 @@ abstract class AppLocalizations {
   /// No description provided for @engineReadyBanner.
   ///
   /// In en, this message translates to:
-  /// **'VX-TITANIUM-v8'**
+  /// **'VX-TITANIUM-v9'**
   String get engineReadyBanner;
 
   /// No description provided for @scanButton.
@@ -357,7 +357,7 @@ abstract class AppLocalizations {
   /// No description provided for @dbVersionAutoUpdated.
   ///
   /// In en, this message translates to:
-  /// **'Database v{version} • Auto updated'**
+  /// **'Database v{version}'**
   String dbVersionAutoUpdated(Object version);
 
   /// No description provided for @rtpInfoTitle.
@@ -3502,7 +3502,3790 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'This will permanently delete {count} item{plural}.'**
-  String quarantineDeleteDialogBody(Object count, Object plural);
+  String quarantineDeleteDialogBody(Object count, String plural);
+
+  /// No description provided for @howThisAppWorksHowAvarionXWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How AvarionX Works'**
+  String get howThisAppWorksHowAvarionXWorks;
+
+  /// No description provided for @howThisAppWorksAvarionxIsAMobileSecurityAppThat.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX is a mobile security app that combines on device antivirus scanning, network protection, and optional VPN features. '**
+  String get howThisAppWorksAvarionxIsAMobileSecurityAppThat;
+
+  /// No description provided for @howThisAppWorksTheAntivirusEngineIsPoweredByVX.
+  ///
+  /// In en, this message translates to:
+  /// **'The antivirus engine is powered by VX-Titanium.'**
+  String get howThisAppWorksTheAntivirusEngineIsPoweredByVX;
+
+  /// No description provided for @howThisAppWorksIfYouUseNetworkProtectionOrVPN.
+  ///
+  /// In en, this message translates to:
+  /// **'If you use network protection or VPN features, the app connects to ColourSwift services to apply your settings, manage your account access, and route protected traffic.'**
+  String get howThisAppWorksIfYouUseNetworkProtectionOrVPN;
+
+  /// No description provided for @howThisAppWorksKeyFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Key Features'**
+  String get howThisAppWorksKeyFeatures;
+
+  /// No description provided for @howThisAppWorksRealTimeProtectionForDownloadedThreats.
+  ///
+  /// In en, this message translates to:
+  /// **'• Real-time protection for downloaded threats'**
+  String get howThisAppWorksRealTimeProtectionForDownloadedThreats;
+
+  /// No description provided for @howThisAppWorksNetworkProtectionWithDNSFiltering.
+  ///
+  /// In en, this message translates to:
+  /// **'• Network protection with DNS filtering'**
+  String get howThisAppWorksNetworkProtectionWithDNSFiltering;
+
+  /// No description provided for @howThisAppWorksOptionalSecureVPNMode.
+  ///
+  /// In en, this message translates to:
+  /// **'• Optional Secure VPN mode'**
+  String get howThisAppWorksOptionalSecureVPNMode;
+
+  /// No description provided for @howThisAppWorksBuiltInToolsSuchAsLinkChecker.
+  ///
+  /// In en, this message translates to:
+  /// **'• Built in tools such as Link Checker'**
+  String get howThisAppWorksBuiltInToolsSuchAsLinkChecker;
+
+  /// No description provided for @howThisAppWorksNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get howThisAppWorksNotes;
+
+  /// No description provided for @howThisAppWorksSomeFeaturesMayRequireSignInAn.
+  ///
+  /// In en, this message translates to:
+  /// **'Some features may require sign in, an active plan, or device permissions to work properly.'**
+  String get howThisAppWorksSomeFeaturesMayRequireSignInAn;
+
+  /// No description provided for @apkAnalyserCopyCurrentReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Current Report'**
+  String get apkAnalyserCopyCurrentReport;
+
+  /// No description provided for @apkAnalyserReportCopiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Report copied to clipboard'**
+  String get apkAnalyserReportCopiedToClipboard;
+
+  /// No description provided for @apkAnalyserExportCurrentAsPDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Current as PDF'**
+  String get apkAnalyserExportCurrentAsPDF;
+
+  /// No description provided for @apkAnalyserFailedToExportPDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export PDF'**
+  String get apkAnalyserFailedToExportPDF;
+
+  /// No description provided for @apkAnalyserExportCurrentAsCSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Current as CSV'**
+  String get apkAnalyserExportCurrentAsCSV;
+
+  /// No description provided for @apkAnalyserFailedToExportCSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export CSV'**
+  String get apkAnalyserFailedToExportCSV;
+
+  /// No description provided for @apkAnalyserViewSavedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'View Saved Reports'**
+  String get apkAnalyserViewSavedReports;
+
+  /// No description provided for @apkAnalyserClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear History'**
+  String get apkAnalyserClearHistory;
+
+  /// No description provided for @apkAnalyserReportHistoryCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Report history cleared'**
+  String get apkAnalyserReportHistoryCleared;
+
+  /// No description provided for @apkAnalyserSavedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Reports'**
+  String get apkAnalyserSavedReports;
+
+  /// No description provided for @apkAnalyserNoSavedReportsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved reports found.'**
+  String get apkAnalyserNoSavedReportsFound;
+
+  /// No description provided for @apkAnalyserChooseTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Target'**
+  String get apkAnalyserChooseTarget;
+
+  /// No description provided for @apkAnalyserSelectASourceToAnalyseWithVTTI.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a source to analyse with VTTI Cloud.'**
+  String get apkAnalyserSelectASourceToAnalyseWithVTTI;
+
+  /// No description provided for @apkAnalyserApkFile.
+  ///
+  /// In en, this message translates to:
+  /// **'APK File'**
+  String get apkAnalyserApkFile;
+
+  /// No description provided for @apkAnalyserPickAnApkFromStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an .apk from storage'**
+  String get apkAnalyserPickAnApkFromStorage;
+
+  /// No description provided for @apkAnalyserInstalledApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed App'**
+  String get apkAnalyserInstalledApp;
+
+  /// No description provided for @apkAnalyserChooseFromAppsOnThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from apps on this device'**
+  String get apkAnalyserChooseFromAppsOnThisDevice;
+
+  /// No description provided for @apkAnalyserAnalysingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysing in {countdown}...'**
+  String apkAnalyserAnalysingIn(Object countdown);
+
+  /// No description provided for @apkAnalyserStartingAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting analysis...'**
+  String get apkAnalyserStartingAnalysis;
+
+  /// No description provided for @apkAnalyserApkFileOrInstalledApp.
+  ///
+  /// In en, this message translates to:
+  /// **'APK file or installed app'**
+  String get apkAnalyserApkFileOrInstalledApp;
+
+  /// No description provided for @apkAnalyserDeepAnalysisMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep analysis mode'**
+  String get apkAnalyserDeepAnalysisMode;
+
+  /// No description provided for @apkAnalyserAMoreComplexAnalysisUsingGlobalData.
+  ///
+  /// In en, this message translates to:
+  /// **'A more complex analysis using global data sources'**
+  String get apkAnalyserAMoreComplexAnalysisUsingGlobalData;
+
+  /// No description provided for @apkAnalyserRequiresProToUnlockDeeperAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Pro to unlock deeper analysis'**
+  String get apkAnalyserRequiresProToUnlockDeeperAnalysis;
+
+  /// No description provided for @apkAnalyserApkAnalyser.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analyser'**
+  String get apkAnalyserApkAnalyser;
+
+  /// No description provided for @apkAnalyserPleaseSignInViaSettingsToEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in via Settings to enable Cloud Analysis.'**
+  String get apkAnalyserPleaseSignInViaSettingsToEnable;
+
+  /// No description provided for @apkAnalyserAdvancedOPTIONS.
+  ///
+  /// In en, this message translates to:
+  /// **'ADVANCED OPTIONS'**
+  String get apkAnalyserAdvancedOPTIONS;
+
+  /// No description provided for @apkAnalyserDailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Limit: {remaining} / {limit}'**
+  String apkAnalyserDailyLimit(Object remaining, Object limit);
+
+  /// No description provided for @apkAnalyserDailyLimitDataUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Limit Data Unavailable'**
+  String get apkAnalyserDailyLimitDataUnavailable;
+
+  /// No description provided for @apkAnalyserPoweredByVTTICloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by VTTI Cloud'**
+  String get apkAnalyserPoweredByVTTICloud;
+
+  /// No description provided for @apkAnalyserSearchApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Search apps...'**
+  String get apkAnalyserSearchApps;
+
+  /// No description provided for @apkAnalyserFailedToLoadApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load apps.'**
+  String get apkAnalyserFailedToLoadApps;
+
+  /// No description provided for @apkAnalyserNoAppsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No apps found.'**
+  String get apkAnalyserNoAppsFound;
+
+  /// No description provided for @apkReportSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get apkReportSummary;
+
+  /// No description provided for @apkReportPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get apkReportPermissions;
+
+  /// No description provided for @apkReportExtraFlags.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra Flags'**
+  String get apkReportExtraFlags;
+
+  /// No description provided for @apkReportRiskSignals.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Signals'**
+  String get apkReportRiskSignals;
+
+  /// No description provided for @apkReportSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get apkReportSources;
+
+  /// No description provided for @apkReportMetadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get apkReportMetadata;
+
+  /// No description provided for @apkReportCopyReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Report'**
+  String get apkReportCopyReport;
+
+  /// No description provided for @apkReportReportCopiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Report copied to clipboard'**
+  String get apkReportReportCopiedToClipboard;
+
+  /// No description provided for @apkReportExportAsPDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as PDF'**
+  String get apkReportExportAsPDF;
+
+  /// No description provided for @apkReportFailedToExportPDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export PDF'**
+  String get apkReportFailedToExportPDF;
+
+  /// No description provided for @apkReportExportAsCSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as CSV'**
+  String get apkReportExportAsCSV;
+
+  /// No description provided for @apkReportFailedToExportCSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export CSV'**
+  String get apkReportFailedToExportCSV;
+
+  /// No description provided for @apkReportAnalysisReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Report'**
+  String get apkReportAnalysisReport;
+
+  /// No description provided for @apkReportMalwareRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware Risk'**
+  String get apkReportMalwareRisk;
+
+  /// No description provided for @apkReportNoSummaryGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'No summary generated.'**
+  String get apkReportNoSummaryGenerated;
+
+  /// No description provided for @apkReportNoRequestedPermissionsExtracted.
+  ///
+  /// In en, this message translates to:
+  /// **'No requested permissions extracted.'**
+  String get apkReportNoRequestedPermissionsExtracted;
+
+  /// No description provided for @apkReportContributing.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributing'**
+  String get apkReportContributing;
+
+  /// No description provided for @apkReportDampening.
+  ///
+  /// In en, this message translates to:
+  /// **'Dampening'**
+  String get apkReportDampening;
+
+  /// No description provided for @bootOptimisingYourProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimising your protection'**
+  String get bootOptimisingYourProtection;
+
+  /// No description provided for @exclusionsFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get exclusionsFolders;
+
+  /// No description provided for @exclusionsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get exclusionsNone;
+
+  /// No description provided for @exclusionsFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get exclusionsFiles;
+
+  /// No description provided for @exploreApkAnalyser.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analyser'**
+  String get exploreApkAnalyser;
+
+  /// No description provided for @exploreCreateADetailedAnalysisOnAnyAPK.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a detailed analysis on any APK'**
+  String get exploreCreateADetailedAnalysisOnAnyAPK;
+
+  /// No description provided for @featuresComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get featuresComingSoon;
+
+  /// No description provided for @featuresWantToLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Want to learn more?'**
+  String get featuresWantToLearnMore;
+
+  /// No description provided for @homeDrawerApkAnalyser.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analyser'**
+  String get homeDrawerApkAnalyser;
+
+  /// No description provided for @homeDrawerAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get homeDrawerAdvanced;
+
+  /// No description provided for @homeDrawerQuarantine.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarantine'**
+  String get homeDrawerQuarantine;
+
+  /// No description provided for @homeDrawerUpgradeToPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Pro'**
+  String get homeDrawerUpgradeToPro;
+
+  /// No description provided for @homeDrawerAvarionxVPN.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX VPN'**
+  String get homeDrawerAvarionxVPN;
+
+  /// No description provided for @homeDrawerProtectYourInternetWithOurUnlimitedVPN.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect your internet with our unlimited VPN'**
+  String get homeDrawerProtectYourInternetWithOurUnlimitedVPN;
+
+  /// No description provided for @deviceSecurityDeviceSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Security'**
+  String get deviceSecurityDeviceSecurity;
+
+  /// No description provided for @deviceSecurityDeviceHealthStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Device health status'**
+  String get deviceSecurityDeviceHealthStatus;
+
+  /// No description provided for @deviceSecurityDeviceSecurityRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Device security recommendations'**
+  String get deviceSecurityDeviceSecurityRecommendations;
+
+  /// No description provided for @deviceSecurityStopIgnoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop ignoring'**
+  String get deviceSecurityStopIgnoring;
+
+  /// No description provided for @deviceSecurityIgnoreCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore check'**
+  String get deviceSecurityIgnoreCheck;
+
+  /// No description provided for @deviceSecurityNoScreenLock.
+  ///
+  /// In en, this message translates to:
+  /// **'No Screen Lock'**
+  String get deviceSecurityNoScreenLock;
+
+  /// No description provided for @deviceSecurityAMissingSecureLockMakesLocalAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'A missing secure lock makes local access easier.'**
+  String get deviceSecurityAMissingSecureLockMakesLocalAccess;
+
+  /// No description provided for @deviceSecurityRootShizukuActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Root/Shizuku Active'**
+  String get deviceSecurityRootShizukuActive;
+
+  /// No description provided for @deviceSecurityRootOrShizukuCanGrantPowerfulDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Root or Shizuku can grant powerful device control.'**
+  String get deviceSecurityRootOrShizukuCanGrantPowerfulDevice;
+
+  /// No description provided for @deviceSecurityDisabledAppVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled App Verification'**
+  String get deviceSecurityDisabledAppVerification;
+
+  /// No description provided for @deviceSecurityAppVerificationHelpsDetectHarmfulInstalls.
+  ///
+  /// In en, this message translates to:
+  /// **'App verification helps detect harmful installs.'**
+  String get deviceSecurityAppVerificationHelpsDetectHarmfulInstalls;
+
+  /// No description provided for @deviceSecurityOldAndroidSecurityPatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Old Android Security Patch'**
+  String get deviceSecurityOldAndroidSecurityPatch;
+
+  /// No description provided for @deviceSecurityOlderPatchLevelsMayLeaveKnownIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Older patch levels may leave known issues unpatched.'**
+  String get deviceSecurityOlderPatchLevelsMayLeaveKnownIssues;
+
+  /// No description provided for @deviceSecurityDeveloperModeOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Mode On'**
+  String get deviceSecurityDeveloperModeOn;
+
+  /// No description provided for @deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer options expose advanced device controls.'**
+  String get deviceSecurityDeveloperOptionsExposeAdvancedDeviceControls;
+
+  /// No description provided for @deviceSecurityUsbDebuggingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'USB Debugging On'**
+  String get deviceSecurityUsbDebuggingOn;
+
+  /// No description provided for @deviceSecurityUsbDebuggingAllowsADBControlFromTrusted.
+  ///
+  /// In en, this message translates to:
+  /// **'USB debugging allows ADB control from trusted computers.'**
+  String get deviceSecurityUsbDebuggingAllowsADBControlFromTrusted;
+
+  /// No description provided for @deviceSecurityUnknownSourcesAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Sources Allowed'**
+  String get deviceSecurityUnknownSourcesAllowed;
+
+  /// No description provided for @deviceSecuritySideloadingCanBypassNormalAppStoreChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Sideloading can bypass normal app store checks.'**
+  String get deviceSecuritySideloadingCanBypassNormalAppStoreChecks;
+
+  /// No description provided for @deviceSecurityAccessibilityAbuseRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility Abuse Risk'**
+  String get deviceSecurityAccessibilityAbuseRisk;
+
+  /// No description provided for @deviceSecurityAccessibilityServicesCanReadAndControlScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility services can read and control screen actions.'**
+  String get deviceSecurityAccessibilityServicesCanReadAndControlScreen;
+
+  /// No description provided for @homeHelpImproveDetectionsForEverybody.
+  ///
+  /// In en, this message translates to:
+  /// **'Help improve detections for everybody'**
+  String get homeHelpImproveDetectionsForEverybody;
+
+  /// No description provided for @homeApkSAndroidAppsFoundToBe.
+  ///
+  /// In en, this message translates to:
+  /// **'APK\'s (android apps) found to be malicious '**
+  String get homeApkSAndroidAppsFoundToBe;
+
+  /// No description provided for @homeCanBeUploadedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'can be uploaded to '**
+  String get homeCanBeUploadedTo;
+
+  /// No description provided for @homeAndSharedWithTheCommunityThisIs.
+  ///
+  /// In en, this message translates to:
+  /// **' and shared with the community. This is '**
+  String get homeAndSharedWithTheCommunityThisIs;
+
+  /// No description provided for @homeStrictlyLimitedToAPKFilesNOTYour.
+  ///
+  /// In en, this message translates to:
+  /// **'strictly limited to APK files, NOT your personal '**
+  String get homeStrictlyLimitedToAPKFilesNOTYour;
+
+  /// No description provided for @homeDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'documents.\n\n'**
+  String get homeDocuments;
+
+  /// No description provided for @homeThisWillImproveDetectionsForEveryoneThat.
+  ///
+  /// In en, this message translates to:
+  /// **'This will improve detections for everyone that '**
+  String get homeThisWillImproveDetectionsForEveryoneThat;
+
+  /// No description provided for @homeUsesAvarionXNoPressureThough.
+  ///
+  /// In en, this message translates to:
+  /// **'uses AvarionX. No pressure though!\n\n'**
+  String get homeUsesAvarionXNoPressureThough;
+
+  /// No description provided for @homeThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks,\n'**
+  String get homeThanks;
+
+  /// No description provided for @homeRyanfromcolourswift.
+  ///
+  /// In en, this message translates to:
+  /// **'RyanFromColourswift'**
+  String get homeRyanfromcolourswift;
+
+  /// No description provided for @homeSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Sure!'**
+  String get homeSure;
+
+  /// No description provided for @homeNoThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'No Thanks!'**
+  String get homeNoThanks;
+
+  /// No description provided for @homePsstCustomiseItHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Psst...customise it here'**
+  String get homePsstCustomiseItHere;
+
+  /// No description provided for @homeScanNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Now'**
+  String get homeScanNow;
+
+  /// No description provided for @homeManuallyCheckYourDeviceForMalware.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually check your device for malware'**
+  String get homeManuallyCheckYourDeviceForMalware;
+
+  /// No description provided for @homeDeviceSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Security'**
+  String get homeDeviceSecurity;
+
+  /// No description provided for @homeScanModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Modes'**
+  String get homeScanModes;
+
+  /// No description provided for @homeCloudAssistedChecksEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud-assisted checks enabled'**
+  String get homeCloudAssistedChecksEnabled;
+
+  /// No description provided for @homeLocalScanEngineOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Local scan engine only'**
+  String get homeLocalScanEngineOnly;
+
+  /// No description provided for @homeProtectedByVXTITANIUM.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected by VX-TITANIUM'**
+  String get homeProtectedByVXTITANIUM;
+
+  /// No description provided for @homeSecurityOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Overview'**
+  String get homeSecurityOverview;
+
+  /// No description provided for @homeFilesChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Files checked'**
+  String get homeFilesChecked;
+
+  /// No description provided for @homeThreats.
+  ///
+  /// In en, this message translates to:
+  /// **'Threats'**
+  String get homeThreats;
+
+  /// No description provided for @securityReportAvarionxSecurityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Avarionx Security Report'**
+  String get securityReportAvarionxSecurityReport;
+
+  /// No description provided for @securityReportSecurityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Report'**
+  String get securityReportSecurityReport;
+
+  /// No description provided for @securityReportManualScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual scans'**
+  String get securityReportManualScans;
+
+  /// No description provided for @securityReportRealtimeChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Realtime checks'**
+  String get securityReportRealtimeChecks;
+
+  /// No description provided for @securityReportTotalFilesScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Total files scanned'**
+  String get securityReportTotalFilesScanned;
+
+  /// No description provided for @securityReportThreatsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Threats found'**
+  String get securityReportThreatsFound;
+
+  /// No description provided for @securityReportGenerateReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate report'**
+  String get securityReportGenerateReport;
+
+  /// No description provided for @securityReportLiveReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Live report'**
+  String get securityReportLiveReport;
+
+  /// No description provided for @securityReportThisBoxUpdatesAsScanServicesWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'This box updates as scan services write report data.'**
+  String get securityReportThisBoxUpdatesAsScanServicesWrite;
+
+  /// No description provided for @securityReportExportPDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get securityReportExportPDF;
+
+  /// No description provided for @securityReportExportCSV.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get securityReportExportCSV;
+
+  /// No description provided for @homeLegacyProActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro activated'**
+  String get homeLegacyProActivated;
+
+  /// No description provided for @homeLegacyProDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro deactivated'**
+  String get homeLegacyProDeactivated;
+
+  /// No description provided for @linkCheckPoweredByVTTICloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by VTTI Cloud'**
+  String get linkCheckPoweredByVTTICloud;
+
+  /// No description provided for @safeViewSafeView.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe View'**
+  String get safeViewSafeView;
+
+  /// No description provided for @passwordSettingsChangingThisAltersAllPasswords.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing this alters all passwords.\n'**
+  String get passwordSettingsChangingThisAltersAllPasswords;
+
+  /// No description provided for @passwordSettingsUsingTheSameMetaPassRestoresThem.
+  ///
+  /// In en, this message translates to:
+  /// **'Using the same MetaPass restores them.'**
+  String get passwordSettingsUsingTheSameMetaPassRestoresThem;
+
+  /// No description provided for @passwordSettingsPasswordsAreNeverStored.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords are never stored.\n\n'**
+  String get passwordSettingsPasswordsAreNeverStored;
+
+  /// No description provided for @passwordSettingsTheRestoreCodeContainsOnlyStructureData.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore code contains only structure data. '**
+  String get passwordSettingsTheRestoreCodeContainsOnlyStructureData;
+
+  /// No description provided for @passwordSettingsCombinedWithYourMetaPassItRebuildsYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Combined with your MetaPass, it rebuilds your vault.'**
+  String get passwordSettingsCombinedWithYourMetaPassItRebuildsYour;
+
+  /// No description provided for @passwordManagerContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get passwordManagerContinue;
+
+  /// No description provided for @passwordManagerFailedToLoadApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load apps: {e}'**
+  String passwordManagerFailedToLoadApps(Object e);
+
+  /// No description provided for @passwordManagerFailedToGeneratePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to generate password: {e}'**
+  String passwordManagerFailedToGeneratePassword(Object e);
+
+  /// No description provided for @passwordManagerPasswordsAreNeverStored.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords are never stored.\n\n'**
+  String get passwordManagerPasswordsAreNeverStored;
+
+  /// No description provided for @passwordManagerEachEntryDerivesAPasswordFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Each entry derives a password from:\n'**
+  String get passwordManagerEachEntryDerivesAPasswordFrom;
+
+  /// No description provided for @passwordManagerYourMetaPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'• Your meta password\n'**
+  String get passwordManagerYourMetaPassword;
+
+  /// No description provided for @passwordManagerTheLabelName.
+  ///
+  /// In en, this message translates to:
+  /// **'• The label(name)\n'**
+  String get passwordManagerTheLabelName;
+
+  /// No description provided for @passwordManagerTheVersionAndLength.
+  ///
+  /// In en, this message translates to:
+  /// **'• The version and length\n\n'**
+  String get passwordManagerTheVersionAndLength;
+
+  /// No description provided for @passwordManagerReinstallingTheAppWithTheSameMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'Reinstalling the app with the same meta password and labels regenerates the same passwords.'**
+  String get passwordManagerReinstallingTheAppWithTheSameMeta;
+
+  /// No description provided for @permissionsIntroSetupIsNowCompleteTimeToSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup is now complete! Time to secure your data.'**
+  String get permissionsIntroSetupIsNowCompleteTimeToSecure;
+
+  /// No description provided for @proScreenThankYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you'**
+  String get proScreenThankYou;
+
+  /// No description provided for @proScreenYourSubscriptionIsConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription is confirmed.'**
+  String get proScreenYourSubscriptionIsConfirmed;
+
+  /// No description provided for @proScreenCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get proScreenCurrent;
+
+  /// No description provided for @proScreenAdvancedStealthMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Stealth+ Mode'**
+  String get proScreenAdvancedStealthMode;
+
+  /// No description provided for @proScreenUnlockStealthTransportModesForRestrictiveNetworks.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock stealth transport modes for restrictive networks.'**
+  String get proScreenUnlockStealthTransportModesForRestrictiveNetworks;
+
+  /// No description provided for @proScreenGlobalServerAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Server Access'**
+  String get proScreenGlobalServerAccess;
+
+  /// No description provided for @proScreenAccessEveryVPNServerLocationIncludingPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Access every VPN server location, including premium high-speed regions.'**
+  String get proScreenAccessEveryVPNServerLocationIncludingPremium;
+
+  /// No description provided for @proScreenBilledMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed monthly'**
+  String get proScreenBilledMonthly;
+
+  /// No description provided for @proScreenMo.
+  ///
+  /// In en, this message translates to:
+  /// **'{monthlyInfo}/mo'**
+  String proScreenMo(Object monthlyInfo);
+
+  /// No description provided for @proScreenMo2.
+  ///
+  /// In en, this message translates to:
+  /// **'{currencyCode}/mo'**
+  String proScreenMo2(Object currencyCode);
+
+  /// No description provided for @proScreenCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get proScreenCurrentPlan;
+
+  /// No description provided for @quarantineScreenQuarantineDataCorruptedResetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarantine data corrupted. Resetting.'**
+  String get quarantineScreenQuarantineDataCorruptedResetting;
+
+  /// No description provided for @quarantineScreenUninstallApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall App'**
+  String get quarantineScreenUninstallApp;
+
+  /// No description provided for @quarantineScreenUninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall {appName}?'**
+  String quarantineScreenUninstall(Object appName);
+
+  /// No description provided for @quarantineScreenUninstall2.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall'**
+  String get quarantineScreenUninstall2;
+
+  /// No description provided for @quarantineScreenFailedToLaunchUninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to launch uninstall'**
+  String get quarantineScreenFailedToLaunchUninstall;
+
+  /// No description provided for @quarantineScreenFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get quarantineScreenFiles;
+
+  /// No description provided for @cleanerAppManagerShizukuNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Shizuku not available'**
+  String get cleanerAppManagerShizukuNotAvailable;
+
+  /// No description provided for @cleanerAppManagerWithoutShizukuEachAppRequiresASeparate.
+  ///
+  /// In en, this message translates to:
+  /// **'Without Shizuku each app requires a separate system confirmation. Continue?'**
+  String get cleanerAppManagerWithoutShizukuEachAppRequiresASeparate;
+
+  /// No description provided for @cleanerAppManagerAppsUninstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'{successCount} apps uninstalled'**
+  String cleanerAppManagerAppsUninstalled(Object successCount);
+
+  /// No description provided for @cleanerAppManagerUninstalledFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{successCount} uninstalled, {failedCount} failed'**
+  String cleanerAppManagerUninstalledFailed(
+      Object successCount, Object failedCount);
+
+  /// No description provided for @cleanerAppManagerStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'{appName} stopped'**
+  String cleanerAppManagerStopped(Object appName);
+
+  /// No description provided for @cleanerAppManagerForceStopFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Force stop failed'**
+  String get cleanerAppManagerForceStopFailed;
+
+  /// No description provided for @cleanerAppManagerClearAppData.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear app data'**
+  String get cleanerAppManagerClearAppData;
+
+  /// No description provided for @cleanerAppManagerResetThisClearsItsAccountsSettingsFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset {appName}? This clears its accounts, settings, files and cache.'**
+  String cleanerAppManagerResetThisClearsItsAccountsSettingsFiles(
+      Object appName);
+
+  /// No description provided for @cleanerAppManagerClearData.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear data'**
+  String get cleanerAppManagerClearData;
+
+  /// No description provided for @cleanerAppManagerReset.
+  ///
+  /// In en, this message translates to:
+  /// **'{appName} reset'**
+  String cleanerAppManagerReset(Object appName);
+
+  /// No description provided for @cleanerAppManagerClearDataFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear data failed'**
+  String get cleanerAppManagerClearDataFailed;
+
+  /// No description provided for @cleanerAppManagerOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app'**
+  String get cleanerAppManagerOpenApp;
+
+  /// No description provided for @cleanerAppManagerForceStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Force stop'**
+  String get cleanerAppManagerForceStop;
+
+  /// No description provided for @cleanerAppManagerUninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall'**
+  String get cleanerAppManagerUninstall;
+
+  /// No description provided for @cleanerAppManagerSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{selectedCount} selected'**
+  String cleanerAppManagerSelected(Object selectedCount);
+
+  /// No description provided for @cleanerAppManagerAppManager.
+  ///
+  /// In en, this message translates to:
+  /// **'App Manager'**
+  String get cleanerAppManagerAppManager;
+
+  /// No description provided for @cleanerAppManagerDeselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get cleanerAppManagerDeselectAll;
+
+  /// No description provided for @cleanerAppManagerUninstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstalling {done} / {total}…'**
+  String cleanerAppManagerUninstalling(Object done, Object total);
+
+  /// No description provided for @cleanerAppManagerUninstall2.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall {selectedCount}'**
+  String cleanerAppManagerUninstall2(Object selectedCount);
+
+  /// No description provided for @cleanerProClearAppCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear app caches'**
+  String get cleanerProClearAppCaches;
+
+  /// No description provided for @cleanerProThisAsksAndroidToTrimAppCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'This asks Android to trim app caches across the device. App data, accounts and settings are not cleared.'**
+  String get cleanerProThisAsksAndroidToTrimAppCaches;
+
+  /// No description provided for @cleanerProClearCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear caches'**
+  String get cleanerProClearCaches;
+
+  /// No description provided for @cleanerProCacheTrimRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache trim requested'**
+  String get cleanerProCacheTrimRequested;
+
+  /// No description provided for @cleanerProCacheCleanerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleaner failed'**
+  String get cleanerProCacheCleanerFailed;
+
+  /// No description provided for @cleanerProLogFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Log files'**
+  String get cleanerProLogFiles;
+
+  /// No description provided for @cleanerProCacheCleaner.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache Cleaner'**
+  String get cleanerProCacheCleaner;
+
+  /// No description provided for @cleanerProLogCleaner.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Cleaner'**
+  String get cleanerProLogCleaner;
+
+  /// No description provided for @cleanerProAppDataManager.
+  ///
+  /// In en, this message translates to:
+  /// **'App Data Manager'**
+  String get cleanerProAppDataManager;
+
+  /// No description provided for @cleanerScreenCleaner.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaner'**
+  String get cleanerScreenCleaner;
+
+  /// No description provided for @scanDetailDeleteFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Files'**
+  String get scanDetailDeleteFiles;
+
+  /// No description provided for @scanDetailDeleteFilesPermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {selectedCount} files permanently?'**
+  String scanDetailDeleteFilesPermanently(Object selectedCount);
+
+  /// No description provided for @scanDetailSelectedFilesDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected files deleted'**
+  String get scanDetailSelectedFilesDeleted;
+
+  /// No description provided for @scanDetailDeleteAllFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All Files'**
+  String get scanDetailDeleteAllFiles;
+
+  /// No description provided for @scanDetailDeleteAllFilesPermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all {fileCount} files permanently?'**
+  String scanDetailDeleteAllFilesPermanently(Object fileCount);
+
+  /// No description provided for @scanDetailDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All'**
+  String get scanDetailDeleteAll;
+
+  /// No description provided for @scanDetailAllFilesDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All files deleted'**
+  String get scanDetailAllFilesDeleted;
+
+  /// No description provided for @scanDetailSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{selectedCount} selected'**
+  String scanDetailSelected(Object selectedCount);
+
+  /// No description provided for @scanDetailDeselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get scanDetailDeselectAll;
+
+  /// No description provided for @scanDetailNewestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get scanDetailNewestFirst;
+
+  /// No description provided for @scanDetailOldestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get scanDetailOldestFirst;
+
+  /// No description provided for @scanDetailLargestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest first'**
+  String get scanDetailLargestFirst;
+
+  /// No description provided for @scanDetailSmallestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest first'**
+  String get scanDetailSmallestFirst;
+
+  /// No description provided for @scanDetailNoFilesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No files found'**
+  String get scanDetailNoFilesFound;
+
+  /// No description provided for @scanDetailDeleteAll2.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get scanDetailDeleteAll2;
+
+  /// No description provided for @scanInstalledAppsSearchApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Search apps...'**
+  String get scanInstalledAppsSearchApps;
+
+  /// No description provided for @scanInstalledAppsNoAppsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No apps found.'**
+  String get scanInstalledAppsNoAppsFound;
+
+  /// No description provided for @scanUiScanComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan complete'**
+  String get scanUiScanComplete;
+
+  /// No description provided for @scanUiScannedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {scanned} items'**
+  String scanUiScannedItems(Object scanned);
+
+  /// No description provided for @scanUiProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress: {pct} ({scanned} / {total})'**
+  String scanUiProgress(Object pct, Object scanned, Object total);
+
+  /// No description provided for @scanUiPreparingEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing Engine...'**
+  String get scanUiPreparingEngine;
+
+  /// No description provided for @scanUiLoadingTargetS.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading target(s)'**
+  String get scanUiLoadingTargetS;
+
+  /// No description provided for @scanUiAvarionxVPN.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX VPN'**
+  String get scanUiAvarionxVPN;
+
+  /// No description provided for @scanUiProtectYourInternetWithOurUnlimitedVPN.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect your internet with our unlimited VPN'**
+  String get scanUiProtectYourInternetWithOurUnlimitedVPN;
+
+  /// No description provided for @scanUiTapMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap me!'**
+  String get scanUiTapMe;
+
+  /// No description provided for @scanUiScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'{scanned} scanned'**
+  String scanUiScanned(Object scanned);
+
+  /// No description provided for @scanUiReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get scanUiReturn;
+
+  /// No description provided for @scanLimitsSettingsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings updated'**
+  String get scanLimitsSettingsUpdated;
+
+  /// No description provided for @scanLimitsScanLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan limits'**
+  String get scanLimitsScanLimits;
+
+  /// No description provided for @scanLimitsLimitHowMuchTheEngineUsesYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit how much the engine uses your CPU. Threads: 0 means auto.'**
+  String get scanLimitsLimitHowMuchTheEngineUsesYour;
+
+  /// No description provided for @scanLimitsMaxScanThreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Max scan threads'**
+  String get scanLimitsMaxScanThreads;
+
+  /// No description provided for @scanLimits0AutoRange0ToCores.
+  ///
+  /// In en, this message translates to:
+  /// **'0 = auto. Range: 0 to {maxThreads} (cores: {coreCount}).'**
+  String scanLimits0AutoRange0ToCores(Object maxThreads, Object coreCount);
+
+  /// No description provided for @scanLegacyScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning... {percent}%'**
+  String scanLegacyScanning(Object percent);
+
+  /// No description provided for @scanLegacySuspicious.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicious: {infectedCount}'**
+  String scanLegacySuspicious(Object infectedCount);
+
+  /// No description provided for @scanLegacyClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean: {cleanCount}'**
+  String scanLegacyClean(Object cleanCount);
+
+  /// No description provided for @scanLegacyNoFilesToScan.
+  ///
+  /// In en, this message translates to:
+  /// **'No files to scan'**
+  String get scanLegacyNoFilesToScan;
+
+  /// No description provided for @settingsSponsorsUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsors unlock ❤️'**
+  String get settingsSponsorsUnlock;
+
+  /// No description provided for @settingsPickCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Certificate'**
+  String get settingsPickCertificate;
+
+  /// No description provided for @settingsCertificateLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate loaded'**
+  String get settingsCertificateLoaded;
+
+  /// No description provided for @settingsEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'enter code'**
+  String get settingsEnterCode;
+
+  /// No description provided for @settingsSupportFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Support file missing'**
+  String get settingsSupportFileMissing;
+
+  /// No description provided for @settingsInvalidSupportCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid support code'**
+  String get settingsInvalidSupportCode;
+
+  /// No description provided for @settingsAvarionxSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX Security'**
+  String get settingsAvarionxSecurity;
+
+  /// No description provided for @settingsAvarionxIsAMobileSecuritySuiteCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX is a mobile security suite created by ColourSwift, based in Birmingham, UK.\n\n'**
+  String get settingsAvarionxIsAMobileSecuritySuiteCreated;
+
+  /// No description provided for @settingsContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact: '**
+  String get settingsContact;
+
+  /// No description provided for @settingsExperimentalFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental Features'**
+  String get settingsExperimentalFeatures;
+
+  /// No description provided for @settingsEnablingShizukuUnlocksExperimentalWorkInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabling Shizuku unlocks experimental work-in-progress features:\n\n'**
+  String get settingsEnablingShizukuUnlocksExperimentalWorkInProgress;
+
+  /// No description provided for @settingsAdvancedRansomwareProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'• Advanced Ransomware Protection\n'**
+  String get settingsAdvancedRansomwareProtection;
+
+  /// No description provided for @settingsCacheCleanerPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'• Cache Cleaner Plus\n\n'**
+  String get settingsCacheCleanerPlus;
+
+  /// No description provided for @settingsExperimentalWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Experimental warning:\n'**
+  String get settingsExperimentalWarning;
+
+  /// No description provided for @settingsTheseFeaturesUseAdvancedSystemAccessAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'These features use advanced system access and may behave differently across devices, Android versions, and Shizuku setups. Some actions may affect running apps, files, or cache data more directly than normal scanning.\n\n'**
+  String get settingsTheseFeaturesUseAdvancedSystemAccessAnd;
+
+  /// No description provided for @settingsOnlyEnableThisIfYouUnderstandShizuku.
+  ///
+  /// In en, this message translates to:
+  /// **'Only enable this if you understand Shizuku, accept that the feature is still being tested, and have backed up anything important.\n\n'**
+  String get settingsOnlyEnableThisIfYouUnderstandShizuku;
+
+  /// No description provided for @settingsPleaseReadTheDocumentationBeforeEnabling.
+  ///
+  /// In en, this message translates to:
+  /// **'Please read the documentation before enabling.'**
+  String get settingsPleaseReadTheDocumentationBeforeEnabling;
+
+  /// No description provided for @settingsEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get settingsEnable;
+
+  /// No description provided for @settingsSigningOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out...'**
+  String get settingsSigningOut;
+
+  /// No description provided for @settingsCheckingAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking account status...'**
+  String get settingsCheckingAccountStatus;
+
+  /// No description provided for @settingsManageSignInPremiumAndPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage sign in, Premium, and purchases'**
+  String get settingsManageSignInPremiumAndPurchases;
+
+  /// No description provided for @settingsPremiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium active'**
+  String get settingsPremiumActive;
+
+  /// No description provided for @settingsManagePremiumOptionsAndRestorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Premium options and restore purchases'**
+  String get settingsManagePremiumOptionsAndRestorePurchases;
+
+  /// No description provided for @settingsUnlockDeepAnalysisModeAndVPNFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Deep analysis mode and VPN features'**
+  String get settingsUnlockDeepAnalysisModeAndVPNFeatures;
+
+  /// No description provided for @settingsAutoClearNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-clear notifications'**
+  String get settingsAutoClearNotifications;
+
+  /// No description provided for @settingsScanModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Modes'**
+  String get settingsScanModes;
+
+  /// No description provided for @settingsAdvancedScanModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced scan modes'**
+  String get settingsAdvancedScanModes;
+
+  /// No description provided for @settingsDisableToUseTheDefaultScanningMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable to use the default scanning mode'**
+  String get settingsDisableToUseTheDefaultScanningMode;
+
+  /// No description provided for @settingsToggleToEnableAllScanningModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle to enable all scanning modes'**
+  String get settingsToggleToEnableAllScanningModes;
+
+  /// No description provided for @settingsApkSubmissions.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Submissions'**
+  String get settingsApkSubmissions;
+
+  /// No description provided for @settingsShareMaliciousAPKs.
+  ///
+  /// In en, this message translates to:
+  /// **'Share malicious APKs'**
+  String get settingsShareMaliciousAPKs;
+
+  /// No description provided for @settingsHelpingImproveDetectionForEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Helping improve detection for everyone'**
+  String get settingsHelpingImproveDetectionForEveryone;
+
+  /// No description provided for @settingsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsOff;
+
+  /// No description provided for @settingsIncludeRealtimeProtectionCatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Realtime Protection catches'**
+  String get settingsIncludeRealtimeProtectionCatches;
+
+  /// No description provided for @settingsApksFlaggedByRealtimeProtectionAreIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'APKs flagged by Realtime Protection are included'**
+  String get settingsApksFlaggedByRealtimeProtectionAreIncluded;
+
+  /// No description provided for @settingsApksFlaggedByRealtimeProtectionAreExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'APKs flagged by Realtime Protection are excluded'**
+  String get settingsApksFlaggedByRealtimeProtectionAreExcluded;
+
+  /// No description provided for @settingsIncludeManualAndScheduledScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Include manual and scheduled scans'**
+  String get settingsIncludeManualAndScheduledScans;
+
+  /// No description provided for @settingsApksFlaggedByScansAreIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'APKs flagged by scans are included'**
+  String get settingsApksFlaggedByScansAreIncluded;
+
+  /// No description provided for @settingsApksFlaggedByScansAreExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'APKs flagged by scans are excluded'**
+  String get settingsApksFlaggedByScansAreExcluded;
+
+  /// No description provided for @settingsWiFiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi only'**
+  String get settingsWiFiOnly;
+
+  /// No description provided for @settingsUploadsWaitForAWiFiConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads wait for a Wi-Fi connection'**
+  String get settingsUploadsWaitForAWiFiConnection;
+
+  /// No description provided for @settingsUploadsMayUseMobileData.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads may use mobile data'**
+  String get settingsUploadsMayUseMobileData;
+
+  /// No description provided for @settingsChargingOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Charging only'**
+  String get settingsChargingOnly;
+
+  /// No description provided for @settingsUploadsWaitUntilTheDeviceIsCharging.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads wait until the device is charging'**
+  String get settingsUploadsWaitUntilTheDeviceIsCharging;
+
+  /// No description provided for @settingsUploadsAreNotLimitedToCharging.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads are not limited to charging'**
+  String get settingsUploadsAreNotLimitedToCharging;
+
+  /// No description provided for @settingsChooseWhichAppsUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which apps upload'**
+  String get settingsChooseWhichAppsUpload;
+
+  /// No description provided for @settingsReviewAndPickAppsEachTimeBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and pick apps each time before uploading'**
+  String get settingsReviewAndPickAppsEachTimeBefore;
+
+  /// No description provided for @settingsFlaggedAppsUploadAutomatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Flagged apps upload automatically'**
+  String get settingsFlaggedAppsUploadAutomatically;
+
+  /// No description provided for @settingsEnableProDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Pro (debug)'**
+  String get settingsEnableProDebug;
+
+  /// No description provided for @settingsLocalUnlockForUITesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Local unlock for UI testing'**
+  String get settingsLocalUnlockForUITesting;
+
+  /// No description provided for @settingsRestorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get settingsRestorePurchases;
+
+  /// No description provided for @settingsReCheckPlayBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check Play Billing'**
+  String get settingsReCheckPlayBilling;
+
+  /// No description provided for @settingsCheckingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking account...'**
+  String get settingsCheckingAccount;
+
+  /// No description provided for @settingsAvarionxAccountConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'AvarionX account connected'**
+  String get settingsAvarionxAccountConnected;
+
+  /// No description provided for @settingsAccountID.
+  ///
+  /// In en, this message translates to:
+  /// **'Account ID: {accountId}'**
+  String settingsAccountID(Object accountId);
+
+  /// No description provided for @settingsSignInToManagePurchasesAndAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage purchases and account features.'**
+  String get settingsSignInToManagePurchasesAndAccount;
+
+  /// No description provided for @settingsOpenTheAvarionXAccountPortal.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the AvarionX account portal'**
+  String get settingsOpenTheAvarionXAccountPortal;
+
+  /// No description provided for @settingsAccountDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Account dashboard'**
+  String get settingsAccountDashboard;
+
+  /// No description provided for @settingsOpenBillingAndAccountSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open billing and account settings'**
+  String get settingsOpenBillingAndAccountSettings;
+
+  /// No description provided for @settingsRemoveThisAccountFromTheApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this account from the app'**
+  String get settingsRemoveThisAccountFromTheApp;
+
+  /// No description provided for @settingsPremiumFeaturesAreAvailableOnThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium features are available on this device'**
+  String get settingsPremiumFeaturesAreAvailableOnThisDevice;
+
+  /// No description provided for @settingsViewOptionalPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'View optional Premium features'**
+  String get settingsViewOptionalPremiumFeatures;
+
+  /// No description provided for @settingsReCheckPlayBillingEntitlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check Play Billing entitlement'**
+  String get settingsReCheckPlayBillingEntitlement;
+
+  /// No description provided for @settingsRtpNotificationAutoClearNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-clear notifications'**
+  String get settingsRtpNotificationAutoClearNotifications;
+
+  /// No description provided for @settingsRtpNotificationNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get settingsRtpNotificationNever;
+
+  /// No description provided for @settingsRtpNotification5Minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'5 minutes'**
+  String get settingsRtpNotification5Minutes;
+
+  /// No description provided for @settingsRtpNotification10Minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'10 minutes'**
+  String get settingsRtpNotification10Minutes;
+
+  /// No description provided for @settingsRtpNotification30Minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'30 minutes'**
+  String get settingsRtpNotification30Minutes;
+
+  /// No description provided for @settingsThemeBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get settingsThemeBlack;
+
+  /// No description provided for @settingsThemeWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get settingsThemeWhite;
+
+  /// No description provided for @settingsThemeGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get settingsThemeGrey;
+
+  /// No description provided for @settingsThemeEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Emerald'**
+  String get settingsThemeEmerald;
+
+  /// No description provided for @settingsThemePurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get settingsThemePurple;
+
+  /// No description provided for @settingsThemeRoyalBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal Blue'**
+  String get settingsThemeRoyalBlue;
+
+  /// No description provided for @settingsAccountCardSyncPurchasesAndUnlockProAcrossApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync purchases and unlock Pro across apps.'**
+  String get settingsAccountCardSyncPurchasesAndUnlockProAcrossApps;
+
+  /// No description provided for @settingsAccountCardLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get settingsAccountCardLoading;
+
+  /// No description provided for @settingsAccountCardDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get settingsAccountCardDashboard;
+
+  /// No description provided for @settingsProCardChangePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Change plan'**
+  String get settingsProCardChangePlan;
+
+  /// No description provided for @advancedNetworkProtectionEnterYourOwnResolver.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your own resolver'**
+  String get advancedNetworkProtectionEnterYourOwnResolver;
+
+  /// No description provided for @advancedNetworkProtectionCloudProtectionMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud protection mode'**
+  String get advancedNetworkProtectionCloudProtectionMode;
+
+  /// No description provided for @advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes all DNS queries to the cloud engine, enabling live blocklist updates, domain reputation checking, and more.'**
+  String get advancedNetworkProtectionRoutesAllDNSQueriesToTheCloud;
+
+  /// No description provided for @advancedNetworkProtectionRefreshProStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh pro status'**
+  String get advancedNetworkProtectionRefreshProStatus;
+
+  /// No description provided for @advancedNetworkProtectionProActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro active'**
+  String get advancedNetworkProtectionProActive;
+
+  /// No description provided for @advancedNetworkProtectionFreePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan'**
+  String get advancedNetworkProtectionFreePlan;
+
+  /// No description provided for @advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks your entitlement and syncs it with cloud features. Pro unlocks system wide ad blocking.'**
+  String get advancedNetworkProtectionChecksYourEntitlementAndSyncsItWith;
+
+  /// No description provided for @advancedNetworkProtectionMalwareProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware protection'**
+  String get advancedNetworkProtectionMalwareProtection;
+
+  /// No description provided for @advancedNetworkProtectionBlocksKnownMaliciousDomains.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks known malicious domains'**
+  String get advancedNetworkProtectionBlocksKnownMaliciousDomains;
+
+  /// No description provided for @advancedNetworkProtectionTrackerProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracker protection'**
+  String get advancedNetworkProtectionTrackerProtection;
+
+  /// No description provided for @advancedNetworkProtectionReducesTrackingDomains.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduces tracking domains'**
+  String get advancedNetworkProtectionReducesTrackingDomains;
+
+  /// No description provided for @advancedNetworkProtectionAdProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad protection'**
+  String get advancedNetworkProtectionAdProtection;
+
+  /// No description provided for @advancedNetworkProtectionBlocksCommonAdDomains.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks common ad domains'**
+  String get advancedNetworkProtectionBlocksCommonAdDomains;
+
+  /// No description provided for @advancedNetworkProtectionAdultFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Adult filter'**
+  String get advancedNetworkProtectionAdultFilter;
+
+  /// No description provided for @advancedNetworkProtectionUses1113Upstream.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses 1.1.1.3 upstream'**
+  String get advancedNetworkProtectionUses1113Upstream;
+
+  /// No description provided for @advancedNetworkProtectionLockedUntilProIsActiveAndCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked until Pro is active and cloud mode is enabled.'**
+  String get advancedNetworkProtectionLockedUntilProIsActiveAndCloud;
+
+  /// No description provided for @advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Live DNS events from the VPN layer.'**
+  String get advancedNetworkProtectionLiveDNSEventsFromTheVPNLayer;
+
+  /// No description provided for @advancedNetworkProtectionAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get advancedNetworkProtectionAdvanced;
+
+  /// No description provided for @advancedNetworkProtectionDns.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS'**
+  String get advancedNetworkProtectionDns;
+
+  /// No description provided for @advancedNetworkProtectionCloudDNSMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud DNS mode'**
+  String get advancedNetworkProtectionCloudDNSMode;
+
+  /// No description provided for @networkProtectionEnterYourOwnResolver.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your own resolver'**
+  String get networkProtectionEnterYourOwnResolver;
+
+  /// No description provided for @networkAppControlEnableVPNToggles.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable VPN toggles'**
+  String get networkAppControlEnableVPNToggles;
+
+  /// No description provided for @networkAppControlOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get networkAppControlOpenSettings;
+
+  /// No description provided for @networkAppControlAppControl.
+  ///
+  /// In en, this message translates to:
+  /// **'App control'**
+  String get networkAppControlAppControl;
+
+  /// No description provided for @networkAppControlNoAppsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No apps found.'**
+  String get networkAppControlNoAppsFound;
+
+  /// No description provided for @networkSpeedTestCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get networkSpeedTestCountry;
+
+  /// No description provided for @networkSpeedTestRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get networkSpeedTestRunning;
+
+  /// No description provided for @networkSpeedTestRunTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Run test'**
+  String get networkSpeedTestRunTest;
+
+  /// No description provided for @networkSpeedTestNoResultsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.'**
+  String get networkSpeedTestNoResultsYet;
+
+  /// No description provided for @networkSpeedTestDnsTLS.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS: {dns}  •  TLS: {tls}'**
+  String networkSpeedTestDnsTLS(Object dns, Object tls);
+
+  /// No description provided for @networkSpeedTestFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Fail'**
+  String get networkSpeedTestFail;
+
+  /// No description provided for @dnsNetworkProtectionEnterYourOwnResolver.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your own resolver'**
+  String get dnsNetworkProtectionEnterYourOwnResolver;
+
+  /// No description provided for @dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS filtering is seperate from the Secure VPN. It can block known malware, ads (across all apps), trackers, and content from unwanted categories before they load.'**
+  String get dnsNetworkProtectionDnsFilteringIsSeperateFromTheSecure;
+
+  /// No description provided for @fullVpnSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in.'**
+  String get fullVpnSignedIn;
+
+  /// No description provided for @fullVpnSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get fullVpnSignInRequired;
+
+  /// No description provided for @fullVpnClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get fullVpnClose;
+
+  /// No description provided for @fullVpnLoadingUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading usage...'**
+  String get fullVpnLoadingUsage;
+
+  /// No description provided for @fullVpnSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get fullVpnSyncing;
+
+  /// No description provided for @fullVpnUsedThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{usedBytes} used this month'**
+  String fullVpnUsedThisMonth(Object usedBytes);
+
+  /// No description provided for @blockedScreenUnsupportedEnvironment.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported environment'**
+  String get blockedScreenUnsupportedEnvironment;
+
+  /// No description provided for @updateLogUpdateV.
+  ///
+  /// In en, this message translates to:
+  /// **'Update: v{version}'**
+  String updateLogUpdateV(Object version);
+
+  /// No description provided for @updateLogHiThereAvarionXHasBeenUpdatedBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi there! AvarionX has been updated, below are the changes:'**
+  String get updateLogHiThereAvarionXHasBeenUpdatedBelow;
+
+  /// No description provided for @updateLogNoUserFacingChangesInThisUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'No user-facing changes in this update.'**
+  String get updateLogNoUserFacingChangesInThisUpdate;
+
+  /// No description provided for @updateLogContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get updateLogContinue;
+
+  /// No description provided for @featuresRealtimeProtectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitors new and modified files in the background and blocks threats the moment they appear.'**
+  String get featuresRealtimeProtectionBody;
+
+  /// No description provided for @featuresTriLayerEngineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tri-Layer Engine'**
+  String get featuresTriLayerEngineTitle;
+
+  /// No description provided for @featuresTriLayerEngineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A three-stage detection core combining Bloom filtering, signature scanning, and APK-focused byte analysis for high accuracy and speed.'**
+  String get featuresTriLayerEngineBody;
+
+  /// No description provided for @featuresMachineLearningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine Learning'**
+  String get featuresMachineLearningTitle;
+
+  /// No description provided for @featuresMachineLearningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A lightweight on-device model trained to recognise malicious APK behaviour patterns.'**
+  String get featuresMachineLearningBody;
+
+  /// No description provided for @featuresCleanerProTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaner Pro'**
+  String get featuresCleanerProTitle;
+
+  /// No description provided for @featuresCleanerProBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An evolving cleaning module that identifies duplicates, cache, and unused apps to reclaim storage.'**
+  String get featuresCleanerProBody;
+
+  /// No description provided for @featuresWifiProtectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi Protection'**
+  String get featuresWifiProtectionTitle;
+
+  /// No description provided for @featuresWifiProtectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Detects unsafe or suspicious Wi-Fi networks using on-device analysis.'**
+  String get featuresWifiProtectionBody;
+
+  /// No description provided for @featuresRootLevelProtectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Root-Level Protection'**
+  String get featuresRootLevelProtectionTitle;
+
+  /// No description provided for @featuresRootLevelProtectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep system-level defense designed for rooted devices and advanced users.'**
+  String get featuresRootLevelProtectionBody;
+
+  /// No description provided for @featuresPcCompanionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PC Companion'**
+  String get featuresPcCompanionTitle;
+
+  /// No description provided for @featuresPcCompanionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming desktop version for cross-platform antivirus integration.'**
+  String get featuresPcCompanionBody;
+
+  /// No description provided for @deviceSecurityNoRisksFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No device risks found'**
+  String get deviceSecurityNoRisksFound;
+
+  /// No description provided for @deviceSecurityOneCheckNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'1 device check needs attention'**
+  String get deviceSecurityOneCheckNeedsAttention;
+
+  /// No description provided for @deviceSecurityChecksNeedAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} device checks need attention'**
+  String deviceSecurityChecksNeedAttention(Object count);
+
+  /// No description provided for @deviceSecurityHealthSectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These settings directly affect your device posture.'**
+  String get deviceSecurityHealthSectionBody;
+
+  /// No description provided for @deviceSecurityRecommendationsSectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These settings are common security good practice.'**
+  String get deviceSecurityRecommendationsSectionBody;
+
+  /// No description provided for @deviceSecuritySignalUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal unavailable'**
+  String get deviceSecuritySignalUnavailable;
+
+  /// No description provided for @deviceSecurityIgnoredByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignored by you'**
+  String get deviceSecurityIgnoredByYou;
+
+  /// No description provided for @deviceSecurityScreenLockInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen Lock'**
+  String get deviceSecurityScreenLockInactiveTitle;
+
+  /// No description provided for @deviceSecurityScreenLockActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe, no secure screen lock is set'**
+  String get deviceSecurityScreenLockActiveLabel;
+
+  /// No description provided for @deviceSecurityScreenLockInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen lock is active'**
+  String get deviceSecurityScreenLockInactiveLabel;
+
+  /// No description provided for @deviceSecurityScreenLockDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'A secure screen lock protects your device if it is lost, stolen, or left unattended. Without a PIN, password, pattern, fingerprint, or face unlock backed by a secure lock method, anyone with physical access can open the device more easily.'**
+  String get deviceSecurityScreenLockDetail;
+
+  /// No description provided for @deviceSecurityScreenLockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android security settings and set a secure screen lock.'**
+  String get deviceSecurityScreenLockHelp;
+
+  /// No description provided for @deviceSecurityCheckSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Check setting'**
+  String get deviceSecurityCheckSetting;
+
+  /// No description provided for @deviceSecurityPrivilegedInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Privileged Access'**
+  String get deviceSecurityPrivilegedInactiveTitle;
+
+  /// No description provided for @deviceSecurityPrivilegedActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Privileged access detected'**
+  String get deviceSecurityPrivilegedActiveLabel;
+
+  /// No description provided for @deviceSecurityPrivilegedInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No privileged access detected'**
+  String get deviceSecurityPrivilegedInactiveLabel;
+
+  /// No description provided for @deviceSecurityPrivilegedDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Root and Shizuku can be useful for you, but it also increase the impact of a malicious app if access is abused. Apps with privileged access may be able to perform actions that normal Android apps cannot.'**
+  String get deviceSecurityPrivilegedDetail;
+
+  /// No description provided for @deviceSecurityPrivilegedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your root, Magisk, or Shizuku settings manually.'**
+  String get deviceSecurityPrivilegedHelp;
+
+  /// No description provided for @deviceSecurityReviewSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Review setting'**
+  String get deviceSecurityReviewSetting;
+
+  /// No description provided for @deviceSecurityAppVerificationInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Verification'**
+  String get deviceSecurityAppVerificationInactiveTitle;
+
+  /// No description provided for @deviceSecurityAppVerificationActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe, app verification appears disabled'**
+  String get deviceSecurityAppVerificationActiveLabel;
+
+  /// No description provided for @deviceSecurityAppVerificationInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App verification appears enabled'**
+  String get deviceSecurityAppVerificationInactiveLabel;
+
+  /// No description provided for @deviceSecurityAppVerificationDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Android app verification helps check apps before or after installation. If this protection is disabled or unavailable, harmful apps may be less likely to be blocked before they run.'**
+  String get deviceSecurityAppVerificationDetail;
+
+  /// No description provided for @deviceSecurityAppVerificationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android security settings and review app verification.'**
+  String get deviceSecurityAppVerificationHelp;
+
+  /// No description provided for @deviceSecuritySecurityPatchInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Patch Current'**
+  String get deviceSecuritySecurityPatchInactiveTitle;
+
+  /// No description provided for @deviceSecuritySecurityPatchActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Security patch level is outdated'**
+  String get deviceSecuritySecurityPatchActiveLabel;
+
+  /// No description provided for @deviceSecuritySecurityPatchInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Security patch level is current'**
+  String get deviceSecuritySecurityPatchInactiveLabel;
+
+  /// No description provided for @deviceSecuritySecurityPatchDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Android security patches fix known platform and vendor issues. If the patch level is old, the device may be exposed to vulnerabilities that have already been fixed on newer builds.'**
+  String get deviceSecuritySecurityPatchDetail;
+
+  /// No description provided for @deviceSecuritySecurityPatchHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android system update settings and check for updates.'**
+  String get deviceSecuritySecurityPatchHelp;
+
+  /// No description provided for @deviceSecurityCheckUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check updates'**
+  String get deviceSecurityCheckUpdates;
+
+  /// No description provided for @deviceSecurityDeveloperModeInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Mode'**
+  String get deviceSecurityDeveloperModeInactiveTitle;
+
+  /// No description provided for @deviceSecurityDeveloperModeActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer options are enabled'**
+  String get deviceSecurityDeveloperModeActiveLabel;
+
+  /// No description provided for @deviceSecurityDeveloperModeInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer options are disabled'**
+  String get deviceSecurityDeveloperModeInactiveLabel;
+
+  /// No description provided for @deviceSecurityDeveloperModeDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Mode is normal for developers and testers, but it exposes advanced settings that can reduce device security if changed accidentally or abused by someone with access to the device.'**
+  String get deviceSecurityDeveloperModeDetail;
+
+  /// No description provided for @deviceSecurityDeveloperModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Developer Options and turn off settings you do not need.'**
+  String get deviceSecurityDeveloperModeHelp;
+
+  /// No description provided for @deviceSecurityUsbDebuggingInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USB Debugging'**
+  String get deviceSecurityUsbDebuggingInactiveTitle;
+
+  /// No description provided for @deviceSecurityUsbDebuggingActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsafe, USB debugging is turned on'**
+  String get deviceSecurityUsbDebuggingActiveLabel;
+
+  /// No description provided for @deviceSecurityUsbDebuggingInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'USB debugging is turned off'**
+  String get deviceSecurityUsbDebuggingInactiveLabel;
+
+  /// No description provided for @deviceSecurityUsbDebuggingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'USB debugging allows a connected computer to interact with your device through Android Debug Bridge. If left enabled, it increases the risk of unauthorised access when connected to an untrusted machine.'**
+  String get deviceSecurityUsbDebuggingDetail;
+
+  /// No description provided for @deviceSecurityUsbDebuggingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Developer Options and turn USB debugging off.'**
+  String get deviceSecurityUsbDebuggingHelp;
+
+  /// No description provided for @deviceSecurityUnknownSourcesInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Sources'**
+  String get deviceSecurityUnknownSourcesInactiveTitle;
+
+  /// No description provided for @deviceSecurityUnknownSourcesActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing unknown apps is allowed'**
+  String get deviceSecurityUnknownSourcesActiveLabel;
+
+  /// No description provided for @deviceSecurityUnknownSourcesInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing unknown apps is restricted'**
+  String get deviceSecurityUnknownSourcesInactiveLabel;
+
+  /// No description provided for @deviceSecurityUnknownSourcesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowing unknown app installs can be useful for trusted APKs, but it also increases the chance of installing apps from unsafe sources. Only allow this for apps and stores you trust.'**
+  String get deviceSecurityUnknownSourcesDetail;
+
+  /// No description provided for @deviceSecurityUnknownSourcesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android settings and review install unknown apps access.'**
+  String get deviceSecurityUnknownSourcesHelp;
+
+  /// No description provided for @deviceSecurityAccessibilityInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility Services'**
+  String get deviceSecurityAccessibilityInactiveTitle;
+
+  /// No description provided for @deviceSecurityAccessibilityActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Third-party accessibility service enabled'**
+  String get deviceSecurityAccessibilityActiveLabel;
+
+  /// No description provided for @deviceSecurityAccessibilityInactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No risky accessibility services found'**
+  String get deviceSecurityAccessibilityInactiveLabel;
+
+  /// No description provided for @deviceSecurityAccessibilityDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility services are powerful because they can observe screen content and perform actions on behalf of the user. This is useful for legitimate tools, but it is also commonly abused by malicious apps.'**
+  String get deviceSecurityAccessibilityDetail;
+
+  /// No description provided for @deviceSecurityAccessibilityHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Accessibility settings and review enabled services.'**
+  String get deviceSecurityAccessibilityHelp;
+
+  /// No description provided for @deviceSecurityChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking device security'**
+  String get deviceSecurityChecking;
+
+  /// No description provided for @deviceSecurityReadingSignals.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading device posture signals...'**
+  String get deviceSecurityReadingSignals;
+
+  /// No description provided for @deviceSecurityOneCheckAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'1 check needs attention'**
+  String get deviceSecurityOneCheckAttention;
+
+  /// No description provided for @deviceSecurityChecksAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} checks need attention'**
+  String deviceSecurityChecksAttention(Object count);
+
+  /// No description provided for @deviceSecurityTapSignal.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a signal below to learn more.'**
+  String get deviceSecurityTapSignal;
+
+  /// No description provided for @deviceSecurityIgnoredChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active check{plural} ignored by you.'**
+  String deviceSecurityIgnoredChecks(Object count, String plural);
+
+  /// No description provided for @deviceSecurityPostureNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device posture checks look normal.'**
+  String get deviceSecurityPostureNormal;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m ago'**
+  String timeMinutesAgo(Object minutes);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h ago'**
+  String timeHoursAgo(Object hours);
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d ago'**
+  String timeDaysAgo(Object days);
+
+  /// No description provided for @securityNoReportDataYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No report data yet'**
+  String get securityNoReportDataYet;
+
+  /// No description provided for @securityLastActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Last activity {relative}'**
+  String securityLastActivity(Object relative);
+
+  /// No description provided for @securityReportSharePdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avarionx Security Report'**
+  String get securityReportSharePdfTitle;
+
+  /// No description provided for @securityReportCsvField.
+  ///
+  /// In en, this message translates to:
+  /// **'Field'**
+  String get securityReportCsvField;
+
+  /// No description provided for @securityReportCsvValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get securityReportCsvValue;
+
+  /// No description provided for @securityReportGeneratedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated at'**
+  String get securityReportGeneratedAt;
+
+  /// No description provided for @securityReportOverallStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall status'**
+  String get securityReportOverallStatus;
+
+  /// No description provided for @securityReportLastManualScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Last manual scan'**
+  String get securityReportLastManualScan;
+
+  /// No description provided for @securityReportLastRealtimeEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Last realtime event'**
+  String get securityReportLastRealtimeEvent;
+
+  /// No description provided for @securityReportLastScheduledScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Last scheduled scan'**
+  String get securityReportLastScheduledScan;
+
+  /// No description provided for @securityReportShareCsvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avarionx Security Report CSV'**
+  String get securityReportShareCsvTitle;
+
+  /// No description provided for @securityReportReviewRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Review recommended'**
+  String get securityReportReviewRecommended;
+
+  /// No description provided for @securityReportNoKnownThreatDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No known threat detected'**
+  String get securityReportNoKnownThreatDetected;
+
+  /// No description provided for @securityReportGeneratedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated: {generatedAt}'**
+  String securityReportGeneratedLine(Object generatedAt);
+
+  /// No description provided for @securityReportStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String securityReportStatusLine(Object status);
+
+  /// No description provided for @securityReportLatestActivityLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest activity: {latest}'**
+  String securityReportLatestActivityLine(Object latest);
+
+  /// No description provided for @securityReportManualScansLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual scans: {count}'**
+  String securityReportManualScansLine(Object count);
+
+  /// No description provided for @securityReportRealtimeChecksLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Realtime checks: {count}'**
+  String securityReportRealtimeChecksLine(Object count);
+
+  /// No description provided for @securityReportTotalFilesScannedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Total files scanned: {count}'**
+  String securityReportTotalFilesScannedLine(Object count);
+
+  /// No description provided for @securityReportThreatsFoundLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Threats found: {count}'**
+  String securityReportThreatsFoundLine(Object count);
+
+  /// No description provided for @securityReportLastManualScanLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last manual scan: {value}'**
+  String securityReportLastManualScanLine(Object value);
+
+  /// No description provided for @securityReportLastRealtimeEventLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last realtime event: {value}'**
+  String securityReportLastRealtimeEventLine(Object value);
+
+  /// No description provided for @securityReportLastScheduledScanLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last scheduled scan: {value}'**
+  String securityReportLastScheduledScanLine(Object value);
+
+  /// No description provided for @securityReportNotRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded'**
+  String get securityReportNotRecorded;
+
+  /// No description provided for @safeViewNavigationBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation blocked'**
+  String get safeViewNavigationBlocked;
+
+  /// No description provided for @safeViewInvalidDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid destination'**
+  String get safeViewInvalidDestination;
+
+  /// No description provided for @safeViewUnsupportedScheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported scheme'**
+  String get safeViewUnsupportedScheme;
+
+  /// No description provided for @safeViewUnableToResolveDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to resolve destination'**
+  String get safeViewUnableToResolveDestination;
+
+  /// No description provided for @safeViewDestinationBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination blocked'**
+  String get safeViewDestinationBlocked;
+
+  /// No description provided for @safeViewUnableToVerifyDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to verify destination'**
+  String get safeViewUnableToVerifyDestination;
+
+  /// No description provided for @proScreenCurrentStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Current status: {status}'**
+  String proScreenCurrentStatus(Object status);
+
+  /// No description provided for @proScreenBilledAnnuallyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed annually at {price}'**
+  String proScreenBilledAnnuallyAt(Object price);
+
+  /// No description provided for @quarantineUnknownApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown App'**
+  String get quarantineUnknownApp;
+
+  /// No description provided for @cleanerScanCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan cancelled'**
+  String get cleanerScanCancelled;
+
+  /// No description provided for @cleanerProClearingCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing caches…'**
+  String get cleanerProClearingCaches;
+
+  /// No description provided for @cleanerProTrimAppCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim app caches across the device.'**
+  String get cleanerProTrimAppCaches;
+
+  /// No description provided for @cleanerProEnableShizuku.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Shizuku in Settings to use this.'**
+  String get cleanerProEnableShizuku;
+
+  /// No description provided for @cleanerProScanningStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning storage…'**
+  String get cleanerProScanningStorage;
+
+  /// No description provided for @cleanerProFindLogFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Find .log, .trace, .crash and .dmp files.'**
+  String get cleanerProFindLogFiles;
+
+  /// No description provided for @cleanerProLogFileCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files • {size}'**
+  String cleanerProLogFileCount(Object count, Object size);
+
+  /// No description provided for @cleanerProAppManagerReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Force stop, clear data and batch uninstall apps.'**
+  String get cleanerProAppManagerReady;
+
+  /// No description provided for @cleanerProAppManagerLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall works normally. Force stop and clear data require Shizuku.'**
+  String get cleanerProAppManagerLimited;
+
+  /// No description provided for @cleanerProCheckingShizuku.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking Shizuku…'**
+  String get cleanerProCheckingShizuku;
+
+  /// No description provided for @cleanerProShizukuNotRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Shizuku is not running. Enable it from Settings when needed.'**
+  String get cleanerProShizukuNotRunning;
+
+  /// No description provided for @cleanerProShizukuPermissionMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Shizuku permission is not granted. Enable it from Settings.'**
+  String get cleanerProShizukuPermissionMissing;
+
+  /// No description provided for @cleanerProShizukuNotBound.
+  ///
+  /// In en, this message translates to:
+  /// **'Shizuku service is not bound yet. Open Settings and refresh this screen after enabling it.'**
+  String get cleanerProShizukuNotBound;
+
+  /// No description provided for @cleanerLiteTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Lite'**
+  String get cleanerLiteTab;
+
+  /// No description provided for @cleanerProTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get cleanerProTab;
+
+  /// No description provided for @scanCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan cancelled'**
+  String get scanCancelled;
+
+  /// No description provided for @scanPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing scan...'**
+  String get scanPreparing;
+
+  /// No description provided for @scanSuspiciousItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} suspicious item{plural} found'**
+  String scanSuspiciousItemsFound(Object count, String plural);
+
+  /// No description provided for @scanSuspiciousCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} suspicious'**
+  String scanSuspiciousCount(Object count);
+
+  /// No description provided for @scanCleanCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} clean'**
+  String scanCleanCount(Object count);
+
+  /// No description provided for @scanNotificationFullItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {count} items'**
+  String scanNotificationFullItems(Object count);
+
+  /// No description provided for @scanNotificationCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {count} • {file}'**
+  String scanNotificationCurrent(Object count, Object file);
+
+  /// No description provided for @scanNotificationProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{scanned} / {total}'**
+  String scanNotificationProgress(Object scanned, Object total);
+
+  /// No description provided for @scanNotificationProgressCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'{scanned} / {total} • {file}'**
+  String scanNotificationProgressCurrent(
+      Object scanned, Object total, Object file);
+
+  /// No description provided for @settingsThemeRoyalBluePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal Blue (Premium)'**
+  String get settingsThemeRoyalBluePremium;
+
+  /// No description provided for @settingsIconDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsIconDefault;
+
+  /// No description provided for @settingsIconBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Bird'**
+  String get settingsIconBird;
+
+  /// No description provided for @settingsIconNeon.
+  ///
+  /// In en, this message translates to:
+  /// **'Neon'**
+  String get settingsIconNeon;
+
+  /// No description provided for @settingsIconOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get settingsIconOriginal;
+
+  /// No description provided for @homeRealtimeProtectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-Time Protection'**
+  String get homeRealtimeProtectionTitle;
+
+  /// No description provided for @networkCardStatusLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get networkCardStatusLocked;
+
+  /// No description provided for @networkSectionConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get networkSectionConnection;
+
+  /// No description provided for @networkSectionBlocklists.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocklists'**
+  String get networkSectionBlocklists;
+
+  /// No description provided for @networkSectionResolver.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolver'**
+  String get networkSectionResolver;
+
+  /// No description provided for @networkAppControlOtherVpnSetupInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Another VPN is currently selected as Always-on.\\n\\nTo block apps reliably:\\n\\n1) Open Android VPN settings\\n2) Select AvarionX as the VPN\\n3) Enable Always-on VPN\\n4) Enable Block connections without VPN'**
+  String get networkAppControlOtherVpnSetupInstructions;
+
+  /// No description provided for @networkAppControlSetupInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'To block apps reliably:\\n\\n1) Open Android VPN settings\\n2) Select AvarionX as the VPN\\n3) Enable Always-on VPN\\n4) Enable Block connections without VPN'**
+  String get networkAppControlSetupInstructions;
+
+  /// No description provided for @networkAppControlBlockingActive.
+  ///
+  /// In en, this message translates to:
+  /// **'App blocking is active.'**
+  String get networkAppControlBlockingActive;
+
+  /// No description provided for @networkAppControlOtherVpnWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AvarionX.'**
+  String get networkAppControlOtherVpnWarning;
+
+  /// No description provided for @networkAppControlSetupWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Always-on + Block without VPN for AvarionX to make app blocking work.'**
+  String get networkAppControlSetupWarning;
+
+  /// No description provided for @countryUnitedKingdom.
+  ///
+  /// In en, this message translates to:
+  /// **'United Kingdom'**
+  String get countryUnitedKingdom;
+
+  /// No description provided for @countryUnitedStates.
+  ///
+  /// In en, this message translates to:
+  /// **'United States'**
+  String get countryUnitedStates;
+
+  /// No description provided for @countryCanada.
+  ///
+  /// In en, this message translates to:
+  /// **'Canada'**
+  String get countryCanada;
+
+  /// No description provided for @countryIreland.
+  ///
+  /// In en, this message translates to:
+  /// **'Ireland'**
+  String get countryIreland;
+
+  /// No description provided for @countryFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'France'**
+  String get countryFrance;
+
+  /// No description provided for @countryGermany.
+  ///
+  /// In en, this message translates to:
+  /// **'Germany'**
+  String get countryGermany;
+
+  /// No description provided for @countryNetherlands.
+  ///
+  /// In en, this message translates to:
+  /// **'Netherlands'**
+  String get countryNetherlands;
+
+  /// No description provided for @countrySpain.
+  ///
+  /// In en, this message translates to:
+  /// **'Spain'**
+  String get countrySpain;
+
+  /// No description provided for @countryItaly.
+  ///
+  /// In en, this message translates to:
+  /// **'Italy'**
+  String get countryItaly;
+
+  /// No description provided for @countrySweden.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweden'**
+  String get countrySweden;
+
+  /// No description provided for @countryNorway.
+  ///
+  /// In en, this message translates to:
+  /// **'Norway'**
+  String get countryNorway;
+
+  /// No description provided for @countryDenmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Denmark'**
+  String get countryDenmark;
+
+  /// No description provided for @countryPoland.
+  ///
+  /// In en, this message translates to:
+  /// **'Poland'**
+  String get countryPoland;
+
+  /// No description provided for @countryTurkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkey'**
+  String get countryTurkey;
+
+  /// No description provided for @countryGreece.
+  ///
+  /// In en, this message translates to:
+  /// **'Greece'**
+  String get countryGreece;
+
+  /// No description provided for @countryRomania.
+  ///
+  /// In en, this message translates to:
+  /// **'Romania'**
+  String get countryRomania;
+
+  /// No description provided for @countryUkraine.
+  ///
+  /// In en, this message translates to:
+  /// **'Ukraine'**
+  String get countryUkraine;
+
+  /// No description provided for @countryRussia.
+  ///
+  /// In en, this message translates to:
+  /// **'Russia'**
+  String get countryRussia;
+
+  /// No description provided for @countryIndia.
+  ///
+  /// In en, this message translates to:
+  /// **'India'**
+  String get countryIndia;
+
+  /// No description provided for @countryPakistan.
+  ///
+  /// In en, this message translates to:
+  /// **'Pakistan'**
+  String get countryPakistan;
+
+  /// No description provided for @countryBangladesh.
+  ///
+  /// In en, this message translates to:
+  /// **'Bangladesh'**
+  String get countryBangladesh;
+
+  /// No description provided for @countrySriLanka.
+  ///
+  /// In en, this message translates to:
+  /// **'Sri Lanka'**
+  String get countrySriLanka;
+
+  /// No description provided for @countryNepal.
+  ///
+  /// In en, this message translates to:
+  /// **'Nepal'**
+  String get countryNepal;
+
+  /// No description provided for @countryJapan.
+  ///
+  /// In en, this message translates to:
+  /// **'Japan'**
+  String get countryJapan;
+
+  /// No description provided for @countrySouthKorea.
+  ///
+  /// In en, this message translates to:
+  /// **'South Korea'**
+  String get countrySouthKorea;
+
+  /// No description provided for @countrySingapore.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore'**
+  String get countrySingapore;
+
+  /// No description provided for @countryMalaysia.
+  ///
+  /// In en, this message translates to:
+  /// **'Malaysia'**
+  String get countryMalaysia;
+
+  /// No description provided for @countryThailand.
+  ///
+  /// In en, this message translates to:
+  /// **'Thailand'**
+  String get countryThailand;
+
+  /// No description provided for @countryVietnam.
+  ///
+  /// In en, this message translates to:
+  /// **'Vietnam'**
+  String get countryVietnam;
+
+  /// No description provided for @countryPhilippines.
+  ///
+  /// In en, this message translates to:
+  /// **'Philippines'**
+  String get countryPhilippines;
+
+  /// No description provided for @countryIndonesia.
+  ///
+  /// In en, this message translates to:
+  /// **'Indonesia'**
+  String get countryIndonesia;
+
+  /// No description provided for @countryAustralia.
+  ///
+  /// In en, this message translates to:
+  /// **'Australia'**
+  String get countryAustralia;
+
+  /// No description provided for @countryNewZealand.
+  ///
+  /// In en, this message translates to:
+  /// **'New Zealand'**
+  String get countryNewZealand;
+
+  /// No description provided for @countryBrazil.
+  ///
+  /// In en, this message translates to:
+  /// **'Brazil'**
+  String get countryBrazil;
+
+  /// No description provided for @countryArgentina.
+  ///
+  /// In en, this message translates to:
+  /// **'Argentina'**
+  String get countryArgentina;
+
+  /// No description provided for @countryChile.
+  ///
+  /// In en, this message translates to:
+  /// **'Chile'**
+  String get countryChile;
+
+  /// No description provided for @countryMexico.
+  ///
+  /// In en, this message translates to:
+  /// **'Mexico'**
+  String get countryMexico;
+
+  /// No description provided for @countryColombia.
+  ///
+  /// In en, this message translates to:
+  /// **'Colombia'**
+  String get countryColombia;
+
+  /// No description provided for @countryPeru.
+  ///
+  /// In en, this message translates to:
+  /// **'Peru'**
+  String get countryPeru;
+
+  /// No description provided for @countrySouthAfrica.
+  ///
+  /// In en, this message translates to:
+  /// **'South Africa'**
+  String get countrySouthAfrica;
+
+  /// No description provided for @countryNigeria.
+  ///
+  /// In en, this message translates to:
+  /// **'Nigeria'**
+  String get countryNigeria;
+
+  /// No description provided for @countryKenya.
+  ///
+  /// In en, this message translates to:
+  /// **'Kenya'**
+  String get countryKenya;
+
+  /// No description provided for @countryEgypt.
+  ///
+  /// In en, this message translates to:
+  /// **'Egypt'**
+  String get countryEgypt;
+
+  /// No description provided for @countryUAE.
+  ///
+  /// In en, this message translates to:
+  /// **'UAE'**
+  String get countryUAE;
+
+  /// No description provided for @countrySaudiArabia.
+  ///
+  /// In en, this message translates to:
+  /// **'Saudi Arabia'**
+  String get countrySaudiArabia;
+
+  /// No description provided for @countryIsrael.
+  ///
+  /// In en, this message translates to:
+  /// **'Israel'**
+  String get countryIsrael;
+
+  /// No description provided for @networkSpeedTestTesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing {current}/{total} • {domain}'**
+  String networkSpeedTestTesting(Object current, Object total, Object domain);
+
+  /// No description provided for @networkSpeedTestDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get networkSpeedTestDone;
+
+  /// No description provided for @vpnFooterCustomisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Customisation'**
+  String get vpnFooterCustomisation;
+
+  /// No description provided for @apkClipboardReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VTTI Cloud - APK Analysis Report'**
+  String get apkClipboardReportTitle;
+
+  /// No description provided for @apkClipboardAppName.
+  ///
+  /// In en, this message translates to:
+  /// **'App Name: {name}'**
+  String apkClipboardAppName(Object name);
+
+  /// No description provided for @apkClipboardPackageId.
+  ///
+  /// In en, this message translates to:
+  /// **'Package ID: {packageId}'**
+  String apkClipboardPackageId(Object packageId);
+
+  /// No description provided for @apkClipboardVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: {version}'**
+  String apkClipboardVersion(Object version);
+
+  /// No description provided for @apkClipboardFileSize.
+  ///
+  /// In en, this message translates to:
+  /// **'File Size: {size}'**
+  String apkClipboardFileSize(Object size);
+
+  /// No description provided for @apkClipboardMinSdk.
+  ///
+  /// In en, this message translates to:
+  /// **'Min SDK: {sdk}'**
+  String apkClipboardMinSdk(Object sdk);
+
+  /// No description provided for @apkClipboardTargetSdk.
+  ///
+  /// In en, this message translates to:
+  /// **'Target SDK: {sdk}'**
+  String apkClipboardTargetSdk(Object sdk);
+
+  /// No description provided for @apkClipboardSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature: {signature}'**
+  String apkClipboardSignature(Object signature);
+
+  /// No description provided for @apkClipboardMalwareRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware Risk: {risk}'**
+  String apkClipboardMalwareRisk(Object risk);
+
+  /// No description provided for @apkClipboardRiskLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Label: {label}'**
+  String apkClipboardRiskLabel(Object label);
+
+  /// No description provided for @apkClipboardHashVerdict.
+  ///
+  /// In en, this message translates to:
+  /// **'Hash Verdict: {verdict}'**
+  String apkClipboardHashVerdict(Object verdict);
+
+  /// No description provided for @apkClipboardRationale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rationale: {rationale}'**
+  String apkClipboardRationale(Object rationale);
+
+  /// No description provided for @apkReportUnusualFlags.
+  ///
+  /// In en, this message translates to:
+  /// **'Unusual Flags'**
+  String get apkReportUnusualFlags;
+
+  /// No description provided for @apkReportUnverifiedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified Items'**
+  String get apkReportUnverifiedItems;
+
+  /// No description provided for @apkReportKnownMalware.
+  ///
+  /// In en, this message translates to:
+  /// **'Known Malware'**
+  String get apkReportKnownMalware;
+
+  /// No description provided for @apkReportSuspiciousHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicious Hash'**
+  String get apkReportSuspiciousHash;
+
+  /// No description provided for @apkReportCleanHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean Hash'**
+  String get apkReportCleanHash;
+
+  /// No description provided for @apkReportHashNotChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Hash Not Checked'**
+  String get apkReportHashNotChecked;
+
+  /// No description provided for @apkReportHashUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Hash Unknown'**
+  String get apkReportHashUnknown;
+
+  /// No description provided for @apkMetadataPackage.
+  ///
+  /// In en, this message translates to:
+  /// **'Package'**
+  String get apkMetadataPackage;
+
+  /// No description provided for @apkMetadataPackageId.
+  ///
+  /// In en, this message translates to:
+  /// **'Package ID'**
+  String get apkMetadataPackageId;
+
+  /// No description provided for @apkMetadataEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Engine'**
+  String get apkMetadataEngine;
+
+  /// No description provided for @apkMetadataSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get apkMetadataSize;
+
+  /// No description provided for @apkMetadataMinSdk.
+  ///
+  /// In en, this message translates to:
+  /// **'Min SDK'**
+  String get apkMetadataMinSdk;
+
+  /// No description provided for @apkMetadataTargetSdk.
+  ///
+  /// In en, this message translates to:
+  /// **'Target SDK'**
+  String get apkMetadataTargetSdk;
+
+  /// No description provided for @apkMetadataSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get apkMetadataSignature;
+
+  /// No description provided for @apkAnalyserStageDeconstructing.
+  ///
+  /// In en, this message translates to:
+  /// **'Deconstructing APK'**
+  String get apkAnalyserStageDeconstructing;
+
+  /// No description provided for @apkAnalyserStageAnalysing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysing content'**
+  String get apkAnalyserStageAnalysing;
+
+  /// No description provided for @apkAnalyserSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in via Settings to use Cloud Analysis.'**
+  String get apkAnalyserSignInRequired;
+
+  /// No description provided for @apkAnalyserStageCheckingCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking VTTI Cloud'**
+  String get apkAnalyserStageCheckingCloud;
+
+  /// No description provided for @apkAnalyserDailyLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached your daily limit of {limit} analyses.'**
+  String apkAnalyserDailyLimitReached(Object limit);
+
+  /// No description provided for @apkAnalyserCloudAnalysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud analysis failed'**
+  String get apkAnalyserCloudAnalysisFailed;
+
+  /// No description provided for @apkAnalyserStageGeneratingReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating report'**
+  String get apkAnalyserStageGeneratingReport;
+
+  /// No description provided for @apkAnalyserAnalysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to process APK analysis'**
+  String get apkAnalyserAnalysisFailed;
+
+  /// No description provided for @genericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get genericError;
+
+  /// No description provided for @apkReportEngineVttiCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'VTTI Cloud Engine'**
+  String get apkReportEngineVttiCloud;
+
+  /// No description provided for @apkReportCertificateDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate detected'**
+  String get apkReportCertificateDetected;
+
+  /// No description provided for @apkReportNoCertificateData.
+  ///
+  /// In en, this message translates to:
+  /// **'No certificate data'**
+  String get apkReportNoCertificateData;
+
+  /// No description provided for @apkExportOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get apkExportOverview;
+
+  /// No description provided for @apkExportMalwareAssessment.
+  ///
+  /// In en, this message translates to:
+  /// **'Malware Assessment'**
+  String get apkExportMalwareAssessment;
+
+  /// No description provided for @apkExportRiskScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Score'**
+  String get apkExportRiskScore;
+
+  /// No description provided for @apkExportRiskLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Label'**
+  String get apkExportRiskLabel;
+
+  /// No description provided for @apkExportHashVerdict.
+  ///
+  /// In en, this message translates to:
+  /// **'Hash Verdict'**
+  String get apkExportHashVerdict;
+
+  /// No description provided for @apkExportScoreRationale.
+  ///
+  /// In en, this message translates to:
+  /// **'Score Rationale'**
+  String get apkExportScoreRationale;
+
+  /// No description provided for @apkExportContributingSignals.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributing Signals'**
+  String get apkExportContributingSignals;
+
+  /// No description provided for @apkExportDampeningFactors.
+  ///
+  /// In en, this message translates to:
+  /// **'Dampening Factors'**
+  String get apkExportDampeningFactors;
+
+  /// No description provided for @apkExportPermissionsRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions Requested'**
+  String get apkExportPermissionsRequested;
+
+  /// No description provided for @apkExportExtraFlagsUnusual.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra Flags (Unusual)'**
+  String get apkExportExtraFlagsUnusual;
+
+  /// No description provided for @apkExportExtraFlagsUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra Flags (Unverified)'**
+  String get apkExportExtraFlagsUnverified;
+
+  /// No description provided for @apkExportDiscoveredSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovered Sources'**
+  String get apkExportDiscoveredSources;
+
+  /// No description provided for @apkExportRequestedPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested Permissions'**
+  String get apkExportRequestedPermissions;
+
+  /// No description provided for @apkExportRationale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rationale'**
+  String get apkExportRationale;
+
+  /// No description provided for @apkExportCsvShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analysis CSV for {name}'**
+  String apkExportCsvShareText(Object name);
+
+  /// No description provided for @apkExportPdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VTTI Cloud - APK Analysis'**
+  String get apkExportPdfTitle;
+
+  /// No description provided for @apkExportPdfShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analysis PDF for {name}'**
+  String apkExportPdfShareText(Object name);
+
+  /// No description provided for @apkMetadataAppName.
+  ///
+  /// In en, this message translates to:
+  /// **'App Name'**
+  String get apkMetadataAppName;
+
+  /// No description provided for @apkMetadataFileSize.
+  ///
+  /// In en, this message translates to:
+  /// **'File Size'**
+  String get apkMetadataFileSize;
+
+  /// No description provided for @vpnBackendFailedOpenBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open browser.'**
+  String get vpnBackendFailedOpenBrowser;
+
+  /// No description provided for @vpnBackendSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in.'**
+  String get vpnBackendSignedIn;
+
+  /// No description provided for @vpnBackendSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out.'**
+  String get vpnBackendSignedOut;
+
+  /// No description provided for @vpnBackendSessionExpiredSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Sign in again.'**
+  String get vpnBackendSessionExpiredSignIn;
+
+  /// No description provided for @vpnBackendFailedLoadAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load account ({status}).'**
+  String vpnBackendFailedLoadAccountStatus(Object status);
+
+  /// No description provided for @vpnBackendFailedLoadAccountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load account ({error}).'**
+  String vpnBackendFailedLoadAccountError(Object error);
+
+  /// No description provided for @vpnBackendSignInFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in first.'**
+  String get vpnBackendSignInFirst;
+
+  /// No description provided for @vpnBackendConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get vpnBackendConnecting;
+
+  /// No description provided for @vpnBackendNotificationsPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications permission required.'**
+  String get vpnBackendNotificationsPermissionRequired;
+
+  /// No description provided for @vpnBackendPermissionNotGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'VPN permission not granted.'**
+  String get vpnBackendPermissionNotGranted;
+
+  /// No description provided for @vpnBackendAnotherVpnActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Another VPN is active. Disable it first.'**
+  String get vpnBackendAnotherVpnActive;
+
+  /// No description provided for @vpnBackendProvisionIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Provision returned incomplete settings.'**
+  String get vpnBackendProvisionIncomplete;
+
+  /// No description provided for @vpnBackendSecuringConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Securing connection...'**
+  String get vpnBackendSecuringConnection;
+
+  /// No description provided for @vpnBackendConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected.'**
+  String get vpnBackendConnected;
+
+  /// No description provided for @vpnBackendWireGuardFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start WireGuard ({error}).'**
+  String vpnBackendWireGuardFailed(Object error);
+
+  /// No description provided for @vpnBackendDisconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnecting...'**
+  String get vpnBackendDisconnecting;
+
+  /// No description provided for @vpnBackendDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected.'**
+  String get vpnBackendDisconnected;
+
+  /// No description provided for @vpnBackendSelectedServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected {server}'**
+  String vpnBackendSelectedServer(Object server);
+
+  /// No description provided for @vpnBackendSwitchingServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching to {server}...'**
+  String vpnBackendSwitchingServer(Object server);
+
+  /// No description provided for @vpnBackendKeyNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'VPN key not found.'**
+  String get vpnBackendKeyNotFound;
+
+  /// No description provided for @vpnBackendDnsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS settings updated.'**
+  String get vpnBackendDnsUpdated;
+
+  /// No description provided for @vpnBackendSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired.'**
+  String get vpnBackendSessionExpired;
+
+  /// No description provided for @vpnBackendFailedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed ({status}).'**
+  String vpnBackendFailedStatus(Object status);
+
+  /// No description provided for @vpnBackendPlanNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan is not allowed to use Full VPN.'**
+  String get vpnBackendPlanNotAllowed;
+
+  /// No description provided for @vpnBackendProvisionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Provision failed ({status}).'**
+  String vpnBackendProvisionFailed(Object status);
 }
 
 class _AppLocalizationsDelegate

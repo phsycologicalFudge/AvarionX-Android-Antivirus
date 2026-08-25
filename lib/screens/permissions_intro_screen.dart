@@ -3,10 +3,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/theme/theme_manager.dart';
+import '../widgets/mesh_background.dart';
 import 'main_shell.dart';
-import 'scan_ui_screen.dart';
 
+import '../translations/app_localizations.dart';
 class PermissionsIntroScreen extends StatefulWidget {
   const PermissionsIntroScreen({super.key});
 
@@ -56,7 +59,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
 
     if (!granted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required for scanning.')),
+         SnackBar(content: Text(AppLocalizations.of(context)!.onboardingStorageSnack)),
       );
     }
   }
@@ -79,20 +82,11 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     }
   }
 
-  Future<void> _completeOnboarding({required bool runFullScan}) async {
+  Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done_v2', true);
 
     if (!mounted) return;
-
-    if (runFullScan) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const ScanScreen(startMode: ScanMode.full),
-        ),
-      );
-      return;
-    }
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const MainShell()),
@@ -120,128 +114,133 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final text = theme.textTheme;
+    final themeManager = Provider.of<ThemeManager>(context);
 
     return Scaffold(
       backgroundColor: scheme.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 18),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'AVarionx Security',
-                      style: text.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: scheme.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Row(
-                children: List.generate(3, (i) {
-                  final active = i == _page;
-                  return Expanded(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      margin: EdgeInsets.only(right: i == 3 ? 0 : 8),
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: active ? scheme.primary : scheme.outlineVariant.withOpacity(0.45),
-                        borderRadius: BorderRadius.circular(999),
+      body: MeshBackground(
+        blobs: themeManager.meshBlobs,
+        base: scheme.surface,
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.onboardingAppName,
+                        style: text.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: scheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  );
-                }),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Expanded(
-              child: PageView(
-                controller: _controller,
-                onPageChanged: (i) => setState(() => _page = i),
-                children: [
-                  _slide(
-                    context,
-                    icon: Icons.folder_rounded,
-                    title: 'Storage access',
-                    desc: 'This permission is required to scan files on your device. You can grant this now or later.',
-                    granted: storageGranted,
-                    primaryLabel: storageGranted ? 'Granted' : 'Grant access',
-                    onPrimary: storageGranted ? null : _requestStorage,
-                    footnote: 'You can skip this, but you will be asked again when you choose a scan mode.',
-                  ),
-                  _slide(
-                    context,
-                    icon: Icons.notifications_active_rounded,
-                    title: 'Notifications',
-                    desc: 'Used for real time alerts, scan status, and quarantine updates.',
-                    granted: notifGranted,
-                    primaryLabel: notifGranted ? 'Granted' : 'Allow notifications',
-                    onPrimary: notifGranted ? null : _requestNotifications,
-                    footnote: 'Required by Android for RealTime Protection.',
-                  ),
-                  _finishSlide(context),
-                ],
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Row(
+                  children: List.generate(3, (i) {
+                    final active = i == _page;
+                    return Expanded(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        margin: EdgeInsets.only(right: i == 3 ? 0 : 8),
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: active ? scheme.primary : scheme.outlineVariant.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
-              child: Row(
-                children: [
-                  if (_page > 0)
-                    TextButton(
-                      onPressed: _back,
-                      style: TextButton.styleFrom(
-                        foregroundColor: scheme.onSurface.withOpacity(0.8),
-                        backgroundColor: Colors.transparent,
-                        surfaceTintColor: Colors.transparent,
-                      ),
-                      child: const Text('Back'),
-                    )
-                  else
-                    const SizedBox(width: 72),
-                  const Spacer(),
-                  if (_page < 3)
-                    FilledButton(
-                      onPressed: _next,
-                      style: FilledButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: scheme.primary,
-                        foregroundColor: scheme.onPrimary,
-                        surfaceTintColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: const Text('Next'),
-                    )
-                  else
-                    FilledButton(
-                      onPressed: () => _completeOnboarding(runFullScan: false),
-                      style: FilledButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: scheme.primary,
-                        foregroundColor: scheme.onPrimary,
-                        surfaceTintColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: const Text('Finish'),
+              const SizedBox(height: 14),
+              Expanded(
+                child: PageView(
+                  controller: _controller,
+                  onPageChanged: (i) => setState(() => _page = i),
+                  children: [
+                    _slide(
+                      context,
+                      icon: Icons.folder_rounded,
+                      title: AppLocalizations.of(context)!.onboardingStorageTitle,
+                      desc: AppLocalizations.of(context)!.onboardingStorageDesc,
+                      granted: storageGranted,
+                      primaryLabel: storageGranted ? AppLocalizations.of(context)!.onboardingGranted : AppLocalizations.of(context)!.onboardingGrantAccess,
+                      onPrimary: storageGranted ? null : _requestStorage,
+                      footnote: AppLocalizations.of(context)!.onboardingStorageFootnote,
                     ),
-                ],
+                    _slide(
+                      context,
+                      icon: Icons.notifications_active_rounded,
+                      title: AppLocalizations.of(context)!.onboardingNotificationsTitle,
+                      desc: AppLocalizations.of(context)!.onboardingNotificationsDesc,
+                      granted: notifGranted,
+                      primaryLabel: notifGranted ? AppLocalizations.of(context)!.onboardingGranted : AppLocalizations.of(context)!.onboardingAllowNotifications,
+                      onPrimary: notifGranted ? null : _requestNotifications,
+                      footnote: AppLocalizations.of(context)!.onboardingNotificationsFootnote,
+                    ),
+                    _finishSlide(context),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+                child: Row(
+                  children: [
+                    if (_page > 0)
+                      TextButton(
+                        onPressed: _back,
+                        style: TextButton.styleFrom(
+                          foregroundColor: scheme.onSurface.withOpacity(0.8),
+                          backgroundColor: Colors.transparent,
+                          surfaceTintColor: Colors.transparent,
+                        ),
+                        child:  Text(AppLocalizations.of(context)!.onboardingBack),
+                      )
+                    else
+                      const SizedBox(width: 72),
+                    const Spacer(),
+                    if (_page < 2)
+                      FilledButton(
+                        onPressed: _next,
+                        style: FilledButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: scheme.primary,
+                          foregroundColor: scheme.onPrimary,
+                          surfaceTintColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child:  Text(AppLocalizations.of(context)!.onboardingNext),
+                      )
+                    else
+                      FilledButton(
+                        onPressed: _completeOnboarding,
+                        style: FilledButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: scheme.primary,
+                          foregroundColor: scheme.onPrimary,
+                          surfaceTintColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child:  Text(AppLocalizations.of(context)!.onboardingFinish),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -264,7 +263,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
           ),
           const SizedBox(height: 18),
           Text(
-            'Setup complete',
+            AppLocalizations.of(context)!.onboardingSetupCompleteTitle,
             style: text.headlineSmall?.copyWith(
               fontWeight: FontWeight.w900,
               color: scheme.onSurface,
@@ -273,43 +272,27 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'We reccomend running a Full Device Scan (this does not scan installed apps currently), or go straight to the home screen.',
+            AppLocalizations.of(context)!.permissionsIntroSetupIsNowCompleteTimeToSecure,
             style: text.bodyMedium?.copyWith(
               color: scheme.onSurface.withOpacity(0.78),
               height: 1.35,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => _completeOnboarding(runFullScan: true),
+              onPressed: _completeOnboarding,
               style: FilledButton.styleFrom(
                 elevation: 0,
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.onError,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.onPrimary,
                 surfaceTintColor: Colors.transparent,
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Run full device scan'),
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () => _completeOnboarding(runFullScan: false),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: scheme.onSurface,
-                side: BorderSide.none,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: const Text('Go to home'),
+              child:  Text(AppLocalizations.of(context)!.onboardingGoHome),
             ),
           ),
         ],
@@ -332,7 +315,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     final text = theme.textTheme;
 
     final iconColor = granted ? scheme.tertiary : scheme.primary;
-    final badgeText = granted ? 'Granted' : 'Not granted';
+    final badgeText = granted ? AppLocalizations.of(context)!.onboardingGranted : AppLocalizations.of(context)!.onboardingNotGranted;
     final badgeColor = granted ? scheme.tertiary : scheme.outline;
 
     return Padding(

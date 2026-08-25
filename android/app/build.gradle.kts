@@ -21,6 +21,12 @@ android {
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -34,14 +40,26 @@ android {
     defaultConfig {
         applicationId = "com.colourswift.cssecurity"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
     }
 
     buildFeatures {
         aidl = true
         buildConfig = true
+    }
+
+    externalNativeBuild {
+        cmake {
+            path("CMakeLists.txt")
+        }
     }
 
     signingConfigs {
@@ -80,4 +98,5 @@ dependencies {
     implementation(files("libs/api-release.aar"))
     implementation(files("libs/provider-release.aar"))
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    implementation("org.apache.commons:commons-compress:1.26.2")
 }

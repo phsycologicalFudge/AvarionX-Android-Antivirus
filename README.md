@@ -37,7 +37,7 @@ Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, 
 | Layer | What it does |
 |---|---|
 | **VX-TITANIUM** | Local malware scanning engine for files and APKs. |
-| **VTTI Cloud** | Proprietary cloud Intelligence Platform, including hash checking |
+| **VTTI Cloud** | Also known as Titanium Cloud. A proprietary cloud Intelligence Platform, including hash checking for AvarionX, and sample analysis for full files |
 | **Real-Time Protection** | Monitors new downloads and recently added files. |
 | **Guardian Mode** | Watches for ransomware-style file behaviour. |
 | **APK analysis** | Checks installed or selected APKs for suspicious indicators. and creates a detailed report |
@@ -98,7 +98,7 @@ AvarionX is designed to avoid unnecessary data collection.
 - No tracking or analytics
 - No HTTPS traffic decryption
 - No content inspection
-- No file uploads for cloud checks
+- No file uploads for cloud checks (unless 'Share Malicious APKs' is turned on)
 - Hash-only cloud lookups when VTTI is enabled
 - Local scanning works offline
 

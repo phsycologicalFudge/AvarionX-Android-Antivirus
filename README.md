@@ -13,10 +13,7 @@ AvarionX combines local malware scanning, optional hash-based cloud intelligence
 [![Release](https://img.shields.io/github/v/release/phsycologicalFudge/AvarionX-Android-Antivirus?logo=github&label=release&color=6366f1)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/releases)
 [![Downloads](https://img.shields.io/github/downloads/phsycologicalFudge/AvarionX-Android-Antivirus/total?logo=github&label=downloads&color=10b981)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/releases)
 [![License](https://img.shields.io/github/license/phsycologicalFudge/AvarionX-Android-Antivirus?label=license&color=64748b)](LICENSE)
-
-[![VX-TITANIUM](https://img.shields.io/badge/VX--TITANIUM-V9-7c3aed?labelColor=020617)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus)
-[![VXPack](https://img.shields.io/github/v/release/phsycologicalFudge/AVDatabase?label=VXPack&color=0ea5e9)](https://github.com/phsycologicalFudge/AVDatabase/releases)
-[![VXPack downloads](https://img.shields.io/github/downloads/phsycologicalFudge/AVDatabase/total?label=VXPack%20downloads&color=f97316)](https://github.com/phsycologicalFudge/AVDatabase/releases)
+[![VX-TITANIUM](https://img.shields.io/badge/VX--TITANIUM-XSeries-7c3aed?labelColor=020617)](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus)
 
 <a href="https://buymeacoffee.com/ryanfromcolourswift">
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="48" alt="Buy me a coffee">
@@ -55,8 +52,8 @@ AvarionX Antivirus (CS Security) operates through a multi-layered detection pipe
 
 AvarionX Security includes a dual ML system named ML+
 
-* On-Device: Runs on-device with no remote processing or user telemetry
-* MUniverse Tag: Suspicious applications that meet the scoring system's requirements are dubbed with a MUniverse (Malware Universe) tag
+* Legacy MUniverse Tag: Suspicious applications that meet the scoring system's requirements are dubbed with a MUniverse (Malware Universe) tag in app versions 4.0.8x and below
+* Current versions use an upgraded heuristics model, with the tag: Andr/VXgen2
 
 ## Guardian Mode
 
@@ -74,6 +71,16 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
     <td width="20%" align="center">
       <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
       <sub><strong>Features list</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
+      <sub><strong>Scanning mode</strong></sub>
+    </td>
+    <td width="20%" align="center">
+      <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
+      <sub><strong>APK Analyser</strong></sub>
+    </td>
+    <td width="20%" align="center">
     </td>
     <td width="20%" align="center">
       <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>

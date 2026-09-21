@@ -8,6 +8,7 @@ import '../cloud/cloud_auth_service.dart';
 import 'scan_types.dart';
 import '../../utils/hash_cache_worker.dart';
 import '../../widgets/antivirus_bridge.dart';
+import '../../widgets/scan_log_listener.dart';
 import '../cache_manager.dart';
 import '../cloud_helper_service.dart';
 import '../exclusion_service.dart';
@@ -65,6 +66,7 @@ class HeadlessScanEvent {
   final List<String>? signals;
   final String? quarantinePath;
   final int? apkSize;
+  final String? entryName;
 
   HeadlessScanEvent(
       this.type, {
@@ -79,6 +81,7 @@ class HeadlessScanEvent {
         this.signals,
         this.quarantinePath,
         this.apkSize,
+        this.entryName,
       });
 }
 
@@ -139,9 +142,11 @@ class HeadlessScanWorker {
       if (!closing) return;
       if (busy) return;
       try {
+        bridge?.free();
+      } catch (_) {}
+      try {
         port.close();
       } catch (_) {}
-      Isolate.exit();
     }
 
     port.listen((msg) {
@@ -192,6 +197,7 @@ class HeadlessScanWorker {
   }
 
   void killNow() {
+    clearScanCallback();
     try {
       _iso.kill(priority: Isolate.immediate);
     } catch (_) {}
@@ -219,6 +225,13 @@ Future<HeadlessScanResult> runHeadlessScan({
       BackgroundIsolateBinaryMessenger.ensureInitialized(token);
     } catch (_) {}
   }
+
+  try {
+    await ScanLogListener.ensureStarted();
+  } catch (_) {}
+  ScanLogListener.setHandler((path, entry) {
+    onEvent?.call(HeadlessScanEvent('entry', mode: mode, path: path, name: path.split('/').last, entryName: entry));
+  });
 
   final ex = ExclusionService();
   await ex.load();
@@ -401,7 +414,7 @@ Future<HeadlessScanResult> runHeadlessScan({
             confidence = 0.95;
             label = structuredSignatureLabel(signature);
           } else if (isMlSignal(signals)) {
-            label = 'Android.MUniverse.Gen';
+            label = 'Andr/VXgen2';
             confidence = 0.80;
           } else {
             label = 'Suspicious.Item';
@@ -535,7 +548,7 @@ Future<HeadlessScanResult> runHeadlessScan({
             confidence = 0.95;
             label = structuredSignatureLabel(signature);
           } else if (isMlSignal(signals)) {
-            label = 'Android.MUniverse.Gen';
+            label = 'Andr/VXgen2';
             confidence = 0.80;
           } else {
             label = 'Suspicious.Item';
@@ -638,7 +651,7 @@ Future<HeadlessScanResult> runHeadlessScan({
             confidence = 0.95;
             label = structuredSignatureLabel(signature);
           } else if (isMlSignal(signals)) {
-            label = 'Android.MUniverse.Gen';
+            label = 'Andr/VXgen2';
             confidence = 0.80;
           } else {
             label = 'Suspicious.Item';
@@ -769,7 +782,7 @@ Future<HeadlessScanResult> runHeadlessScan({
             displayName: target.name,
             allowCloud: useCloud,
             respectFolderExclusions: true,
-            respectShaExclusions: false,
+            respectShaExclusions: true,
           );
         }
       }
@@ -943,6 +956,7 @@ Future<HeadlessScanResult> runHeadlessScan({
   } catch (_) {}
 
   sw.stop();
+  ScanLogListener.setHandler(null);
 
   if (recordReport) {
     await recordManualReportEvent(scanned: scanned, threats: detections.length, cancelled: cancelled);

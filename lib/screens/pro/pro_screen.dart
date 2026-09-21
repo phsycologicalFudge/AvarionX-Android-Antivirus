@@ -559,7 +559,7 @@ class _ProScreenState extends State<ProScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(18),
                     child: Image.asset(
-                      'assets/icons/logo.png',
+                      'assets/icons/app_icon.ico',
                       width: 72,
                       height: 72,
                       fit: BoxFit.cover,

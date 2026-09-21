@@ -219,7 +219,7 @@ abstract class AppLocalizations {
   /// No description provided for @engineReadyBanner.
   ///
   /// In en, this message translates to:
-  /// **'VX-TITANIUM-v9'**
+  /// **'TITANIUM X-SERIES'**
   String get engineReadyBanner;
 
   /// No description provided for @scanButton.
@@ -299,6 +299,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Protection'**
   String get protectionTitle;
+
+  /// No description provided for @scanUiScanningFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning file(s)'**
+  String get scanUiScanningFiles;
 
   /// No description provided for @stateOffLine1.
   ///
@@ -2937,7 +2943,7 @@ abstract class AppLocalizations {
   /// No description provided for @cleanerStatusFilesScanned.
   ///
   /// In en, this message translates to:
-  /// **'Files scanned'**
+  /// **'Scanned'**
   String get cleanerStatusFilesScanned;
 
   /// No description provided for @cleanerStatusFindingUnusedApps.
@@ -4191,13 +4197,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeLocalScanEngineOnly.
   ///
   /// In en, this message translates to:
-  /// **'Local scan engine only'**
+  /// **'Local engine only'**
   String get homeLocalScanEngineOnly;
 
   /// No description provided for @homeProtectedByVXTITANIUM.
   ///
   /// In en, this message translates to:
-  /// **'Protected by VX-TITANIUM'**
+  /// **'Protected by X-SERIES'**
   String get homeProtectedByVXTITANIUM;
 
   /// No description provided for @homeSecurityOverview.
@@ -4837,6 +4843,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Return'**
   String get scanUiReturn;
+
+  /// No description provided for @scanUiTotalApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Total apps: {count}'**
+  String scanUiTotalApps(Object count);
+
+  /// No description provided for @scanUiTotalFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Total files: {count}'**
+  String scanUiTotalFiles(Object count);
+
+  /// No description provided for @scanUiAppsScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {count}'**
+  String scanUiAppsScanned(Object count);
+
+  /// No description provided for @scanUiFilesScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned: {count}'**
+  String scanUiFilesScanned(Object count);
+
+  /// No description provided for @scanUiThreatsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Threats: {count}'**
+  String scanUiThreatsCount(Object count);
 
   /// No description provided for @scanLimitsSettingsUpdated.
   ///

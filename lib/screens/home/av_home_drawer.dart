@@ -50,7 +50,7 @@ class AvHomeDrawer extends StatelessWidget {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: Image.asset(
-                                'assets/icons/logo.png',
+                                'assets/icons/app_icon.ico',
                                 width: 30,
                                 height: 30,
                                 fit: BoxFit.cover,

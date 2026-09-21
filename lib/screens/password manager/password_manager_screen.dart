@@ -1,16 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
 import 'Password_Settings_Screen.dart';
-
 import '../../translations/app_localizations.dart';
 class PasswordTestScreen extends StatefulWidget {
   const PasswordTestScreen({super.key});

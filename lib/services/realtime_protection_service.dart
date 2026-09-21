@@ -11,7 +11,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/scan/main_scan_ui/scan_screen.dart';
-import '../utils/exclusions_store.dart';
+import 'exclusion_service.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
 import 'cloud/cloud_auth_service.dart';
@@ -59,6 +59,7 @@ class RealtimeProtectionService {
   static StreamSubscription? _watcherStateSub;
 
   static const MethodChannel _watcherChannel = MethodChannel('colourswift/system_watcher');
+  static final ExclusionService _exclusions = ExclusionService();
 
   static const _allowed = {
     'com', 'apk', 'zip', 'rar', '7z', 'pdf', 'txt', 'md', 'json', 'exe'
@@ -156,7 +157,7 @@ class RealtimeProtectionService {
 
     await ensureDefsReady(forceServerCheck: true);
     await _loadIndex();
-    await ExclusionsStore.instance.init();
+    await _exclusions.load();
     await AvEngine.ensureInitialized();
     _cloud ??= CloudScanner(
       endpoint: 'https://api.colourswift.com/hash_cloud',
@@ -284,6 +285,7 @@ class RealtimeProtectionService {
 
     try {
       final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
       final useCloud = prefs.getBool('useCloudScan') ?? false;
       final mode = _scheduledModeFromPrefs(prefs);
       final token = _rootToken;
@@ -426,7 +428,7 @@ class RealtimeProtectionService {
   }
 
   static ScanMode _scheduledModeFromPrefs(SharedPreferences prefs) {
-    final raw = (prefs.getString('scheduled_scan_mode') ?? 'smart').toLowerCase();
+    final raw = (prefs.getString('scheduled_scan_mode') ?? 'rapid').toLowerCase();
     switch (raw) {
       case 'full':
         return ScanMode.full;
@@ -436,8 +438,10 @@ class RealtimeProtectionService {
         return ScanMode.rapid;
       case 'single':
         return ScanMode.single;
-      default:
+      case 'smart':
         return ScanMode.smart;
+      default:
+        return ScanMode.rapid;
     }
   }
 
@@ -519,6 +523,11 @@ class RealtimeProtectionService {
     await prefs.setInt('security_report_last_scheduled_scan_at', now);
   }
 
+  static Future<bool> _isExcluded(String path) async {
+    await _exclusions.refreshIfStale();
+    return _exclusions.skipFolder(path);
+  }
+
   static Future<void> _scanSingleFile(String path) async {
     if (_inFlight.contains(path)) return;
     _inFlight.add(path);
@@ -526,7 +535,7 @@ class RealtimeProtectionService {
     try {
       final f = File(path);
       if (!await f.exists()) return;
-      if (ExclusionsStore.instance.isExcluded(path)) return;
+      if (await _isExcluded(path)) return;
 
       final ext = p.extension(path).replaceFirst('.', '').toLowerCase();
       if (_skip.contains(ext)) return;
@@ -536,7 +545,7 @@ class RealtimeProtectionService {
       if (!stable) return;
 
       if (!await f.exists()) return;
-      if (ExclusionsStore.instance.isExcluded(path)) return;
+      if (await _isExcluded(path)) return;
 
       final size = await f.length();
       if (size <= 0 || size > _maxSize) return;
@@ -547,6 +556,7 @@ class RealtimeProtectionService {
 
       final bytes = await f.readAsBytes();
       final sha = sha256.convert(bytes).toString();
+      if (_exclusions.skipSha(sha)) return;
 
       final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
       if (cloudHit.contains(sha)) {
@@ -555,7 +565,7 @@ class RealtimeProtectionService {
 
         await _recordRealtimeReportEvent(threat: true);
 
-        if (!ExclusionsStore.instance.isExcluded(path)) {
+        if (!await _isExcluded(path)) {
           await _handleDetection(path);
         }
         return;
@@ -568,7 +578,7 @@ class RealtimeProtectionService {
 
         await _recordRealtimeReportEvent(threat: true);
 
-        if (!ExclusionsStore.instance.isExcluded(path)) {
+        if (!await _isExcluded(path)) {
           await _handleDetection(path);
         }
         return;
@@ -595,18 +605,19 @@ class RealtimeProtectionService {
     try {
       final f = File(apkPath);
       if (!await f.exists()) return;
-      if (ExclusionsStore.instance.isExcluded(apkPath)) return;
+      if (await _isExcluded(apkPath)) return;
 
       final size = await f.length();
       if (size <= 0 || size > _maxSize) return;
 
       final bytes = await f.readAsBytes();
       final sha = sha256.convert(bytes).toString();
+      if (_exclusions.skipSha(sha)) return;
 
       final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
       if (cloudHit.contains(sha)) {
         await _recordRealtimeReportEvent(threat: true);
-        if (!ExclusionsStore.instance.isExcluded(apkPath)) {
+        if (!await _isExcluded(apkPath)) {
           await _handleAppDetection(packageName, apkPath);
         }
         return;
@@ -615,7 +626,7 @@ class RealtimeProtectionService {
       final infected = await compute(scanFileIsolate, apkPath);
       if (infected) {
         await _recordRealtimeReportEvent(threat: true);
-        if (!ExclusionsStore.instance.isExcluded(apkPath)) {
+        if (!await _isExcluded(apkPath)) {
           await _handleAppDetection(packageName, apkPath);
         }
         return;
@@ -752,7 +763,7 @@ Future<void> _scheduledScanEntry(Map<String, dynamic> args) async {
   final SendPort send = args['send'] as SendPort;
   final bool useCloud = args['useCloud'] == true;
   final RootIsolateToken? token = args['token'] as RootIsolateToken?;
-  final int modeIndex = (args['mode'] as int?) ?? ScanMode.smart.index;
+  final int modeIndex = (args['mode'] as int?) ?? ScanMode.rapid.index;
 
   final cmdPort = ReceivePort();
   send.send({'t': 'ready', 'cmd': cmdPort.sendPort});

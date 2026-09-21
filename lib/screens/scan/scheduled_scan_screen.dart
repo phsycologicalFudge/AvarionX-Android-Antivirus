@@ -17,7 +17,7 @@ class _ScheduledScansScreenState extends State<ScheduledScansScreen> {
   bool _isPro = false;
   bool _enabled = true;
   int _hours = 168;
-  String _mode = 'smart';
+  String _mode = 'rapid';
 
   bool _useTime = false;
   int _timeHour = 9;
@@ -41,7 +41,7 @@ class _ScheduledScansScreenState extends State<ScheduledScansScreen> {
       _isPro = effective;
       _enabled = prefs.getBool('scheduled_scan_enabled') ?? true;
       _hours = prefs.getInt('scheduled_scan_hours') ?? 168;
-      _mode = prefs.getString('scheduled_scan_mode') ?? 'smart';
+      _mode = prefs.getString('scheduled_scan_mode') ?? 'rapid';
 
       _useTime = prefs.getBool('scheduled_scan_use_time') ?? false;
       _timeHour = prefs.getInt('scheduled_scan_time_h') ?? 9;
@@ -145,13 +145,13 @@ class _ScheduledScansScreenState extends State<ScheduledScansScreen> {
 
   String _modeTitle(AppLocalizations l10n, String v) {
     switch (v) {
-      case 'rapid':
-        return l10n.scanModeRapidTitle;
+      case 'smart':
+        return l10n.scanModeSmartTitle;
       case 'installed':
         return l10n.scanModeInstalledTitle;
-      case 'smart':
+      case 'rapid':
       default:
-        return l10n.scanModeSmartTitle;
+        return l10n.scanModeRapidTitle;
     }
   }
 

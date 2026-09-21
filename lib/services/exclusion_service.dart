@@ -6,9 +6,14 @@ class ExclusionService {
 
   List<String> folders = [];
   List<String> shas = [];
+  DateTime? _loadedAt;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
+    try {
+      await prefs.reload();
+    } catch (_) {}
+    _loadedAt = DateTime.now();
     final raw = prefs.getString(_key);
 
     if (raw == null || raw.isEmpty) {
@@ -28,6 +33,12 @@ class ExclusionService {
       folders = [];
       shas = [];
     }
+  }
+
+  Future<void> refreshIfStale([Duration maxAge = const Duration(seconds: 3)]) async {
+    final t = _loadedAt;
+    if (t != null && DateTime.now().difference(t) < maxAge) return;
+    await load();
   }
 
   Future<void> save() async {
@@ -53,9 +64,15 @@ class ExclusionService {
     }
   }
 
+  static final _slashes = RegExp(r'/{2,}');
+
   bool skipFolder(String filePath) {
+    final path = filePath.replaceAll(_slashes, '/');
     for (final f in folders) {
-      if (filePath.startsWith(f)) return true;
+      var base = f.replaceAll(_slashes, '/');
+      if (base.endsWith('/')) base = base.substring(0, base.length - 1);
+      if (base.isEmpty) continue;
+      if (path == base || path.startsWith('$base/')) return true;
     }
     return false;
   }

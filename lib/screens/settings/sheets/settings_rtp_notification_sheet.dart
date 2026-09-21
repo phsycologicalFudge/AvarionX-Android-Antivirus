@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../translations/app_localizations.dart';
+
 Future<void> showSettingsRtpNotificationSheet({
   required BuildContext context,
   required int currentSeconds,

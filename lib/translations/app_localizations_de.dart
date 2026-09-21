@@ -67,7 +67,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateDbUpdateFailed => 'Datenbank-Update fehlgeschlagen';
 
   @override
-  String get engineReadyBanner => 'VX-TITANIUM-v9';
+  String get engineReadyBanner => 'TITANIUM X-SERIES';
 
   @override
   String get scanButton => 'Scannen';
@@ -110,6 +110,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get protectionTitle => 'Schutz';
+
+  @override
+  String get scanUiScanningFiles => 'Scanning file(s)';
 
   @override
   String get stateOffLine1 => 'Geräteschutz ist deaktiviert';
@@ -2712,6 +2715,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get scanUiReturn => 'Zurück';
+
+  @override
+  String scanUiTotalApps(Object count) {
+    return 'Total apps: $count';
+  }
+
+  @override
+  String scanUiTotalFiles(Object count) {
+    return 'Total files: $count';
+  }
+
+  @override
+  String scanUiAppsScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiFilesScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiThreatsCount(Object count) {
+    return 'Threats: $count';
+  }
 
   @override
   String get scanLimitsSettingsUpdated => 'Einstellungen aktualisiert';

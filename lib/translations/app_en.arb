@@ -23,7 +23,7 @@
   "updateDbUpdatedAutoOn": "Database updated • Auto updates enabled",
   "updateDbUpdatedSuccess": "Database updated successfully",
   "updateDbUpdateFailed": "Database update failed",
-  "engineReadyBanner": "VX-TITANIUM-v9",
+  "engineReadyBanner": "TITANIUM X-SERIES",
   "scanButton": "Scan",
   "scanModeFullTitle": "Full Device Scan",
   "scanModeFullSubtitle": "Scans all readable storage files.",
@@ -37,6 +37,7 @@
   "scanModeSingleSubtitle": "Pick a file or app to scan.",
   "useCloudAssistedScan": "Use cloud-assisted scan",
   "protectionTitle": "Protection",
+  "scanUiScanningFiles": "Scanning file(s)",
   "stateOffLine1": "Device protection is off",
   "stateOffLine2": "Tap to turn on",
   "stateAdvancedActiveLine1": "Advanced protection is active",
@@ -666,7 +667,7 @@
   "cleanerReady": "Ready",
   "cleanerStatusReady": "Ready",
   "cleanerStatusStarting": "Starting…",
-  "cleanerStatusFilesScanned": "Files scanned",
+  "cleanerStatusFilesScanned": "Scanned",
   "cleanerStatusFindingUnusedApps": "Finding unused apps…",
   "cleanerStatusComplete": "Complete",
   "cleanerStatusScanError": "Scan error",
@@ -994,8 +995,8 @@
   "homeDeviceSecurity": "Device Security",
   "homeScanModes": "Scan Modes",
   "homeCloudAssistedChecksEnabled": "Cloud-assisted checks enabled",
-  "homeLocalScanEngineOnly": "Local scan engine only",
-  "homeProtectedByVXTITANIUM": "Protected by VX-TITANIUM",
+  "homeLocalScanEngineOnly": "Local engine only",
+  "homeProtectedByVXTITANIUM": "Protected by X-SERIES",
   "homeSecurityOverview": "Security Overview",
   "homeFilesChecked": "Files checked",
   "homeThreats": "Threats",
@@ -1201,6 +1202,36 @@
     }
   },
   "scanUiReturn": "Return",
+  "scanUiTotalApps": "Total apps: {count}",
+  "@scanUiTotalApps": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanUiTotalFiles": "Total files: {count}",
+  "@scanUiTotalFiles": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanUiAppsScanned": "Scanned: {count}",
+  "@scanUiAppsScanned": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanUiFilesScanned": "Scanned: {count}",
+  "@scanUiFilesScanned": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scanUiThreatsCount": "Threats: {count}",
+  "@scanUiThreatsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "scanLimitsSettingsUpdated": "Settings updated",
   "scanLimitsScanLimits": "Scan limits",
   "scanLimitsLimitHowMuchTheEngineUsesYour": "Limit how much the engine uses your CPU. Threads: 0 means auto.",

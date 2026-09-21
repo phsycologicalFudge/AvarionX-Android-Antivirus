@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
-
 import '../../../services/scan api/headless_scan.dart';
 import '../../../services/scan api/scan_types.dart';
 import '../../../widgets/antivirus_bridge.dart';
@@ -36,9 +35,11 @@ class ScanWorker {
       if (!closing) return;
       if (busy) return;
       try {
+        bridge?.free();
+      } catch (_) {}
+      try {
         port.close();
       } catch (_) {}
-      Isolate.exit();
     }
 
     port.listen((msg) async {
@@ -89,7 +90,7 @@ class ScanWorker {
             confidence = 0.95;
             label = structuredSignatureLabel(signature);
           } else if (isMlSignal(signals)) {
-            label = 'Android.MUniverse.Gen';
+            label = 'Andr/VXgen2';
             confidence = 0.80;
           } else {
             label = 'Suspicious.Item';

@@ -66,7 +66,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDbUpdateFailed => 'Database update failed';
 
   @override
-  String get engineReadyBanner => 'VX-TITANIUM-v9';
+  String get engineReadyBanner => 'TITANIUM X-SERIES';
 
   @override
   String get scanButton => 'Scan';
@@ -107,6 +107,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get protectionTitle => 'Protection';
+
+  @override
+  String get scanUiScanningFiles => 'Scanning file(s)';
 
   @override
   String get stateOffLine1 => 'Device protection is off';
@@ -1566,7 +1569,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cleanerStatusStarting => 'Starting…';
 
   @override
-  String get cleanerStatusFilesScanned => 'Files scanned';
+  String get cleanerStatusFilesScanned => 'Scanned';
 
   @override
   String get cleanerStatusFindingUnusedApps => 'Finding unused apps…';
@@ -2278,10 +2281,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeCloudAssistedChecksEnabled => 'Cloud-assisted checks enabled';
 
   @override
-  String get homeLocalScanEngineOnly => 'Local scan engine only';
+  String get homeLocalScanEngineOnly => 'Local engine only';
 
   @override
-  String get homeProtectedByVXTITANIUM => 'Protected by VX-TITANIUM';
+  String get homeProtectedByVXTITANIUM => 'Protected by X-SERIES';
 
   @override
   String get homeSecurityOverview => 'Security Overview';
@@ -2659,6 +2662,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanUiReturn => 'Return';
+
+  @override
+  String scanUiTotalApps(Object count) {
+    return 'Total apps: $count';
+  }
+
+  @override
+  String scanUiTotalFiles(Object count) {
+    return 'Total files: $count';
+  }
+
+  @override
+  String scanUiAppsScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiFilesScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiThreatsCount(Object count) {
+    return 'Threats: $count';
+  }
 
   @override
   String get scanLimitsSettingsUpdated => 'Settings updated';

@@ -143,7 +143,7 @@ class TerminalController {
       final android = await DeviceInfoPlugin().androidInfo;
       final ram = await _getTotalRam();
 
-      _append("[INFO] Engine version : VX-Titanium-v9", emit);
+      _append("[INFO] Engine version : VX-TITANIUM X-Series", emit);
       _append(
         "[INFO] Definitions   : ${await File(defsPath).exists() ? "loaded" : "missing"}",
         emit,

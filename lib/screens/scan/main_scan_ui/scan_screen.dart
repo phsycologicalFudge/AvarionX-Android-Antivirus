@@ -27,11 +27,11 @@ import '../../../widgets/mesh_background.dart';
 import '../../../services/theme/theme_manager.dart';
 import '../../exclusions/exclusion_manager_screen.dart';
 import '../../main_shell.dart';
-
 import 'app_target.dart';
 import 'log_buffer.dart';
 import 'scan_installed_app_sheet.dart';
 import 'scan_isolate_worker.dart';
+import '../../../widgets/scan_log_listener.dart';
 
 import '../../../translations/app_localizations.dart';
 class ScanScreen extends StatefulWidget {
@@ -62,6 +62,7 @@ class _ScanScreenState extends State<ScanScreen>
   int fullCleanCount = 0;
   String currentFile = '';
   String currentPath = '';
+  String currentEntry = '';
   String currentStageMessage = '';
   List<String> clean = [];
   List<DetectionResult> infected = [];
@@ -70,6 +71,11 @@ class _ScanScreenState extends State<ScanScreen>
   bool _vpnUpsellVisible = true;
   bool isFlashingStage = false;
   Timer? _stageFlashTimer;
+
+  bool _resultRingSettled = false;
+  bool _resultRingFilled = false;
+  int _resultAnimationRequestId = 0;
+  final GlobalKey _resultListKey = GlobalKey();
 
   ScanWorker? _scanWorker;
   Future<ScanWorker>? _scanWorkerFuture;
@@ -186,13 +192,12 @@ class _ScanScreenState extends State<ScanScreen>
       title: AppLocalizations.of(context)!.scanUiScanComplete,
       text: hasThreats
           ? AppLocalizations.of(context)!.scanSuspiciousItemsFound(
-              infected.length,
-              infected.length == 1 ? '' : 's',
-            )
+        infected.length,
+        infected.length == 1 ? '' : 's',
+      )
           : AppLocalizations.of(context)!.resultNoThreatsTitle,
     );
   }
-
 
   void _appendScanLog(String line) {
     LogBuffer.add(line);
@@ -206,6 +211,7 @@ class _ScanScreenState extends State<ScanScreen>
       currentStageMessage = e.message ?? '';
       currentFile = '';
       currentPath = '';
+      currentEntry = '';
       isFlashingStage = true;
       if (mounted) setState(() {});
 
@@ -219,6 +225,7 @@ class _ScanScreenState extends State<ScanScreen>
 
     if (e.type == 'hashing') {
       currentFile = name;
+      currentEntry = '';
       if (e.path != null) currentPath = e.path!;
       if (mounted && uiUpdateDue) {
         _uiProgressThrottle..reset()..start();
@@ -257,6 +264,7 @@ class _ScanScreenState extends State<ScanScreen>
       if (e.total != null) total = e.total!;
       if (name.isNotEmpty) currentFile = name;
       if (e.path != null) currentPath = e.path!;
+      currentEntry = '';
 
       if (mounted && uiUpdateDue) {
         _uiProgressThrottle..reset()..start();
@@ -267,6 +275,15 @@ class _ScanScreenState extends State<ScanScreen>
         unawaited(_updateOngoingScanNotification());
       }
       _pushSessionSnapshot();
+      return;
+    }
+
+    if (e.type == 'entry') {
+      currentEntry = e.entryName ?? '';
+      if (mounted && uiUpdateDue) {
+        _uiProgressThrottle..reset()..start();
+        setState(() {});
+      }
       return;
     }
 
@@ -403,14 +420,14 @@ class _ScanScreenState extends State<ScanScreen>
           });
         } else {
           setState(() {
-            state = ScanState.result;
+            _setResultState();
           });
         }
       } else {
         if (result.scanned == 0 && result.threats == 0 && result.clean == 0) {
           state = ScanState.empty;
         } else {
-          state = ScanState.result;
+          _setResultState(animate: false);
         }
       }
       _pushSessionSnapshot();
@@ -489,6 +506,20 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   double get progress => total == 0 ? 0 : scanned / total;
+
+  void _setResultState({bool animate = true}) {
+    state = ScanState.result;
+    if (!animate || !mounted) {
+      _resultRingSettled = true;
+      _resultRingFilled = true;
+      return;
+    }
+    _resultRingSettled = false;
+    _resultRingFilled = false;
+    _resultAnimationRequestId++;
+  }
+
+  String get _defaultStageMessage => 'Scanning file(s)';
 
   String _modeName(ScanMode m) {
     switch (m) {
@@ -599,6 +630,7 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _pullSessionSnapshot() {
+    final wasAlreadyResult = state == ScanState.result;
     mode = _scanModeFromName(_session.modeName);
     state = _scanStateFromName(_session.stateName);
     scanned = _session.scanned;
@@ -609,6 +641,10 @@ class _ScanScreenState extends State<ScanScreen>
     infected = _infectedFromSession();
     singleResult = _session.singleResult;
     cancellingUi = _session.cancelling;
+    if (state == ScanState.result && !wasAlreadyResult) {
+      _resultRingSettled = true;
+      _resultRingFilled = true;
+    }
   }
 
   void _onSessionChanged() {
@@ -823,7 +859,18 @@ class _ScanScreenState extends State<ScanScreen>
     }
     if (!infectedFlag) {
       final worker = await _ensureWorker();
+      await ScanLogListener.ensureStarted();
+      ScanLogListener.setHandler((path, entry) {
+        if (path != effectivePath) return;
+        currentEntry = entry;
+        final uiUpdateDue = !_uiProgressThrottle.isRunning || _uiProgressThrottle.elapsedMilliseconds >= 120;
+        if (mounted && uiUpdateDue) {
+          _uiProgressThrottle..reset()..start();
+          setState(() {});
+        }
+      });
       final res = await worker.scan(effectivePath);
+      ScanLogListener.setHandler(null);
       if (res is Map) {
         infectedFlag = true;
         final detection = detectionFromRes(
@@ -880,7 +927,7 @@ class _ScanScreenState extends State<ScanScreen>
     setState(() {
       scanned = 1;
       singleResult = infectedFlag;
-      state = ScanState.result;
+      _setResultState();
     });
   }
 
@@ -1039,7 +1086,18 @@ class _ScanScreenState extends State<ScanScreen>
     }
     if (!infectedFlag) {
       final worker = await _ensureWorker();
+      await ScanLogListener.ensureStarted();
+      ScanLogListener.setHandler((path, entry) {
+        if (path != app.path) return;
+        currentEntry = entry;
+        final uiUpdateDue = !_uiProgressThrottle.isRunning || _uiProgressThrottle.elapsedMilliseconds >= 120;
+        if (mounted && uiUpdateDue) {
+          _uiProgressThrottle..reset()..start();
+          setState(() {});
+        }
+      });
       final res = await worker.scan(app.path);
+      ScanLogListener.setHandler(null);
       if (res is Map) {
         infectedFlag = true;
         final detection = detectionFromRes(
@@ -1083,7 +1141,7 @@ class _ScanScreenState extends State<ScanScreen>
     setState(() {
       scanned = 1;
       singleResult = infectedFlag;
-      state = ScanState.result;
+      _setResultState();
     });
   }
 
@@ -1127,7 +1185,6 @@ class _ScanScreenState extends State<ScanScreen>
     final theme = Theme.of(context);
     final themeManager = Provider.of<ThemeManager>(context);
     final scheme = theme.colorScheme;
-    final hasThreats = infected.isNotEmpty;
     return Scaffold(
       backgroundColor: scheme.surface,
       appBar: null,
@@ -1137,17 +1194,6 @@ class _ScanScreenState extends State<ScanScreen>
           base: scheme.surface,
           child: Stack(
             children: [
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 350),
-                    curve: Curves.easeOut,
-                    color: hasThreats
-                        ? scheme.error.withOpacity(0.22)
-                        : Colors.transparent,
-                  ),
-                ),
-              ),
               if (openingPicker)
                 Positioned.fill(
                   child: ColoredBox(
@@ -1163,13 +1209,25 @@ class _ScanScreenState extends State<ScanScreen>
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
+                    duration: const Duration(milliseconds: 260),
                     switchInCurve: Curves.easeOut,
                     switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
                     child: switch (state) {
-                      ScanState.scanning => _buildScanning(context),
-                      ScanState.result => _buildResult(context),
-                      ScanState.empty => _buildEmpty(context),
+                      ScanState.scanning => KeyedSubtree(
+                        key: const ValueKey('scan_state_scanning'),
+                        child: _buildScanning(context),
+                      ),
+                      ScanState.result => KeyedSubtree(
+                        key: ValueKey('scan_state_result_$_resultAnimationRequestId'),
+                        child: _buildResult(context),
+                      ),
+                      ScanState.empty => KeyedSubtree(
+                        key: const ValueKey('scan_state_empty'),
+                        child: _buildEmpty(context),
+                      ),
                       ScanState.idle => const SizedBox.shrink(),
                     },
                   ),
@@ -1253,27 +1311,28 @@ class _ScanScreenState extends State<ScanScreen>
               ),
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: sideWidth,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 18),
-                  child: Icon(
-                    icon,
-                    color: accent,
-                    size: 31,
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: sideWidth,
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      color: accent,
+                      size: 31,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: padding,
-                  child: child,
+                Expanded(
+                  child: Padding(
+                    padding: padding,
+                    child: child,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1301,10 +1360,6 @@ class _ScanScreenState extends State<ScanScreen>
       ),
       padding: const EdgeInsets.symmetric(vertical: 15),
     );
-  }
-
-  Widget _buildScanning(BuildContext context) {
-    return _buildScanningMain(context);
   }
 
   Widget _buildStageFlash(BuildContext context) {
@@ -1353,145 +1408,6 @@ class _ScanScreenState extends State<ScanScreen>
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
               color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScanningMain(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final text = theme.textTheme;
-    final accent = infected.isNotEmpty ? scheme.error : _modeAccent(scheme);
-    final icon = _modeIcon();
-    final pct = mode == ScanMode.full ? '' : '${(progress * 100).clamp(0.0, 100.0).toStringAsFixed(0)}%';
-
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 6),
-          _scanBlock(
-            context: context,
-            accent: accent,
-            icon: icon,
-            sideWidth: 84,
-            padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _modeTitle(),
-                  style: text.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: scheme.onSurface.withOpacity(0.92),
-                  ),
-                ),
-                if (currentStageMessage.isNotEmpty)
-                  Text(
-                    currentStageMessage,
-                    style: text.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: accent,
-                    ),
-                  ),
-                const SizedBox(height: 5),
-                Text(
-                  mode == ScanMode.full
-                      ? AppLocalizations.of(context)!.scanUiScannedItems(scanned)
-                      : total <= 0
-                      ? AppLocalizations.of(context)!.scanProgressZero
-                      : AppLocalizations.of(context)!.scanUiProgress(pct, scanned, total),
-                  style: text.bodySmall?.copyWith(
-                    color: scheme.onSurface.withOpacity(0.56),
-                    height: 1.35,
-                  ),
-                ),
-                const SizedBox(height: 13),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: mode == ScanMode.full ? null : progress,
-                    minHeight: 7,
-                    color: accent,
-                    backgroundColor: scheme.surface.withOpacity(0.72),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RotationTransition(
-                    turns: _spinController,
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: scheme.primary.withOpacity(0.3),
-                          width: 3,
-                          strokeAlign: BorderSide.strokeAlignOutside,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.search_rounded,
-                        size: 32,
-                        color: scheme.primary.withOpacity(0.8),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 36),
-                  Text(
-                    currentFile.isEmpty ? AppLocalizations.of(context)!.scanUiPreparingEngine : currentFile,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: scheme.onSurface.withOpacity(0.88),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    currentPath.isEmpty ? AppLocalizations.of(context)!.scanUiLoadingTargetS : currentPath,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: text.bodySmall?.copyWith(
-                      color: scheme.onSurface.withOpacity(0.45),
-                      height: 1.35,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 6),
-              child: TextButton.icon(
-                onPressed: _cancelScan,
-                icon: Icon(Icons.close_rounded, color: scheme.error),
-                label: Text(
-                  AppLocalizations.of(context)!.cancelScan,
-                  style: TextStyle(
-                    color: scheme.error,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
             ),
           ),
         ],
@@ -1648,15 +1564,232 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _buildResult(BuildContext context) {
+  String get _tapToSeeResultsLabel => 'Tap to see results';
+  String get _cleanRingLabel => 'Clean';
+
+  void _scrollToResultsList() {
+    final ctx = _resultListKey.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Widget _buildScanning(BuildContext context) {
+    return _buildScanningMain(context);
+  }
+
+  Widget _buildScanningMain(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final text = theme.textTheme;
-    final hasThreats = infected.isNotEmpty;
-    final accent = hasThreats ? scheme.error : _modeAccent(scheme);
-    final headerIcon =
-    hasThreats ? Icons.warning_amber_rounded : Icons.verified_user_rounded;
-    final cleanCount = mode == ScanMode.full ? fullCleanCount : clean.length;
+    final accent = _modeAccent(scheme);
+    final icon = _modeIcon();
+    final pct = mode == ScanMode.full ? '' : '${(progress * 100).clamp(0.0, 100.0).toStringAsFixed(0)}%';
+
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 6),
+          _scanBlock(
+            context: context,
+            accent: accent,
+            icon: icon,
+            sideWidth: 84,
+            padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _modeTitle(),
+                  style: text.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: scheme.onSurface.withOpacity(0.92),
+                  ),
+                ),
+                if (currentStageMessage.isNotEmpty)
+                  Text(
+                    currentStageMessage,
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: accent,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 168,
+                    height: 168,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 168,
+                          height: 168,
+                          child: CircularProgressIndicator(
+                            value: mode == ScanMode.full ? null : progress,
+                            strokeWidth: 7,
+                            strokeCap: StrokeCap.round,
+                            color: accent,
+                            backgroundColor: scheme.surface.withOpacity(0.72),
+                          ),
+                        ),
+                        if (pct.isNotEmpty)
+                          Text(
+                            pct,
+                            style: text.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: scheme.onSurface.withOpacity(0.92),
+                            ),
+                          )
+                        else
+                          Icon(
+                            icon,
+                            size: 40,
+                            color: accent,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  Text(
+                    currentFile.isEmpty ? AppLocalizations.of(context)!.scanUiPreparingEngine : currentFile,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: scheme.onSurface.withOpacity(0.88),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: (text.bodySmall?.fontSize ?? 12) *
+                        (text.bodySmall?.height ?? 1.35) *
+                        2,
+                    child: Text(
+                      currentEntry.isNotEmpty
+                          ? currentEntry
+                          : _defaultStageMessage,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: text.bodySmall?.copyWith(
+                        color: scheme.onSurface.withOpacity(0.45),
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _scanStatColumn(
+                    context,
+                    icon: mode == ScanMode.installed
+                        ? Icons.apps_rounded
+                        : Icons.insert_drive_file_rounded,
+                    label: mode == ScanMode.installed
+                        ? _compactInLabel(
+                      AppLocalizations.of(context)!.scanUiTotalApps(total),
+                      total,
+                    )
+                        : _compactInLabel(
+                      AppLocalizations.of(context)!.scanUiTotalFiles(total),
+                      total,
+                    ),
+                    accent: scheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _scanStatColumn(
+                    context,
+                    icon: mode == ScanMode.installed
+                        ? Icons.apps_rounded
+                        : Icons.insert_drive_file_rounded,
+                    label: mode == ScanMode.installed
+                        ? _compactInLabel(
+                      AppLocalizations.of(context)!.scanUiAppsScanned(scanned),
+                      scanned,
+                    )
+                        : _compactInLabel(
+                      AppLocalizations.of(context)!.scanUiFilesScanned(scanned),
+                      scanned,
+                    ),
+                    accent: scheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _scanStatColumn(
+                    context,
+                    icon: infected.isNotEmpty
+                        ? Icons.warning_amber_rounded
+                        : Icons.check_circle_rounded,
+                    label: _compactInLabel(
+                      AppLocalizations.of(context)!.scanUiThreatsCount(infected.length),
+                      infected.length,
+                    ),
+                    accent: scheme.secondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: _primaryButtonStyle(context),
+                onPressed: _cancelScan,
+                child: Text(
+                  AppLocalizations.of(context)!.cancelScan,
+                  style: text.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResult(BuildContext context) {
+    return infected.isNotEmpty
+        ? _buildResultThreats(context)
+        : _buildResultClean(context);
+  }
+
+  Widget _buildResultClean(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    final accent = _modeAccent(scheme);
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Column(
@@ -1668,159 +1801,93 @@ class _ScanScreenState extends State<ScanScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _scanBlock(
-                    context: context,
-                    accent: accent,
-                    icon: headerIcon,
-                    sideWidth: 84,
-                    padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.scanComplete,
-                          style: text.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: scheme.onSurface.withOpacity(0.92),
-                          ),
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: _scanBlock(
+                      context: context,
+                      accent: accent,
+                      icon: Icons.verified_user_rounded,
+                      sideWidth: 84,
+                      padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
+                      child: Text(
+                        l10n.scanComplete,
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: scheme.onSurface.withOpacity(0.92),
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          hasThreats
-                              ? AppLocalizations.of(context)!.scanSuspiciousItemsFound(
-                                  infected.length,
-                                  infected.length == 1 ? '' : 's',
-                                )
-                              : AppLocalizations.of(context)!.resultNoThreatsBody,
-                          style: text.bodySmall?.copyWith(
-                            color: scheme.onSurface.withOpacity(0.56),
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _statChip(
-                          context,
-                          icon: Icons.storage_rounded,
-                          label: AppLocalizations.of(context)!.scanUiScanned(scanned),
-                          accent: scheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _statChip(
-                          context,
-                          icon: hasThreats
-                              ? Icons.warning_amber_rounded
-                              : Icons.check_circle_rounded,
-                          label: hasThreats
-                              ? AppLocalizations.of(context)!.scanSuspiciousCount(infected.length)
-                              : AppLocalizations.of(context)!.scanCleanCount(cleanCount),
-                          accent: hasThreats ? scheme.error : scheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _scanBlock(
-                    context: context,
-                    accent: hasThreats ? Colors.transparent : scheme.secondary,
-                    icon: hasThreats
-                        ? Icons.report_rounded
-                        : Icons.shield_rounded,
-                    sideWidth: hasThreats ? 0 : 42,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 14, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          hasThreats
-                              ? (mode == ScanMode.installed
-                              ? AppLocalizations.of(context)!.resultSuspiciousAppsTitle
-                              : AppLocalizations.of(context)!.resultSuspiciousItemsTitle)
-                              : AppLocalizations.of(context)!.resultNoThreatsTitle,
-                          style: text.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: scheme.onSurface.withOpacity(0.9),
+                  const SizedBox(height: 28),
+                  Center(
+                    child: SizedBox(
+                      width: 168,
+                      height: 168,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 168,
+                            height: 168,
+                            child: CircularProgressIndicator(
+                              value: 1.0,
+                              strokeWidth: 7,
+                              strokeCap: StrokeCap.round,
+                              color: scheme.secondary,
+                              backgroundColor: scheme.surface.withOpacity(0.72),
+                            ),
                           ),
-                        ),
-                        if (hasThreats) ...[
-                          const SizedBox(height: 8),
-                          ...infected.map((d) {
-                            return InkWell(
-                              onTap: () => _openThreatUrl(d.label),
-                              borderRadius: BorderRadius.circular(6),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 9),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.warning_amber_rounded,
-                                      size: 18,
-                                      color: scheme.error,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            d.name,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: text.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                              color: scheme.onSurface.withOpacity(0.88),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  d.label.replaceAll('.', '\u2024'),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: text.bodySmall?.copyWith(
-                                                    color: scheme.error.withOpacity(0.9),
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 5),
-                                                child: Icon(
-                                                  Icons.info_outline_rounded,
-                                                  size: 14,
-                                                  color: scheme.onSurface.withOpacity(0.4),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ] else ...[
-                          const SizedBox(height: 6),
                           Text(
-                            AppLocalizations.of(context)!.resultNoThreatsBody,
-                            style: text.bodySmall?.copyWith(
-                              color: scheme.onSurface.withOpacity(0.54),
-                              height: 1.35,
+                            _cleanRingLabel,
+                            style: text.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: scheme.onSurface.withOpacity(0.92),
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: mode == ScanMode.installed
+                                ? Icons.apps_rounded
+                                : Icons.insert_drive_file_rounded,
+                            label: mode == ScanMode.installed
+                                ? _compactInLabel(l10n.scanUiTotalApps(total), total)
+                                : _compactInLabel(l10n.scanUiTotalFiles(total), total),
+                            accent: scheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: mode == ScanMode.installed
+                                ? Icons.apps_rounded
+                                : Icons.insert_drive_file_rounded,
+                            label: mode == ScanMode.installed
+                                ? _compactInLabel(l10n.scanUiAppsScanned(scanned), scanned)
+                                : _compactInLabel(l10n.scanUiFilesScanned(scanned), scanned),
+                            accent: scheme.secondary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: Icons.shield_rounded,
+                            label: _compactInLabel(l10n.scanUiThreatsCount(0), 0),
+                            accent: scheme.secondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1836,7 +1903,7 @@ class _ScanScreenState extends State<ScanScreen>
                 style: _primaryButtonStyle(context),
                 onPressed: _finishToHome,
                 child: Text(
-                  AppLocalizations.of(context)!.scanUiReturn,
+                  l10n.scanUiReturn,
                   style: text.labelLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: scheme.onPrimary,
@@ -1845,10 +1912,300 @@ class _ScanScreenState extends State<ScanScreen>
               ),
             ),
           ),
-          if (_vpnUpsellVisible && !hasThreats) ...[
+          if (_vpnUpsellVisible) ...[
             _buildVpnUpsellCard(context),
             const SizedBox(height: 8),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultThreats(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    final l10n = AppLocalizations.of(context)!;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final initialZoneHeight = (screenHeight * 0.46).clamp(180.0, screenHeight);
+
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.easeInOutCubic,
+                    child: _resultRingSettled
+                        ? const SizedBox(width: double.infinity, height: 0)
+                        : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Transform.translate(
+                          offset: const Offset(0, -8),
+                          child: _scanBlock(
+                            context: context,
+                            accent: scheme.error,
+                            icon: Icons.warning_amber_rounded,
+                            sideWidth: 84,
+                            padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
+                            child: Text(
+                              l10n.scanComplete,
+                              style: text.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: scheme.onSurface.withOpacity(0.92),
+                              ),
+                            ),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 450),
+                          curve: Curves.easeOutCubic,
+                          height: initialZoneHeight,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() {
+                                _resultRingSettled = true;
+                              });
+
+                              Future.delayed(const Duration(milliseconds: 480), () {
+                                if (mounted) {
+                                  _scrollToResultsList();
+                                }
+                              });
+                            },
+                            child: SizedBox(
+                              width: 168,
+                              height: 168,
+                              child: TweenAnimationBuilder<double>(
+                                tween: Tween<double>(
+                                  begin: 0,
+                                  end: 1,
+                                ),
+                                duration: const Duration(milliseconds: 900),
+                                curve: Curves.easeOutCubic,
+                                onEnd: () {
+                                  if (mounted && !_resultRingFilled) {
+                                    setState(() {
+                                      _resultRingFilled = true;
+                                    });
+                                  }
+                                },
+                                builder: (context, fillValue, _) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 168,
+                                        height: 168,
+                                        child: CircularProgressIndicator(
+                                          value: fillValue,
+                                          strokeWidth: 7,
+                                          strokeCap: StrokeCap.round,
+                                          color: scheme.error,
+                                          backgroundColor:
+                                          scheme.surface.withOpacity(0.72),
+                                        ),
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '100%',
+                                            style: text.titleLarge?.copyWith(
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 26,
+                                              color: scheme.onSurface.withOpacity(0.92),
+                                            ),
+                                          ),
+                                          AnimatedOpacity(
+                                            duration: const Duration(milliseconds: 300),
+                                            opacity: _resultRingFilled ? 1 : 0,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                _tapToSeeResultsLabel,
+                                                textAlign: TextAlign.center,
+                                                style: text.labelSmall?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: scheme.onSurface.withOpacity(0.56),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: mode == ScanMode.installed
+                                ? Icons.apps_rounded
+                                : Icons.insert_drive_file_rounded,
+                            label: mode == ScanMode.installed
+                                ? _compactInLabel(l10n.scanUiTotalApps(total), total)
+                                : _compactInLabel(l10n.scanUiTotalFiles(total), total),
+                            accent: scheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: mode == ScanMode.installed
+                                ? Icons.apps_rounded
+                                : Icons.insert_drive_file_rounded,
+                            label: mode == ScanMode.installed
+                                ? _compactInLabel(l10n.scanUiAppsScanned(scanned), scanned)
+                                : _compactInLabel(l10n.scanUiFilesScanned(scanned), scanned),
+                            accent: scheme.secondary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _scanStatColumn(
+                            context,
+                            icon: Icons.warning_amber_rounded,
+                            label: _compactInLabel(
+                              l10n.scanUiThreatsCount(infected.length),
+                              infected.length,
+                            ),
+                            accent: scheme.error,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_resultRingSettled) ...[
+                    const SizedBox(height: 20),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: scheme.outline.withOpacity(0.16),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: Text(
+                        mode == ScanMode.installed
+                            ? l10n.resultSuspiciousAppsTitle
+                            : l10n.resultSuspiciousItemsTitle,
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: scheme.onSurface.withOpacity(0.9),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      key: _resultListKey,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: infected.map((d) {
+                          return InkWell(
+                            onTap: () => _openThreatUrl(d.label),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    size: 18,
+                                    color: scheme.error,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          d.name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: text.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: scheme.onSurface.withOpacity(0.88),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                d.label.replaceAll('.', '\u2024'),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: text.bodySmall?.copyWith(
+                                                  color: scheme.error.withOpacity(0.9),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 5),
+                                              child: Icon(
+                                                Icons.info_outline_rounded,
+                                                size: 14,
+                                                color: scheme.onSurface.withOpacity(0.4),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: _primaryButtonStyle(context),
+                onPressed: _finishToHome,
+                child: Text(
+                  l10n.scanUiReturn,
+                  style: text.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1961,6 +2318,69 @@ class _ScanScreenState extends State<ScanScreen>
           ],
         ),
       ),
+    );
+  }
+
+  String _compactNumber(int n) {
+    final sign = n < 0 ? '-' : '';
+    final v = n.abs();
+    if (v < 1000) return '$sign$v';
+    double divided;
+    String suffix;
+    if (v < 1000000) {
+      divided = v / 1000;
+      suffix = 'k';
+    } else {
+      divided = v / 1000000;
+      suffix = 'm';
+    }
+    final rounded = (divided * 10).round() / 10;
+    final text = rounded == rounded.roundToDouble()
+        ? rounded.toStringAsFixed(0)
+        : rounded.toStringAsFixed(1);
+    return '$sign$text$suffix';
+  }
+
+  String _compactInLabel(String label, int rawNumber) {
+    if (rawNumber < 1000) return label;
+    return label.replaceFirst(rawNumber.toString(), _compactNumber(rawNumber));
+  }
+
+  Widget _scanStatColumn(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required Color accent,
+      }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    final labelStyle = text.titleSmall?.copyWith(
+      color: scheme.onSurface.withOpacity(0.86),
+      fontWeight: FontWeight.w800,
+    );
+    final labelLineHeight =
+        (labelStyle?.fontSize ?? 14) * (labelStyle?.height ?? 1.2);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 30, color: accent),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: labelLineHeight * 2,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: labelStyle,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

@@ -72,11 +72,26 @@ bool isAllowedScanFile(String ext, int size) {
   return true;
 }
 
+const _redundantPlatformTokens = {'android'};
+
+List<String> _dropRedundantPlatform(List<String> parts) {
+  if (parts.isNotEmpty && _redundantPlatformTokens.contains(parts.first.toLowerCase())) {
+    return parts.sublist(1);
+  }
+  return parts;
+}
+
 String parseSigName(String raw) {
   if (raw.isEmpty) return 'Suspicious.Item';
 
   final parts = raw.split('.');
   const noise = {'androidos', 'and', 'byte', 'simple', 'complex'};
+
+  if (parts.length >= 3 &&
+      parts[0].toLowerCase() == 'androidos' &&
+      parts[2].toLowerCase() == 'origin') {
+    return 'Andr/${parts[1]}.Origin';
+  }
 
   if (parts.length >= 4 && parts[2].toLowerCase() == 'androidos') {
     final keep = <String>[];
@@ -86,15 +101,16 @@ String parseSigName(String raw) {
       if (RegExp(r'^\d+$').hasMatch(p)) continue;
       keep.add(p);
     }
-    return keep.join('.');
+    final trimmed = _dropRedundantPlatform(keep);
+    return trimmed.isNotEmpty ? trimmed.join('.') : raw;
   }
 
   if (parts.length >= 3 && parts[2].toLowerCase() == 'byte') {
     final platform = parts[0];
     final categoryRaw = parts[1];
     final categoryParts = categoryRaw.split('_');
-    final keep = <String>[platform, ...categoryParts];
-    return keep.join('.');
+    final keep = _dropRedundantPlatform(<String>[platform, ...categoryParts]);
+    return keep.isNotEmpty ? keep.join('.') : raw;
   }
 
   final keep = <String>[];
@@ -104,5 +120,6 @@ String parseSigName(String raw) {
     if (RegExp(r'^\d+$').hasMatch(p)) continue;
     keep.add(p);
   }
-  return keep.isNotEmpty ? keep.join('.') : raw;
+  final trimmed = _dropRedundantPlatform(keep);
+  return trimmed.isNotEmpty ? trimmed.join('.') : raw;
 }

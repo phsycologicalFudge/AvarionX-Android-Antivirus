@@ -66,7 +66,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get updateDbUpdateFailed => 'فشل تحديث قاعدة البيانات';
 
   @override
-  String get engineReadyBanner => 'VX-TITANIUM-v9';
+  String get engineReadyBanner => 'TITANIUM X-SERIES';
 
   @override
   String get scanButton => 'فحص';
@@ -109,6 +109,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get protectionTitle => 'الحماية';
+
+  @override
+  String get scanUiScanningFiles => 'Scanning file(s)';
 
   @override
   String get stateOffLine1 => 'حماية الجهاز متوقفة';
@@ -2664,6 +2667,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scanUiReturn => 'رجوع';
+
+  @override
+  String scanUiTotalApps(Object count) {
+    return 'Total apps: $count';
+  }
+
+  @override
+  String scanUiTotalFiles(Object count) {
+    return 'Total files: $count';
+  }
+
+  @override
+  String scanUiAppsScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiFilesScanned(Object count) {
+    return 'Scanned: $count';
+  }
+
+  @override
+  String scanUiThreatsCount(Object count) {
+    return 'Threats: $count';
+  }
 
   @override
   String get scanLimitsSettingsUpdated => 'تم تحديث الإعدادات';

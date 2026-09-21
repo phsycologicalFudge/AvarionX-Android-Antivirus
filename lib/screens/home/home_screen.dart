@@ -391,7 +391,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                     color: text.bodySmall?.color?.withOpacity(0.85),
                   ),
                   children: [
-                     TextSpan(
+                    TextSpan(
                       text: AppLocalizations.of(context)!.homeApkSAndroidAppsFoundToBe +
                           AppLocalizations.of(context)!.homeCanBeUploadedTo,
                     ),
@@ -405,7 +405,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                       recognizer: TapGestureRecognizer()
                         ..onTap = _openVttiPlatform,
                     ),
-                     TextSpan(
+                    TextSpan(
                       text: AppLocalizations.of(context)!.homeAndSharedWithTheCommunityThisIs +
                           AppLocalizations.of(context)!.homeStrictlyLimitedToAPKFilesNOTYour +
                           AppLocalizations.of(context)!.homeDocuments +
@@ -737,8 +737,12 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   Future<void> _loadCloudToggle() async {
     final prefs = await SharedPreferences.getInstance();
+    // Matches the scan engine's own default (see ScanScreen._loadCloud):
+    // an unset pref means cloud scanning is ON, not off. Defaulting to
+    // false here made the toggle show "off" while a scan would actually
+    // run with cloud scanning enabled.
     setState(() {
-      useCloudScan = prefs.getBool('useCloudScan') ?? false;
+      useCloudScan = prefs.getBool('useCloudScan') ?? true;
     });
   }
 
@@ -1001,128 +1005,135 @@ class AvHomeScreenState extends State<AvHomeScreen>
                   ),
                 ),
               ),
-            SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      if (isPro && isDark && goldHeaderEnabled)
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: _proHeaderGradient(theme),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.transparent,
-                                          theme.colorScheme.surface,
-                                        ],
+            Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            if (isPro && isDark && goldHeaderEnabled)
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: _proHeaderGradient(theme),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                              colors: [
+                                                Colors.transparent,
+                                                theme.colorScheme.surface,
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                    AvHomeTopBar(
+                                      title: l10n.appName,
+                                      isPro: isPro,
+                                      onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                              )
+                            else
                               AvHomeTopBar(
                                 title: l10n.appName,
                                 isPro: isPro,
                                 onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                               ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
+                          child: Column(
+                            children: [
+                              AvHomePrimaryControl(
+                                pressed: _pressed,
+                                onPressedChanged: (v) => setState(() => _pressed = v),
+                                onToggleProtection: () {
+                                  HapticFeedback.lightImpact();
+                                  _toggleProtection();
+                                },
+                                accent: accent,
+                                isDark: isDark,
+                                icon: _stateIcon(),
+                                line1: _stateLine1(l10n),
+                                defsLine: defsVersion.isEmpty
+                                    ? l10n.dbUpdating
+                                    : l10n.dbVersionAutoUpdated(defsVersion),
+                              ),
+                              const SizedBox(height: 20),
+                              AvHomeFeatureRow(
+                                title: AppLocalizations.of(context)!.homeScanNow,
+                                description: AppLocalizations.of(context)!.homeManuallyCheckYourDeviceForMalware,
+                                icon: Icons.search_rounded,
+                                color: theme.colorScheme.primary,
+                                onTap: _handleScanButton,
+                              ),
+                              const SizedBox(height: 8),
+                              FutureBuilder<DeviceSecuritySummary>(
+                                future: DeviceSecurityScreen.loadSummary(
+                                  AppLocalizations.of(context)!,
+                                ),
+                                builder: (context, snapshot) {
+                                  final summary =
+                                      snapshot.data ?? const DeviceSecuritySummary.empty();
+
+                                  return AvHomeFeatureRow(
+                                    title: AppLocalizations.of(context)!.homeDeviceSecurity,
+                                    description: summary.homeLabel(
+                                      AppLocalizations.of(context)!,
+                                    ),
+                                    icon: Icons.security_rounded,
+                                    color: summary.hasRisk
+                                        ? Colors.redAccent
+                                        : Colors.blueAccent,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        animatedRoute(const DeviceSecurityScreen()),
+                                      ).then((_) {
+                                        if (!mounted) return;
+                                        setState(() {});
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              _SecurityOverviewPreview(
+                                protectionEnabled: protectionEnabled,
+                                defsVersion: defsVersion,
+                                onGenerateReport: () => Navigator.push(
+                                  context,
+                                  animatedRoute(const SecurityReportScreen()),
+                                ),
+                              ),
                             ],
                           ),
-                        )
-                      else
-                        AvHomeTopBar(
-                          title: l10n.appName,
-                          isPro: isPro,
-                          onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                         ),
-
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
-                    child: Column(
-                      children: [
-                        AvHomePrimaryControl(
-                          pressed: _pressed,
-                          onPressedChanged: (v) => setState(() => _pressed = v),
-                          onToggleProtection: () {
-                            HapticFeedback.lightImpact();
-                            _toggleProtection();
-                          },
-                          accent: accent,
-                          isDark: isDark,
-                          icon: _stateIcon(),
-                          line1: _stateLine1(l10n),
-                          defsLine: defsVersion.isEmpty
-                              ? l10n.dbUpdating
-                              : l10n.dbVersionAutoUpdated(defsVersion),
-                        ),
-                        const SizedBox(height: 20),
-                        AvHomeFeatureRow(
-                          title: AppLocalizations.of(context)!.homeScanNow,
-                          description: AppLocalizations.of(context)!.homeManuallyCheckYourDeviceForMalware,
-                          icon: Icons.search_rounded,
-                          color: theme.colorScheme.primary,
-                          onTap: _handleScanButton,
-                        ),
-                        const SizedBox(height: 8),
-                        FutureBuilder<DeviceSecuritySummary>(
-                          future: DeviceSecurityScreen.loadSummary(
-                            AppLocalizations.of(context)!,
-                          ),
-                          builder: (context, snapshot) {
-                            final summary =
-                                snapshot.data ?? const DeviceSecuritySummary.empty();
-
-                            return AvHomeFeatureRow(
-                              title: AppLocalizations.of(context)!.homeDeviceSecurity,
-                              description: summary.homeLabel(
-                                AppLocalizations.of(context)!,
-                              ),
-                              icon: Icons.security_rounded,
-                              color: summary.hasRisk
-                                  ? Colors.redAccent
-                                  : Colors.blueAccent,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  animatedRoute(const DeviceSecurityScreen()),
-                                ).then((_) {
-                                  if (!mounted) return;
-                                  setState(() {});
-                                });
-                              },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _SecurityOverviewPreview(
-                          protectionEnabled: protectionEnabled,
-                          defsVersion: defsVersion,
-                          onGenerateReport: () => Navigator.push(
-                            context,
-                            animatedRoute(const SecurityReportScreen()),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        const _AvarionXSecurityFooter(),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(14, 12, 14, 20),
+                  child: _AvarionXSecurityFooter(),
+                ),
+              ],
             ),
           ],
         ),
@@ -1181,130 +1192,136 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.homeScanModes,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-      ),
+      backgroundColor: Colors.transparent,
       body: MeshBackground(
         blobs: themeManager.meshBlobs,
         base: scheme.surface,
         child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.engineReadyBanner,
-                  style: text.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                    color: scheme.onSurface.withOpacity(0.58),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _ScanModeBlock(
-                  title: l10n.scanModeSmartTitle,
-                  subtitle: l10n.scanModeSmartSubtitle,
-                  icon: Icons.manage_search_rounded,
-                  color: scheme.primary,
-                  onTap: () => _startMode(ScanMode.smart),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeRapidTitle,
-                  subtitle: l10n.scanModeRapidSubtitle,
-                  icon: Icons.bolt_rounded,
-                  color: Colors.amber,
-                  onTap: () => _startMode(ScanMode.rapid),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeInstalledTitle,
-                  subtitle: l10n.scanModeInstalledSubtitle,
-                  icon: Icons.apps_rounded,
-                  color: Colors.blueAccent,
-                  onTap: () => _startMode(ScanMode.installed),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeSingleTitle,
-                  subtitle: l10n.scanModeSingleSubtitle,
-                  icon: Icons.insert_drive_file_rounded,
-                  color: Colors.teal,
-                  onTap: () => _startMode(ScanMode.single),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeFullTitle,
-                  subtitle: l10n.scanModeFullSubtitle,
-                  icon: Icons.storage_rounded,
-                  color: Colors.deepOrangeAccent,
-                  onTap: () => _startMode(ScanMode.full),
-                ),
-                const SizedBox(height: 18),
-                Card(
-                  elevation: 0,
-                  color: theme.cardTheme.color,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () => _setCloudScan(!localCloudScan),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                title: Text(l10n.homeScanModes),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.engineReadyBanner,
+                        style: text.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                          color: scheme.onSurface.withOpacity(0.58),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeSmartTitle,
+                        subtitle: l10n.scanModeSmartSubtitle,
+                        icon: Icons.manage_search_rounded,
+                        color: scheme.primary,
+                        onTap: () => _startMode(ScanMode.smart),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeRapidTitle,
+                        subtitle: l10n.scanModeRapidSubtitle,
+                        icon: Icons.bolt_rounded,
+                        color: Colors.amber,
+                        onTap: () => _startMode(ScanMode.rapid),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeInstalledTitle,
+                        subtitle: l10n.scanModeInstalledSubtitle,
+                        icon: Icons.apps_rounded,
+                        color: Colors.blueAccent,
+                        onTap: () => _startMode(ScanMode.installed),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeSingleTitle,
+                        subtitle: l10n.scanModeSingleSubtitle,
+                        icon: Icons.insert_drive_file_rounded,
+                        color: Colors.teal,
+                        onTap: () => _startMode(ScanMode.single),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeFullTitle,
+                        subtitle: l10n.scanModeFullSubtitle,
+                        icon: Icons.storage_rounded,
+                        color: Colors.deepOrangeAccent,
+                        onTap: () => _startMode(ScanMode.full),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      Card(
+                        elevation: 0,
+                        color: theme.cardTheme.color,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _setCloudScan(!localCloudScan),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+                            child: Row(
                               children: [
-                                Text(
-                                  l10n.useCloudAssistedScan,
-                                  style: text.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: scheme.onSurface.withOpacity(0.88),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.useCloudAssistedScan,
+                                        style: text.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: scheme.onSurface.withOpacity(0.88),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        localCloudScan
+                                            ? l10n.homeCloudAssistedChecksEnabled
+                                            : l10n.homeLocalScanEngineOnly,
+                                        style: text.bodySmall?.copyWith(
+                                          height: 1.35,
+                                          color: scheme.onSurface.withOpacity(0.54),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  localCloudScan
-                                      ? AppLocalizations.of(context)!.homeCloudAssistedChecksEnabled
-                                      : AppLocalizations.of(context)!.homeLocalScanEngineOnly,
-                                  style: text.bodySmall?.copyWith(
-                                    height: 1.35,
-                                    color: scheme.onSurface.withOpacity(0.54),
-                                  ),
+                                Switch(
+                                  value: localCloudScan,
+                                  onChanged: _setCloudScan,
+                                  materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ],
                             ),
                           ),
-                          Switch(
-                            value: localCloudScan,
-                            onChanged: _setCloudScan,
-                            materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

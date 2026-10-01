@@ -7,6 +7,26 @@ typedef ScanLogFn = void Function(String msg);
 typedef ClearScanCbNative = Void Function();
 typedef ClearScanCbDart = void Function();
 
+typedef AvCancelScanNative = Int32 Function();
+typedef AvCancelScanDart = int Function();
+
+void requestScanCancel() {
+  try {
+    final DynamicLibrary lib;
+    if (Platform.isAndroid) {
+      lib = DynamicLibrary.open("libcolourswift_av.so");
+    } else if (Platform.isWindows) {
+      lib = DynamicLibrary.open("colourswift_av.dll");
+    } else {
+      return;
+    }
+    final fn = lib.lookupFunction<AvCancelScanNative, AvCancelScanDart>(
+      'av_cancel_scan',
+    );
+    fn();
+  } catch (_) {}
+}
+
 void clearScanCallback() {
   try {
     final DynamicLibrary lib;

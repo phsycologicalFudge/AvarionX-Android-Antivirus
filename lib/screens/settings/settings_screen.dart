@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:app_links/app_links.dart';
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
+import '../../services/auth/auth_link_service.dart';
 import '../../services/exclusion_service.dart';
 import '../../services/meta_password_service.dart';
 import '../../services/pro_temp_service.dart';
@@ -56,8 +56,7 @@ class SettingsScreenState extends State<SettingsScreen>
   bool apkSubmissionsChargingOnly = false;
   bool apkSubmissionsSelectedOnly = false;
 
-  late final AppLinks _appLinks;
-  StreamSubscription<Uri>? _linkSub;
+  StreamSubscription<String>? _tokenSub;
   bool _closing = false;
   String? _accountEmail;
   String? _accountId;
@@ -100,8 +99,8 @@ class SettingsScreenState extends State<SettingsScreen>
   void dispose() {
     _closing = true;
     WidgetsBinding.instance.removeObserver(this);
-    _linkSub?.cancel();
-    _linkSub = null;
+    _tokenSub?.cancel();
+    _tokenSub = null;
     _signOutSpinController.dispose();
     super.dispose();
   }
@@ -337,24 +336,10 @@ class SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _initDeepLinks() async {
-    _appLinks = AppLinks();
-
-    Future<void> handle(Uri? uri) async {
-      if (uri == null) return;
+    _tokenSub = AuthLinkService.tokenEvents.listen((token) {
       if (_closing || !mounted) return;
 
-      final u = uri.toString();
-      if (!u.startsWith('colourswift-av://auth')) return;
-
-      final token = (uri.queryParameters['token'] ?? '').trim();
-      if (token.isEmpty) return;
-
       _authToken = token;
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('cs_auth_token', token);
-
-      if (!mounted) return;
       setState(() {
         _signedIn = true;
         _accountLoading = true;
@@ -362,22 +347,12 @@ class SettingsScreenState extends State<SettingsScreen>
         _accountId = null;
       });
 
-      unawaited(PurchaseService.syncCachedPurchaseToServer());
       unawaited(() async {
         await _loadAccountInfo(token);
         await _loadPro();
       }());
-    }
-
-    try {
-      final initial = await _appLinks.getInitialLink();
-      await handle(initial);
-    } catch (_) {}
-
-    _linkSub?.cancel();
-    _linkSub = _appLinks.uriLinkStream.listen((uri) async {
-      await handle(uri);
     });
+    await AuthLinkService.start();
   }
 
   Future<void> _startAvLoginInBrowser() async {

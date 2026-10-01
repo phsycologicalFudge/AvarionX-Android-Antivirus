@@ -23,6 +23,7 @@ import '../../../services/scan api/community_submissions/community_submission_se
 import '../../../services/scan api/scan_types.dart';
 import '../../../services/scan_session_service.dart';
 import '../../../utils/hash_cache_worker.dart';
+import '../../../widgets/antivirus_bridge.dart';
 import '../../../widgets/mesh_background.dart';
 import '../../../services/theme/theme_manager.dart';
 import '../../exclusions/exclusion_manager_screen.dart';
@@ -404,7 +405,7 @@ class _ScanScreenState extends State<ScanScreen>
 
       if (result.cancelled) {
         _appendScanLog('[USER] Cancelled');
-        _session.clear();
+        if (!cancelled) _session.clear();
         return;
       }
       if (result.threats == 0 && !result.cancelled && result.scanned > 0) {
@@ -614,6 +615,11 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _pushSessionSnapshot() {
+    if (cancelled) return;
+    _writeSessionSnapshot();
+  }
+
+  void _writeSessionSnapshot() {
     _session.update(
       modeName: _modeName(mode),
       stateName: _stateName(state),
@@ -669,6 +675,8 @@ class _ScanScreenState extends State<ScanScreen>
   void _cancelScan() async {
     if (cancelled || cancellingUi) return;
     cancelled = true;
+    _headlessCancelRequested = true;
+    requestScanCancel();
     if (mounted) {
       setState(() {
         cancellingUi = true;
@@ -676,10 +684,10 @@ class _ScanScreenState extends State<ScanScreen>
     } else {
       cancellingUi = true;
     }
-    _pushSessionSnapshot();
+    _writeSessionSnapshot();
     await Future.delayed(const Duration(seconds: 2));
+    requestScanCancel();
     if (_isHeadlessMultiMode(mode)) {
-      _headlessCancelRequested = true;
       await ForegroundService.hideScanOngoing();
     } else {
       _killWorker();

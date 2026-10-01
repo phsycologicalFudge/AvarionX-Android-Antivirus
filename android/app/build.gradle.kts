@@ -77,8 +77,12 @@ android {
         getByName("debug") {}
 
         getByName("release") {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             if (hasLocalSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -99,4 +103,6 @@ dependencies {
     implementation(files("libs/provider-release.aar"))
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
     implementation("org.apache.commons:commons-compress:1.26.2")
+
+    implementation("com.wireguard.android:tunnel:1.0.20260102")
 }

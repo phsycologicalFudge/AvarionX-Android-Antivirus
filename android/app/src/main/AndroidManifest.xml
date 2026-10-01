@@ -179,6 +179,37 @@
             android:foregroundServiceType="specialUse"
             tools:ignore="Instantiatable" />
 
+        <service
+            android:name=".vpn.wireguard.CSWireGuardService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="vpn"
+                tools:targetApi="34" />
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.wireguard.android.backend.GoBackend$VpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="vpn"
+                tools:targetApi="34" />
+        </service>
+
+        <receiver
+            android:name=".vpn.VpnNotificationActionReceiver"
+            android:exported="false" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

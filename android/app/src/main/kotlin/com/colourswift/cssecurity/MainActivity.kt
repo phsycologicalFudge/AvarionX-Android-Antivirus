@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.Checksum
+import android.net.VpnService
 import java.io.FileInputStream
 import java.security.MessageDigest
 import java.util.concurrent.CountDownLatch
@@ -35,6 +36,7 @@ import com.colourswift.cssecurity.rtp.SystemWatcher
 import com.colourswift.cssecurity.rtp.RealtimeReceiver
 import com.colourswift.cssecurity.apkanalyser.ApkAnalyserBridge
 import com.colourswift.cssecurity.terminal.bridge.AXTerminalPlugin
+import com.colourswift.cssecurity.vpn.backend_port.core.VpnConnectionController
 
 class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
     private val channel = MethodChannel(messenger, "cs.fastapps")
@@ -204,6 +206,11 @@ class MainActivity : FlutterActivity() {
     private var pollEvents: EventChannel.EventSink? = null
     private var shizukuBridge: ShizukuBridge? = null
 
+    private val REQ_MANAGED_VPN = 9912
+    private val REQ_VPN_PERMISSION = 777
+    private var pendingConnectPremium: Boolean? = null
+    private var pendingVpnPermissionResult: MethodChannel.Result? = null
+
     private val SCAN_NOTIF_ID = 201
     private val SCAN_NOTIF_CHANNEL = "cssecurity_scan_status"
     private val EXTRA_CANCEL_SCHEDULED_SCAN = "cancel_scheduled_scan"
@@ -249,6 +256,20 @@ class MainActivity : FlutterActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQ_MANAGED_VPN) {
+            val premium = pendingConnectPremium
+            pendingConnectPremium = null
+            if (resultCode == RESULT_OK && premium != null) {
+                VpnConnectionController.connect(premium)
+            }
+            return
+        }
+
+        if (requestCode == REQ_VPN_PERMISSION) {
+            pendingVpnPermissionResult?.success(resultCode == RESULT_OK)
+            pendingVpnPermissionResult = null
+        }
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -505,6 +526,81 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_permission")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "prepareVpn") {
+                    val prep = VpnService.prepare(this)
+                    if (prep != null) {
+                        pendingVpnPermissionResult = result
+                        startActivityForResult(prep, REQ_VPN_PERMISSION)
+                    } else {
+                        result.success(true)
+                    }
+                } else {
+                    result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_state")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "isAnotherVpnActive") {
+                    result.success(VpnService.prepare(applicationContext) != null)
+                } else {
+                    result.notImplemented()
+                }
+            }
+
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_vpn_status")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                private var sink: EventChannel.EventSink? = null
+
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    sink = events
+                    CsVpnStatusEvents.addSink(events)
+                    VpnConnectionController.addObserver(CsVpnStatusEvents)
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    CsVpnStatusEvents.removeSink(sink)
+                    sink = null
+                }
+            })
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "cs_fullvpn")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "connectManaged" -> {
+                        val premium = call.argument<Boolean>("premium") ?: false
+                        val prep = VpnService.prepare(this)
+                        if (prep != null) {
+                            pendingConnectPremium = premium
+                            startActivityForResult(prep, REQ_MANAGED_VPN)
+                            result.success(mapOf("permission" to true, "started" to false))
+                        } else {
+                            VpnConnectionController.connect(premium)
+                            result.success(mapOf("permission" to false, "started" to true))
+                        }
+                    }
+
+                    "switchServerManaged" -> {
+                        val premium = call.argument<Boolean>("premium") ?: false
+                        VpnConnectionController.connect(premium)
+                        result.success(true)
+                    }
+
+                    "disconnectManaged" -> {
+                        VpnConnectionController.disconnect()
+                        result.success(true)
+                    }
+
+                    "runtimeSnapshot" -> {
+                        result.success(CsVpnStatusEvents.toMap(VpnConnectionController.snapshot()))
+                    }
+
+                    else -> result.notImplemented()
+                }
+            }
 
         ApkAnalyserBridge(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         FastAppsPlugin(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
@@ -775,4 +871,4 @@ class MainActivity : FlutterActivity() {
         }
         super.onDestroy()
     }
-}
+}

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../constants/build_flags.dart';
 import '../../constants/launch_flag.dart';
 import '../../services/defs_auto_update_service.dart';
 import '../../services/pro_temp_service.dart';
+import '../../services/auth/auth_link_service.dart';
 import '../../services/purchase_service.dart';
 import '../../services/realtime_protection_service.dart';
 import '../../services/scan api/community_submissions/community_submission_service.dart';
@@ -43,6 +44,8 @@ import 'security_report_screen.dart';
 import '../apkAnalyser/apk_analyser.dart';
 import '../scan/scan_limits_screen.dart';
 import '../settings/settings_screen.dart';
+import '../vpn/lite_vpn_controller.dart';
+import '../../constants/build_flags.dart';
 import '../../terminal/terminal_screen.dart';
 
 class AvHomeScreen extends StatefulWidget {
@@ -69,6 +72,10 @@ class AvHomeScreenState extends State<AvHomeScreen>
   bool hasUpdate = false;
   bool useCloudScan = false;
   bool vpnActive = false;
+  late final LiteVpnController _vpn;
+  bool _vpnWasConnected = false;
+  bool _vpnUpsellShowing = false;
+  StreamSubscription<String>? _authSub;
   bool vpnConflict = false;
   bool autoUpdateDefs = false;
   bool shizukuRtpEnabled = false;
@@ -284,6 +291,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
     _loadHeaderPref();
     _loadProtectionState();
+    _initVpn();
     _loadVersion();
     _loadProStatus();
     _loadCloudToggle();
@@ -345,11 +353,391 @@ class AvHomeScreenState extends State<AvHomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      unawaited(_vpn.onResumed());
       _loadProtectionState();
       _loadProStatus();
       _loadDefsVersion();
       _syncDefsOnForeground(forceServerCheck: true);
     }
+  }
+
+  void _initVpn() {
+    _vpn = LiteVpnController();
+    _vpn.addListener(_onVpnChanged);
+    unawaited(_vpn.init());
+    unawaited(_initAuthLinks());
+  }
+
+  Future<void> _initAuthLinks() async {
+    _authSub = AuthLinkService.tokenEvents.listen((_) async {
+      if (!mounted) return;
+      await _vpn.onTokenChanged();
+      if (!mounted) return;
+      _loadProStatus();
+    });
+    await AuthLinkService.start();
+  }
+
+  Future<void> _startAvLogin() async {
+    await launchUrl(
+      Uri.parse('https://api.colourswift.com/login?app=av'),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  void _onVpnChanged() {
+    if (!mounted) return;
+    final nowConnected = _vpn.connected;
+    final justConnected = nowConnected && !_vpnWasConnected;
+    _vpnWasConnected = nowConnected;
+    setState(() {});
+    if (justConnected && !_vpn.hasPremiumAccess) {
+      unawaited(_maybeShowVpnUpsell());
+    }
+  }
+
+  Future<void> _maybeShowVpnUpsell() async {
+    if (_vpnUpsellShowing) return;
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getInt('vpn_location_upsell_count') ?? 0;
+    final last = prefs.getInt('vpn_location_upsell_at') ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (shown >= 3) return;
+    if (last != 0 && now - last < const Duration(days: 7).inMilliseconds) return;
+
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (!mounted || !_vpn.connected || _vpn.hasPremiumAccess) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+
+    _vpnUpsellShowing = true;
+    await prefs.setInt('vpn_location_upsell_count', shown + 1);
+    await prefs.setInt('vpn_location_upsell_at', now);
+    if (!mounted) {
+      _vpnUpsellShowing = false;
+      return;
+    }
+    await _showVpnUpsell();
+    _vpnUpsellShowing = false;
+  }
+
+  Future<void> _showVpnUpsell() async {
+    final go = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+        final scheme = theme.colorScheme;
+        final country = _vpn.exitCountry;
+
+        return _meshDialog(
+          title: Text(
+            'Choose where you connect',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                country.isEmpty
+                    ? 'The free VPN picks your location automatically. Premium lets you choose from every WireGuard location.'
+                    : 'The free VPN picked $country for you. Premium lets you choose from every WireGuard location.',
+                style: text.bodySmall?.copyWith(
+                  height: 1.4,
+                  color: scheme.onSurface.withOpacity(0.75),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Tip: press and hold the VPN button any time to change location.',
+                style: text.bodySmall?.copyWith(
+                  height: 1.4,
+                  fontStyle: FontStyle.italic,
+                  color: scheme.onSurface.withOpacity(0.55),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Not now'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(AppLocalizations.of(context)!.settingsUnlockPro),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (go == true && mounted) await _openPro();
+  }
+
+  Future<void> _openPro() async {
+    final res = await Navigator.push(context, animatedRoute(const ProScreen()));
+    if (res == true) _loadProStatus();
+    if (!mounted) return;
+    await _vpn.onResumed();
+  }
+
+  Future<void> _onVpnLongPress() async {
+    HapticFeedback.mediumImpact();
+    if (!_vpn.hasPremiumAccess) {
+      await _openPro();
+      return;
+    }
+    await _showVpnLocationPicker();
+  }
+
+  Future<void> _showVpnLocationPicker() async {
+    final servers = _vpn.servers;
+    final locked = !_vpn.signedIn;
+    if (servers.isEmpty && !locked) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        final scheme = theme.colorScheme;
+        final tm = Provider.of<ThemeManager>(ctx, listen: false);
+        final currentId = (_vpn.selectedServer ?? servers.first).id;
+
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          minChildSize: 0.35,
+          maxChildSize: 0.9,
+          builder: (_, scroll) {
+            return ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              child: MeshBackground(
+                blobs: tm.meshBlobs,
+                base: scheme.surfaceContainerHigh,
+                child: ListView.builder(
+                  controller: scroll,
+                  padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
+                  itemCount: servers.length + (locked ? 2 : 1),
+                  itemBuilder: (_, i) {
+                    if (i == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: Text(
+                          'Location',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      );
+                    }
+                    if (locked && i == 1) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                        child: _vpnSignInCard(ctx),
+                      );
+                    }
+                    final s = servers[i - (locked ? 2 : 1)];
+                    final selected = s.id == currentId;
+                    return Opacity(
+                      opacity: locked ? 0.4 : 1.0,
+                      child: IgnorePointer(
+                        ignoring: locked,
+                        child: ListTile(
+                      leading: s.countryCode.length == 2
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: CountryFlag.fromCountryCode(
+                                s.countryCode,
+                                height: 20,
+                                width: 28,
+                              ),
+                            )
+                          : const Icon(Icons.public_rounded),
+                      title: Text(
+                        s.label.isEmpty ? s.countryCode : s.label,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: (s.city ?? '').isEmpty ? null : Text(s.city!),
+                      trailing: selected
+                          ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                          : null,
+                      onTap: () async {
+                        Navigator.pop(ctx);
+                        await _vpn.select(s);
+                      },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _vpnSignInCard(BuildContext sheetContext) {
+    final theme = Theme.of(sheetContext);
+    final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(sheetContext)!;
+
+    return Card.outlined(
+      color: scheme.surfaceContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.vpnSettingsSignInToContinue,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: scheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Choosing a location needs your ColourSwift account.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(sheetContext);
+                  await _startAvLogin();
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                child: Text(l10n.vpnSignIn),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _meshDialog({required Widget title, required Widget child}) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final tm = Provider.of<ThemeManager>(context, listen: false);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      clipBehavior: Clip.antiAlias,
+      child: MeshBackground(
+        blobs: tm.meshBlobs,
+        base: scheme.surfaceContainerHigh,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              title,
+              const SizedBox(height: 12),
+              Flexible(child: SingleChildScrollView(child: child)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleVpn() async {
+    if (_vpn.connecting || _vpn.reconnecting) return;
+    HapticFeedback.lightImpact();
+    if (_vpn.connected || _vpn.wantsConnected) {
+      await _vpn.disconnect();
+      return;
+    }
+    await _vpn.connect();
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    String? msg;
+    switch (_vpn.notice) {
+      case LiteVpnNotice.notificationsRequired:
+        msg = l10n.vpnBackendNotificationsPermissionRequired;
+        break;
+      case LiteVpnNotice.connectFailed:
+        msg = 'Unable to connect.';
+        break;
+      case LiteVpnNotice.sessionExpired:
+        msg = l10n.vpnBackendSessionExpiredSignIn;
+        break;
+      case LiteVpnNotice.none:
+        break;
+    }
+    if (msg != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
+  Future<void> _openVpnAppStoreListing() async {
+    if (kGithubBuild) {
+      final url = Uri.parse('https://github.com/phsycologicalFudge/AvarionX-VPN');
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      }
+      return;
+    }
+
+    const pkg = 'com.colourswift.avarionxvpn';
+    final market = Uri.parse('market://details?id=$pkg');
+    final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
+
+    try {
+      final launched = await launchUrl(
+        market,
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+      if (launched) return;
+    } catch (_) {}
+
+    if (await canLaunchUrl(web)) {
+      await launchUrl(web, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  String _vpnDescription(AppLocalizations l10n) {
+    if (_vpn.connecting || _vpn.reconnecting) return l10n.vpnStatusConnectingEllipsis;
+    if (!_vpn.connected) return l10n.vpnStatusNotConnected;
+    final country = _vpn.exitCountry;
+    if (country.isNotEmpty) return l10n.vpnStatusConnectedTo(country);
+    if (_vpn.locationFetching) return l10n.vpnSubtitleFindingLocation;
+    return l10n.vpnStatusConnected;
   }
 
   Future<void> _openVttiPlatform() async {
@@ -369,18 +757,14 @@ class AvHomeScreenState extends State<AvHomeScreen>
         final text = theme.textTheme;
         final scheme = theme.colorScheme;
 
-        return AlertDialog(
-          backgroundColor: scheme.surfaceContainerHigh,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+        return _meshDialog(
           title: Text(
             AppLocalizations.of(context)!.homeHelpImproveDetectionsForEverybody,
             style: text.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
-          content: Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -864,6 +1248,8 @@ class AvHomeScreenState extends State<AvHomeScreen>
   Future<void> _handleScanButton() async {
     final session = ScanSessionService.instance;
 
+    if (session.cancelling && !session.isScanning) session.clear();
+
     if (session.isScanning || session.cancelling) {
       Navigator.push(
         context,
@@ -903,35 +1289,12 @@ class AvHomeScreenState extends State<AvHomeScreen>
     );
   }
 
-  Future<void> _openVpnAppStoreListing() async {
-    if (kGithubBuild) {
-      final url = Uri.parse('https://github.com/phsycologicalFudge/AvarionX-VPN');
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      }
-      return;
-    }
-
-    const pkg = 'com.colourswift.avarionxvpn';
-    final market = Uri.parse('market://details?id=$pkg');
-    final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
-
-    try {
-      final launched = await launchUrl(
-        market,
-        mode: LaunchMode.externalNonBrowserApplication,
-      );
-      if (launched) return;
-    } catch (_) {}
-
-    if (await canLaunchUrl(web)) {
-      await launchUrl(web, mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _authSub?.cancel();
+    _vpn.removeListener(_onVpnChanged);
+    _vpn.dispose();
     _periodicScanTimer?.cancel();
     _popupController.dispose();
     _pulseController.dispose();
@@ -1112,6 +1475,17 @@ class AvHomeScreenState extends State<AvHomeScreen>
                                     },
                                   );
                                 },
+                              ),
+                              const SizedBox(height: 8),
+                              AvHomeFeatureRow(
+                                title: l10n.vpnTitleSecure,
+                                description: _vpnDescription(l10n),
+                                icon: Icons.vpn_lock_rounded,
+                                color: _vpn.connected || _vpn.connecting || _vpn.reconnecting
+                                    ? Colors.blueAccent
+                                    : Colors.redAccent,
+                                onTap: _toggleVpn,
+                                onLongPress: _onVpnLongPress,
                               ),
                               const SizedBox(height: 20),
                               _SecurityOverviewPreview(

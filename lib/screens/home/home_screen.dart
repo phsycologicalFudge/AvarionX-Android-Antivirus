@@ -555,28 +555,28 @@ class AvHomeScreenState extends State<AvHomeScreen>
                       child: IgnorePointer(
                         ignoring: locked,
                         child: ListTile(
-                      leading: s.countryCode.length == 2
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: CountryFlag.fromCountryCode(
-                                s.countryCode,
-                                height: 20,
-                                width: 28,
-                              ),
-                            )
-                          : const Icon(Icons.public_rounded),
-                      title: Text(
-                        s.label.isEmpty ? s.countryCode : s.label,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      subtitle: (s.city ?? '').isEmpty ? null : Text(s.city!),
-                      trailing: selected
-                          ? Icon(Icons.check_circle_rounded, color: scheme.primary)
-                          : null,
-                      onTap: () async {
-                        Navigator.pop(ctx);
-                        await _vpn.select(s);
-                      },
+                          leading: s.countryCode.length == 2
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: CountryFlag.fromCountryCode(
+                              s.countryCode,
+                              height: 20,
+                              width: 28,
+                            ),
+                          )
+                              : const Icon(Icons.public_rounded),
+                          title: Text(
+                            s.label.isEmpty ? s.countryCode : s.label,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          subtitle: (s.city ?? '').isEmpty ? null : Text(s.city!),
+                          trailing: selected
+                              ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                              : null,
+                          onTap: () async {
+                            Navigator.pop(ctx);
+                            await _vpn.select(s);
+                          },
                         ),
                       ),
                     );
@@ -1353,21 +1353,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            if (shizukuRtpEnabled && protectionEnabled)
-              IgnorePointer(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: const Alignment(0.0, -0.18),
-                      radius: 0.85,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(isDark ? 0.55 : 0.40),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             Column(
               children: [
                 Expanded(

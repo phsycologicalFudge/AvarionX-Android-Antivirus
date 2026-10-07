@@ -259,6 +259,11 @@ Future<HeadlessScanResult> runHeadlessScan({
     try {
       final dir = await getApplicationDocumentsDirectory();
       hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
+      if ((CloudAuthService.sessionToken ?? '').isEmpty) {
+        try {
+          await CloudAuthService.ensureRegistered();
+        } catch (_) {}
+      }
       cloud = CloudScanner(
         endpoint: 'https://api.colourswift.com/hash_cloud',
         apiKey: CloudAuthService.sessionToken ?? '',

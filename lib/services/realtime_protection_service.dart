@@ -52,7 +52,7 @@ class RealtimeProtectionService {
   static bool _scheduledCancelRequested = false;
   static Timer? _defsSyncTimer;
   static bool _defsSyncRunning = false;
-  static CloudScanner? _cloud;
+  static int _cloudAuthAt = 0;
 
   static const _eventChannel = EventChannel('colourswift/realtime_stream');
   static const EventChannel _watcherStateChannel = EventChannel('colourswift/watcher_state');
@@ -159,10 +159,6 @@ class RealtimeProtectionService {
     await _loadIndex();
     await _exclusions.load();
     await AvEngine.ensureInitialized();
-    _cloud ??= CloudScanner(
-      endpoint: 'https://api.colourswift.com/hash_cloud',
-      apiKey: CloudAuthService.sessionToken ?? '',
-    );
     await ForegroundService.start(title: 'AvarionX', text: 'Protection active');
 
     if (!_fgHandlerAttached) {
@@ -523,6 +519,24 @@ class RealtimeProtectionService {
     await prefs.setInt('security_report_last_scheduled_scan_at', now);
   }
 
+  static Future<CloudScanner> _cloudScanner() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final hasToken = (CloudAuthService.sessionToken ?? '').isNotEmpty;
+    final recheckMs = hasToken ? 3600000 : 60000;
+
+    if (now - _cloudAuthAt >= recheckMs) {
+      _cloudAuthAt = now;
+      try {
+        await CloudAuthService.ensureRegistered();
+      } catch (_) {}
+    }
+
+    return CloudScanner(
+      endpoint: 'https://api.colourswift.com/hash_cloud',
+      apiKey: CloudAuthService.sessionToken ?? '',
+    );
+  }
+
   static Future<bool> _isExcluded(String path) async {
     await _exclusions.refreshIfStale();
     return _exclusions.skipFolder(path);
@@ -558,7 +572,7 @@ class RealtimeProtectionService {
       final sha = sha256.convert(bytes).toString();
       if (_exclusions.skipSha(sha)) return;
 
-      final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
+      final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
       if (cloudHit.contains(sha)) {
         _seen[path] = mtime;
         unawaited(_saveIndex());
@@ -614,7 +628,7 @@ class RealtimeProtectionService {
       final sha = sha256.convert(bytes).toString();
       if (_exclusions.skipSha(sha)) return;
 
-      final cloudHit = await _cloud?.checkBatch([sha]) ?? [];
+      final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
       if (cloudHit.contains(sha)) {
         await _recordRealtimeReportEvent(threat: true);
         if (!await _isExcluded(apkPath)) {

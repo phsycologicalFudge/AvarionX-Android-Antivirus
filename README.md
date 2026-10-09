@@ -47,6 +47,7 @@ AvarionX Antivirus (CS Security) operates through a multi-layered detection pipe
 2. Hash Layer: Comparing both SHA256 and MD5 fingerprints against known malware lists
 3. Signature Layer: Custom byte signitures checked against apk containers, dex and native libraries.
 4. Heuristic Layer: Machine learning based behaviour analysis for APKs
+5. SIM (similarity engine): A custom algorithm tht calculates the similarity of an uknown file to known malware families.
 
 ### Machine Learning (ML+)
 
@@ -108,6 +109,10 @@ AvarionX is designed to avoid unnecessary data collection.
 - No file uploads for cloud checks (unless 'Share Malicious APKs' is turned on)
 - Hash-only cloud lookups when VTTI is enabled
 - Local scanning works offline
+
+## What can AvarionX detect? 
+Whilst AvarionX can detect thousands of families, it is best at known families within VTTI. These can be explored at:
+[MalDex](https://colourswift.com/threatDatabase)
 
 <h2>Guardian Mode Demo</h2>
 

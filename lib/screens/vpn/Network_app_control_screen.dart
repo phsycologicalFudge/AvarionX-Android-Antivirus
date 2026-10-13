@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../translations/app_localizations.dart';
 class NetworkAppControlScreen extends StatefulWidget {
   const NetworkAppControlScreen({super.key});
 
@@ -23,7 +24,7 @@ class _AppRow {
 
   factory _AppRow.fromMap(Map<dynamic, dynamic> m) {
     return _AppRow(
-      name: (m['name'] as String?) ?? 'Unknown',
+      name: (m['name'] as String?) ?? '',
       packageName: (m['package'] as String?) ?? '',
       path: (m['path'] as String?) ?? '',
     );
@@ -101,24 +102,25 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
       context: context,
       builder: (ctx) {
         final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && _alwaysOnPkg != 'com.colourswift.cssecurity');
+        final l10n = AppLocalizations.of(context)!;
         final msg = other
-            ? 'Another VPN is currently selected as Always-on.\n\nTo block apps reliably:\n\n1) Open Android VPN settings\n2) Select AvarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN'
-            : 'To block apps reliably:\n\n1) Open Android VPN settings\n2) Select AVarionX as the VPN\n3) Enable Always-on VPN\n4) Enable Block connections without VPN';
+            ? l10n.networkAppControlOtherVpnSetupInstructions
+            : l10n.networkAppControlSetupInstructions;
 
         return AlertDialog(
-          title: const Text('Enable VPN toggles'),
+          title:  Text(AppLocalizations.of(context)!.networkAppControlEnableVPNToggles),
           content: Text(msg),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
+              child:  Text(AppLocalizations.of(context)!.cancel),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
                 _openVpnSettings();
               },
-              child: const Text('Open settings'),
+              child:  Text(AppLocalizations.of(context)!.networkAppControlOpenSettings),
             ),
           ],
         );
@@ -238,11 +240,12 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     final ok = _isReadyForBlocking;
     final other = (_alwaysOnPkg != null && _alwaysOnPkg!.isNotEmpty && _alwaysOnPkg != 'com.colourswift.cssecurity');
 
+    final l10n = AppLocalizations.of(context)!;
     final text = ok
-        ? 'App blocking is active.'
+        ? l10n.networkAppControlBlockingActive
         : (other
-        ? 'Another VPN is set as Always-on. Enable Always-on + Block without VPN for AvarionX.'
-        : 'Enable Always-on + Block without VPN for AVarionX to make app blocking work.');
+        ? l10n.networkAppControlOtherVpnWarning
+        : l10n.networkAppControlSetupWarning);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -265,7 +268,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
             const SizedBox(width: 10),
             FilledButton(
               onPressed: _openVpnSettings,
-              child: const Text('Open'),
+              child:  Text(AppLocalizations.of(context)!.networkCardStatusOpen),
             ),
           ],
         ),
@@ -279,7 +282,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('App control'),
+        title:  Text(AppLocalizations.of(context)!.networkAppControlAppControl),
         actions: [
           IconButton(
             onPressed: _loading
@@ -300,7 +303,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
               child: TextField(
                 controller: _searchCtrl,
                 decoration: InputDecoration(
-                  hintText: 'Search apps',
+                  hintText: AppLocalizations.of(context)!.metaPassSearchApps,
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 ),
@@ -312,7 +315,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
                   : (_filtered.isEmpty
                   ? Center(
                 child: Text(
-                  'No apps found.',
+                  AppLocalizations.of(context)!.networkAppControlNoAppsFound,
                   style: theme.textTheme.bodyMedium,
                 ),
               )
@@ -348,7 +351,7 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
                         },
                       ),
                       title: Text(
-                        a.name,
+                        a.name.isEmpty ? AppLocalizations.of(context)!.genericUnknownAppName : a.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),

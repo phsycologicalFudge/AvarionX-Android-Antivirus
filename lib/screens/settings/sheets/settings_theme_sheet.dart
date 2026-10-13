@@ -14,7 +14,10 @@ Future<void> showSettingsThemeSheet({
   final scheme = theme.colorScheme;
 
   Future<void> handleTap(String value) async {
-    final isProTheme = value == 'emerald' || value == 'grey' || value == 'purple';
+    final isProTheme = value == 'emerald' ||
+        value == 'grey' ||
+        value == 'purple' ||
+        value == 'royal_blue';
     Navigator.pop(context);
 
     if (isProTheme && !isPro) {
@@ -31,7 +34,10 @@ Future<void> showSettingsThemeSheet({
     required Color color,
   }) {
     final isSelected = currentTheme == value;
-    final isProTheme = value == 'emerald' || value == 'grey' || value == 'purple';
+    final isProTheme = value == 'emerald' ||
+        value == 'grey' ||
+        value == 'purple' ||
+        value == 'royal_blue';
 
     return ListTile(
       onTap: () => handleTap(value),
@@ -81,29 +87,34 @@ Future<void> showSettingsThemeSheet({
                   ),
                   const SizedBox(height: 12),
                   option(
-                    label: 'Black',
+                    label: AppLocalizations.of(context)!.settingsThemeBlack,
                     value: 'black',
                     color: Colors.black,
                   ),
                   option(
-                    label: 'White',
+                    label: AppLocalizations.of(context)!.settingsThemeWhite,
                     value: 'white',
                     color: Colors.white,
                   ),
                   option(
-                    label: 'Grey',
+                    label: AppLocalizations.of(context)!.settingsThemeGrey,
                     value: 'grey',
                     color: Colors.grey.shade700,
                   ),
                   option(
-                    label: 'Emerald',
+                    label: AppLocalizations.of(context)!.settingsThemeEmerald,
                     value: 'emerald',
                     color: const Color(0xFF009E73),
                   ),
                   option(
-                    label: 'Purple',
+                    label: AppLocalizations.of(context)!.settingsThemePurple,
                     value: 'purple',
                     color: const Color(0xFF8B5CF6),
+                  ),
+                  option(
+                    label: AppLocalizations.of(context)!.settingsThemeRoyalBlue,
+                    value: 'royal_blue',
+                    color: const Color(0xFF0B1220),
                   ),
                   const SizedBox(height: 6),
                 ],

@@ -35,7 +35,7 @@ class CleanerLitePane extends StatefulWidget {
 class _CleanerLitePaneState extends State<CleanerLitePane> {
   bool scanning = false;
   double progress = 0.0;
-  String status = 'Ready';
+  String status = '';
 
   List<File> dupFiles = [];
   int dupReclaimBytes = 0;
@@ -124,7 +124,32 @@ class _CleanerLitePaneState extends State<CleanerLitePane> {
           if (type == 'progress') {
             final double pct = (msg['percent'] as num?)?.toDouble() ?? 0.0;
             final int stage = msg['stage'] as int? ?? 0;
-            final String label = msg['label'] as String? ?? 'Scanning…';
+            final String labelCode =
+                msg['labelCode'] as String? ?? 'cleanerScanning';
+            final String label = switch (labelCode) {
+              'cleanerStageDuplicates' => l10n.cleanerStageDuplicates,
+              'cleanerStageDuplicatesGrouping' =>
+                l10n.cleanerStageDuplicatesGrouping,
+              'cleanerStageOldPhotos' => l10n.cleanerStageOldPhotos,
+              'cleanerStageOldPhotosProgress' =>
+                l10n.cleanerStageOldPhotosProgress(
+                  (msg['count'] as num?)?.toInt() ?? 0,
+                  (msg['size'] ?? '').toString(),
+                ),
+              'cleanerStageOldVideos' => l10n.cleanerStageOldVideos,
+              'cleanerStageOldVideosProgress' =>
+                l10n.cleanerStageOldVideosProgress(
+                  (msg['count'] as num?)?.toInt() ?? 0,
+                  (msg['size'] ?? '').toString(),
+                ),
+              'cleanerStageLargeFiles' => l10n.cleanerStageLargeFiles,
+              'cleanerStageLargeFilesProgress' =>
+                l10n.cleanerStageLargeFilesProgress(
+                  (msg['count'] as num?)?.toInt() ?? 0,
+                  (msg['size'] ?? '').toString(),
+                ),
+              _ => l10n.cleanerScanning,
+            };
 
             setState(() {
               final stageBase = (stage - 1).clamp(0, 3) * 0.25;
@@ -207,7 +232,7 @@ class _CleanerLitePaneState extends State<CleanerLitePane> {
     setState(() {
       scanning = false;
       appsLoading = false;
-      status = 'Scan cancelled';
+      status = AppLocalizations.of(context)!.cleanerScanCancelled;
     });
   }
 
@@ -760,15 +785,25 @@ void _scanWorkerEntry(_WorkerArgs args) async {
 
   Future<void> _stage(
       int stageNum,
-      String labelStart,
+      String labelCode,
       Future<void> Function() body,
       ) async {
-    send.send({'type': 'progress', 'stage': stageNum, 'percent': 0.02, 'label': labelStart});
+    send.send({
+      'type': 'progress',
+      'stage': stageNum,
+      'percent': 0.02,
+      'labelCode': labelCode,
+    });
     await body();
-    send.send({'type': 'progress', 'stage': stageNum, 'percent': 1.0, 'label': '$labelStart Done'});
+    send.send({
+      'type': 'progress',
+      'stage': stageNum,
+      'percent': 1.0,
+      'labelCode': labelCode,
+    });
   }
 
-  await _stage(1, 'Scanning duplicates…', () async {
+  await _stage(1, 'cleanerStageDuplicates', () async {
     final root = Directory(args.rootPath);
 
     Future<String?> _fingerprint(File f) async {
@@ -799,7 +834,7 @@ void _scanWorkerEntry(_WorkerArgs args) async {
       },
       cap: args.maxFiles,
       onProgress: (processed, total) async {
-        send.send({'type': 'progress', 'stage': 1, 'percent': (processed / total).clamp(0.05, 0.98), 'label': 'Scanning duplicates…'});
+        send.send({'type': 'progress', 'stage': 1, 'percent': (processed / total).clamp(0.05, 0.98), 'labelCode': 'cleanerStageDuplicates'});
       },
     );
 
@@ -822,7 +857,7 @@ void _scanWorkerEntry(_WorkerArgs args) async {
 
         processed++;
         if (processed % 200 == 0) {
-          send.send({'type': 'progress', 'stage': 1, 'percent': 0.6, 'label': 'Grouping duplicates…'});
+          send.send({'type': 'progress', 'stage': 1, 'percent': 0.6, 'labelCode': 'cleanerStageDuplicatesGrouping'});
         }
       },
       cap: args.maxFiles,
@@ -856,7 +891,7 @@ void _scanWorkerEntry(_WorkerArgs args) async {
     _stageStore['dupReclaimBytes'] = dupReclaimBytes;
   });
 
-  await _stage(2, 'Scanning old photos…', () async {
+  await _stage(2, 'cleanerStageOldPhotos', () async {
     final root = Directory(args.rootPath);
     final photosExt = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic'};
 
@@ -881,13 +916,15 @@ void _scanWorkerEntry(_WorkerArgs args) async {
           'type': 'progress',
           'stage': 2,
           'percent': (processed / total).clamp(0.05, 0.98),
-          'label': 'Old photos: ${oldPhotos.length} • ${_fmtBytes(oldPhotosBytes)}',
+          'labelCode': 'cleanerStageOldPhotosProgress',
+          'count': oldPhotos.length,
+          'size': _fmtBytes(oldPhotosBytes),
         });
       },
     );
   });
 
-  await _stage(3, 'Scanning old videos…', () async {
+  await _stage(3, 'cleanerStageOldVideos', () async {
     final root = Directory(args.rootPath);
     final videoExt = {'.mp4', '.mov', '.mkv', '.avi', '.webm'};
 
@@ -912,13 +949,15 @@ void _scanWorkerEntry(_WorkerArgs args) async {
           'type': 'progress',
           'stage': 3,
           'percent': (processed / total).clamp(0.05, 0.98),
-          'label': 'Old videos: ${oldVideos.length} • ${_fmtBytes(oldVideosBytes)}',
+          'labelCode': 'cleanerStageOldVideosProgress',
+          'count': oldVideos.length,
+          'size': _fmtBytes(oldVideosBytes),
         });
       },
     );
   });
 
-  await _stage(4, 'Scanning large files…', () async {
+  await _stage(4, 'cleanerStageLargeFiles', () async {
     final root = Directory(args.rootPath);
     final photosExt = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic'};
     final videoExt = {'.mp4', '.mov', '.mkv', '.avi', '.webm'};
@@ -943,7 +982,9 @@ void _scanWorkerEntry(_WorkerArgs args) async {
           'type': 'progress',
           'stage': 4,
           'percent': (processed / total).clamp(0.05, 0.98),
-          'label': 'Large files: ${largeFiles.length} • ${_fmtBytes(largeFilesBytes)}',
+          'labelCode': 'cleanerStageLargeFilesProgress',
+          'count': largeFiles.length,
+          'size': _fmtBytes(largeFilesBytes),
         });
       },
     );

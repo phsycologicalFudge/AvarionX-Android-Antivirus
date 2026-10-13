@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/antivirus_bridge.dart';
 import 'update_service.dart';
 import 'package:path_provider/path_provider.dart';
-import '../widgets/antivirus_bridge.dart';
 
 class DefsAutoUpdateService {
   static const _enabledKey = 'defs_auto_update_enabled';
@@ -69,11 +69,10 @@ class DefsAutoUpdateService {
       await UpdateService.setLocalVersion(serverVersion);
 
       final dir = await getApplicationDocumentsDirectory();
-      final defsPath = '${dir.path}/defs.vxpack';
-      final keyPath = '${dir.path}/defs_key.bin';
+      final defsPath = '${dir.path}/defs.cs';
 
       try {
-        final rc = AntivirusBridge().reload(defsPath, keyPath);
+        final rc = AntivirusBridge().reload(defsPath);
         debugPrint('[DefsUpdate] Engine reload rc=$rc');
       } catch (e) {
         debugPrint('[DefsUpdate] Engine reload failed: $e');

@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:colourswift_av/screens/password%20manager/password_manager_screen.dart';
 import 'package:colourswift_av/screens/scan/cleaner_screen.dart';
 import 'package:colourswift_av/screens/scan/scheduled_scan_screen.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -12,12 +14,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../constants/build_flags.dart';
 import '../../constants/launch_flag.dart';
 import '../../services/defs_auto_update_service.dart';
 import '../../services/pro_temp_service.dart';
+import '../../services/auth/auth_link_service.dart';
 import '../../services/purchase_service.dart';
 import '../../services/realtime_protection_service.dart';
+import '../../services/scan api/community_submissions/community_submission_service.dart';
+import '../../services/scan api/scan_types.dart';
 import '../../services/scan_scheduler.dart';
 import '../../services/scan_session_service.dart';
 import '../../services/service_manager.dart';
@@ -30,7 +34,7 @@ import '../../widgets/mesh_background.dart';
 import '../link checker/link_check_screen.dart';
 import '../pro/pro_screen.dart';
 import '../quarantine/quarantine_screen.dart';
-import '../scan_ui_screen.dart';
+import '../scan/main_scan_ui/scan_screen.dart';
 import 'av_home_drawer.dart';
 import 'av_home_feature_row.dart';
 import 'av_home_primary_control.dart';
@@ -40,7 +44,9 @@ import 'security_report_screen.dart';
 import '../apkAnalyser/apk_analyser.dart';
 import '../scan/scan_limits_screen.dart';
 import '../settings/settings_screen.dart';
-import '../terminal_screen.dart';
+import '../vpn/lite_vpn_controller.dart';
+import '../../constants/build_flags.dart';
+import '../../terminal/terminal_screen.dart';
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -66,6 +72,10 @@ class AvHomeScreenState extends State<AvHomeScreen>
   bool hasUpdate = false;
   bool useCloudScan = false;
   bool vpnActive = false;
+  late final LiteVpnController _vpn;
+  bool _vpnWasConnected = false;
+  bool _vpnUpsellShowing = false;
+  StreamSubscription<String>? _authSub;
   bool vpnConflict = false;
   bool autoUpdateDefs = false;
   bool shizukuRtpEnabled = false;
@@ -184,7 +194,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
           try {
             AntivirusBridge().reload(
               paths['defsPath']!,
-              paths['keyPath']!,
             );
           } catch (_) {}
         }
@@ -282,6 +291,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
     _loadHeaderPref();
     _loadProtectionState();
+    _initVpn();
     _loadVersion();
     _loadProStatus();
     _loadCloudToggle();
@@ -292,6 +302,13 @@ class AvHomeScreenState extends State<AvHomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       await _syncDefsOnForeground(forceServerCheck: true);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (await CommunitySubmissionService.hasBeenAsked()) return;
+      if (!mounted) return;
+      _showApkSubmissionAsk();
     });
 
     DefsAutoUpdateService.maybeRun().then((_) async {
@@ -336,11 +353,504 @@ class AvHomeScreenState extends State<AvHomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      unawaited(_vpn.onResumed());
       _loadProtectionState();
       _loadProStatus();
       _loadDefsVersion();
       _syncDefsOnForeground(forceServerCheck: true);
     }
+  }
+
+  void _initVpn() {
+    _vpn = LiteVpnController();
+    _vpn.addListener(_onVpnChanged);
+    unawaited(_vpn.init());
+    unawaited(_initAuthLinks());
+  }
+
+  Future<void> _initAuthLinks() async {
+    _authSub = AuthLinkService.tokenEvents.listen((_) async {
+      if (!mounted) return;
+      await _vpn.onTokenChanged();
+      if (!mounted) return;
+      _loadProStatus();
+    });
+    await AuthLinkService.start();
+  }
+
+  Future<void> _startAvLogin() async {
+    await launchUrl(
+      Uri.parse('https://api.colourswift.com/login?app=av'),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  void _onVpnChanged() {
+    if (!mounted) return;
+    final nowConnected = _vpn.connected;
+    final justConnected = nowConnected && !_vpnWasConnected;
+    _vpnWasConnected = nowConnected;
+    setState(() {});
+    if (justConnected && !_vpn.hasPremiumAccess) {
+      unawaited(_maybeShowVpnUpsell());
+    }
+  }
+
+  Future<void> _maybeShowVpnUpsell() async {
+    if (_vpnUpsellShowing) return;
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getInt('vpn_location_upsell_count') ?? 0;
+    final last = prefs.getInt('vpn_location_upsell_at') ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (shown >= 3) return;
+    if (last != 0 && now - last < const Duration(days: 7).inMilliseconds) return;
+
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (!mounted || !_vpn.connected || _vpn.hasPremiumAccess) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+
+    _vpnUpsellShowing = true;
+    await prefs.setInt('vpn_location_upsell_count', shown + 1);
+    await prefs.setInt('vpn_location_upsell_at', now);
+    if (!mounted) {
+      _vpnUpsellShowing = false;
+      return;
+    }
+    await _showVpnUpsell();
+    _vpnUpsellShowing = false;
+  }
+
+  Future<void> _showVpnUpsell() async {
+    final go = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+        final scheme = theme.colorScheme;
+        final country = _vpn.exitCountry;
+
+        return _meshDialog(
+          title: Text(
+            'Choose where you connect',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                country.isEmpty
+                    ? 'The free VPN picks your location automatically. Premium lets you choose from every WireGuard location.'
+                    : 'The free VPN picked $country for you. Premium lets you choose from every WireGuard location.',
+                style: text.bodySmall?.copyWith(
+                  height: 1.4,
+                  color: scheme.onSurface.withOpacity(0.75),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Tip: press and hold the VPN button any time to change location.',
+                style: text.bodySmall?.copyWith(
+                  height: 1.4,
+                  fontStyle: FontStyle.italic,
+                  color: scheme.onSurface.withOpacity(0.55),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Not now'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(AppLocalizations.of(context)!.settingsUnlockPro),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (go == true && mounted) await _openPro();
+  }
+
+  Future<void> _openPro() async {
+    final res = await Navigator.push(context, animatedRoute(const ProScreen()));
+    if (res == true) _loadProStatus();
+    if (!mounted) return;
+    await _vpn.onResumed();
+  }
+
+  Future<void> _onVpnLongPress() async {
+    HapticFeedback.mediumImpact();
+    if (!_vpn.hasPremiumAccess) {
+      await _openPro();
+      return;
+    }
+    await _showVpnLocationPicker();
+  }
+
+  Future<void> _showVpnLocationPicker() async {
+    final servers = _vpn.servers;
+    final locked = !_vpn.signedIn;
+    if (servers.isEmpty && !locked) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        final scheme = theme.colorScheme;
+        final tm = Provider.of<ThemeManager>(ctx, listen: false);
+        final currentId = (_vpn.selectedServer ?? servers.first).id;
+
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          minChildSize: 0.35,
+          maxChildSize: 0.9,
+          builder: (_, scroll) {
+            return ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              child: MeshBackground(
+                blobs: tm.meshBlobs,
+                base: scheme.surfaceContainerHigh,
+                child: ListView.builder(
+                  controller: scroll,
+                  padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
+                  itemCount: servers.length + (locked ? 2 : 1),
+                  itemBuilder: (_, i) {
+                    if (i == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: Text(
+                          'Location',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      );
+                    }
+                    if (locked && i == 1) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                        child: _vpnSignInCard(ctx),
+                      );
+                    }
+                    final s = servers[i - (locked ? 2 : 1)];
+                    final selected = s.id == currentId;
+                    return Opacity(
+                      opacity: locked ? 0.4 : 1.0,
+                      child: IgnorePointer(
+                        ignoring: locked,
+                        child: ListTile(
+                          leading: s.countryCode.length == 2
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: CountryFlag.fromCountryCode(
+                              s.countryCode,
+                              height: 20,
+                              width: 28,
+                            ),
+                          )
+                              : const Icon(Icons.public_rounded),
+                          title: Text(
+                            s.label.isEmpty ? s.countryCode : s.label,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          subtitle: (s.city ?? '').isEmpty ? null : Text(s.city!),
+                          trailing: selected
+                              ? Icon(Icons.check_circle_rounded, color: scheme.primary)
+                              : null,
+                          onTap: () async {
+                            Navigator.pop(ctx);
+                            await _vpn.select(s);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _vpnSignInCard(BuildContext sheetContext) {
+    final theme = Theme.of(sheetContext);
+    final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(sheetContext)!;
+
+    return Card.outlined(
+      color: scheme.surfaceContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.vpnSettingsSignInToContinue,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: scheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Choosing a location needs your ColourSwift account.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(sheetContext);
+                  await _startAvLogin();
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                child: Text(l10n.vpnSignIn),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _meshDialog({required Widget title, required Widget child}) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final tm = Provider.of<ThemeManager>(context, listen: false);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      clipBehavior: Clip.antiAlias,
+      child: MeshBackground(
+        blobs: tm.meshBlobs,
+        base: scheme.surfaceContainerHigh,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              title,
+              const SizedBox(height: 12),
+              Flexible(child: SingleChildScrollView(child: child)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleVpn() async {
+    if (_vpn.connecting || _vpn.reconnecting) return;
+    HapticFeedback.lightImpact();
+    if (_vpn.connected || _vpn.wantsConnected) {
+      await _vpn.disconnect();
+      return;
+    }
+    await _vpn.connect();
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    String? msg;
+    switch (_vpn.notice) {
+      case LiteVpnNotice.notificationsRequired:
+        msg = l10n.vpnBackendNotificationsPermissionRequired;
+        break;
+      case LiteVpnNotice.connectFailed:
+        msg = 'Unable to connect.';
+        break;
+      case LiteVpnNotice.sessionExpired:
+        msg = l10n.vpnBackendSessionExpiredSignIn;
+        break;
+      case LiteVpnNotice.none:
+        break;
+    }
+    if (msg != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
+  Future<void> _openVpnAppStoreListing() async {
+    if (kGithubBuild) {
+      final url = Uri.parse('https://github.com/phsycologicalFudge/AvarionX-VPN');
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      }
+      return;
+    }
+
+    const pkg = 'com.colourswift.avarionxvpn';
+    final market = Uri.parse('market://details?id=$pkg');
+    final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
+
+    try {
+      final launched = await launchUrl(
+        market,
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+      if (launched) return;
+    } catch (_) {}
+
+    if (await canLaunchUrl(web)) {
+      await launchUrl(web, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  String _vpnDescription(AppLocalizations l10n) {
+    if (_vpn.connecting || _vpn.reconnecting) return l10n.vpnStatusConnectingEllipsis;
+    if (!_vpn.connected) return l10n.vpnStatusNotConnected;
+    final country = _vpn.exitCountry;
+    if (country.isNotEmpty) return l10n.vpnStatusConnectedTo(country);
+    if (_vpn.locationFetching) return l10n.vpnSubtitleFindingLocation;
+    return l10n.vpnStatusConnected;
+  }
+
+  Future<void> _openVttiPlatform() async {
+    final url = Uri.parse('https://platform.colourswift.com');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _showApkSubmissionAsk() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        final theme = Theme.of(context);
+        final text = theme.textTheme;
+        final scheme = theme.colorScheme;
+
+        return _meshDialog(
+          title: Text(
+            AppLocalizations.of(context)!.homeHelpImproveDetectionsForEverybody,
+            style: text.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  style: text.bodySmall?.copyWith(
+                    height: 1.4,
+                    color: text.bodySmall?.color?.withOpacity(0.85),
+                  ),
+                  children: [
+                    TextSpan(
+                      text: AppLocalizations.of(context)!.homeApkSAndroidAppsFoundToBe +
+                          AppLocalizations.of(context)!.homeCanBeUploadedTo,
+                    ),
+                    TextSpan(
+                      text: 'VTTI Cloud',
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = _openVttiPlatform,
+                    ),
+                    TextSpan(
+                      text: AppLocalizations.of(context)!.homeAndSharedWithTheCommunityThisIs +
+                          AppLocalizations.of(context)!.homeStrictlyLimitedToAPKFilesNOTYour +
+                          AppLocalizations.of(context)!.homeDocuments +
+                          AppLocalizations.of(context)!.homeThisWillImproveDetectionsForEveryoneThat +
+                          AppLocalizations.of(context)!.homeUsesAvarionXNoPressureThough +
+                          AppLocalizations.of(context)!.homeThanks +
+                          AppLocalizations.of(context)!.homeRyanfromcolourswift,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () async {
+                        await CommunitySubmissionService.setEnabled(true);
+                        await CommunitySubmissionService.markAsked();
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child:  Text(AppLocalizations.of(context)!.homeSure),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        await CommunitySubmissionService.setEnabled(false);
+                        await CommunitySubmissionService.markAsked();
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child:  Text(AppLocalizations.of(context)!.homeNoThanks),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  onPressed: () async {
+                    await CommunitySubmissionService.setEnabled(false);
+                    await CommunitySubmissionService.markAsked();
+                    if (context.mounted) Navigator.pop(context);
+                    Navigator.push(
+                        context, animatedRoute(const SettingsScreen()));
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.homePsstCustomiseItHere,
+                    style: text.bodySmall?.copyWith(
+                      color: scheme.onSurface.withOpacity(0.55),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showRtpInfo() {
@@ -424,11 +934,10 @@ class AvHomeScreenState extends State<AvHomeScreen>
                   await UpdateService.setLocalVersion(newRemoteVersion);
 
                   final dir = await getApplicationDocumentsDirectory();
-                  final defsPath = '${dir.path}/defs.vxpack';
-                  final keyPath = '${dir.path}/defs_key.bin';
+                  final defsPath = '${dir.path}/defs.cs';
 
                   try {
-                    AntivirusBridge().reload(defsPath, keyPath);
+                    AntivirusBridge().reload(defsPath);
                   } catch (e) {
                     debugPrint('[DefsUpdate] Engine reload failed: $e');
                   }
@@ -612,8 +1121,12 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   Future<void> _loadCloudToggle() async {
     final prefs = await SharedPreferences.getInstance();
+    // Matches the scan engine's own default (see ScanScreen._loadCloud):
+    // an unset pref means cloud scanning is ON, not off. Defaulting to
+    // false here made the toggle show "off" while a scan would actually
+    // run with cloud scanning enabled.
     setState(() {
-      useCloudScan = prefs.getBool('useCloudScan') ?? false;
+      useCloudScan = prefs.getBool('useCloudScan') ?? true;
     });
   }
 
@@ -735,6 +1248,8 @@ class AvHomeScreenState extends State<AvHomeScreen>
   Future<void> _handleScanButton() async {
     final session = ScanSessionService.instance;
 
+    if (session.cancelling && !session.isScanning) session.clear();
+
     if (session.isScanning || session.cancelling) {
       Navigator.push(
         context,
@@ -774,35 +1289,12 @@ class AvHomeScreenState extends State<AvHomeScreen>
     );
   }
 
-  Future<void> _openVpnAppStoreListing() async {
-    if (kGithubBuild) {
-      final url = Uri.parse('https://github.com/phsycologicalFudge/AvarionX-VPN');
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      }
-      return;
-    }
-
-    const pkg = 'com.colourswift.avarionxvpn';
-    final market = Uri.parse('market://details?id=$pkg');
-    final web = Uri.parse('https://play.google.com/store/apps/details?id=$pkg');
-
-    try {
-      final launched = await launchUrl(
-        market,
-        mode: LaunchMode.externalNonBrowserApplication,
-      );
-      if (launched) return;
-    } catch (_) {}
-
-    if (await canLaunchUrl(web)) {
-      await launchUrl(web, mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _authSub?.cancel();
+    _vpn.removeListener(_onVpnChanged);
+    _vpn.dispose();
     _periodicScanTimer?.cancel();
     _popupController.dispose();
     _pulseController.dispose();
@@ -828,7 +1320,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
   String _stateLine1(AppLocalizations l10n) {
     if (!protectionEnabled) return l10n.stateOffLine1;
     if (shizukuRtpEnabled) return l10n.stateAdvancedActiveLine1;
-    return 'Real-Time Protection';
+    return l10n.homeRealtimeProtectionTitle;
   }
 
   LinearGradient _proHeaderGradient(ThemeData theme) {
@@ -861,173 +1353,146 @@ class AvHomeScreenState extends State<AvHomeScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            if (shizukuRtpEnabled && protectionEnabled)
-              IgnorePointer(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: const Alignment(0.0, -0.18),
-                      radius: 0.85,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(isDark ? 0.55 : 0.40),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      if (isPro && isDark && goldHeaderEnabled)
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: _proHeaderGradient(theme),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.transparent,
-                                          theme.colorScheme.surface,
-                                        ],
+            Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            if (isPro && isDark && goldHeaderEnabled)
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: _proHeaderGradient(theme),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                              colors: [
+                                                Colors.transparent,
+                                                theme.colorScheme.surface,
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                    AvHomeTopBar(
+                                      title: l10n.appName,
+                                      isPro: isPro,
+                                      onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                              )
+                            else
                               AvHomeTopBar(
                                 title: l10n.appName,
                                 isPro: isPro,
                                 onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                               ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
+                          child: Column(
+                            children: [
+                              AvHomePrimaryControl(
+                                pressed: _pressed,
+                                onPressedChanged: (v) => setState(() => _pressed = v),
+                                onToggleProtection: () {
+                                  HapticFeedback.lightImpact();
+                                  _toggleProtection();
+                                },
+                                accent: accent,
+                                isDark: isDark,
+                                icon: _stateIcon(),
+                                line1: _stateLine1(l10n),
+                                defsLine: defsVersion.isEmpty
+                                    ? l10n.dbUpdating
+                                    : l10n.dbVersionAutoUpdated(defsVersion),
+                              ),
+                              const SizedBox(height: 20),
+                              AvHomeFeatureRow(
+                                title: AppLocalizations.of(context)!.homeScanNow,
+                                description: AppLocalizations.of(context)!.homeManuallyCheckYourDeviceForMalware,
+                                icon: Icons.search_rounded,
+                                color: theme.colorScheme.primary,
+                                onTap: _handleScanButton,
+                              ),
+                              const SizedBox(height: 8),
+                              FutureBuilder<DeviceSecuritySummary>(
+                                future: DeviceSecurityScreen.loadSummary(
+                                  AppLocalizations.of(context)!,
+                                ),
+                                builder: (context, snapshot) {
+                                  final summary =
+                                      snapshot.data ?? const DeviceSecuritySummary.empty();
+
+                                  return AvHomeFeatureRow(
+                                    title: AppLocalizations.of(context)!.homeDeviceSecurity,
+                                    description: summary.homeLabel(
+                                      AppLocalizations.of(context)!,
+                                    ),
+                                    icon: Icons.security_rounded,
+                                    color: summary.hasRisk
+                                        ? Colors.redAccent
+                                        : Colors.blueAccent,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        animatedRoute(const DeviceSecurityScreen()),
+                                      ).then((_) {
+                                        if (!mounted) return;
+                                        setState(() {});
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              AvHomeFeatureRow(
+                                title: l10n.vpnTitleSecure,
+                                description: _vpnDescription(l10n),
+                                icon: Icons.vpn_lock_rounded,
+                                color: _vpn.connected || _vpn.connecting || _vpn.reconnecting
+                                    ? Colors.blueAccent
+                                    : Colors.redAccent,
+                                onTap: _toggleVpn,
+                                onLongPress: _onVpnLongPress,
+                              ),
+                              const SizedBox(height: 20),
+                              _SecurityOverviewPreview(
+                                protectionEnabled: protectionEnabled,
+                                defsVersion: defsVersion,
+                                onGenerateReport: () => Navigator.push(
+                                  context,
+                                  animatedRoute(const SecurityReportScreen()),
+                                ),
+                              ),
                             ],
                           ),
-                        )
-                      else
-                        AvHomeTopBar(
-                          title: l10n.appName,
-                          isPro: isPro,
-                          onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
                         ),
-                      if (_proStatusResolved && !isPro)
-                        Positioned(
-                          top: 10,
-                          right: 12,
-                          child: SizedBox(
-                            height: 34,
-                            child: FilledButton(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFFB8860B),
-                                foregroundColor: Colors.white,
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                              ),
-                              onPressed: () async {
-                                final res = await Navigator.push(
-                                  context,
-                                  animatedRoute(const ProScreen()),
-                                );
-                                if (res == true) {
-                                  await _loadProStatus();
-                                }
-                              },
-                              child: Text(
-                                l10n.homeUpgrade,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 22),
-                    child: Column(
-                      children: [
-                        AvHomePrimaryControl(
-                          pressed: _pressed,
-                          onPressedChanged: (v) => setState(() => _pressed = v),
-                          onToggleProtection: () {
-                            HapticFeedback.lightImpact();
-                            _toggleProtection();
-                          },
-                          accent: accent,
-                          isDark: isDark,
-                          icon: _stateIcon(),
-                          line1: _stateLine1(l10n),
-                          defsLine: defsVersion.isEmpty
-                              ? l10n.dbUpdating
-                              : l10n.dbVersionAutoUpdated(defsVersion),
-                        ),
-                        const SizedBox(height: 20),
-                        AvHomeFeatureRow(
-                          title: 'Scan Now',
-                          description: 'Manually check your device for malware',
-                          icon: Icons.search_rounded,
-                          color: theme.colorScheme.primary,
-                          onTap: _handleScanButton,
-                        ),
-                        const SizedBox(height: 8),
-                        FutureBuilder<DeviceSecuritySummary>(
-                          future: DeviceSecurityScreen.loadSummary(),
-                          builder: (context, snapshot) {
-                            final summary =
-                                snapshot.data ?? const DeviceSecuritySummary.empty();
-
-                            return AvHomeFeatureRow(
-                              title: 'Device Security',
-                              description: summary.homeLabel,
-                              icon: Icons.security_rounded,
-                              color: summary.hasRisk
-                                  ? Colors.redAccent
-                                  : Colors.blueAccent,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  animatedRoute(const DeviceSecurityScreen()),
-                                ).then((_) {
-                                  if (!mounted) return;
-                                  setState(() {});
-                                });
-                              },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _SecurityOverviewPreview(
-                          protectionEnabled: protectionEnabled,
-                          defsVersion: defsVersion,
-                          onGenerateReport: () => Navigator.push(
-                            context,
-                            animatedRoute(const SecurityReportScreen()),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        const _AvarionXSecurityFooter(),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(14, 12, 14, 20),
+                  child: _AvarionXSecurityFooter(),
+                ),
+              ],
             ),
           ],
         ),
@@ -1071,7 +1536,7 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
   }
 
   void _startMode(ScanMode mode) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       animatedRoute(ScanScreen(startMode: mode)),
     );
@@ -1086,130 +1551,136 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'Scan Modes',
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-      ),
+      backgroundColor: Colors.transparent,
       body: MeshBackground(
         blobs: themeManager.meshBlobs,
         base: scheme.surface,
         child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.engineReadyBanner,
-                  style: text.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                    color: scheme.onSurface.withOpacity(0.58),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _ScanModeBlock(
-                  title: l10n.scanModeSmartTitle,
-                  subtitle: l10n.scanModeSmartSubtitle,
-                  icon: Icons.manage_search_rounded,
-                  color: scheme.primary,
-                  onTap: () => _startMode(ScanMode.smart),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeRapidTitle,
-                  subtitle: l10n.scanModeRapidSubtitle,
-                  icon: Icons.bolt_rounded,
-                  color: Colors.amber,
-                  onTap: () => _startMode(ScanMode.rapid),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeInstalledTitle,
-                  subtitle: l10n.scanModeInstalledSubtitle,
-                  icon: Icons.apps_rounded,
-                  color: Colors.blueAccent,
-                  onTap: () => _startMode(ScanMode.installed),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeSingleTitle,
-                  subtitle: l10n.scanModeSingleSubtitle,
-                  icon: Icons.insert_drive_file_rounded,
-                  color: Colors.teal,
-                  onTap: () => _startMode(ScanMode.single),
-                ),
-                const SizedBox(height: 8),
-                _ScanModeBlock(
-                  title: l10n.scanModeFullTitle,
-                  subtitle: l10n.scanModeFullSubtitle,
-                  icon: Icons.storage_rounded,
-                  color: Colors.deepOrangeAccent,
-                  onTap: () => _startMode(ScanMode.full),
-                ),
-                const SizedBox(height: 18),
-                Card(
-                  elevation: 0,
-                  color: theme.cardTheme.color,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () => _setCloudScan(!localCloudScan),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                title: Text(l10n.homeScanModes),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.engineReadyBanner,
+                        style: text.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                          color: scheme.onSurface.withOpacity(0.58),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeSmartTitle,
+                        subtitle: l10n.scanModeSmartSubtitle,
+                        icon: Icons.manage_search_rounded,
+                        color: scheme.primary,
+                        onTap: () => _startMode(ScanMode.smart),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeRapidTitle,
+                        subtitle: l10n.scanModeRapidSubtitle,
+                        icon: Icons.bolt_rounded,
+                        color: Colors.amber,
+                        onTap: () => _startMode(ScanMode.rapid),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeInstalledTitle,
+                        subtitle: l10n.scanModeInstalledSubtitle,
+                        icon: Icons.apps_rounded,
+                        color: Colors.blueAccent,
+                        onTap: () => _startMode(ScanMode.installed),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeSingleTitle,
+                        subtitle: l10n.scanModeSingleSubtitle,
+                        icon: Icons.insert_drive_file_rounded,
+                        color: Colors.teal,
+                        onTap: () => _startMode(ScanMode.single),
+                      ),
+                      const SizedBox(height: 8),
+
+                      _ScanModeBlock(
+                        title: l10n.scanModeFullTitle,
+                        subtitle: l10n.scanModeFullSubtitle,
+                        icon: Icons.storage_rounded,
+                        color: Colors.deepOrangeAccent,
+                        onTap: () => _startMode(ScanMode.full),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      Card(
+                        elevation: 0,
+                        color: theme.cardTheme.color,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _setCloudScan(!localCloudScan),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+                            child: Row(
                               children: [
-                                Text(
-                                  l10n.useCloudAssistedScan,
-                                  style: text.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: scheme.onSurface.withOpacity(0.88),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.useCloudAssistedScan,
+                                        style: text.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: scheme.onSurface.withOpacity(0.88),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        localCloudScan
+                                            ? l10n.homeCloudAssistedChecksEnabled
+                                            : l10n.homeLocalScanEngineOnly,
+                                        style: text.bodySmall?.copyWith(
+                                          height: 1.35,
+                                          color: scheme.onSurface.withOpacity(0.54),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  localCloudScan
-                                      ? 'Cloud-assisted checks enabled'
-                                      : 'Local scan engine only',
-                                  style: text.bodySmall?.copyWith(
-                                    height: 1.35,
-                                    color: scheme.onSurface.withOpacity(0.54),
-                                  ),
+                                Switch(
+                                  value: localCloudScan,
+                                  onChanged: _setCloudScan,
+                                  materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ],
                             ),
                           ),
-                          Switch(
-                            value: localCloudScan,
-                            onChanged: _setCloudScan,
-                            materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1324,7 +1795,7 @@ class _AvarionXSecurityFooter extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            'Protected by VX-TITANIUM',
+            AppLocalizations.of(context)!.homeProtectedByVXTITANIUM,
             style: text.labelSmall?.copyWith(
               letterSpacing: 0.2,
               color: scheme.onSurface.withOpacity(0.62),
@@ -1442,7 +1913,7 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Security Overview',
+                            AppLocalizations.of(context)!.homeSecurityOverview,
                             style: text.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               color: scheme.onSurface.withOpacity(0.88),
@@ -1450,7 +1921,7 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            data.latestLabel,
+                            data.latestLabel(AppLocalizations.of(context)!),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: text.bodySmall?.copyWith(
@@ -1463,14 +1934,14 @@ class _SecurityOverviewPreviewState extends State<_SecurityOverviewPreview> {
                             children: [
                               Expanded(
                                 child: _OverviewMetric(
-                                  label: 'Files checked',
+                                  label: AppLocalizations.of(context)!.homeFilesChecked,
                                   value: _compactCount(data.filesChecked),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: _OverviewMetric(
-                                  label: 'Threats',
+                                  label: AppLocalizations.of(context)!.homeThreats,
                                   value: _compactCount(data.threats),
                                 ),
                               ),
@@ -1591,7 +2062,7 @@ class _HomeSecuritySnapshot {
         lastRtpEventAt = null,
         lastScheduledScanAt = null;
 
-  String get latestLabel {
+  String latestLabel(AppLocalizations l10n) {
     final latest = [
       lastManualScanAt,
       lastRtpEventAt,
@@ -1601,19 +2072,18 @@ class _HomeSecuritySnapshot {
       return value > prev ? value : prev;
     });
 
-    if (latest == null) return 'No report data yet';
-    return 'Last activity ${_relativeTime(latest)}';
+    if (latest == null) return l10n.securityNoReportDataYet;
+    return l10n.securityLastActivity(_relativeTime(latest, l10n));
   }
 
-  static String _relativeTime(int millis) {
+  static String _relativeTime(int millis, AppLocalizations l10n) {
     final date = DateTime.fromMillisecondsSinceEpoch(millis);
     final diff = DateTime.now().difference(date);
 
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.timeJustNow;
+    if (diff.inMinutes < 60) return l10n.timeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeDaysAgo(diff.inDays);
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../translations/app_localizations.dart';
 class FeaturesScreen extends StatefulWidget {
   const FeaturesScreen({super.key});
 
@@ -84,8 +85,8 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                     color: Colors.grey.shade600,
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
-                    'Coming Soon',
+                  child:  Text(
+                    AppLocalizations.of(context)!.featuresComingSoon,
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ),
@@ -116,48 +117,48 @@ class _FeaturesScreenState extends State<FeaturesScreen>
 
     final features = [
       {
-        'title': 'Realtime Protection',
+        'title': AppLocalizations.of(context)!.rtpInfoTitle,
         'desc':
-        'Monitors new and modified files in the background and blocks threats the moment they appear.',
+        AppLocalizations.of(context)!.featuresRealtimeProtectionBody,
       },
       {
-        'title': 'Tri-Layer Engine',
+        'title': AppLocalizations.of(context)!.featuresTriLayerEngineTitle,
         'desc':
-        'A three-stage detection core combining Bloom filtering, signature scanning, and APK-focused byte analysis for high accuracy and speed.',
+        AppLocalizations.of(context)!.featuresTriLayerEngineBody,
       },
       {
-        'title': 'Machine Learning',
+        'title': AppLocalizations.of(context)!.featuresMachineLearningTitle,
         'desc':
-        'A lightweight on-device model trained to recognise malicious APK behaviour patterns.',
+        AppLocalizations.of(context)!.featuresMachineLearningBody,
       },
       {
-        'title': 'Cleaner Pro',
+        'title': AppLocalizations.of(context)!.featuresCleanerProTitle,
         'desc':
-        'An evolving cleaning module that identifies duplicates, cache, and unused apps to reclaim storage.',
+        AppLocalizations.of(context)!.featuresCleanerProBody,
       },
       {
-        'title': 'Wi-Fi Protection',
+        'title': AppLocalizations.of(context)!.featuresWifiProtectionTitle,
         'desc':
-        'Detects unsafe or suspicious Wi-Fi networks using on-device analysis.',
+        AppLocalizations.of(context)!.featuresWifiProtectionBody,
         'soon': true,
       },
       {
-        'title': 'Root-Level Protection',
+        'title': AppLocalizations.of(context)!.featuresRootLevelProtectionTitle,
         'desc':
-        'Deep system-level defense designed for rooted devices and advanced users.',
+        AppLocalizations.of(context)!.featuresRootLevelProtectionBody,
         'soon': true,
       },
       {
-        'title': 'PC Companion',
+        'title': AppLocalizations.of(context)!.featuresPcCompanionTitle,
         'desc':
-        'Upcoming desktop version for cross-platform antivirus integration.',
+        AppLocalizations.of(context)!.featuresPcCompanionBody,
         'soon': true,
       },
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Features'),
+        title:  Text(AppLocalizations.of(context)!.featuresDrawerTitle),
         centerTitle: true,
         elevation: 0,
         backgroundColor: theme.appBarTheme.backgroundColor,
@@ -187,7 +188,7 @@ class _FeaturesScreenState extends State<FeaturesScreen>
                   child: GestureDetector(
                     onTap: _openDocs,
                     child: Text(
-                      'Want to learn more?',
+                      AppLocalizations.of(context)!.featuresWantToLearnMore,
                       style: text.bodyMedium?.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,

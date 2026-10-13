@@ -70,17 +70,17 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
       final proceed = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Shizuku not available'),
-          content: const Text(
-            'Without Shizuku each app requires a separate system confirmation. Continue?',
+          title:  Text(AppLocalizations.of(context)!.cleanerAppManagerShizukuNotAvailable),
+          content:  Text(
+            AppLocalizations.of(context)!.cleanerAppManagerWithoutShizukuEachAppRequiresASeparate,
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel')),
+                child:  Text(AppLocalizations.of(context)!.cancel)),
             TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Continue')),
+                child:  Text(AppLocalizations.of(context)!.cleanerContinue)),
           ],
         ),
       );
@@ -132,8 +132,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(failed == 0
-              ? '${pkgs.length - failed} apps uninstalled'
-              : '${pkgs.length - failed} uninstalled, $failed failed'),
+              ? AppLocalizations.of(context)!.cleanerAppManagerAppsUninstalled(pkgs.length - failed)
+              : AppLocalizations.of(context)!.cleanerAppManagerUninstalledFailed(pkgs.length - failed, failed)),
         ),
       );
     }
@@ -153,7 +153,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     final ok = await _runShizukuAction('forceStop', app.packageName);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? '${app.appName} stopped' : 'Force stop failed')),
+      SnackBar(content: Text(ok ? AppLocalizations.of(context)!.cleanerAppManagerStopped(app.appName) : AppLocalizations.of(context)!.cleanerAppManagerForceStopFailed)),
     );
   }
 
@@ -161,16 +161,16 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Clear app data'),
-        content: Text('Reset ${app.appName}? This clears its accounts, settings, files and cache.'),
+        title:  Text(AppLocalizations.of(context)!.cleanerAppManagerClearAppData),
+        content: Text(AppLocalizations.of(context)!.cleanerAppManagerResetThisClearsItsAccountsSettingsFiles(app.appName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child:  Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Clear data'),
+            child:  Text(AppLocalizations.of(context)!.cleanerAppManagerClearData),
           ),
         ],
       ),
@@ -181,7 +181,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     final success = await _runShizukuAction('clearData', app.packageName);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? '${app.appName} reset' : 'Clear data failed')),
+      SnackBar(content: Text(success ? AppLocalizations.of(context)!.cleanerAppManagerReset(app.appName) : AppLocalizations.of(context)!.cleanerAppManagerClearDataFailed)),
     );
   }
 
@@ -237,7 +237,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.open_in_new_rounded),
-                title: const Text('Open app'),
+                title:  Text(AppLocalizations.of(context)!.cleanerAppManagerOpenApp),
                 onTap: () {
                   Navigator.pop(context);
                   try {
@@ -247,7 +247,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.pause_circle_outline_rounded),
-                title: const Text('Force stop'),
+                title:  Text(AppLocalizations.of(context)!.cleanerAppManagerForceStop),
                 onTap: () {
                   Navigator.pop(context);
                   _forceStopApp(app);
@@ -255,7 +255,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.restart_alt_rounded),
-                title: const Text('Clear app data'),
+                title:  Text(AppLocalizations.of(context)!.cleanerAppManagerClearAppData),
                 onTap: () {
                   Navigator.pop(context);
                   _clearAppData(app);
@@ -264,7 +264,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
               ListTile(
                 leading: Icon(Icons.delete_outline_rounded,
                     color: theme.colorScheme.error),
-                title: Text('Uninstall',
+                title: Text(AppLocalizations.of(context)!.cleanerAppManagerUninstall,
                     style: TextStyle(color: theme.colorScheme.error)),
                 onTap: () {
                   Navigator.pop(context);
@@ -313,8 +313,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(inSelectMode
-            ? '${_selected.length} selected'
-            : 'App Manager'),
+            ? AppLocalizations.of(context)!.cleanerAppManagerSelected(_selected.length)
+            : AppLocalizations.of(context)!.cleanerAppManagerAppManager),
         actions: [
           if (inSelectMode)
             TextButton(
@@ -330,8 +330,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
                 });
               },
               child: Text(_selected.length == _apps.length
-                  ? 'Deselect all'
-                  : 'Select all'),
+                  ? AppLocalizations.of(context)!.cleanerAppManagerDeselectAll
+                  : AppLocalizations.of(context)!.quarantineSelectAll),
             ),
         ],
       ),
@@ -389,8 +389,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
                   Expanded(
                     child: Text(
                       _uninstalling
-                          ? 'Uninstalling $_uninstallDone / $_uninstallTotal…'
-                          : '${_selected.length} selected',
+                          ? AppLocalizations.of(context)!.cleanerAppManagerUninstalling(_uninstallDone, _uninstallTotal)
+                          : AppLocalizations.of(context)!.cleanerAppManagerSelected(_selected.length),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
@@ -406,7 +406,7 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
                       onPressed:
                       _selected.isNotEmpty ? _batchUninstall : null,
                       icon: const Icon(Icons.delete_sweep_rounded, size: 18),
-                      label: Text('Uninstall ${_selected.length}'),
+                      label: Text(AppLocalizations.of(context)!.cleanerAppManagerUninstall2(_selected.length)),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.redAccent,
                         foregroundColor: Colors.white,

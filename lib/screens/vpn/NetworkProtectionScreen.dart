@@ -93,7 +93,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
 
   static const String _githubUrl = 'https://github.com/phsycologicalFudge/ColourSwift_AV?tab=readme-ov-file#network-protection';
 
-  static const List<_UpstreamPreset> _presets = [
+  static  List<_UpstreamPreset> _presets = [
     _UpstreamPreset(key: 'cloudflare', title: 'Cloudflare', subtitle: '1.1.1.1', ip: '1.1.1.1'),
     _UpstreamPreset(key: 'cloudflare_alt', title: 'Cloudflare (alt)', subtitle: '1.0.0.1', ip: '1.0.0.1'),
     _UpstreamPreset(key: 'google', title: 'Google', subtitle: '8.8.8.8', ip: '8.8.8.8'),
@@ -102,7 +102,7 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
     _UpstreamPreset(key: 'quad9_alt', title: 'Quad9 (alt)', subtitle: '149.112.112.112', ip: '149.112.112.112'),
     _UpstreamPreset(key: 'adguard', title: 'AdGuard', subtitle: '94.140.14.14', ip: '94.140.14.14'),
     _UpstreamPreset(key: 'adguard_alt', title: 'AdGuard (alt)', subtitle: '94.140.15.15', ip: '94.140.15.15'),
-    _UpstreamPreset(key: 'custom', title: 'Custom', subtitle: 'Enter your own resolver', ip: ''),
+    _UpstreamPreset(key: 'custom', title: AppLocalizations.of(context)!.networkCardStatusCustom, subtitle: AppLocalizations.of(context)!.networkProtectionEnterYourOwnResolver, ip: ''),
   ];
 
   bool get canUseAdsBlocklists => !kEnableAds || isPro;

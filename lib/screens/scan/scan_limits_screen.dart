@@ -104,8 +104,8 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(
-        content: const Text(
-          'Settings updated',
+        content:  Text(
+          AppLocalizations.of(context)!.scanLimitsSettingsUpdated,
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         duration: const Duration(seconds: 2),
@@ -228,7 +228,7 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         title: Text(
-          'Scan limits',
+          AppLocalizations.of(context)!.scanLimitsScanLimits,
           style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
       ),
@@ -270,7 +270,7 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Limit how much the engine uses your CPU. Threads: 0 means auto.',
+                          AppLocalizations.of(context)!.scanLimitsLimitHowMuchTheEngineUsesYour,
                           style: text.bodySmall?.copyWith(
                             height: 1.35,
                             color: text.bodySmall?.color?.withOpacity(0.72),
@@ -285,8 +285,8 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
               _cardRow(
                 icon: Icons.speed_rounded,
                 color: theme.colorScheme.tertiary,
-                title: 'Max scan threads',
-                subtitle: '0 = auto. Range: 0 to $_maxThreadsUiCap (cores: $_coreCount).',
+                title: AppLocalizations.of(context)!.scanLimitsMaxScanThreads,
+                subtitle: AppLocalizations.of(context)!.scanLimits0AutoRange0ToCores(_maxThreadsUiCap, _coreCount),
                 trailing: _numberField(
                   controller: _threadsController,
                   hint: _maxThreads.toString(),

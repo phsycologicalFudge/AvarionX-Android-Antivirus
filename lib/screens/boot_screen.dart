@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/av_engine.dart';
+import '../services/cloud/cloud_auth_service.dart';
 import '../services/defs_update_scheduler.dart';
 import '../services/purchase_service.dart';
 import 'main_shell.dart';
@@ -23,58 +24,33 @@ class BootScreen extends StatefulWidget {
 }
 
 class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
-  String _selectedIcon = 'default';
-  late AnimationController _pulseController;
   late AnimationController _fadeOutController;
-  late Timer _textTimer;
-  int _currentIndex = 0;
+  late AnimationController _dotController;
 
   static const String _onboardingKey = 'onboarding_done_v2';
-
-  late List<String> _messages;
 
   @override
   void initState() {
     super.initState();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
 
     _fadeOutController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
 
-    _messages = const [
-      'Preparing protection...',
-      'Loading definitions...',
-      'Initializing engine...',
-      'Optimizing memory...',
-      'Starting services...',
-    ];
+    _dotController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
 
-    _textTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) return;
-      setState(() => _currentIndex = (_currentIndex + 1) % _messages.length);
-    });
-
-    _loadSelectedIcon();
     _initEngine();
-  }
-
-  Future<void> _loadSelectedIcon() async {
-    final prefs = await SharedPreferences.getInstance();
-    final icon = prefs.getString('selectedIcon') ?? 'default';
-    if (!mounted) return;
-    setState(() => _selectedIcon = icon);
   }
 
   Future<void> _initEngine() async {
     await DefsUpdateScheduler.init();
     await PurchaseService.init();
     await applyScanLimitsFromPrefs();
+    unawaited(CloudAuthService.ensureRegistered());
 
     final info = await PackageInfo.fromPlatform();
     final currentVersion = '${info.version}+${info.buildNumber}';
@@ -140,15 +116,13 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _pulseController.dispose();
     _fadeOutController.dispose();
-    _textTimer.cancel();
+    _dotController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final text = theme.textTheme;
 
@@ -162,55 +136,44 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                'AvarionX',
+                style: text.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.primary,
+                  letterSpacing: 3.0,
+                  fontSize: 28,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.bootOptimisingYourProtection,
+                style: text.bodyMedium?.copyWith(
+                  color: text.bodyLarge?.color?.withOpacity(0.5),
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(height: 10),
               AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  final scale = 1.0 + (_pulseController.value * 0.05);
-                  return Transform.scale(
-                    scale: scale,
-                    child: SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: ClipOval(
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.asset(
-                          'assets/icons/ic_launcher_$_selectedIcon.png',
-                          fit: BoxFit.cover,
+                animation: _dotController,
+                builder: (context, _) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(3, (i) {
+                      final opacity = ((_dotController.value * 3) - i).clamp(0.3, 1.0);
+                      return Opacity(
+                        opacity: opacity,
+                        child: Text(
+                          '•',
+                          style: text.bodyMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontSize: 10,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   );
                 },
-              ),
-              const SizedBox(height: 35),
-              Text(
-                l10n.appName,
-                style: text.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                  letterSpacing: 0.8,
-                ),
-              ),
-              const SizedBox(height: 20),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                transitionBuilder: (child, animation) =>
-                    FadeTransition(opacity: animation, child: child),
-                child: Text(
-                  _messages[_currentIndex],
-                  key: ValueKey(_messages[_currentIndex]),
-                  style: text.titleMedium?.copyWith(
-                    color: text.bodyLarge?.color?.withOpacity(0.9),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Text(
-                '© ColourSwift Technologies',
-                style: text.bodySmall?.copyWith(
-                  color: text.bodySmall?.color?.withOpacity(0.5),
-                ),
               ),
             ],
           ),

@@ -43,6 +43,8 @@ class ThemeManager extends ChangeNotifier {
         return _buildEmeraldTheme();
       case 'purple':
         return _buildPurpleTheme();
+      case 'royal_blue':
+        return _buildRoyalBlueTheme();
       default:
         return _buildBlackTheme();
     }
@@ -59,7 +61,6 @@ class ThemeManager extends ChangeNotifier {
     return const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     );
   }
@@ -178,6 +179,16 @@ class ThemeManager extends ChangeNotifier {
     );
   }
 
+  static ThemeData _buildRoyalBlueTheme() {
+    return _buildTheme(
+      brightness: Brightness.dark,
+      primary: const Color(0xFF38588F),
+      secondary: const Color(0xFF28436F),
+      surface: const Color(0xFF0B1220),
+      container: const Color(0xFF121D33),
+    );
+  }
+
   static List<MeshBlob> _meshBlobsFor(String name) {
     switch (name) {
       case 'white':
@@ -210,6 +221,14 @@ class ThemeManager extends ChangeNotifier {
           MeshBlob(x: 0.86, y: 0.10, color: Color(0xFF3B3155), radius: 0.48, opacity: 0.38),
           MeshBlob(x: 0.18, y: 0.82, color: Color(0xFF211B33), radius: 0.40, opacity: 0.36),
           MeshBlob(x: 0.72, y: 0.62, color: Color(0xFF4A3D6B), radius: 0.36, opacity: 0.24),
+        ];
+
+      case 'royal_blue':
+        return const [
+          MeshBlob(x: 0.12, y: 0.08, color: Color(0xFF162743), radius: 0.42, opacity: 0.48),
+          MeshBlob(x: 0.86, y: 0.10, color: Color(0xFF203A63), radius: 0.48, opacity: 0.38),
+          MeshBlob(x: 0.18, y: 0.82, color: Color(0xFF0F1A2D), radius: 0.40, opacity: 0.36),
+          MeshBlob(x: 0.72, y: 0.62, color: Color(0xFF294B7E), radius: 0.36, opacity: 0.24),
         ];
 
       default:

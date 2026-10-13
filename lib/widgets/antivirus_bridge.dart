@@ -4,6 +4,46 @@ import 'package:ffi/ffi.dart';
 
 typedef ScanLogFn = void Function(String msg);
 
+typedef ClearScanCbNative = Void Function();
+typedef ClearScanCbDart = void Function();
+
+typedef AvCancelScanNative = Int32 Function();
+typedef AvCancelScanDart = int Function();
+
+void requestScanCancel() {
+  try {
+    final DynamicLibrary lib;
+    if (Platform.isAndroid) {
+      lib = DynamicLibrary.open("libcolourswift_av.so");
+    } else if (Platform.isWindows) {
+      lib = DynamicLibrary.open("colourswift_av.dll");
+    } else {
+      return;
+    }
+    final fn = lib.lookupFunction<AvCancelScanNative, AvCancelScanDart>(
+      'av_cancel_scan',
+    );
+    fn();
+  } catch (_) {}
+}
+
+void clearScanCallback() {
+  try {
+    final DynamicLibrary lib;
+    if (Platform.isAndroid) {
+      lib = DynamicLibrary.open("libcolourswift_av.so");
+    } else if (Platform.isWindows) {
+      lib = DynamicLibrary.open("colourswift_av.dll");
+    } else {
+      return;
+    }
+    final fn = lib.lookupFunction<ClearScanCbNative, ClearScanCbDart>(
+      'clear_scan_callback',
+    );
+    fn();
+  } catch (_) {}
+}
+
 typedef AvInitNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanNative = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef AvFreeNative = Int32 Function();
@@ -85,13 +125,22 @@ typedef SetScanCbDart = void Function(Pointer<NativeFunction<ScanCbNative>>);
 typedef SetScanLimitsNative = Void Function(Uint64, Uint64);
 typedef SetScanLimitsDart = void Function(int, int);
 
+typedef FreeStrNative = Void Function(Pointer<Utf8>);
+typedef FreeStrDart = void Function(Pointer<Utf8>);
+
 ScanLogFn? _scanLogSink;
+FreeStrDart? _scanLogFreeStr;
 
 @pragma('vm:entry-point')
 void _scanLogCallback(Pointer<Utf8> msgPtr) {
-  final sink = _scanLogSink;
-  if (sink == null) return;
-  sink(msgPtr.toDartString());
+  try {
+    final sink = _scanLogSink;
+    if (sink != null) {
+      sink(msgPtr.toDartString());
+    }
+  } finally {
+    _scanLogFreeStr?.call(msgPtr);
+  }
 }
 
 class AntivirusBridge {
@@ -113,7 +162,7 @@ class AntivirusBridge {
   final bool enableScanLogs;
   final ScanLogFn? scanLogSink;
 
-  Pointer<NativeFunction<ScanCbNative>>? _scanLogPtr;
+  NativeCallable<ScanCbNative>? _scanLogCallable;
 
   AntivirusBridge({this.enableScanLogs = false, this.scanLogSink}) {
     if (Platform.isAndroid) {
@@ -154,8 +203,14 @@ class AntivirusBridge {
 
     if (enableScanLogs) {
       _scanLogSink = scanLogSink;
-      _scanLogPtr = Pointer.fromFunction<ScanCbNative>(_scanLogCallback);
-      _setScanCallback(_scanLogPtr!);
+      try {
+        _scanLogFreeStr =
+            _lib.lookupFunction<FreeStrNative, FreeStrDart>('free_str');
+      } catch (_) {
+        _scanLogFreeStr = null;
+      }
+      _scanLogCallable = NativeCallable<ScanCbNative>.listener(_scanLogCallback);
+      _setScanCallback(_scanLogCallable!.nativeFunction);
     }
 
     _watcherEval = _lib.lookupFunction<WatcherEvalNative, WatcherEvalDart>('watcher_evaluate');
@@ -171,21 +226,17 @@ class AntivirusBridge {
 
   static int unpackVerdict(int r) => r;
 
-  int init(String defsPath, String keyPath) {
+  int init(String defsPath) {
     final defs = defsPath.toNativeUtf8();
-    final key = keyPath.toNativeUtf8();
-    final res = _init(defs, key);
+    final res = _init(defs, nullptr);
     malloc.free(defs);
-    malloc.free(key);
     return res;
   }
 
-  int reload(String defsPath, String keyPath) {
+  int reload(String defsPath) {
     final defs = defsPath.toNativeUtf8();
-    final key = keyPath.toNativeUtf8();
-    final res = _reload(defs, key);
+    final res = _reload(defs, nullptr);
     malloc.free(defs);
-    malloc.free(key);
     return res;
   }
 
@@ -273,5 +324,7 @@ class AntivirusBridge {
 
   void free() {
     _free();
+    _scanLogCallable?.close();
+    _scanLogCallable = null;
   }
 }

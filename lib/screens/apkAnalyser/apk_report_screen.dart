@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'apk_analyser_controller.dart';
 import 'apk_export_service.dart';
 
+import '../../translations/app_localizations.dart';
 class ApkReportScreen extends StatefulWidget {
   final ApkReport report;
 
@@ -19,18 +20,18 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
     final tabs = <_ReportTab>[];
 
     tabs.add(_ReportTab(
-      title: 'Summary',
+      title: AppLocalizations.of(context)!.apkReportSummary,
       content: _buildSummaryContent(context),
     ));
 
     tabs.add(_ReportTab(
-      title: 'Permissions',
+      title: AppLocalizations.of(context)!.apkReportPermissions,
       content: _buildPermissionsContent(context),
     ));
 
     if (report.unusualItems.isNotEmpty || report.unverifiedItems.isNotEmpty) {
       tabs.add(_ReportTab(
-        title: 'Extra Flags',
+        title: AppLocalizations.of(context)!.apkReportExtraFlags,
         content: _buildFlagsContent(context),
       ));
     }
@@ -38,20 +39,20 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
     final hasMalware = report.riskScore != null || report.riskLabel != null;
     if (hasMalware && (report.contributingSignals.isNotEmpty || report.dampeningFactors.isNotEmpty)) {
       tabs.add(_ReportTab(
-        title: 'Risk Signals',
+        title: AppLocalizations.of(context)!.apkReportRiskSignals,
         content: _buildSignalsContent(context),
       ));
     }
 
     if (report.sources.isNotEmpty || report.sourceNotes.isNotEmpty) {
       tabs.add(_ReportTab(
-        title: 'Sources',
+        title: AppLocalizations.of(context)!.apkReportSources,
         content: _buildSourcesContent(context),
       ));
     }
 
     tabs.add(_ReportTab(
-      title: 'Metadata',
+      title: AppLocalizations.of(context)!.apkReportMetadata,
       content: _buildMetadataContent(context),
     ));
 
@@ -84,7 +85,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.copy_rounded),
-                title: const Text('Copy Report'),
+                title:  Text(AppLocalizations.of(context)!.apkReportCopyReport),
                 onTap: () async {
                   Navigator.pop(ctx);
                   await Clipboard.setData(
@@ -92,36 +93,36 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
                   );
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Report copied to clipboard')),
+                     SnackBar(content: Text(AppLocalizations.of(context)!.apkReportReportCopiedToClipboard)),
                   );
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf_rounded),
-                title: const Text('Export as PDF'),
+                title:  Text(AppLocalizations.of(context)!.apkReportExportAsPDF),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
-                    await ApkExportService.exportToPdf(widget.report);
+                    await ApkExportService.exportToPdf(widget.report, AppLocalizations.of(context)!);
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to export PDF')),
+                       SnackBar(content: Text(AppLocalizations.of(context)!.apkReportFailedToExportPDF)),
                     );
                   }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.table_chart_rounded),
-                title: const Text('Export as CSV'),
+                title:  Text(AppLocalizations.of(context)!.apkReportExportAsCSV),
                 onTap: () async {
                   Navigator.pop(ctx);
                   try {
-                    await ApkExportService.exportToCsv(widget.report);
+                    await ApkExportService.exportToCsv(widget.report, AppLocalizations.of(context)!);
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to export CSV')),
+                       SnackBar(content: Text(AppLocalizations.of(context)!.apkReportFailedToExportCSV)),
                     );
                   }
                 },
@@ -134,35 +135,36 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
   }
 
   String _buildClipboardReport(ApkReport report) {
+    final l10n = AppLocalizations.of(context)!;
     final buffer = StringBuffer();
 
-    buffer.writeln('VTTI Cloud - APK Analysis Report');
+    buffer.writeln(l10n.apkClipboardReportTitle);
     buffer.writeln();
-    buffer.writeln('App Name: ${report.name}');
-    buffer.writeln('Package ID: ${report.packageName}');
-    buffer.writeln('Version: ${report.versionLabel}');
-    buffer.writeln('File Size: ${report.fileSizeLabel}');
-    buffer.writeln('Min SDK: ${report.minSdkLabel}');
-    buffer.writeln('Target SDK: ${report.targetSdkLabel}');
-    buffer.writeln('Signature: ${report.signatureLabel}');
+    buffer.writeln(l10n.apkClipboardAppName(report.name));
+    buffer.writeln(l10n.apkClipboardPackageId(report.packageName));
+    buffer.writeln(l10n.apkClipboardVersion(report.versionLabel));
+    buffer.writeln(l10n.apkClipboardFileSize(report.fileSizeLabel));
+    buffer.writeln(l10n.apkClipboardMinSdk(report.minSdkLabel));
+    buffer.writeln(l10n.apkClipboardTargetSdk(report.targetSdkLabel));
+    buffer.writeln(l10n.apkClipboardSignature(report.signatureLabel));
 
     if (report.riskScore != null || report.riskLabel != null) {
       buffer.writeln();
-      buffer.writeln('Malware Risk: ${report.riskScore ?? "N/A"}');
-      buffer.writeln('Risk Label: ${report.riskLabel ?? "N/A"}');
-      buffer.writeln('Hash Verdict: ${report.hashVerdict ?? "N/A"}');
+      buffer.writeln(l10n.apkClipboardMalwareRisk(report.riskScore ?? 'N/A'));
+      buffer.writeln(l10n.apkClipboardRiskLabel(report.riskLabel ?? 'N/A'));
+      buffer.writeln(l10n.apkClipboardHashVerdict(report.hashVerdict ?? 'N/A'));
       if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty) {
-        buffer.writeln('Rationale: ${report.scoreRationale!}');
+        buffer.writeln(l10n.apkClipboardRationale(report.scoreRationale!));
       }
     }
 
     buffer.writeln();
-    buffer.writeln('Summary');
+    buffer.writeln(l10n.apkReportSummary);
     buffer.writeln(report.summary);
 
     if (report.permissions.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Permissions');
+      buffer.writeln(l10n.apkReportPermissions);
       for (final permission in report.permissions) {
         buffer.writeln(permission);
       }
@@ -170,7 +172,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
 
     if (report.unusualItems.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Unusual Flags');
+      buffer.writeln(l10n.apkReportUnusualFlags);
       for (final item in report.unusualItems) {
         buffer.writeln(item);
       }
@@ -178,7 +180,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
 
     if (report.unverifiedItems.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Unverified Items');
+      buffer.writeln(l10n.apkReportUnverifiedItems);
       for (final item in report.unverifiedItems) {
         buffer.writeln(item);
       }
@@ -204,7 +206,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
           backgroundColor: theme.colorScheme.surface,
           scrolledUnderElevation: 0,
           title: Text(
-            'Analysis Report',
+            AppLocalizations.of(context)!.apkReportAnalysisReport,
             style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           actions: [
@@ -256,7 +258,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
     final text = theme.textTheme;
     final report = widget.report;
     final score = report.riskScore ?? 0;
-    final label = report.riskLabel ?? 'Unknown';
+    final label = report.riskLabel ?? AppLocalizations.of(context)!.genericUnknownAppName;
     final color = _riskColor(label);
     final verdict = report.hashVerdict;
 
@@ -298,7 +300,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Malware Risk',
+                    AppLocalizations.of(context)!.apkReportMalwareRisk,
                     style: text.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.5),
                       fontWeight: FontWeight.w600,
@@ -348,22 +350,22 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
       case 'known_malware':
         icon = Icons.dangerous_rounded;
         color = const Color(0xFFE53935);
-        label = 'Known Malware';
+        label = AppLocalizations.of(context)!.apkReportKnownMalware;
         break;
       case 'suspicious':
         icon = Icons.warning_amber_rounded;
         color = const Color(0xFFF4511E);
-        label = 'Suspicious Hash';
+        label = AppLocalizations.of(context)!.apkReportSuspiciousHash;
         break;
       case 'clean':
         icon = Icons.verified_rounded;
         color = const Color(0xFF43A047);
-        label = 'Clean Hash';
+        label = AppLocalizations.of(context)!.apkReportCleanHash;
         break;
       default:
         icon = Icons.help_outline_rounded;
         color = theme.colorScheme.onSurface.withOpacity(0.4);
-        label = verdict == 'not_checked' ? 'Hash Not Checked' : 'Hash Unknown';
+        label = verdict == 'not_checked' ? AppLocalizations.of(context)!.apkReportHashNotChecked : AppLocalizations.of(context)!.apkReportHashUnknown;
     }
 
     return Row(
@@ -408,7 +410,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
 
     if (paragraphs.isEmpty) {
       return Text(
-        normalized.isEmpty ? 'No summary generated.' : normalized,
+        normalized.isEmpty ? AppLocalizations.of(context)!.apkReportNoSummaryGenerated : normalized,
         style: text.bodyMedium?.copyWith(
           height: 1.5,
           color: theme.colorScheme.onSurface.withOpacity(0.75),
@@ -439,7 +441,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
 
     if (widget.report.permissions.isEmpty) {
       return Text(
-        'No requested permissions extracted.',
+        AppLocalizations.of(context)!.apkReportNoRequestedPermissionsExtracted,
         style: text.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5)),
       );
     }
@@ -527,7 +529,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
       children: [
         if (widget.report.contributingSignals.isNotEmpty) ...[
           Text(
-            'Contributing',
+            AppLocalizations.of(context)!.apkReportContributing,
             style: text.labelMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
@@ -559,7 +561,7 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
         if (widget.report.dampeningFactors.isNotEmpty) ...[
           if (widget.report.contributingSignals.isNotEmpty) const SizedBox(height: 16),
           Text(
-            'Dampening',
+            AppLocalizations.of(context)!.apkReportDampening,
             style: text.labelMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
@@ -627,16 +629,17 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
   }
 
   Widget _buildMetadataContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _infoRow(context, 'Package', widget.report.name),
-        _infoRow(context, 'Package ID', widget.report.packageName),
-        _infoRow(context, 'Engine', widget.report.engineLabel),
-        _infoRow(context, 'Size', widget.report.fileSizeLabel),
-        _infoRow(context, 'Min SDK', widget.report.minSdkLabel),
-        _infoRow(context, 'Target SDK', widget.report.targetSdkLabel),
-        _infoRow(context, 'Signature', widget.report.signatureLabel),
-        _infoRow(context, 'Version', widget.report.versionLabel),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataPackage, widget.report.name),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataPackageId, widget.report.packageName),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataEngine, widget.report.engineLabel),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataSize, widget.report.fileSizeLabel),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataMinSdk, widget.report.minSdkLabel),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataTargetSdk, widget.report.targetSdkLabel),
+        _infoRow(context, AppLocalizations.of(context)!.apkMetadataSignature, widget.report.signatureLabel),
+        _infoRow(context, l10n.metaPassVersion, widget.report.versionLabel),
       ],
     );
   }

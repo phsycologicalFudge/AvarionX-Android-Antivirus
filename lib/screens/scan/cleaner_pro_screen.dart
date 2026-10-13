@@ -9,6 +9,7 @@ import 'cleaner_app_manager_screen.dart';
 import 'cleaner_lite_screen.dart';
 import 'detail_screen.dart';
 
+import '../../translations/app_localizations.dart';
 String _fmtBytes(int bytes) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   double v = bytes.toDouble();
@@ -84,16 +85,16 @@ class _CleanerProPaneState extends State<CleanerProPane> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Clear app caches'),
-        content: const Text('This asks Android to trim app caches across the device. App data, accounts and settings are not cleared.'),
+        title:  Text(AppLocalizations.of(context)!.cleanerProClearAppCaches),
+        content:  Text(AppLocalizations.of(context)!.cleanerProThisAsksAndroidToTrimAppCaches),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child:  Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Clear caches'),
+            child:  Text(AppLocalizations.of(context)!.cleanerProClearCaches),
           ),
         ],
       ),
@@ -114,7 +115,7 @@ class _CleanerProPaneState extends State<CleanerProPane> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? 'Cache trim requested' : 'Cache cleaner failed'),
+        content: Text(success ? AppLocalizations.of(context)!.cleanerProCacheTrimRequested : AppLocalizations.of(context)!.cleanerProCacheCleanerFailed),
       ),
     );
   }
@@ -174,7 +175,7 @@ class _CleanerProPaneState extends State<CleanerProPane> {
     if (_logFiles.isEmpty) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CleanerDetailScreen(title: 'Log files', files: _logFiles)),
+      MaterialPageRoute(builder: (_) => CleanerDetailScreen(title: AppLocalizations.of(context)!.cleanerProLogFiles, files: _logFiles)),
     );
   }
 
@@ -209,12 +210,12 @@ class _CleanerProPaneState extends State<CleanerProPane> {
               ],
               _proCard(
                 icon: Icons.cached_rounded,
-                title: 'Cache Cleaner',
+                title: AppLocalizations.of(context)!.cleanerProCacheCleaner,
                 subtitle: _cacheBusy
-                    ? 'Clearing caches…'
+                    ? AppLocalizations.of(context)!.cleanerProClearingCaches
                     : ready
-                        ? 'Trim app caches across the device.'
-                        : 'Enable Shizuku in Settings to use this.',
+                        ? AppLocalizations.of(context)!.cleanerProTrimAppCaches
+                        : AppLocalizations.of(context)!.cleanerProEnableShizuku,
                 trailing: _cacheBusy
                     ? const SizedBox(
                         width: 20,
@@ -228,12 +229,12 @@ class _CleanerProPaneState extends State<CleanerProPane> {
               const SizedBox(height: 10),
               _proCard(
                 icon: Icons.article_rounded,
-                title: 'Log Cleaner',
+                title: AppLocalizations.of(context)!.cleanerProLogCleaner,
                 subtitle: _logScanning
-                    ? 'Scanning storage…'
+                    ? AppLocalizations.of(context)!.cleanerProScanningStorage
                     : _logFiles.isEmpty
-                        ? 'Find .log, .trace, .crash and .dmp files.'
-                        : '${_logFiles.length} files • ${_fmtBytes(_logBytes)}',
+                        ? AppLocalizations.of(context)!.cleanerProFindLogFiles
+                        : AppLocalizations.of(context)!.cleanerProLogFileCount(_logFiles.length, _fmtBytes(_logBytes)),
                 trailing: _logScanning
                     ? const SizedBox(
                         width: 20,
@@ -247,10 +248,10 @@ class _CleanerProPaneState extends State<CleanerProPane> {
               const SizedBox(height: 10),
               _proCard(
                 icon: Icons.apps_rounded,
-                title: 'App Data Manager',
+                title: AppLocalizations.of(context)!.cleanerProAppDataManager,
                 subtitle: ready
-                    ? 'Force stop, clear data and batch uninstall apps.'
-                    : 'Uninstall works normally. Force stop and clear data require Shizuku.',
+                    ? AppLocalizations.of(context)!.cleanerProAppManagerReady
+                    : AppLocalizations.of(context)!.cleanerProAppManagerLimited,
                 enabled: true,
                 onTap: _openAppManager,
               ),
@@ -265,12 +266,12 @@ class _CleanerProPaneState extends State<CleanerProPane> {
 
   Widget _shizukuNotice(ThemeData theme) {
     final text = _checking
-        ? 'Checking Shizuku…'
+        ? AppLocalizations.of(context)!.cleanerProCheckingShizuku
         : !_binderAlive
-            ? 'Shizuku is not running. Enable it from Settings when needed.'
+            ? AppLocalizations.of(context)!.cleanerProShizukuNotRunning
             : !_hasPermission
-                ? 'Shizuku permission is not granted. Enable it from Settings.'
-                : 'Shizuku service is not bound yet. Open Settings and refresh this screen after enabling it.';
+                ? AppLocalizations.of(context)!.cleanerProShizukuPermissionMissing
+                : AppLocalizations.of(context)!.cleanerProShizukuNotBound;
 
     return Container(
       padding: const EdgeInsets.all(14),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../translations/app_localizations.dart';
 class UpdateLogData {
   final String version;
   final List<String> changes;
@@ -41,7 +42,7 @@ class UpdateLogDialog extends StatelessWidget {
     final version = data.displayVersion;
 
     return AlertDialog(
-      title: Text('Update: v$version'),
+      title: Text(AppLocalizations.of(context)!.updateLogUpdateV(version)),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 520),
         child: SingleChildScrollView(
@@ -49,7 +50,7 @@ class UpdateLogDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hi there! AvarionX has been updated, below are the changes:',
+                AppLocalizations.of(context)!.updateLogHiThereAvarionXHasBeenUpdatedBelow,
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 14),
@@ -76,7 +77,7 @@ class UpdateLogDialog extends StatelessWidget {
               ),
               if (data.changes.isEmpty)
                 Text(
-                  'No user-facing changes in this update.',
+                  AppLocalizations.of(context)!.updateLogNoUserFacingChangesInThisUpdate,
                   style: theme.textTheme.bodyMedium,
                 ),
             ],
@@ -86,7 +87,7 @@ class UpdateLogDialog extends StatelessWidget {
       actions: [
         FilledButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Continue'),
+          child:  Text(AppLocalizations.of(context)!.updateLogContinue),
         ),
       ],
     );

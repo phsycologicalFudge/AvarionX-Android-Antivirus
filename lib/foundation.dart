@@ -48,7 +48,6 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
       _results.clear();
     });
 
-    // Collect files first
     final List<String> files = [];
     final root = Directory('/storage/emulated/0');
     if (root.existsSync()) {
@@ -62,7 +61,6 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
       }
     }
 
-    // Add APKs
     try {
       final result = await Process.run('pm', ['list', 'packages', '-f']);
       if (result.exitCode == 0) {

@@ -17,11 +17,11 @@ Future<void> showSettingsProOptionsSheet({
   String iconLabel(String icon) {
     switch (icon) {
       case 'default':
-        return 'Default';
+        return l10n.settingsIconDefault;
       case 'bird':
-        return 'Bird';
+        return l10n.settingsIconBird;
       case 'neon':
-        return 'Neon';
+        return l10n.settingsIconNeon;
       case 'ax':
         return 'AX';
       case 'avx':
@@ -31,7 +31,7 @@ Future<void> showSettingsProOptionsSheet({
       case 'edr':
         return 'EDR';
       case 'original':
-        return 'Original';
+        return l10n.settingsIconOriginal;
       default:
         return icon;
     }

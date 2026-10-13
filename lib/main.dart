@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'services/realtime_protection_service.dart';
+import 'terminal/terminal_screen.dart' show terminalRouteObserver;
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -112,7 +113,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: appNavigatorKey,
       debugShowCheckedModeBanner: false,
-      navigatorObservers: [loggingRouteObserver],
+      navigatorObservers: [loggingRouteObserver, terminalRouteObserver],
       title: 'Avarionx Security',
       theme: themeManager.themeData,
       themeMode: themeManager.themeMode,

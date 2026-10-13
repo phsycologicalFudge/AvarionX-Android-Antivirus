@@ -8,9 +8,7 @@ class UpdateService {
   static const String versionUrl =
       'https://github.com/phsycologicalfudge/AVDatabase/releases/latest/download/version.json';
   static const String defsUrl =
-      'https://github.com/phsycologicalfudge/AVDatabase/releases/latest/download/defs.vxpack';
-  static const String keyUrl =
-      'https://github.com/phsycologicalfudge/AVDatabase/releases/latest/download/defs_key.bin';
+      'https://github.com/phsycologicalfudge/AVDatabase/releases/latest/download/defs.cs';
 
   static const String _lastServerCheckKey = 'defs_last_server_check_ms';
 
@@ -42,16 +40,14 @@ class UpdateService {
 
   static Future<bool> hasLocalDatabaseFiles() async {
     final dir = await getApplicationDocumentsDirectory();
-    final defsFile = File('${dir.path}/defs.vxpack');
-    final keyFile = File('${dir.path}/defs_key.bin');
-    return await defsFile.exists() && await keyFile.exists();
+    final defsFile = File('${dir.path}/defs.cs');
+    return await defsFile.exists();
   }
 
   static Future<Map<String, String>> getLocalPaths() async {
     final dir = await getApplicationDocumentsDirectory();
     return {
-      'defsPath': '${dir.path}/defs.vxpack',
-      'keyPath': '${dir.path}/defs_key.bin',
+      'defsPath': '${dir.path}/defs.cs',
     };
   }
 
@@ -129,13 +125,11 @@ class UpdateService {
   }) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      final defsPath = '${dir.path}/defs.vxpack';
-      final keyPath = '${dir.path}/defs_key.bin';
+      final defsPath = '${dir.path}/defs.cs';
       final client = http.Client();
 
       for (final entry in [
         {'url': defsUrl, 'path': defsPath},
-        {'url': keyUrl, 'path': keyPath},
       ]) {
         final uri = Uri.parse(
           '${entry['url']}?t=${DateTime.now().millisecondsSinceEpoch}',

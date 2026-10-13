@@ -170,7 +170,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
 
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
-        const SnackBar(content: Text("Signed in.")),
+         SnackBar(content: Text(AppLocalizations.of(context)!.fullVpnSignedIn)),
       );
     }
 
@@ -241,7 +241,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            "Sign in required",
+                            AppLocalizations.of(context)!.fullVpnSignInRequired,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w900,
                             ),
@@ -251,13 +251,13 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                           onPressed: () => Navigator.pop(ctx),
                           icon: Icon(Icons.close_rounded, color: scheme.onSurfaceVariant),
                           splashRadius: 20,
-                          tooltip: "Close",
+                          tooltip: AppLocalizations.of(context)!.fullVpnClose,
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Sign in to use Secure VPN.",
+                      AppLocalizations.of(context)!.vpnSignInRequiredBody,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: scheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               textStyle: const TextStyle(fontWeight: FontWeight.w900),
                             ),
-                            child: const Text("Cancel"),
+                            child:  Text(AppLocalizations.of(context)!.cancel),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -293,7 +293,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               textStyle: const TextStyle(fontWeight: FontWeight.w900),
                             ),
-                            child: const Text("Sign in"),
+                            child:  Text(AppLocalizations.of(context)!.vpnSignIn),
                           ),
                         ),
                       ],
@@ -361,7 +361,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Loading usage...",
+            AppLocalizations.of(context)!.fullVpnLoadingUsage,
             style: theme.textTheme.labelMedium?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -379,7 +379,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
           Row(
             children: [
               Text(
-                "No data limits",
+                AppLocalizations.of(context)!.vpnUsageNoLimits,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -389,7 +389,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                 opacity: syncing ? 1 : 0,
                 duration: const Duration(milliseconds: 180),
                 child: Text(
-                  "Syncing",
+                  AppLocalizations.of(context)!.fullVpnSyncing,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -399,7 +399,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            "${c.formatBytes(c.usedBytes)} used this month",
+            AppLocalizations.of(context)!.fullVpnUsedThisMonth(c.formatBytes(c.usedBytes)),
             style: theme.textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -417,7 +417,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
           Row(
             children: [
               Text(
-                "Data Usage",
+                AppLocalizations.of(context)!.vpnUsageDataTitle,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -427,7 +427,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                 opacity: syncing ? 1 : 0,
                 duration: const Duration(milliseconds: 180),
                 child: Text(
-                  "Syncing",
+                  AppLocalizations.of(context)!.fullVpnSyncing,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -451,7 +451,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
     }
 
     return Text(
-      "Usage unavailable",
+      AppLocalizations.of(context)!.vpnUsageUnavailable,
       style: theme.textTheme.bodySmall?.copyWith(
         color: scheme.onSurfaceVariant,
       ),
@@ -461,6 +461,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
   Widget _connectionScreen(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final loc = c.loc as dynamic;
     final city = loc == null ? "" : ((loc.city)?.toString() ?? "");
@@ -468,10 +469,10 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
     final ip = loc == null ? "" : ((loc.ip)?.toString() ?? "");
 
     final mapHeader = c.connectingUi
-        ? "Connecting..."
+        ? l10n.vpnStatusConnectingEllipsis
         : (c.connected
-        ? (country.isNotEmpty ? "Connected to $country" : "Connected")
-        : "Secure VPN");
+        ? (country.isNotEmpty ? l10n.vpnStatusConnectedTo(country) : l10n.vpnStatusConnected)
+        : l10n.vpnTitleSecure);
 
     final lat = c.locLat() ?? c.lastLat;
     final lon = c.locLon() ?? c.lastLon;
@@ -494,22 +495,22 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
     );
 
     final titleCountry = c.connectingUi
-        ? "Connecting..."
-        : (c.connected ? (country.isNotEmpty ? country : "Secure VPN") : "Secure VPN");
+        ? l10n.vpnStatusConnectingEllipsis
+        : (c.connected ? (country.isNotEmpty ? country : l10n.vpnTitleSecure) : l10n.vpnTitleSecure);
 
     final subtitle = c.connectingUi
-        ? "Establishing tunnel..."
+        ? l10n.vpnSubtitleEstablishingTunnel
         : (city.isNotEmpty && country.isNotEmpty
         ? "$city, $country"
-        : (country.isNotEmpty ? country : "Finding location..."));
+        : (country.isNotEmpty ? country : l10n.vpnSubtitleFindingLocation));
 
     final ipLine = (c.connected && !c.connectingUi)
         ? (ip.isNotEmpty ? ip : "loading...")
         : "";
 
     final statusLabel = c.connectingUi
-        ? "Connecting"
-        : (c.connected ? "Protected" : "Not connected");
+        ? l10n.networkStatusConnecting
+        : (c.connected ? l10n.vpnStatusProtected : l10n.vpnStatusNotConnected);
 
     final statusTone = c.connectingUi
         ? scheme.tertiaryContainer
@@ -519,7 +520,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
         ? scheme.onTertiaryContainer
         : (c.connected ? const Color(0xFFBFF7D4) : scheme.onSurface.withOpacity(0.92));
 
-    final connectLabel = c.connectingUi ? "Connecting..." : "Connect";
+    final connectLabel = c.connectingUi ? l10n.vpnStatusConnectingEllipsis : l10n.vpnConnect;
 
     final cardContent = Column(
       mainAxisSize: MainAxisSize.min,
@@ -632,14 +633,14 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                   ),
                 ),
                 child: Text(
-                  "IP: $ipLine",
+                  AppLocalizations.of(context)!.vpnIpLabel(ipLine),
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: scheme.onSurface.withOpacity(0.92),
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
-            if (c.status.isNotEmpty)
+            if (c.hasStatus)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
@@ -650,7 +651,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                   ),
                 ),
                 child: Text(
-                  c.status,
+                  c.statusText(AppLocalizations.of(context)!),
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: scheme.onSurfaceVariant,
                     fontWeight: FontWeight.w800,
@@ -686,7 +687,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
               child: OutlinedButton(
                 onPressed: canDisconnect ? c.disconnect : null,
                 style: disconnectStyle,
-                child: const Text("Disconnect"),
+                child:  Text(AppLocalizations.of(context)!.vpnDisconnect),
               ),
             ),
           ],
@@ -773,7 +774,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
       children: [
         Text(
-          "Secure VPN Blocklists",
+          AppLocalizations.of(context)!.vpnBlocklistsTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 10),
@@ -805,7 +806,7 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
               }
               await c.saveDnsSettings();
             },
-            child: const Text("Save"),
+            child:  Text(AppLocalizations.of(context)!.vpnSave),
           ),
         ),
       ],
@@ -857,15 +858,16 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
                 titleSpacing: 0,
                 title: Builder(
                   builder: (context) {
+                    final l10n = AppLocalizations.of(context)!;
                     final loc = c.loc as dynamic;
                     final country = loc == null ? "" : ((loc.country)?.toString() ?? "");
                     final ip = loc == null ? "" : ((loc.ip)?.toString() ?? "");
 
                     final topLine = c.connectingUi
-                        ? "Connecting..."
+                        ? l10n.vpnStatusConnectingEllipsis
                         : (c.connected
-                        ? (country.isNotEmpty ? "Connected to $country" : "Connected")
-                        : "Secure VPN");
+                        ? (country.isNotEmpty ? l10n.vpnStatusConnectedTo(country) : l10n.vpnStatusConnected)
+                        : l10n.vpnTitleSecure);
 
                     final showIp = c.connected && !c.connectingUi && ip.isNotEmpty;
 
@@ -965,7 +967,7 @@ class _LoginWebViewState extends State<_LoginWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign in"),
+        title:  Text(AppLocalizations.of(context)!.vpnSignIn),
       ),
       body: Stack(
         children: [

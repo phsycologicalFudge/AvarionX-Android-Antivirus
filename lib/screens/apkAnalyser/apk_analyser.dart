@@ -6,6 +6,7 @@ import 'apk_analyser_controller.dart';
 import 'apk_report_screen.dart';
 import 'apk_export_service.dart';
 
+import '../../translations/app_localizations.dart';
 class ApkAnalyserScreen extends StatefulWidget {
   const ApkAnalyserScreen({super.key});
 
@@ -123,7 +124,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               if (currentReport != null) ...[
                 ListTile(
                   leading: const Icon(Icons.copy_rounded),
-                  title: const Text('Copy Current Report'),
+                  title:  Text(AppLocalizations.of(context)!.apkAnalyserCopyCurrentReport),
                   onTap: () async {
                     Navigator.pop(ctx);
                     await Clipboard.setData(
@@ -131,36 +132,36 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     );
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Report copied to clipboard')),
+                       SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserReportCopiedToClipboard)),
                     );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.picture_as_pdf_rounded),
-                  title: const Text('Export Current as PDF'),
+                  title:  Text(AppLocalizations.of(context)!.apkAnalyserExportCurrentAsPDF),
                   onTap: () async {
                     Navigator.pop(ctx);
                     try {
-                      await ApkExportService.exportToPdf(currentReport);
+                      await ApkExportService.exportToPdf(currentReport, AppLocalizations.of(context)!);
                     } catch (_) {
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Failed to export PDF')),
+                         SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserFailedToExportPDF)),
                       );
                     }
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.table_chart_rounded),
-                  title: const Text('Export Current as CSV'),
+                  title:  Text(AppLocalizations.of(context)!.apkAnalyserExportCurrentAsCSV),
                   onTap: () async {
                     Navigator.pop(ctx);
                     try {
-                      await ApkExportService.exportToCsv(currentReport);
+                      await ApkExportService.exportToCsv(currentReport, AppLocalizations.of(context)!);
                     } catch (_) {
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Failed to export CSV')),
+                         SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserFailedToExportCSV)),
                       );
                     }
                   },
@@ -169,7 +170,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               ],
               ListTile(
                 leading: const Icon(Icons.history_rounded),
-                title: const Text('View Saved Reports'),
+                title:  Text(AppLocalizations.of(context)!.apkAnalyserViewSavedReports),
                 onTap: () {
                   Navigator.pop(ctx);
                   _showSavedReportsSheet();
@@ -177,13 +178,13 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               ),
               ListTile(
                 leading: const Icon(Icons.delete_sweep_rounded, color: Colors.redAccent),
-                title: const Text('Clear History', style: TextStyle(color: Colors.redAccent)),
+                title:  Text(AppLocalizations.of(context)!.apkAnalyserClearHistory, style: TextStyle(color: Colors.redAccent)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   await _controller.clearSavedReports();
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Report history cleared')),
+                     SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserReportHistoryCleared)),
                   );
                 },
               ),
@@ -226,7 +227,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Saved Reports',
+                    AppLocalizations.of(context)!.apkAnalyserSavedReports,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 16),
@@ -234,7 +235,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     child: _controller.savedReports.isEmpty
                         ? Center(
                       child: Text(
-                        'No saved reports found.',
+                        AppLocalizations.of(context)!.apkAnalyserNoSavedReportsFound,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.5),
                         ),
@@ -279,35 +280,36 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
   }
 
   String _buildClipboardReport(ApkReport report) {
+    final l10n = AppLocalizations.of(context)!;
     final buffer = StringBuffer();
 
-    buffer.writeln('VTTI Cloud - APK Analysis Report');
+    buffer.writeln(l10n.apkClipboardReportTitle);
     buffer.writeln();
-    buffer.writeln('App Name: ${report.name}');
-    buffer.writeln('Package ID: ${report.packageName}');
-    buffer.writeln('Version: ${report.versionLabel}');
-    buffer.writeln('File Size: ${report.fileSizeLabel}');
-    buffer.writeln('Min SDK: ${report.minSdkLabel}');
-    buffer.writeln('Target SDK: ${report.targetSdkLabel}');
-    buffer.writeln('Signature: ${report.signatureLabel}');
+    buffer.writeln(l10n.apkClipboardAppName(report.name));
+    buffer.writeln(l10n.apkClipboardPackageId(report.packageName));
+    buffer.writeln(l10n.apkClipboardVersion(report.versionLabel));
+    buffer.writeln(l10n.apkClipboardFileSize(report.fileSizeLabel));
+    buffer.writeln(l10n.apkClipboardMinSdk(report.minSdkLabel));
+    buffer.writeln(l10n.apkClipboardTargetSdk(report.targetSdkLabel));
+    buffer.writeln(l10n.apkClipboardSignature(report.signatureLabel));
 
     if (report.riskScore != null || report.riskLabel != null) {
       buffer.writeln();
-      buffer.writeln('Malware Risk: ${report.riskScore ?? "N/A"}');
-      buffer.writeln('Risk Label: ${report.riskLabel ?? "N/A"}');
-      buffer.writeln('Hash Verdict: ${report.hashVerdict ?? "N/A"}');
+      buffer.writeln(l10n.apkClipboardMalwareRisk(report.riskScore ?? 'N/A'));
+      buffer.writeln(l10n.apkClipboardRiskLabel(report.riskLabel ?? 'N/A'));
+      buffer.writeln(l10n.apkClipboardHashVerdict(report.hashVerdict ?? 'N/A'));
       if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty) {
-        buffer.writeln('Rationale: ${report.scoreRationale!}');
+        buffer.writeln(l10n.apkClipboardRationale(report.scoreRationale!));
       }
     }
 
     buffer.writeln();
-    buffer.writeln('Summary');
+    buffer.writeln(l10n.apkReportSummary);
     buffer.writeln(report.summary);
 
     if (report.permissions.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Permissions');
+      buffer.writeln(l10n.apkReportPermissions);
       for (final permission in report.permissions) {
         buffer.writeln(permission);
       }
@@ -315,7 +317,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
 
     if (report.unusualItems.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Unusual Flags');
+      buffer.writeln(l10n.apkReportUnusualFlags);
       for (final item in report.unusualItems) {
         buffer.writeln(item);
       }
@@ -323,7 +325,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
 
     if (report.unverifiedItems.isNotEmpty) {
       buffer.writeln();
-      buffer.writeln('Unverified Items');
+      buffer.writeln(l10n.apkReportUnverifiedItems);
       for (final item in report.unverifiedItems) {
         buffer.writeln(item);
       }
@@ -348,12 +350,12 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choose Target',
+                AppLocalizations.of(context)!.apkAnalyserChooseTarget,
                 style: text.titleMedium?.copyWith(fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),
               Text(
-                'Select a source to analyse with VTTI Cloud.',
+                AppLocalizations.of(context)!.apkAnalyserSelectASourceToAnalyseWithVTTI,
                 style: text.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withOpacity(0.55),
                 ),
@@ -362,8 +364,8 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               _dialogOption(
                 ctx,
                 icon: Icons.folder_open_rounded,
-                label: 'APK File',
-                subtitle: 'Pick an .apk from storage',
+                label: AppLocalizations.of(context)!.apkAnalyserApkFile,
+                subtitle: AppLocalizations.of(context)!.apkAnalyserPickAnApkFromStorage,
                 onTap: () {
                   Navigator.pop(ctx);
                   _controller.pickApk();
@@ -373,8 +375,8 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               _dialogOption(
                 ctx,
                 icon: Icons.apps_rounded,
-                label: 'Installed App',
-                subtitle: 'Choose from apps on this device',
+                label: AppLocalizations.of(context)!.apkAnalyserInstalledApp,
+                subtitle: AppLocalizations.of(context)!.apkAnalyserChooseFromAppsOnThisDevice,
                 onTap: () {
                   Navigator.pop(ctx);
                   _showInstalledAppSheet();
@@ -497,7 +499,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
               _cancelCountdown();
               _controller.cancelAnalysis();
             },
-            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.error)),
+            child: Text(AppLocalizations.of(context)!.cancel, style: TextStyle(color: theme.colorScheme.error)),
           ),
         ],
       ),
@@ -547,7 +549,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        hasTarget ? _controller.selectedApkName : 'Choose Target',
+                        hasTarget ? _controller.selectedApkName : AppLocalizations.of(context)!.apkAnalyserChooseTarget,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -561,8 +563,8 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                       const SizedBox(height: 4),
                       Text(
                         hasTarget
-                            ? (_countdown > 0 ? 'Analysing in $_countdown...' : 'Starting analysis...')
-                            : 'APK file or installed app',
+                            ? (_countdown > 0 ? AppLocalizations.of(context)!.apkAnalyserAnalysingIn(_countdown) : AppLocalizations.of(context)!.apkAnalyserStartingAnalysis)
+                            : AppLocalizations.of(context)!.apkAnalyserApkFileOrInstalledApp,
                         textAlign: TextAlign.center,
                         style: text.bodySmall?.copyWith(
                           fontWeight: hasTarget ? FontWeight.w700 : FontWeight.normal,
@@ -632,7 +634,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Deep analysis mode',
+                        AppLocalizations.of(context)!.apkAnalyserDeepAnalysisMode,
                         style: text.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: theme.colorScheme.onSurface.withOpacity(0.88),
@@ -641,8 +643,8 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                       const SizedBox(height: 5),
                       Text(
                         _controller.isPro
-                            ? 'A more complex analysis using global data sources'
-                            : 'Requires Pro to unlock deeper analysis',
+                            ? AppLocalizations.of(context)!.apkAnalyserAMoreComplexAnalysisUsingGlobalData
+                            : AppLocalizations.of(context)!.apkAnalyserRequiresProToUnlockDeeperAnalysis,
                         style: text.bodySmall?.copyWith(
                           height: 1.35,
                           color: !_controller.isPro
@@ -684,7 +686,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
             backgroundColor: theme.colorScheme.surface,
             scrolledUnderElevation: 0,
             title: Text(
-              'APK Analyser',
+              AppLocalizations.of(context)!.apkAnalyserApkAnalyser,
               style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
             actions: [
@@ -712,7 +714,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                               padding: const EdgeInsets.only(top: 14),
                               child: Center(
                                 child: Text(
-                                  'Please sign in via Settings to enable Cloud Analysis.',
+                                  AppLocalizations.of(context)!.apkAnalyserPleaseSignInViaSettingsToEnable,
                                   style: text.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurface.withOpacity(0.4),
                                     fontStyle: FontStyle.italic,
@@ -724,7 +726,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                           Padding(
                             padding: const EdgeInsets.only(left: 4, bottom: 8),
                             child: Text(
-                              'ADVANCED OPTIONS',
+                              AppLocalizations.of(context)!.apkAnalyserAdvancedOPTIONS,
                               style: text.labelSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.8,
@@ -745,9 +747,9 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8.0),
                             child: Text(
-                              _controller.remainingGenerations != null
-                                  ? 'Daily Limit: ${_controller.remainingGenerations} / ${_controller.dailyLimit}'
-                                  : 'Daily Limit Data Unavailable',
+                              _controller.remainingGenerations != null && _controller.dailyLimit != null
+                                  ? AppLocalizations.of(context)!.apkAnalyserDailyLimit(_controller.remainingGenerations!, _controller.dailyLimit!)
+                                  : AppLocalizations.of(context)!.apkAnalyserDailyLimitDataUnavailable,
                               style: text.labelSmall?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: theme.colorScheme.onSurface.withOpacity(0.5),
@@ -755,7 +757,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                             ),
                           ),
                         Text(
-                          'Powered by VTTI Cloud',
+                          AppLocalizations.of(context)!.apkAnalyserPoweredByVTTICloud,
                           style: text.bodySmall?.copyWith(
                             fontSize: 11,
                             letterSpacing: 0.6,
@@ -861,7 +863,7 @@ class _InstalledAppSheetState extends State<_InstalledAppSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Installed Apps',
+                      AppLocalizations.of(context)!.scanModeInstalledTitle,
                       style: text.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 12),
@@ -869,7 +871,7 @@ class _InstalledAppSheetState extends State<_InstalledAppSheet> {
                       controller: _searchController,
                       autofocus: false,
                       decoration: InputDecoration(
-                        hintText: 'Search apps...',
+                        hintText: AppLocalizations.of(context)!.apkAnalyserSearchApps,
                         prefixIcon: const Icon(Icons.search_rounded, size: 20),
                         filled: true,
                         fillColor: theme.colorScheme.onSurface.withOpacity(0.04),
@@ -895,7 +897,7 @@ class _InstalledAppSheetState extends State<_InstalledAppSheet> {
                     if (snapshot.hasError || !snapshot.hasData) {
                       return Center(
                         child: Text(
-                          'Failed to load apps.',
+                          AppLocalizations.of(context)!.apkAnalyserFailedToLoadApps,
                           style: text.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurface.withOpacity(0.5),
                           ),
@@ -912,7 +914,7 @@ class _InstalledAppSheetState extends State<_InstalledAppSheet> {
                     if (apps.isEmpty) {
                       return Center(
                         child: Text(
-                          'No apps found.',
+                          AppLocalizations.of(context)!.apkAnalyserNoAppsFound,
                           style: text.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurface.withOpacity(0.5),
                           ),

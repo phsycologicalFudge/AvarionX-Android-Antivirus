@@ -1,9 +1,11 @@
 package com.colourswift.cssecurity
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.FileObserver
@@ -23,6 +25,23 @@ import rikka.shizuku.Shizuku
 import java.io.File
 
 class CSForegroundService : Service() {
+
+    companion object {
+        @Volatile
+        private var instance: CSForegroundService? = null
+
+        fun releaseMode(mode: String): Boolean {
+            val service = instance ?: return false
+            service.handler.post {
+                if (mode == "upload") {
+                    service.releaseUpload()
+                } else {
+                    service.deactivateRtp()
+                }
+            }
+            return true
+        }
+    }
 
     private var observer: FileObserver? = null
     private val downloadsPath = "/storage/emulated/0/Download"
@@ -48,6 +67,14 @@ class CSForegroundService : Service() {
     private val maxBufferedPaths = 64
     private val maxRecentPaths = 256
 
+    private var packageReceiver: BroadcastReceiver? = null
+    private var rtpActive = false
+    private var uploadLeases = 0
+    private var rtpInitialized = false
+    private val statePrefs by lazy {
+        getSharedPreferences("cs_foreground_state", Context.MODE_PRIVATE)
+    }
+
     private val watcherServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             Log.i("CSRealtime", "SystemWatcher user service connected")
@@ -68,57 +95,132 @@ class CSForegroundService : Service() {
     }
 
     private val shizukuBinderReceivedListener = Shizuku.OnBinderReceivedListener {
-        Log.i("CSRealtime", "Shizuku binder received — binding watcher service")
+        Log.i("CSRealtime", "Shizuku binder received - binding watcher service")
         handler.post { bindWatcherService() }
     }
 
     private val shizukuBinderDeadListener = Shizuku.OnBinderDeadListener {
-        Log.i("CSRealtime", "Shizuku binder died — stopping SystemWatcher")
+        Log.i("CSRealtime", "Shizuku binder died - stopping SystemWatcher")
         SystemWatcher.stop()
         shizukuRetryCount = 0
     }
 
     override fun onCreate() {
         super.onCreate()
-
-        createNotification(
-            "AvarionX Antivirus",
-            "Realtime protection active"
-        )
-
-        startBackgroundDart()
-        startDownloadWatcher()
-
-        val prefs = getSharedPreferences(
-            "FlutterSharedPreferences",
-            Context.MODE_PRIVATE
-        )
-
-        val shizukuEnabled =
-            prefs.getBoolean("flutter.shizuku_enabled", false)
-
-        if (shizukuEnabled) {
-            setupShizukuListeners()
-            tryBindWatcherService()
-            Log.i("CSRealtime", "Shizuku watcher enabled")
-        } else {
-            SystemWatcher.stop()
-            Log.i("CSRealtime", "Shizuku watcher disabled by pref")
-        }
-
+        instance = this
         Log.i("CSRealtime", "Service created")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val title = intent?.getStringExtra("title") ?: "AvarionX Antivirus"
-        val text = intent?.getStringExtra("text") ?: "Realtime protection active"
-        createNotification(title, text)
-        return START_STICKY
+        if (intent == null) {
+            if (statePrefs.getBoolean("rtp_active", false)) {
+                activateRtp("AvarionX", "Protection active")
+                return START_STICKY
+            }
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        val mode = intent.getStringExtra("mode") ?: "rtp"
+        val operation = intent.getStringExtra("operation") ?: "start"
+        val title = intent.getStringExtra("title") ?: "AvarionX Antivirus"
+        val text = intent.getStringExtra("text") ?: "Realtime protection active"
+
+        when (mode) {
+            "upload" -> {
+                if (operation == "stop") {
+                    releaseUpload()
+                } else {
+                    acquireUpload(title, text)
+                }
+            }
+
+            else -> {
+                if (operation == "stop") {
+                    deactivateRtp()
+                } else {
+                    activateRtp(title, text)
+                }
+            }
+        }
+
+        return if (rtpActive) START_STICKY else START_NOT_STICKY
     }
 
-    override fun onDestroy() {
+    private fun activateRtp(title: String, text: String) {
+        rtpActive = true
+        statePrefs.edit().putBoolean("rtp_active", true).apply()
+        createNotification(title, text)
+
+        if (!rtpInitialized) {
+            rtpInitialized = true
+            startBackgroundDart()
+            startDownloadWatcher()
+            startPackageReceiver()
+
+            val prefs = getSharedPreferences(
+                "FlutterSharedPreferences",
+                Context.MODE_PRIVATE
+            )
+
+            val shizukuEnabled =
+                prefs.getBoolean("flutter.shizuku_enabled", false)
+
+            if (shizukuEnabled) {
+                setupShizukuListeners()
+                tryBindWatcherService()
+                Log.i("CSRealtime", "Shizuku watcher enabled")
+            } else {
+                SystemWatcher.stop()
+                Log.i("CSRealtime", "Shizuku watcher disabled by pref")
+            }
+        }
+
+        Log.i("CSRealtime", "RTP foreground mode active")
+    }
+
+    private fun deactivateRtp() {
+        rtpActive = false
+        statePrefs.edit().putBoolean("rtp_active", false).apply()
+        stopRtpComponents()
+
+        if (uploadLeases > 0) {
+            createNotification("AvarionX", "Uploading malicious APK(s)")
+        } else {
+            stopSelf()
+        }
+
+        Log.i("CSRealtime", "RTP foreground mode released")
+    }
+
+    private fun acquireUpload(title: String, text: String) {
+        uploadLeases++
+        if (!rtpActive) {
+            createNotification(title, text)
+        }
+        Log.i("CSRealtime", "Upload foreground lease acquired count=$uploadLeases")
+    }
+
+    private fun releaseUpload() {
+        if (uploadLeases > 0) uploadLeases--
+
+        if (!rtpActive && uploadLeases == 0) {
+            stopSelf()
+        }
+
+        Log.i("CSRealtime", "Upload foreground lease released count=$uploadLeases")
+    }
+
+    private fun stopRtpComponents() {
         observer?.stopWatching()
         observer = null
+
+        packageReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (_: Throwable) {}
+            packageReceiver = null
+        }
 
         try {
             Shizuku.removeBinderReceivedListener(shizukuBinderReceivedListener)
@@ -132,14 +234,6 @@ class CSForegroundService : Service() {
         SystemWatcher.stop()
 
         try {
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.cancel(notifSummaryId)
-        } catch (_: Throwable) {}
-
-        handler.removeCallbacksAndMessages(null)
-        Log.i("CSRealtime", "Service destroyed")
-
-        try {
             flutterEngine?.destroy()
         } catch (_: Throwable) {}
 
@@ -147,7 +241,21 @@ class CSForegroundService : Service() {
         realtimeEvents = null
         pendingPaths.clear()
         recentPaths.clear()
+        rtpInitialized = false
+    }
 
+    override fun onDestroy() {
+        stopRtpComponents()
+
+        try {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.cancel(notifSummaryId)
+        } catch (_: Throwable) {}
+
+        handler.removeCallbacksAndMessages(null)
+        uploadLeases = 0
+        if (instance === this) instance = null
+        Log.i("CSRealtime", "Service destroyed")
         super.onDestroy()
     }
 
@@ -199,12 +307,27 @@ class CSForegroundService : Service() {
                         val args = call.arguments as? Map<*, *>
                         val title = args?.get("title") as? String ?: "AvarionX"
                         val text = args?.get("text") as? String ?: "Realtime protection active"
-                        createNotification(title, text)
+                        val mode = args?.get("mode") as? String ?: "rtp"
+
+                        if (mode == "upload") {
+                            acquireUpload(title, text)
+                        } else {
+                            activateRtp(title, text)
+                        }
+
                         result.success(true)
                     }
 
                     "stopService" -> {
-                        stopSelf()
+                        val args = call.arguments as? Map<*, *>
+                        val mode = args?.get("mode") as? String ?: "rtp"
+
+                        if (mode == "upload") {
+                            releaseUpload()
+                        } else {
+                            deactivateRtp()
+                        }
+
                         result.success(true)
                     }
 
@@ -273,7 +396,7 @@ class CSForegroundService : Service() {
 
     private fun tryBindWatcherService() {
         if (!Shizuku.pingBinder()) {
-            Log.i("CSRealtime", "Shizuku not ready yet — waiting for binder")
+            Log.i("CSRealtime", "Shizuku not ready yet - waiting for binder")
             return
         }
         bindWatcherService()
@@ -281,7 +404,7 @@ class CSForegroundService : Service() {
 
     private fun bindWatcherService() {
         if (SystemWatcher.isRunning()) {
-            Log.i("CSRealtime", "SystemWatcher already running — skipping bind")
+            Log.i("CSRealtime", "SystemWatcher already running - skipping bind")
             return
         }
 
@@ -292,7 +415,7 @@ class CSForegroundService : Service() {
             }
 
             if (Shizuku.checkSelfPermission() != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                Log.w("CSRealtime", "Shizuku permission not granted — cannot start SystemWatcher")
+                Log.w("CSRealtime", "Shizuku permission not granted - cannot start SystemWatcher")
                 return
             }
 
@@ -310,7 +433,7 @@ class CSForegroundService : Service() {
 
     private fun scheduleRetry() {
         if (shizukuRetryCount >= maxShizukuRetries) {
-            Log.w("CSRealtime", "Max Shizuku retries reached — giving up")
+            Log.w("CSRealtime", "Max Shizuku retries reached - giving up")
             return
         }
         shizukuRetryCount++
@@ -333,7 +456,7 @@ class CSForegroundService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
-                "Realtime Protection",
+                "AvarionX background activity",
                 NotificationManager.IMPORTANCE_LOW
             )
             channel.setShowBadge(false)
@@ -348,16 +471,20 @@ class CSForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val summary = notificationBuilder(channelId)
-            .setContentTitle("AvarionX")
-            .setContentText("Protection active")
-            .setSmallIcon(R.drawable.ic_notification)
-            .setGroup(groupKey)
-            .setGroupSummary(true)
-            .setOnlyAlertOnce(true)
-            .build()
+        if (rtpActive) {
+            val summary = notificationBuilder(channelId)
+                .setContentTitle("AvarionX")
+                .setContentText("Protection active")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setGroup(groupKey)
+                .setGroupSummary(true)
+                .setOnlyAlertOnce(true)
+                .build()
 
-        manager.notify(notifSummaryId, summary)
+            manager.notify(notifSummaryId, summary)
+        } else {
+            manager.cancel(notifSummaryId)
+        }
 
         val notification = notificationBuilder(channelId)
             .setContentTitle(title)
@@ -473,5 +600,76 @@ class CSForegroundService : Service() {
         }
         observer?.startWatching()
         Log.i("CSRealtime", "FileObserver active on $downloadsPath")
+    }
+
+    private fun startPackageReceiver() {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val action = intent?.action ?: return
+                if (action != Intent.ACTION_PACKAGE_ADDED && action != Intent.ACTION_PACKAGE_REPLACED) return
+
+                val uri = intent.data ?: return
+                val pkg = uri.schemeSpecificPart ?: return
+                if (pkg.isBlank()) return
+
+                if (action == Intent.ACTION_PACKAGE_ADDED) {
+                    val replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
+                    if (replacing) return
+                }
+
+                handler.post {
+                    try {
+                        val pm = applicationContext.packageManager
+                        val info = pm.getApplicationInfo(pkg, 0)
+                        val apkPath = info.sourceDir
+                        if (apkPath.isNullOrBlank()) return@post
+
+                        val eventKey = "app::$pkg"
+                        val now = System.currentTimeMillis()
+                        val last = recentPaths[eventKey]
+                        if (last != null && now - last < dedupeWindowMs) {
+                            Log.i("CSRealtime", "Deduped package event: $pkg")
+                            return@post
+                        }
+
+                        recentPaths[eventKey] = now
+                        while (recentPaths.size > maxRecentPaths) {
+                            val firstKey = recentPaths.entries.firstOrNull()?.key ?: break
+                            recentPaths.remove(firstKey)
+                        }
+
+                        val payload = "app::$pkg::$apkPath"
+                        Log.i("CSRealtime", "Package event queued: $payload")
+
+                        val sink = realtimeEvents
+                        if (sink != null) {
+                            sink.success(payload)
+                        } else {
+                            if (pendingPaths.size >= maxBufferedPaths) {
+                                pendingPaths.removeAt(0)
+                            }
+                            pendingPaths.add(payload)
+                        }
+                    } catch (e: Throwable) {
+                        Log.w("CSRealtime", "Package event resolution failed for $pkg: ${e.message}")
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(receiver, filter)
+        }
+
+        packageReceiver = receiver
+        Log.i("CSRealtime", "Package install receiver registered")
     }
 }

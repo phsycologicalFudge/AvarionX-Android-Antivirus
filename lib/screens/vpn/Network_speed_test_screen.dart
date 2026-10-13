@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
+import '../../translations/app_localizations.dart';
 class NetworkSpeedTestScreen extends StatefulWidget {
   const NetworkSpeedTestScreen({super.key});
 
@@ -119,22 +120,122 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
     }
   }
 
+  String _countryLabel(AppLocalizations l10n, String country) {
+    switch (country) {
+      case 'United Kingdom':
+        return l10n.countryUnitedKingdom;
+      case 'United States':
+        return l10n.countryUnitedStates;
+      case 'Canada':
+        return l10n.countryCanada;
+      case 'Ireland':
+        return l10n.countryIreland;
+      case 'France':
+        return l10n.countryFrance;
+      case 'Germany':
+        return l10n.countryGermany;
+      case 'Netherlands':
+        return l10n.countryNetherlands;
+      case 'Spain':
+        return l10n.countrySpain;
+      case 'Italy':
+        return l10n.countryItaly;
+      case 'Sweden':
+        return l10n.countrySweden;
+      case 'Norway':
+        return l10n.countryNorway;
+      case 'Denmark':
+        return l10n.countryDenmark;
+      case 'Poland':
+        return l10n.countryPoland;
+      case 'Turkey':
+        return l10n.countryTurkey;
+      case 'Greece':
+        return l10n.countryGreece;
+      case 'Romania':
+        return l10n.countryRomania;
+      case 'Ukraine':
+        return l10n.countryUkraine;
+      case 'Russia':
+        return l10n.countryRussia;
+      case 'India':
+        return l10n.countryIndia;
+      case 'Pakistan':
+        return l10n.countryPakistan;
+      case 'Bangladesh':
+        return l10n.countryBangladesh;
+      case 'Sri Lanka':
+        return l10n.countrySriLanka;
+      case 'Nepal':
+        return l10n.countryNepal;
+      case 'Japan':
+        return l10n.countryJapan;
+      case 'South Korea':
+        return l10n.countrySouthKorea;
+      case 'Singapore':
+        return l10n.countrySingapore;
+      case 'Malaysia':
+        return l10n.countryMalaysia;
+      case 'Thailand':
+        return l10n.countryThailand;
+      case 'Vietnam':
+        return l10n.countryVietnam;
+      case 'Philippines':
+        return l10n.countryPhilippines;
+      case 'Indonesia':
+        return l10n.countryIndonesia;
+      case 'Australia':
+        return l10n.countryAustralia;
+      case 'New Zealand':
+        return l10n.countryNewZealand;
+      case 'Brazil':
+        return l10n.countryBrazil;
+      case 'Argentina':
+        return l10n.countryArgentina;
+      case 'Chile':
+        return l10n.countryChile;
+      case 'Mexico':
+        return l10n.countryMexico;
+      case 'Colombia':
+        return l10n.countryColombia;
+      case 'Peru':
+        return l10n.countryPeru;
+      case 'South Africa':
+        return l10n.countrySouthAfrica;
+      case 'Nigeria':
+        return l10n.countryNigeria;
+      case 'Kenya':
+        return l10n.countryKenya;
+      case 'Egypt':
+        return l10n.countryEgypt;
+      case 'UAE':
+        return l10n.countryUAE;
+      case 'Saudi Arabia':
+        return l10n.countrySaudiArabia;
+      case 'Israel':
+        return l10n.countryIsrael;
+      default:
+        return country;
+    }
+  }
+
   Future<void> _run() async {
     if (_running) return;
 
+    final l10n = AppLocalizations.of(context)!;
     final country = _selectedCountry;
     final targets = _targetsForCountry(country);
 
     setState(() {
       _running = true;
-      _status = 'Running…';
+      _status = l10n.networkSpeedTestRunning;
       _results.clear();
     });
 
     for (var i = 0; i < targets.length; i++) {
       final t = targets[i];
       setState(() {
-        _status = 'Testing ${i + 1}/${targets.length} • ${t.domain}';
+        _status = l10n.networkSpeedTestTesting(i + 1, targets.length, t.domain);
       });
 
       int dnsMs = -1;
@@ -166,7 +267,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
     if (!mounted) return;
     setState(() {
       _running = false;
-      _status = 'Done';
+      _status = l10n.networkSpeedTestDone;
     });
   }
 
@@ -176,7 +277,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Speed test'),
+        title:  Text(AppLocalizations.of(context)!.networkSpeedTestTitle),
       ),
       body: SafeArea(
         child: Padding(
@@ -184,12 +285,12 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Country', style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+              Text(AppLocalizations.of(context)!.networkSpeedTestCountry, style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedCountry,
                 items: _countryList
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .map((c) => DropdownMenuItem(value: c, child: Text(_countryLabel(AppLocalizations.of(context)!, c))))
                     .toList(),
                 onChanged: _running ? null : (v) => setState(() => _selectedCountry = v ?? _selectedCountry),
                 decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -199,7 +300,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _running ? null : _run,
-                  child: Text(_running ? 'Running' : 'Run test'),
+                  child: Text(_running ? AppLocalizations.of(context)!.networkSpeedTestRunning : AppLocalizations.of(context)!.networkSpeedTestRunTest),
                 ),
               ),
               const SizedBox(height: 10),
@@ -213,7 +314,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
                 child: _results.isEmpty
                     ? Center(
                   child: Text(
-                    'No results yet.',
+                    AppLocalizations.of(context)!.networkSpeedTestNoResultsYet,
                     style: text.bodyMedium?.copyWith(color: text.bodyMedium?.color?.withOpacity(0.75)),
                   ),
                 )
@@ -245,7 +346,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'DNS: $dns  •  TLS: $tcp',
+                                  AppLocalizations.of(context)!.networkSpeedTestDnsTLS(dns, tcp),
                                   style: text.bodySmall?.copyWith(
                                     color: text.bodySmall?.color?.withOpacity(0.75),
                                   ),
@@ -267,7 +368,7 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            ok ? 'OK' : 'Fail',
+                            ok ? AppLocalizations.of(context)!.ok : AppLocalizations.of(context)!.networkSpeedTestFail,
                             style: text.bodySmall?.copyWith(
                               fontWeight: FontWeight.w900,
                               color: ok ? Colors.greenAccent : Colors.redAccent,

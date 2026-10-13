@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/full_vpn_backend.dart';
 
+import '../../../translations/app_localizations.dart';
 class FullVpnSettingsTab extends StatelessWidget {
   final FullVpnController c;
   final Widget Function(BuildContext context, {bool showWhenDisconnected}) usageRow;
@@ -29,18 +30,18 @@ class FullVpnSettingsTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Account",
+                  AppLocalizations.of(context)!.settingsAccountTitle,
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 12),
                 if (!signedIn) ...[
                   Text(
-                    "Sign in to continue",
+                    AppLocalizations.of(context)!.vpnSettingsSignInToContinue,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    "Your plan and data usage sync to your account.",
+                    AppLocalizations.of(context)!.vpnSettingsAccountSyncBody,
                     style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 14),
@@ -48,17 +49,17 @@ class FullVpnSettingsTab extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: c.busy ? null : c.startLoginInBrowser,
-                      child: const Text("Sign in"),
+                      child:  Text(AppLocalizations.of(context)!.vpnSignIn),
                     ),
                   ),
                 ] else ...[
                   Text(
-                    email.isEmpty ? "Signed in" : email,
+                    email.isEmpty ? AppLocalizations.of(context)!.vpnSettingsSignedIn : email,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    plan.isEmpty ? "Plan: unknown" : "Plan: $plan",
+                    plan.isEmpty ? AppLocalizations.of(context)!.vpnSettingsPlanUnknown : AppLocalizations.of(context)!.vpnSettingsPlanLabel(plan),
                     style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 14),
@@ -74,14 +75,14 @@ class FullVpnSettingsTab extends StatelessWidget {
                             await c.refreshMe();
                             await c.fetchUsage(showSync: true);
                           },
-                          child: const Text("Refresh"),
+                          child:  Text(AppLocalizations.of(context)!.vpnSettingsRefresh),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: c.busy ? null : c.signOut,
-                          child: const Text("Sign out"),
+                          child:  Text(AppLocalizations.of(context)!.vpnSettingsSignOut),
                         ),
                       ),
                     ],
@@ -95,7 +96,7 @@ class FullVpnSettingsTab extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                        "Secured by VX-Link",
+                        AppLocalizations.of(context)!.vpnSettingsBrandFooter,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: scheme.onSurfaceVariant.withOpacity(0.55),
                           fontWeight: FontWeight.w700,

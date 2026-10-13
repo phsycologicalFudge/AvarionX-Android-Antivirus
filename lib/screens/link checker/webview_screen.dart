@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../widgets/antivirus_bridge.dart';
 
+import '../../translations/app_localizations.dart';
+enum _SafeViewBlockReason {
+  navigation,
+  invalidDestination,
+  unsupportedScheme,
+  resolveFailed,
+  blocked,
+  verifyFailed,
+}
+
 class SafeWebViewScreen extends StatefulWidget {
   final Uri uri;
 
@@ -18,7 +28,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
 
   bool _blocked = false;
   bool _loading = true;
-  String _blockedReason = 'Navigation blocked';
+  _SafeViewBlockReason _blockedReason = _SafeViewBlockReason.navigation;
 
   @override
   void initState() {
@@ -61,7 +71,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
       if (!mounted) return;
       setState(() {
         _blocked = true;
-        _blockedReason = 'Invalid destination';
+        _blockedReason = _SafeViewBlockReason.invalidDestination;
         _loading = false;
       });
       return;
@@ -72,7 +82,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
       if (!mounted) return;
       setState(() {
         _blocked = true;
-        _blockedReason = 'Unsupported scheme';
+        _blockedReason = _SafeViewBlockReason.unsupportedScheme;
         _loading = false;
       });
       return;
@@ -88,7 +98,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
         if (!mounted) return;
         setState(() {
           _blocked = true;
-          _blockedReason = 'Unable to resolve destination';
+          _blockedReason = _SafeViewBlockReason.resolveFailed;
           _loading = false;
         });
         return;
@@ -99,7 +109,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
         if (!mounted) return;
         setState(() {
           _blocked = true;
-          _blockedReason = 'Destination blocked';
+          _blockedReason = _SafeViewBlockReason.blocked;
           _loading = false;
         });
         return;
@@ -110,10 +120,21 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
       if (!mounted) return;
       setState(() {
         _blocked = true;
-        _blockedReason = 'Unable to verify destination';
+        _blockedReason = _SafeViewBlockReason.verifyFailed;
         _loading = false;
       });
     }
+  }
+
+  String _blockedReasonText(AppLocalizations l10n) {
+    return switch (_blockedReason) {
+      _SafeViewBlockReason.navigation => l10n.safeViewNavigationBlocked,
+      _SafeViewBlockReason.invalidDestination => l10n.safeViewInvalidDestination,
+      _SafeViewBlockReason.unsupportedScheme => l10n.safeViewUnsupportedScheme,
+      _SafeViewBlockReason.resolveFailed => l10n.safeViewUnableToResolveDestination,
+      _SafeViewBlockReason.blocked => l10n.safeViewDestinationBlocked,
+      _SafeViewBlockReason.verifyFailed => l10n.safeViewUnableToVerifyDestination,
+    };
   }
 
   @override
@@ -124,7 +145,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
-        title: const Text('Safe View'),
+        title:  Text(AppLocalizations.of(context)!.safeViewSafeView),
       ),
       body: Stack(
         children: [
@@ -149,7 +170,7 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
                     const Icon(Icons.block_rounded, size: 48, color: Colors.redAccent),
                     const SizedBox(height: 16),
                     Text(
-                      _blockedReason,
+                      _blockedReasonText(AppLocalizations.of(context)!),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -157,14 +178,14 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'This page was stopped before it could load.',
+                      AppLocalizations.of(context)!.linkCheckerBlockedBody,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodySmall,
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
+                      child:  Text(AppLocalizations.of(context)!.linkCheckerClose),
                     ),
                   ],
                 ),

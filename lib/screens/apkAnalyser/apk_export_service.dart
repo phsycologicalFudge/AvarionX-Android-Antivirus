@@ -6,47 +6,48 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:csv/csv.dart';
 
 import 'apk_analyser_controller.dart';
+import '../../translations/app_localizations.dart';
 
 class ApkExportService {
 
-  static Future<void> exportToCsv(ApkReport report) async {
+  static Future<void> exportToCsv(ApkReport report, AppLocalizations l10n) async {
     List<List<dynamic>> rows = [
-      ['VTTI Cloud - APK Analysis Report'],
+      [l10n.apkClipboardReportTitle],
       [],
-      ['Overview'],
-      ['App Name', report.name],
-      ['Package ID', report.packageName],
-      ['Version', report.versionLabel],
-      ['File Size', report.fileSizeLabel],
-      ['Min SDK', report.minSdkLabel],
-      ['Target SDK', report.targetSdkLabel],
-      ['Signature', report.signatureLabel],
+      [l10n.apkExportOverview],
+      [l10n.apkMetadataAppName, report.name],
+      [l10n.apkMetadataPackageId, report.packageName],
+      [l10n.metaPassVersion, report.versionLabel],
+      [l10n.apkMetadataFileSize, report.fileSizeLabel],
+      [l10n.apkMetadataMinSdk, report.minSdkLabel],
+      [l10n.apkMetadataTargetSdk, report.targetSdkLabel],
+      [l10n.apkMetadataSignature, report.signatureLabel],
       [],
-      ['Malware Assessment'],
-      ['Risk Score', report.riskScore ?? 'N/A'],
-      ['Risk Label', report.riskLabel ?? 'N/A'],
-      ['Hash Verdict', report.hashVerdict ?? 'N/A'],
-      ['Score Rationale', report.scoreRationale ?? ''],
+      [l10n.apkExportMalwareAssessment],
+      [l10n.apkExportRiskScore, report.riskScore ?? 'N/A'],
+      [l10n.apkExportRiskLabel, report.riskLabel ?? 'N/A'],
+      [l10n.apkExportHashVerdict, report.hashVerdict ?? 'N/A'],
+      [l10n.apkExportScoreRationale, report.scoreRationale ?? ''],
       [],
-      ['Contributing Signals'],
+      [l10n.apkExportContributingSignals],
       ...report.contributingSignals.map((s) => [s]),
       [],
-      ['Dampening Factors'],
+      [l10n.apkExportDampeningFactors],
       ...report.dampeningFactors.map((s) => [s]),
       [],
-      ['Summary'],
+      [l10n.apkReportSummary],
       [report.summary],
       [],
-      ['Permissions Requested'],
+      [l10n.apkExportPermissionsRequested],
       ...report.permissions.map((p) => [p]),
       [],
-      ['Extra Flags (Unusual)'],
+      [l10n.apkExportExtraFlagsUnusual],
       ...report.unusualItems.map((u) => [u]),
       [],
-      ['Extra Flags (Unverified)'],
+      [l10n.apkExportExtraFlagsUnverified],
       ...report.unverifiedItems.map((u) => [u]),
       [],
-      ['Discovered Sources'],
+      [l10n.apkExportDiscoveredSources],
       ...report.sources.entries.map((e) => [e.key, e.value]),
     ];
 
@@ -58,11 +59,11 @@ class ApkExportService {
 
     await Share.shareXFiles(
       [XFile(file.path)],
-      text: 'APK Analysis CSV for ${report.name}',
+      text: l10n.apkExportCsvShareText(report.name),
     );
   }
 
-  static Future<void> exportToPdf(ApkReport report) async {
+  static Future<void> exportToPdf(ApkReport report, AppLocalizations l10n) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -74,33 +75,33 @@ class ApkExportService {
             pw.Header(
               level: 0,
               child: pw.Text(
-                'VTTI Cloud - APK Analysis',
+                l10n.apkExportPdfTitle,
                 style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
               ),
             ),
             pw.SizedBox(height: 10),
 
-            _buildPdfSectionTitle('Metadata'),
-            _buildPdfRow('App Name', report.name),
-            _buildPdfRow('Package ID', report.packageName),
-            _buildPdfRow('Version', report.versionLabel),
-            _buildPdfRow('Size', report.fileSizeLabel),
-            _buildPdfRow('Min SDK', report.minSdkLabel),
-            _buildPdfRow('Target SDK', report.targetSdkLabel),
-            _buildPdfRow('Signature', report.signatureLabel),
+            _buildPdfSectionTitle(l10n.apkReportMetadata),
+            _buildPdfRow(l10n.apkMetadataAppName, report.name),
+            _buildPdfRow(l10n.apkMetadataPackageId, report.packageName),
+            _buildPdfRow(l10n.metaPassVersion, report.versionLabel),
+            _buildPdfRow(l10n.apkMetadataSize, report.fileSizeLabel),
+            _buildPdfRow(l10n.apkMetadataMinSdk, report.minSdkLabel),
+            _buildPdfRow(l10n.apkMetadataTargetSdk, report.targetSdkLabel),
+            _buildPdfRow(l10n.apkMetadataSignature, report.signatureLabel),
             pw.SizedBox(height: 20),
 
             if (report.riskScore != null || report.riskLabel != null) ...[
-              _buildPdfSectionTitle('Malware Assessment'),
-              _buildPdfRow('Risk Score', '${report.riskScore ?? "N/A"} / 100'),
-              _buildPdfRow('Risk Label', report.riskLabel ?? 'N/A'),
-              _buildPdfRow('Hash Verdict', report.hashVerdict ?? 'N/A'),
+              _buildPdfSectionTitle(l10n.apkExportMalwareAssessment),
+              _buildPdfRow(l10n.apkExportRiskScore, '${report.riskScore ?? "N/A"} / 100'),
+              _buildPdfRow(l10n.apkExportRiskLabel, report.riskLabel ?? 'N/A'),
+              _buildPdfRow(l10n.apkExportHashVerdict, report.hashVerdict ?? 'N/A'),
               if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty)
-                _buildPdfRow('Rationale', report.scoreRationale!),
+                _buildPdfRow(l10n.apkExportRationale, report.scoreRationale!),
               pw.SizedBox(height: 10),
               if (report.contributingSignals.isNotEmpty) ...[
                 pw.Text(
-                  'Contributing Signals',
+                  l10n.apkExportContributingSignals,
                   style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
                 ),
                 pw.SizedBox(height: 4),
@@ -120,7 +121,7 @@ class ApkExportService {
               ],
               if (report.dampeningFactors.isNotEmpty) ...[
                 pw.Text(
-                  'Dampening Factors',
+                  l10n.apkExportDampeningFactors,
                   style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
                 ),
                 pw.SizedBox(height: 4),
@@ -140,24 +141,24 @@ class ApkExportService {
               pw.SizedBox(height: 20),
             ],
 
-            _buildPdfSectionTitle('Summary'),
+            _buildPdfSectionTitle(l10n.apkReportSummary),
             pw.Text(report.summary, style: const pw.TextStyle(fontSize: 12, lineSpacing: 1.5)),
             pw.SizedBox(height: 20),
 
             if (report.permissions.isNotEmpty) ...[
-              _buildPdfSectionTitle('Requested Permissions'),
+              _buildPdfSectionTitle(l10n.apkExportRequestedPermissions),
               pw.Bullet(text: report.permissions.join('\n')),
               pw.SizedBox(height: 20),
             ],
 
             if (report.unusualItems.isNotEmpty) ...[
-              _buildPdfSectionTitle('Unusual Flags'),
+              _buildPdfSectionTitle(l10n.apkReportUnusualFlags),
               pw.Bullet(text: report.unusualItems.join('\n')),
               pw.SizedBox(height: 20),
             ],
 
             if (report.sources.isNotEmpty) ...[
-              _buildPdfSectionTitle('Discovered Sources'),
+              _buildPdfSectionTitle(l10n.apkExportDiscoveredSources),
               ...report.sources.entries.map((e) => _buildPdfRow(e.key, e.value)),
             ],
           ];
@@ -172,7 +173,7 @@ class ApkExportService {
 
     await Share.shareXFiles(
       [XFile(file.path)],
-      text: 'APK Analysis PDF for ${report.name}',
+      text: l10n.apkExportPdfShareText(report.name),
     );
   }
 

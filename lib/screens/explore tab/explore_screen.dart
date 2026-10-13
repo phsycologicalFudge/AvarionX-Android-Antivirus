@@ -6,7 +6,7 @@ import '../apkAnalyser/apk_analyser.dart';
 import '../link checker/link_check_screen.dart';
 import '../scan/scan_limits_screen.dart';
 import '../scan/scheduled_scan_screen.dart';
-import '../terminal_screen.dart';
+import '../../terminal/terminal_screen.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -20,9 +20,9 @@ class ExploreScreen extends StatelessWidget {
 
     final items = <_ExploreItem>[
       _ExploreItem(
-        title: 'APK Analyser',
+        title: AppLocalizations.of(context)!.exploreApkAnalyser,
         icon: Icons.android_rounded,
-        subtitle: 'Create a detailed analysis on any APK',
+        subtitle: AppLocalizations.of(context)!.exploreCreateADetailedAnalysisOnAnyAPK,
         builder: (_) => const ApkAnalyserScreen(),
       ),
       _ExploreItem(

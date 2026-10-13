@@ -30,7 +30,7 @@ class AvEngine {
   static Future<int> _init() async {
     try {
       await ensureAntivirusFiles();
-      final (defsPath, keyPath) = await DefsManager.ensureLiteDefinitions();
+      final defsPath = await DefsManager.ensureLiteDefinitions();
 
       final prefs = await SharedPreferences.getInstance();
       final maxConcurrent = prefs.getInt(_kMaxConcurrentKey) ?? 1;
@@ -38,7 +38,6 @@ class AvEngine {
 
       final result = await _runRustInit(
         defsPath,
-        keyPath,
         maxConcurrent,
         maxThreads,
       );
@@ -52,7 +51,6 @@ class AvEngine {
 
   static Future<int> _runRustInit(
       String defsPath,
-      String keyPath,
       int maxConcurrent,
       int maxThreads,
       ) async {
@@ -63,7 +61,6 @@ class AvEngine {
       _InitMessage(
         sendPort: receivePort.sendPort,
         defsPath: defsPath,
-        keyPath: keyPath,
         maxConcurrent: maxConcurrent,
         maxThreads: maxThreads,
       ),
@@ -76,14 +73,12 @@ class AvEngine {
 class _InitMessage {
   final SendPort sendPort;
   final String defsPath;
-  final String keyPath;
   final int maxConcurrent;
   final int maxThreads;
 
   _InitMessage({
     required this.sendPort,
     required this.defsPath,
-    required this.keyPath,
     required this.maxConcurrent,
     required this.maxThreads,
   });
@@ -93,7 +88,8 @@ void _rustInitEntry(_InitMessage msg) {
   try {
     final av = AntivirusBridge(enableScanLogs: false);
     av.setScanLimits(msg.maxConcurrent, msg.maxThreads);
-    final code = av.init(msg.defsPath, msg.keyPath);
+    final code = av.init(msg.defsPath);
+
     av.free();
     msg.sendPort.send(code);
   } catch (_) {

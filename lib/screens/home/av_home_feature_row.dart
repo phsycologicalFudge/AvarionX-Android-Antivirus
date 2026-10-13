@@ -6,6 +6,7 @@ class AvHomeFeatureRow extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const AvHomeFeatureRow({
     super.key,
@@ -14,6 +15,7 @@ class AvHomeFeatureRow extends StatelessWidget {
     required this.icon,
     required this.color,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -30,6 +32,7 @@ class AvHomeFeatureRow extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,

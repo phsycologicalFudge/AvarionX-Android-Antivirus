@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import '../cloud/cloud_auth_service.dart';
 import 'scan_types.dart';
 import '../../utils/hash_cache_worker.dart';
 import '../../widgets/antivirus_bridge.dart';
@@ -209,6 +208,8 @@ class HeadlessScanWorker {
 
 class CancelledScan implements Exception {}
 
+const int _cloudFinishTimeoutMs = 25000;
+
 Future<HeadlessScanResult> runHeadlessScan({
   required ScanMode mode,
   bool useCloud = false,
@@ -253,27 +254,23 @@ Future<HeadlessScanResult> runHeadlessScan({
   }
 
   HashCacheWorker? hashWorker;
-  CloudScanner? cloud;
+  bool cloudActive = false;
+  final nameByPath = <String, String>{};
+  setEngineCloudEnabled(useCloud);
 
-  if (useCloud && mode != ScanMode.full) {
+  if (useCloud) {
     try {
       final dir = await getApplicationDocumentsDirectory();
+      setEngineDataDir(dir.path);
       hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
-      if ((CloudAuthService.sessionToken ?? '').isEmpty) {
-        try {
-          await CloudAuthService.ensureRegistered();
-        } catch (_) {}
+      if (await _isOnline()) {
+        cloudActive = engineCloudBegin() == 0;
       }
-      cloud = CloudScanner(
-        endpoint: 'https://api.colourswift.com/hash_cloud',
-        apiKey: CloudAuthService.sessionToken ?? '',
-      );
     } catch (e) {
       onEvent?.call(
         HeadlessScanEvent('err', mode: mode, message: 'Cloud init failed: $e'),
       );
-      hashWorker = null;
-      cloud = null;
+      cloudActive = false;
     }
   }
 
@@ -317,12 +314,12 @@ Future<HeadlessScanResult> runHeadlessScan({
   Future<void> _scanResolvedTarget({
     required String path,
     required String displayName,
-    required bool allowCloud,
     required bool respectFolderExclusions,
     required bool respectShaExclusions,
   }) async {
     if (respectFolderExclusions && ex.skipFolder(path)) return;
     _throwIfCancelled();
+    nameByPath[path] = displayName;
 
     onEvent?.call(
       HeadlessScanEvent('current', mode: mode, path: path, name: displayName, scanned: scanned, total: total > 0 ? total : null),
@@ -335,40 +332,6 @@ Future<HeadlessScanResult> runHeadlessScan({
     String label = 'Suspicious.Item';
     double confidence = 0.0;
     List<String> signals = const [];
-
-    if (allowCloud && hashWorker != null && cloud != null) {
-      try {
-        final hashesByPath = await hashWorker.hashBatch([path]);
-        final hashes = hashesByPath[path];
-
-        if (hashes != null) {
-          final md5 = hashes['md5'] ?? '';
-          final sha = hashes['sha'] ?? '';
-
-          if (respectShaExclusions && sha.isNotEmpty && ex.skipSha(sha)) return;
-
-          if (md5.isNotEmpty || sha.isNotEmpty) {
-            _throwIfCancelled();
-            final hits = await cloud.checkBatch([
-              if (md5.isNotEmpty) md5,
-              if (sha.isNotEmpty) sha,
-            ]);
-
-            if (hits.isNotEmpty) {
-              infected = true;
-              label = structuredHashLabel(path);
-              confidence = 1.0;
-              signals = const ['HashMatch'];
-            }
-          }
-        }
-      } catch (e) {
-        if (e is CancelledScan) rethrow;
-        onEvent?.call(
-          HeadlessScanEvent('err', mode: mode, path: path, name: displayName, message: 'Cloud check failed: $e'),
-        );
-      }
-    }
 
     _throwIfCancelled();
 
@@ -463,6 +426,7 @@ Future<HeadlessScanResult> runHeadlessScan({
 
   Future<void> _scanInstalledTarget(_HeadlessTarget target) async {
     _throwIfCancelled();
+    nameByPath[target.path] = target.name;
 
     onEvent?.call(
       HeadlessScanEvent('current', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total > 0 ? total : null),
@@ -477,36 +441,6 @@ Future<HeadlessScanResult> runHeadlessScan({
     String label = 'Suspicious.Item';
     double confidence = 0.0;
     List<String> signals = const [];
-
-    if (useCloud && hashWorker != null && cloud != null) {
-      try {
-        final hashesByPath = await hashWorker.hashBatch([target.path]);
-        final hashes = hashesByPath[target.path];
-
-        if (hashes != null) {
-          final md5 = hashes['md5'] ?? '';
-          final sha = hashes['sha'] ?? '';
-
-          if (md5.isNotEmpty || sha.isNotEmpty) {
-            _throwIfCancelled();
-            final hits = await cloud.checkBatch([
-              if (md5.isNotEmpty) md5,
-              if (sha.isNotEmpty) sha,
-            ]);
-
-            if (hits.isNotEmpty) {
-              infected = true;
-              label = structuredHashLabel(target.path);
-              confidence = 1.0;
-              signals = const ['HashMatch'];
-            }
-          }
-        }
-      } catch (e) {
-        if (e is CancelledScan) rethrow;
-        onEvent?.call(HeadlessScanEvent('err', mode: mode, path: target.path, name: target.name, message: 'Cloud check failed: $e'));
-      }
-    }
 
     _throwIfCancelled();
 
@@ -605,6 +539,7 @@ Future<HeadlessScanResult> runHeadlessScan({
 
       final path = e.path;
       final name = path.split('/').last;
+      nameByPath[path] = name;
 
       onEvent?.call(HeadlessScanEvent('current', mode: mode, path: path, name: name, scanned: scanned, total: null));
 
@@ -687,65 +622,16 @@ Future<HeadlessScanResult> runHeadlessScan({
 
       onEvent?.call(HeadlessScanEvent(apps.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
 
-      bool usedPmCloud = false;
-      final bool isOnline = await _isOnline();
-
-      if (useCloud && cloud != null && apps.isNotEmpty && isOnline) {
-        try {
-          const _fastAppsChannel = MethodChannel('cs.fastapps');
-          final packageNames = apps.map((a) => a.pkg).where((p) => p.isNotEmpty).toList();
-
-          if (packageNames.isNotEmpty) {
-            final raw = await _fastAppsChannel.invokeMethod<Map>('batchRequestChecksums', {'packages': packageNames});
-            if (raw != null && raw.isNotEmpty) {
-              final pmHashes = Map<String, String>.from(raw.map((k, v) => MapEntry(k.toString(), v.toString())));
-              final allHashes = pmHashes.values.where((h) => h.isNotEmpty).toList();
-              if (allHashes.isNotEmpty) {
-                _throwIfCancelled();
-                final hits = await cloud!.checkBatch(allHashes);
-                final hitSet = hits.toSet();
-
-                for (final app in apps) {
-                  _throwIfCancelled();
-                  final hash = pmHashes[app.pkg] ?? '';
-
-                  onEvent?.call(HeadlessScanEvent('current', mode: mode, path: app.path, name: app.name, scanned: scanned, total: total));
-                  scanned++;
-                  _emitProgress(path: app.path, name: app.name);
-
-                  if (hash.isNotEmpty && hitSet.contains(hash)) {
-                    final label = structuredHashLabel(app.path);
-                    final detection = HeadlessDetection(path: app.path, name: app.name, label: label, confidence: 1.0, signals: const ['HashMatch']);
-                    detections.add(detection);
-                    final prepared = await _prepareDetectedFile(app.path);
-                    onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: app.path, name: app.name, scanned: scanned, total: total, label: label, confidence: 1.0, signals: const ['HashMatch'], quarantinePath: prepared.$1, apkSize: prepared.$2));
-                  } else {
-                    cleanCount++;
-                    onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: app.path, name: app.name, scanned: scanned, total: total));
-                  }
-                }
-                usedPmCloud = true;
-              }
-            }
-          }
-        } catch (e) {
-          if (e is CancelledScan) rethrow;
-          onEvent?.call(HeadlessScanEvent('err', mode: mode, message: 'PM batch cloud failed, falling back: $e'));
-        }
-      }
-
-      if (!usedPmCloud) {
-        for (final target in apps) {
-          _throwIfCancelled();
-          await _scanInstalledTarget(target);
-        }
+      for (final target in apps) {
+        _throwIfCancelled();
+        await _scanInstalledTarget(target);
       }
     } else if (mode == ScanMode.rapid) {
       final files = <_HeadlessTarget>[];
       final dir = Directory('/storage/emulated/0/Download');
 
       if (await dir.exists()) {
-        await for (final e in dir.list(recursive: true, followLinks: false)) {
+        await for (final e in _safeList(dir, recursive: true)) {
           _throwIfCancelled();
           if (e is! File) continue;
 
@@ -755,8 +641,8 @@ Future<HeadlessScanResult> runHeadlessScan({
           final ext = _ext(path);
           if (ext != 'apk') continue;
 
-          final size = await e.length();
-          if (size > 200 * 1024 * 1024) continue;
+          final size = await _safeLength(e);
+          if (size < 0 || size > 200 * 1024 * 1024) continue;
 
           files.add(_HeadlessTarget(path: path, name: path.split('/').last));
         }
@@ -766,18 +652,8 @@ Future<HeadlessScanResult> runHeadlessScan({
       onEvent?.call(HeadlessScanEvent(files.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
 
       if (files.isNotEmpty) {
-        if (useCloud && hashWorker != null) {
-          onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Calculating Hashes'));
-
-          for (final target in files) {
-            _throwIfCancelled();
-            onEvent?.call(HeadlessScanEvent('hashing', mode: mode, path: target.path, name: target.name));
-            try {
-              await hashWorker!.hashBatch([target.path]);
-            } catch (_) {}
-          }
-
-          onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 2: Local Scan'));
+        if (cloudActive) {
+          onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
         }
 
         for (final target in files) {
@@ -785,7 +661,6 @@ Future<HeadlessScanResult> runHeadlessScan({
           await _scanResolvedTarget(
             path: target.path,
             displayName: target.name,
-            allowCloud: useCloud,
             respectFolderExclusions: true,
             respectShaExclusions: true,
           );
@@ -796,7 +671,7 @@ Future<HeadlessScanResult> runHeadlessScan({
       final folders = <String>[];
 
       if (await root.exists()) {
-        await for (final e in root.list(followLinks: false)) {
+        await for (final e in _safeList(root)) {
           _throwIfCancelled();
           if (e is Directory) {
             final name = e.path.split('/').last.toLowerCase();
@@ -813,7 +688,7 @@ Future<HeadlessScanResult> runHeadlessScan({
         final dir = Directory(dirPath);
         if (!await dir.exists()) continue;
 
-        await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        await for (final entity in _safeList(dir, recursive: true)) {
           _throwIfCancelled();
           if (entity is! File) continue;
 
@@ -821,7 +696,8 @@ Future<HeadlessScanResult> runHeadlessScan({
           if (ex.skipFolder(path)) continue;
 
           final ext = _ext(path);
-          final size = await entity.length();
+          final size = await _safeLength(entity);
+          if (size < 0) continue;
           if (!isAllowedScanFile(ext, size)) continue;
 
           allFiles.add(_HeadlessTarget(path: path, name: path.split('/').last));
@@ -847,76 +723,18 @@ Future<HeadlessScanResult> runHeadlessScan({
       onEvent?.call(HeadlessScanEvent(allFiles.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
 
       if (allFiles.isNotEmpty) {
-        if (useCloud) {
+        if (cloudActive) {
           onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
-        }
-
-        Future<Map<String, Map<String, String>>>? apkHashFuture;
-        if (useCloud && hashWorker != null && apkFiles.isNotEmpty) {
-          final apkPaths = apkFiles.map((f) => f.path).toList();
-          apkHashFuture = hashWorker!.hashBatch(apkPaths).catchError((_) => <String, Map<String, String>>{});
         }
 
         for (final target in nonApkFiles) {
           _throwIfCancelled();
-          await _scanResolvedTarget(path: target.path, displayName: target.name, allowCloud: false, respectFolderExclusions: true, respectShaExclusions: true);
+          await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
         }
 
-        Map<String, Map<String, String>> apkHashes = {};
-        if (apkHashFuture != null) {
-          try {
-            apkHashes = await apkHashFuture;
-          } catch (_) {}
-        }
-
-        if (useCloud && cloud != null && apkFiles.isNotEmpty && apkHashes.isNotEmpty) {
-          onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 2: Cloud Verification'));
-          final hashToPath = <String, String>{};
-          for (final target in apkFiles) {
-            final hashes = apkHashes[target.path];
-            if (hashes == null) continue;
-            final md5 = hashes['md5'] ?? '';
-            final sha = hashes['sha'] ?? '';
-            if (md5.isNotEmpty) hashToPath[md5] = target.path;
-            if (sha.isNotEmpty) hashToPath[sha] = target.path;
-          }
-
-          Set<String> cloudHitHashes = {};
-          if (hashToPath.isNotEmpty) {
-            try {
-              _throwIfCancelled();
-              final hits = await cloud!.checkBatch(hashToPath.keys.toList());
-              cloudHitHashes = hits.toSet();
-            } catch (e) {
-              if (e is CancelledScan) rethrow;
-              onEvent?.call(HeadlessScanEvent('err', mode: mode, message: 'Smart APK cloud batch failed, falling back to engine: $e'));
-            }
-          }
-
-          for (final target in apkFiles) {
-            _throwIfCancelled();
-            final hashes = apkHashes[target.path];
-            final md5 = hashes?['md5'] ?? '';
-            final sha = hashes?['sha'] ?? '';
-            final isCloudHit = (md5.isNotEmpty && cloudHitHashes.contains(md5)) || (sha.isNotEmpty && cloudHitHashes.contains(sha));
-
-            if (isCloudHit) {
-              onEvent?.call(HeadlessScanEvent('current', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total));
-              scanned++;
-              _emitProgress(path: target.path, name: target.name);
-              final label = structuredHashLabel(target.path);
-              detections.add(HeadlessDetection(path: target.path, name: target.name, label: label, confidence: 1.0, signals: const ['HashMatch']));
-              final prepared = await _prepareDetectedFile(target.path);
-              onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total, label: label, confidence: 1.0, signals: const ['HashMatch'], quarantinePath: prepared.$1, apkSize: prepared.$2));
-            } else {
-              await _scanResolvedTarget(path: target.path, displayName: target.name, allowCloud: false, respectFolderExclusions: true, respectShaExclusions: true);
-            }
-          }
-        } else {
-          for (final target in apkFiles) {
-            _throwIfCancelled();
-            await _scanResolvedTarget(path: target.path, displayName: target.name, allowCloud: useCloud, respectFolderExclusions: true, respectShaExclusions: true);
-          }
+        for (final target in apkFiles) {
+          _throwIfCancelled();
+          await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
         }
       }
     } else if (mode == ScanMode.full) {
@@ -934,7 +752,7 @@ Future<HeadlessScanResult> runHeadlessScan({
         })) {
           _throwIfCancelled();
           if (e is! File) continue;
-          await _scanResolvedTarget(path: e.path, displayName: e.path.split('/').last, allowCloud: false, respectFolderExclusions: false, respectShaExclusions: false);
+          await _scanResolvedTarget(path: e.path, displayName: e.path.split('/').last, respectFolderExclusions: false, respectShaExclusions: false);
         }
       }
     }
@@ -946,6 +764,54 @@ Future<HeadlessScanResult> runHeadlessScan({
     try {
       worker?.requestClose();
     } catch (_) {}
+  }
+
+  if (cloudActive) {
+    if (cancelled) {
+      try {
+        await engineCloudFinishAsync(0);
+      } catch (_) {}
+    } else {
+      onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 2: Cloud Verification'));
+      try {
+        final raw = await engineCloudFinishAsync(_cloudFinishTimeoutMs);
+        final decoded = jsonDecode(raw);
+        if (decoded is Map && decoded['state'] == 'timeout') {
+          onEvent?.call(HeadlessScanEvent('err', mode: mode, message: 'Cloud verification timed out, using local results'));
+        }
+        final results = decoded is Map ? decoded['results'] : null;
+        if (results is List) {
+          for (final r in results) {
+            if (r is! Map) continue;
+            final path = (r['path'] ?? '').toString();
+            if (path.isEmpty) continue;
+            final cloudLabel = (r['label'] ?? 'Cloud.Molecule').toString();
+
+            if (hashWorker != null) {
+              try {
+                final hashes = (await hashWorker.hashBatch([path]))[path];
+                final sha = hashes?['sha'] ?? '';
+                if (sha.isNotEmpty && ex.skipSha(sha)) continue;
+              } catch (_) {}
+            }
+
+            final name = nameByPath[path] ?? _displayName(path);
+            if (cleanCount > 0) cleanCount--;
+            onEvent?.call(HeadlessScanEvent('unclean', mode: mode, path: path, name: name));
+
+            final isHash = cloudLabel == 'Cloud.Hash';
+            final hitLabel = isHash ? structuredHashLabel(path) : cloudLabel;
+            final hitConfidence = isHash ? 1.0 : 0.80;
+            final hitSignals = isHash ? const ['HashMatch'] : const ['CloudMolecule'];
+            detections.add(HeadlessDetection(path: path, name: name, label: hitLabel, confidence: hitConfidence, signals: hitSignals));
+            final prepared = await _prepareDetectedFile(path);
+            onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: path, name: name, scanned: scanned, total: total > 0 ? total : null, label: hitLabel, confidence: hitConfidence, signals: hitSignals, quarantinePath: prepared.$1, apkSize: prepared.$2));
+          }
+        }
+      } catch (e) {
+        onEvent?.call(HeadlessScanEvent('err', mode: mode, message: 'Cloud verification failed: $e'));
+      }
+    }
   }
 
   if (hashWorker != null) {
@@ -1002,6 +868,21 @@ String _displayName(String path) {
     return path.split('/').last;
   } catch (_) {
     return path;
+  }
+}
+
+Stream<FileSystemEntity> _safeList(Directory dir, {bool recursive = false}) {
+  return dir.list(recursive: recursive, followLinks: false).handleError((error) {
+    if (error is FileSystemException) return;
+    throw error;
+  });
+}
+
+Future<int> _safeLength(File f) async {
+  try {
+    return await f.length();
+  } catch (_) {
+    return -1;
   }
 }
 

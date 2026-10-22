@@ -36,10 +36,13 @@ class ForegroundService {
     } catch (_) {}
   }
 
-  static Future<void> toast({required String text}) async {
+  static Future<bool> toast({required String text}) async {
     try {
       await _channel.invokeMethod('toast', {'text': text});
-    } catch (_) {}
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<void> stop() async {
@@ -58,7 +61,7 @@ class ForegroundService {
     } catch (_) {}
   }
 
-  static Future<void> notify({
+  static Future<bool> notify({
     required String title,
     required String text,
     int? autoDismissAfterSeconds,
@@ -71,7 +74,10 @@ class ForegroundService {
         'autoDismissAfterSeconds': autoDismissAfterSeconds,
         'openQuarantine': openQuarantineOnClick,
       });
-    } catch (_) {}
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<void> showScanOngoing({

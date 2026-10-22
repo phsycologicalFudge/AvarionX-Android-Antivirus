@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 
 typedef ScanLogFn = void Function(String msg);
@@ -43,6 +44,77 @@ void clearScanCallback() {
     fn();
   } catch (_) {}
 }
+
+typedef _VoidI32Native = Void Function(Int32);
+typedef _VoidI32Dart = void Function(int);
+typedef _VoidPtrNative = Void Function(Pointer<Utf8>);
+typedef _VoidPtrDart = void Function(Pointer<Utf8>);
+typedef _I32VoidNative = Int32 Function();
+typedef _I32VoidDart = int Function();
+typedef _PtrI32Native = Pointer<Utf8> Function(Int32);
+typedef _PtrI32Dart = Pointer<Utf8> Function(int);
+
+DynamicLibrary? _openEngineLib() {
+  try {
+    if (Platform.isAndroid) {
+      return DynamicLibrary.open("libcolourswift_av.so");
+    } else if (Platform.isWindows) {
+      return DynamicLibrary.open("colourswift_av.dll");
+    }
+  } catch (_) {}
+  return null;
+}
+
+void setEngineDataDir(String path) {
+  final lib = _openEngineLib();
+  if (lib == null) return;
+  try {
+    final fn = lib.lookupFunction<_VoidPtrNative, _VoidPtrDart>('av_set_data_dir');
+    final p = path.toNativeUtf8();
+    fn(p);
+    malloc.free(p);
+  } catch (_) {}
+}
+
+void setEngineCloudEnabled(bool enabled) {
+  final lib = _openEngineLib();
+  if (lib == null) return;
+  try {
+    final fn = lib.lookupFunction<_VoidI32Native, _VoidI32Dart>('av_set_cloud');
+    fn(enabled ? 1 : 0);
+  } catch (_) {}
+}
+
+int engineCloudBegin() {
+  final lib = _openEngineLib();
+  if (lib == null) return -1;
+  try {
+    final fn = lib.lookupFunction<_I32VoidNative, _I32VoidDart>('av_cloud_begin');
+    return fn();
+  } catch (_) {
+    return -1;
+  }
+}
+
+String engineCloudFinish(int timeoutMs) {
+  final lib = _openEngineLib();
+  if (lib == null) return '{"results":[]}';
+  try {
+    final finish = lib.lookupFunction<_PtrI32Native, _PtrI32Dart>('av_cloud_finish');
+    final ptr = finish(timeoutMs);
+    if (ptr == nullptr) return '{"results":[]}';
+    final s = ptr.toDartString();
+    try {
+      final free = lib.lookupFunction<FreeStrNative, FreeStrDart>('free_str');
+      free(ptr);
+    } catch (_) {}
+    return s;
+  } catch (_) {
+    return '{"results":[]}';
+  }
+}
+
+Future<String> engineCloudFinishAsync(int timeoutMs) => Isolate.run(() => engineCloudFinish(timeoutMs));
 
 typedef AvInitNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanNative = Pointer<Utf8> Function(Pointer<Utf8>);

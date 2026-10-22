@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -13,7 +14,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../constants/build_flags.dart';
 import '../../../services/cloud_helper_service.dart';
-import '../../../services/cloud/cloud_auth_service.dart';
 import '../../../services/exclusion_service.dart';
 import '../../../services/foreground_service.dart';
 import '../../../services/quarantine_service.dart';
@@ -22,7 +22,6 @@ import '../../../services/scan api/headless_scan.dart';
 import '../../../services/scan api/community_submissions/community_submission_service.dart';
 import '../../../services/scan api/scan_types.dart';
 import '../../../services/scan_session_service.dart';
-import '../../../utils/hash_cache_worker.dart';
 import '../../../widgets/antivirus_bridge.dart';
 import '../../../widgets/mesh_background.dart';
 import '../../../services/theme/theme_manager.dart';
@@ -50,7 +49,6 @@ class _ScanScreenState extends State<ScanScreen>
   bool get wantKeepAlive => true;
 
   bool useCloudScan = true;
-  late final CloudScanner cloudScanner;
 
   ScanMode mode = ScanMode.none;
   ScanState state = ScanState.idle;
@@ -136,6 +134,12 @@ class _ScanScreenState extends State<ScanScreen>
     }
 
     final enabled = prefs.getBool('useCloudScan') ?? true;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      setEngineDataDir(dir.path);
+    } catch (_) {}
+    setEngineCloudEnabled(enabled);
 
     if (!mounted) return;
     setState(() {
@@ -308,6 +312,17 @@ class _ScanScreenState extends State<ScanScreen>
       return;
     }
 
+    if (e.type == 'unclean') {
+      if (mode == ScanMode.full) {
+        if (fullCleanCount > 0) fullCleanCount--;
+      } else if (name.isNotEmpty) {
+        clean.remove(name);
+      }
+      if (mounted) setState(() {});
+      _pushSessionSnapshot();
+      return;
+    }
+
     if (e.type == 'hit') {
       if (e.scanned != null) scanned = e.scanned!;
       if (e.total != null) total = e.total!;
@@ -462,11 +477,6 @@ class _ScanScreenState extends State<ScanScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
-
-    cloudScanner = CloudScanner(
-      endpoint: 'https://api.colourswift.com/hash_cloud',
-      apiKey: CloudAuthService.sessionToken ?? '',
-    );
 
     _sessionListener = _onSessionChanged;
     _session.addListener(_sessionListener);
@@ -834,37 +844,7 @@ class _ScanScreenState extends State<ScanScreen>
     await Future.delayed(const Duration(milliseconds: 40));
     final effectivePath = pickedPath;
     bool infectedFlag = false;
-    HashCacheWorker? hashWorker;
-    String md5h = '';
-    String sha = '';
-    if (useCloudScan) {
-      final dir = await getApplicationDocumentsDirectory();
-      hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
-      final hashesByPath = await hashWorker.hashBatch([effectivePath]);
-      final hashes = hashesByPath[effectivePath] ?? {'md5': '', 'sha': ''};
-      md5h = hashes['md5'] ?? '';
-      sha = hashes['sha'] ?? '';
-      await hashWorker.flush();
-    }
-    if (useCloudScan) {
-      LogBuffer.add('[CLOUD] Sending MD5=$md5h and SHA256=$sha to cloud');
-      final hits = await cloudScanner.checkBatch([
-        if (md5h.isNotEmpty) md5h,
-        if (sha.isNotEmpty) sha,
-      ]);
-      if (hits.isNotEmpty) {
-        infectedFlag = true;
-        infected.add(
-          DetectionResult(
-            name: file.name,
-            label: structuredHashLabel(effectivePath),
-            confidence: 1.0,
-            signals: const ['HashMatch'],
-            path: effectivePath,
-          ),
-        );
-      }
-    }
+    final bool cloudOn = useCloudScan && engineCloudBegin() == 0;
     if (!infectedFlag) {
       final worker = await _ensureWorker();
       await ScanLogListener.ensureStarted();
@@ -891,6 +871,21 @@ class _ScanScreenState extends State<ScanScreen>
             label: detection.label,
             confidence: detection.confidence,
             signals: detection.signals,
+            path: effectivePath,
+          ),
+        );
+      }
+    }
+    if (cloudOn) {
+      final cloudLabel = await _cloudVerifyOne(effectivePath, skip: infectedFlag);
+      if (cloudLabel != null) {
+        infectedFlag = true;
+        infected.add(
+          DetectionResult(
+            name: file.name,
+            label: cloudLabel == 'Cloud.Hash' ? structuredHashLabel(effectivePath) : cloudLabel,
+            confidence: cloudLabel == 'Cloud.Hash' ? 1.0 : 0.80,
+            signals: cloudLabel == 'Cloud.Hash' ? const ['HashMatch'] : const ['CloudMolecule'],
             path: effectivePath,
           ),
         );
@@ -937,6 +932,23 @@ class _ScanScreenState extends State<ScanScreen>
       singleResult = infectedFlag;
       _setResultState();
     });
+  }
+
+  Future<String?> _cloudVerifyOne(String path, {required bool skip}) async {
+    try {
+      final raw = await engineCloudFinishAsync(skip ? 0 : 20000);
+      if (skip) return null;
+      final decoded = jsonDecode(raw);
+      final results = decoded is Map ? decoded['results'] : null;
+      if (results is List) {
+        for (final r in results) {
+          if (r is Map && (r['path'] ?? '').toString() == path) {
+            return (r['label'] ?? 'Cloud.Molecule').toString();
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> _runSingleScan() async {
@@ -1060,38 +1072,7 @@ class _ScanScreenState extends State<ScanScreen>
       singleResult = null;
     });
     bool infectedFlag = false;
-    if (useCloudScan) {
-      HashCacheWorker? hashWorker;
-      String md5h = '';
-      String sha = '';
-      try {
-        final dir = await getApplicationDocumentsDirectory();
-        hashWorker = await HashCacheWorker.spawn('${dir.path}/hashcache.bin');
-        final hashesByPath = await hashWorker.hashBatch([app.path]);
-        final hashes = hashesByPath[app.path] ?? {'md5': '', 'sha': ''};
-        md5h = hashes['md5'] ?? '';
-        sha = hashes['sha'] ?? '';
-        await hashWorker.flush();
-      } catch (_) {}
-      if (md5h.isNotEmpty || sha.isNotEmpty) {
-        final hits = await cloudScanner.checkBatch([
-          if (md5h.isNotEmpty) md5h,
-          if (sha.isNotEmpty) sha,
-        ]);
-        if (hits.isNotEmpty) {
-          infectedFlag = true;
-          infected.add(
-            DetectionResult(
-              name: app.name,
-              label: structuredHashLabel(app.path),
-              confidence: 1.0,
-              signals: const ['HashMatch'],
-              path: app.path,
-            ),
-          );
-        }
-      }
-    }
+    final bool cloudOn = useCloudScan && engineCloudBegin() == 0;
     if (!infectedFlag) {
       final worker = await _ensureWorker();
       await ScanLogListener.ensureStarted();
@@ -1118,6 +1099,21 @@ class _ScanScreenState extends State<ScanScreen>
             label: detection.label,
             confidence: detection.confidence,
             signals: detection.signals,
+            path: app.path,
+          ),
+        );
+      }
+    }
+    if (cloudOn) {
+      final cloudLabel = await _cloudVerifyOne(app.path, skip: infectedFlag);
+      if (cloudLabel != null) {
+        infectedFlag = true;
+        infected.add(
+          DetectionResult(
+            name: app.name,
+            label: cloudLabel == 'Cloud.Hash' ? structuredHashLabel(app.path) : cloudLabel,
+            confidence: cloudLabel == 'Cloud.Hash' ? 1.0 : 0.80,
+            signals: cloudLabel == 'Cloud.Hash' ? const ['HashMatch'] : const ['CloudMolecule'],
             path: app.path,
           ),
         );
@@ -1430,19 +1426,19 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   Uri? _threatUrl(String label) {
-    if (label == 'Android.KnownMalware.HashMatch' ||
-        label == 'Generic.KnownMalware.HashMatch') {
-      return Uri.parse('https://colourswift.com/threatDatabase/hashmatch');
+    final lower = label.toLowerCase();
+    String? slug;
+    if (lower.endsWith('.hashmatch')) {
+      slug = 'hashmatch';
+    } else if (lower.contains('vxgen2') || lower.contains('muniverse')) {
+      slug = 'muniverse';
+    } else if (lower != 'suspicious.item') {
+      final tokens = lower.split('.');
+      if (tokens.first == 'android') tokens.removeAt(0);
+      if (tokens.length >= 2) slug = tokens[1];
     }
-    if (label == 'Android.MUniverse.Gen') {
-      return Uri.parse('https://colourswift.com/threatDatabase/muniverse');
-    }
-    final parts = label.split('.');
-    if (parts.length >= 3) {
-      final slug = parts[2].toLowerCase();
-      return Uri.parse('https://colourswift.com/threatDatabase/$slug');
-    }
-    return null;
+    if (slug == null) return null;
+    return Uri.https('colourswift.com', '/threatDatabase/$slug');
   }
 
   Future<void> _openThreatUrl(String label) async {

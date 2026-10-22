@@ -14,9 +14,7 @@ import '../screens/scan/main_scan_ui/scan_screen.dart';
 import 'exclusion_service.dart';
 import '../widgets/antivirus_bridge.dart';
 import 'av_engine.dart';
-import 'cloud/cloud_auth_service.dart';
 import 'update_service.dart';
-import 'cloud_helper_service.dart';
 import 'foreground_service.dart';
 import 'quarantine_service.dart';
 import 'package:crypto/crypto.dart';
@@ -52,7 +50,6 @@ class RealtimeProtectionService {
   static bool _scheduledCancelRequested = false;
   static Timer? _defsSyncTimer;
   static bool _defsSyncRunning = false;
-  static int _cloudAuthAt = 0;
 
   static const _eventChannel = EventChannel('colourswift/realtime_stream');
   static const EventChannel _watcherStateChannel = EventChannel('colourswift/watcher_state');
@@ -576,22 +573,60 @@ class RealtimeProtectionService {
     await prefs.setInt('security_report_last_scheduled_scan_at', now);
   }
 
-  static Future<CloudScanner> _cloudScanner() async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final hasToken = (CloudAuthService.sessionToken ?? '').isNotEmpty;
-    final recheckMs = hasToken ? 3600000 : 60000;
+  static Future<bool> _isOnline() async {
+    try {
+      final result = await InternetAddress.lookup('api.colourswift.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
 
-    if (now - _cloudAuthAt >= recheckMs) {
-      _cloudAuthAt = now;
+  static Future<bool> _engineCloudScan(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    final useCloud = prefs.getBool('useCloudScan') ?? false;
+
+    bool cloudOn = false;
+    if (useCloud) {
       try {
-        await CloudAuthService.ensureRegistered();
+        final dir = await getApplicationDocumentsDirectory();
+        setEngineDataDir(dir.path);
       } catch (_) {}
+      setEngineCloudEnabled(true);
+      try {
+        cloudOn = await _isOnline() && engineCloudBegin() == 0;
+      } catch (_) {
+        cloudOn = false;
+      }
+    } else {
+      setEngineCloudEnabled(false);
     }
 
-    return CloudScanner(
-      endpoint: 'https://api.colourswift.com/hash_cloud',
-      apiKey: CloudAuthService.sessionToken ?? '',
-    );
+    final localHit = await compute(scanFileIsolate, path);
+    if (localHit) {
+      if (cloudOn) {
+        try {
+          await engineCloudFinishAsync(0);
+        } catch (_) {}
+      }
+      return true;
+    }
+
+    if (!cloudOn) return false;
+
+    try {
+      final raw = await engineCloudFinishAsync(20000);
+      final decoded = jsonDecode(raw);
+      final results = decoded is Map ? decoded['results'] : null;
+      if (results is List) {
+        for (final r in results) {
+          if (r is Map && (r['path'] ?? '').toString() == path) {
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
   }
 
   static Future<bool> _isExcluded(String path) async {
@@ -662,22 +697,8 @@ class RealtimeProtectionService {
         return;
       }
 
-      final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
-      _log('cloud id=$id hit=${cloudHit.contains(sha)} key=${(CloudAuthService.sessionToken ?? '').isNotEmpty} ms=${sw.elapsedMilliseconds}');
-      if (cloudHit.contains(sha)) {
-        _seen[path] = mtime;
-        unawaited(_saveIndex());
-
-        await _recordRealtimeReportEvent(threat: true);
-
-        if (!await _isExcluded(path)) {
-          await _handleDetection(path);
-        }
-        return;
-      }
-
-      final infected = await compute(scanFileIsolate, path);
-      _log('local id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
+      final infected = await _engineCloudScan(path);
+      _log('engine id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
       if (infected) {
         _seen[path] = mtime;
         unawaited(_saveIndex());
@@ -742,18 +763,8 @@ class RealtimeProtectionService {
         return;
       }
 
-      final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
-      _log('cloud id=$id hit=${cloudHit.contains(sha)} key=${(CloudAuthService.sessionToken ?? '').isNotEmpty} ms=${sw.elapsedMilliseconds}');
-      if (cloudHit.contains(sha)) {
-        await _recordRealtimeReportEvent(threat: true);
-        if (!await _isExcluded(apkPath)) {
-          await _handleAppDetection(packageName, apkPath);
-        }
-        return;
-      }
-
-      final infected = await compute(scanFileIsolate, apkPath);
-      _log('local id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
+      final infected = await _engineCloudScan(apkPath);
+      _log('engine id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
       if (infected) {
         await _recordRealtimeReportEvent(threat: true);
         if (!await _isExcluded(apkPath)) {

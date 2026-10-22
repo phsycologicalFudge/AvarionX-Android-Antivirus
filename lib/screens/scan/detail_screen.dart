@@ -135,8 +135,6 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
         _selected.clear();
         _deleting = false;
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.scanDetailSelectedFilesDeleted)));
     }
   }
 
@@ -173,8 +171,6 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
         _selected.clear();
         _deleting = false;
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar( SnackBar(content: Text(AppLocalizations.of(context)!.scanDetailAllFilesDeleted)));
     }
   }
 

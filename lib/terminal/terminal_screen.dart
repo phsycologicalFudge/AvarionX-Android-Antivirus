@@ -139,22 +139,7 @@ class _ConsoleScreenState extends State<ConsoleScreen>
       }
       await _method.invokeMethod('reset');
       if (mounted) await _startSession(ShellType.alpine);
-    } on PlatformException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            e.message ?? 'install failed',
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontSize: 12,
-              color: _kFg,
-            ),
-          ),
-          backgroundColor: _kBar,
-          behavior: SnackBarBehavior.floating,
-          elevation: 0,
-        ));
-      }
+    } on PlatformException catch (_) {
     } finally {
       if (mounted) setState(() => _installing = false);
     }

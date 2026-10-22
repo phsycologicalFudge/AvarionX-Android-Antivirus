@@ -130,10 +130,6 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     await Clipboard.setData(
                       ClipboardData(text: _buildClipboardReport(currentReport)),
                     );
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserReportCopiedToClipboard)),
-                    );
                   },
                 ),
                 ListTile(
@@ -144,10 +140,6 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     try {
                       await ApkExportService.exportToPdf(currentReport, AppLocalizations.of(context)!);
                     } catch (_) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserFailedToExportPDF)),
-                      );
                     }
                   },
                 ),
@@ -159,10 +151,6 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     try {
                       await ApkExportService.exportToCsv(currentReport, AppLocalizations.of(context)!);
                     } catch (_) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserFailedToExportCSV)),
-                      );
                     }
                   },
                 ),
@@ -182,10 +170,6 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                 onTap: () async {
                   Navigator.pop(ctx);
                   await _controller.clearSavedReports();
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text(AppLocalizations.of(context)!.apkAnalyserReportHistoryCleared)),
-                  );
                 },
               ),
             ],

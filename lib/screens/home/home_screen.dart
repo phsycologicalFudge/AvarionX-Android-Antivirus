@@ -244,11 +244,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
     final newStatus = !isPro;
     await prefs.setBool('isPro', newStatus);
     setState(() => isPro = newStatus);
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(newStatus ? l10n.proActivated : l10n.proDeactivated)),
-    );
   }
 
   Future<void> _loadAutoUpdatePref() async {
@@ -685,24 +680,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
     }
     await _vpn.connect();
     if (!mounted) return;
-    final l10n = AppLocalizations.of(context)!;
-    String? msg;
-    switch (_vpn.notice) {
-      case LiteVpnNotice.notificationsRequired:
-        msg = l10n.vpnBackendNotificationsPermissionRequired;
-        break;
-      case LiteVpnNotice.connectFailed:
-        msg = 'Unable to connect.';
-        break;
-      case LiteVpnNotice.sessionExpired:
-        msg = l10n.vpnBackendSessionExpiredSignIn;
-        break;
-      case LiteVpnNotice.none:
-        break;
-    }
-    if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    }
   }
 
   Future<void> _openVpnAppStoreListing() async {
@@ -897,8 +874,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
     bool mountedSheet = true;
     bool started = false;
 
-    final messenger = ScaffoldMessenger.maybeOf(context);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
@@ -952,22 +927,9 @@ class AvHomeScreenState extends State<AvHomeScreen>
                     hasUpdate = false;
                     remoteVersion = null;
                   });
-
-                  messenger?.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        autoUpdate
-                            ? l10n.updateDbUpdatedAutoOn
-                            : l10n.updateDbUpdatedSuccess,
-                      ),
-                    ),
-                  );
                 } catch (_) {
                   if (!mounted || !mountedSheet) return;
                   Navigator.of(context, rootNavigator: true).pop();
-                  messenger?.showSnackBar(
-                    SnackBar(content: Text(l10n.updateDbUpdateFailed)),
-                  );
                 }
               });
             }

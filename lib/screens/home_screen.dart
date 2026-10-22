@@ -98,9 +98,6 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
     final newStatus = !isPro;
     await prefs.setBool('isPro', newStatus);
     setState(() => isPro = newStatus);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(newStatus ? AppLocalizations.of(context)!.homeLegacyProActivated : AppLocalizations.of(context)!.homeLegacyProDeactivated)),
-    );
   }
 
   Future<void> _loadAutoUpdatePref() async {
@@ -313,22 +310,9 @@ class _AvHomeScreenState extends State<AvHomeScreen> with TickerProviderStateMix
                   hasUpdate = false;
                   remoteVersion = null;
                 });
-
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      autoUpdate
-                          ? l10n.updateDbUpdatedAutoOn
-                          : l10n.updateDbUpdatedSuccess,
-                    ),
-                  ),
-                );
               } catch (_) {
                 if (!mounted || !mountedSheet) return;
                 Navigator.pop(context);
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(content: Text(l10n.updateDbUpdateFailed)),
-                );
               }
             });
 

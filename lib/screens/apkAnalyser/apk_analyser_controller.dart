@@ -440,17 +440,11 @@ class ApkAnalyserController extends ChangeNotifier {
 
       onSuccess();
 
-    } catch (e) {
+    } catch (_) {
       if (!analysing) return;
       analysing = false;
       report = null;
       notifyListeners();
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e is PlatformException ? (e.message ?? l10n.genericError) : l10n.apkAnalyserAnalysisFailed)),
-        );
-      }
     } finally {
       client?.close();
       _activeRequest = null;

@@ -35,9 +35,6 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
   Future<void> _startScan() async {
     final status = await Permission.manageExternalStorage.request();
     if (!status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission required')),
-      );
       return;
     }
 

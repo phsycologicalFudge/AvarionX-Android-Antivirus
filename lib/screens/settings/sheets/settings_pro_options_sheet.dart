@@ -71,13 +71,6 @@ Future<void> showSettingsProOptionsSheet({
                     } catch (_) {}
 
                     if (!sheetContext.mounted) return;
-                    ScaffoldMessenger.of(sheetContext).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          l10n.settingsIconSelected(icon.toUpperCase()),
-                        ),
-                      ),
-                    );
 
                     onChanged();
                   }

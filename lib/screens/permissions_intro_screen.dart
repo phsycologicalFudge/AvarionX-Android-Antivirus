@@ -56,12 +56,6 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
     if (!mounted) return;
 
     setState(() => storageGranted = granted);
-
-    if (!granted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.onboardingStorageSnack)),
-      );
-    }
   }
 
   Future<void> _requestNotifications() async {

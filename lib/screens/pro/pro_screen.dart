@@ -174,15 +174,7 @@ class _ProScreenState extends State<ProScreen> {
         Navigator.pop(context, true);
         return;
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.settingsPurchaseNotConfirmed)),
-      );
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.settingsPurchaseFailed(e.toString()))),
-      );
     } finally {
       if (mounted) setState(() => _buying = false);
     }

@@ -52,10 +52,6 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
         selected.clear();
         loading = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.quarantineScreenQuarantineDataCorruptedResetting)),
-      );
     }
   }
 
@@ -73,16 +69,10 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
 
   Future<void> _restore() async {
     if (selected.isEmpty) return;
-    final l10n = AppLocalizations.of(context)!;
     setState(() => restoring = true);
     try {
       await QuarantineService.restoreManyIsolated(selected);
       await _reload();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.quarantineSnackRestored)),
-        );
-      }
     } finally {
       if (mounted) setState(() => restoring = false);
     }
@@ -121,11 +111,6 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
 
     await QuarantineService.deleteMany(selected);
     await _reload();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.quarantineSnackDeleted)),
-      );
-    }
   }
 
   Future<void> _uninstallApp(Map<String, dynamic> m) async {
@@ -166,11 +151,6 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
       await QuarantineService.deleteAppEntry(id);
       await _reload();
     } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(AppLocalizations.of(context)!.quarantineScreenFailedToLaunchUninstall)),
-        );
-      }
     }
   }
 

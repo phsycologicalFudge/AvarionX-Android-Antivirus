@@ -69,6 +69,49 @@ class RealtimeProtectionService {
   };
   static const _maxSize = 100 * 1024 * 1024;
 
+  static String _tag = 'DU';
+  static Future<void> _logChain = Future.value();
+  static final File _logFile = File('/storage/emulated/0/Documents/avarionx_rtp.log');
+
+  static void markBackground(bool enabled) {
+    _tag = 'DB';
+    _log('main enabled=$enabled');
+  }
+
+  static String _rid(String s) {
+    var h = 0;
+    for (final c in s.codeUnits) {
+      h = (31 * h + c) & 0xFFFFFFFF;
+    }
+    return h.toRadixString(16).padLeft(8, '0');
+  }
+
+  static String _ext(String s) {
+    final i = s.lastIndexOf('.');
+    if (i < 0) return '';
+    final e = s.substring(i + 1).toLowerCase();
+    if (e.contains('/')) return '';
+    final b = StringBuffer();
+    for (final c in e.codeUnits) {
+      if ((c >= 48 && c <= 57) || (c >= 97 && c <= 122)) b.writeCharCode(c);
+      if (b.length >= 8) break;
+    }
+    return b.toString();
+  }
+
+  static void _log(String m) {
+    final n = DateTime.now();
+    String z(int v, int w) => v.toString().padLeft(w, '0');
+    final line =
+        '${z(n.month, 2)}-${z(n.day, 2)} ${z(n.hour, 2)}:${z(n.minute, 2)}:${z(n.second, 2)}.${z(n.millisecond, 3)} $pid $_tag $m\n';
+    _logChain = _logChain.then((_) async {
+      try {
+        if (!_logFile.existsSync()) _logFile.createSync(recursive: true);
+        await _logFile.writeAsString(line, mode: FileMode.append, flush: true);
+      } catch (_) {}
+    });
+  }
+
   static Future<Map<String, dynamic>> ensureDefsReady({
     bool forceServerCheck = false,
   }) async {
@@ -155,11 +198,17 @@ class RealtimeProtectionService {
     _running = true;
     _rootToken ??= RootIsolateToken.instance;
 
-    await ensureDefsReady(forceServerCheck: true);
+    final sw = Stopwatch()..start();
+    _log('start begin');
+
+    final defs = await ensureDefsReady(forceServerCheck: true);
+    _log('start defs ms=${sw.elapsedMilliseconds} dl=${defs['downloaded']}');
     await _loadIndex();
     await _exclusions.load();
     await AvEngine.ensureInitialized();
+    _log('start engine ms=${sw.elapsedMilliseconds}');
     await ForegroundService.start(title: 'AvarionX', text: 'Protection active');
+    _log('start fg ms=${sw.elapsedMilliseconds}');
 
     if (!_fgHandlerAttached) {
       _fgHandlerAttached = true;
@@ -198,6 +247,7 @@ class RealtimeProtectionService {
         if (event is! String) return;
 
         if (event.startsWith('app::')) {
+          _log('ev id=${_rid(event)} k=app');
           final parts = event.split('::');
           if (parts.length < 3) return;
           final packageName = parts[1];
@@ -207,12 +257,19 @@ class RealtimeProtectionService {
           return;
         }
 
+        _log('ev id=${_rid(event)} k=file ext=${_ext(event)}');
         final name = p.basename(event);
-        if (name.startsWith('.pending-')) return;
+        if (name.startsWith('.pending-')) {
+          _log('skip id=${_rid(event)} r=pending');
+          return;
+        }
         await _scanSingleFile(event);
       },
-      onError: (_) {},
+      onError: (e) {
+        _log('listen err t=${e.runtimeType}');
+      },
     );
+    _log('start listen ms=${sw.elapsedMilliseconds}');
   }
 
   static Future<void> stop() async {
@@ -543,36 +600,70 @@ class RealtimeProtectionService {
   }
 
   static Future<void> _scanSingleFile(String path) async {
-    if (_inFlight.contains(path)) return;
+    final id = _rid(path);
+    if (_inFlight.contains(path)) {
+      _log('skip id=$id r=inflight');
+      return;
+    }
     _inFlight.add(path);
+    final sw = Stopwatch()..start();
 
     try {
       final f = File(path);
-      if (!await f.exists()) return;
-      if (await _isExcluded(path)) return;
+      if (!await f.exists()) {
+        _log('skip id=$id r=missing');
+        return;
+      }
+      if (await _isExcluded(path)) {
+        _log('skip id=$id r=excl');
+        return;
+      }
 
       final ext = p.extension(path).replaceFirst('.', '').toLowerCase();
-      if (_skip.contains(ext)) return;
-      if (_allowed.isNotEmpty && !_allowed.contains(ext)) return;
+      if (_skip.contains(ext)) {
+        _log('skip id=$id r=ext');
+        return;
+      }
+      if (_allowed.isNotEmpty && !_allowed.contains(ext)) {
+        _log('skip id=$id r=ext');
+        return;
+      }
 
       final stable = await _waitUntilStable(f);
+      _log('stable id=$id ok=$stable ms=${sw.elapsedMilliseconds}');
       if (!stable) return;
 
-      if (!await f.exists()) return;
-      if (await _isExcluded(path)) return;
+      if (!await f.exists()) {
+        _log('skip id=$id r=missing');
+        return;
+      }
+      if (await _isExcluded(path)) {
+        _log('skip id=$id r=excl');
+        return;
+      }
 
       final size = await f.length();
-      if (size <= 0 || size > _maxSize) return;
+      if (size <= 0 || size > _maxSize) {
+        _log('skip id=$id r=size');
+        return;
+      }
 
       final mtime = (await f.lastModified()).millisecondsSinceEpoch;
       final seenMtime = _seen[path];
-      if (seenMtime != null && mtime <= seenMtime) return;
+      if (seenMtime != null && mtime <= seenMtime) {
+        _log('skip id=$id r=seen');
+        return;
+      }
 
       final bytes = await f.readAsBytes();
       final sha = sha256.convert(bytes).toString();
-      if (_exclusions.skipSha(sha)) return;
+      if (_exclusions.skipSha(sha)) {
+        _log('skip id=$id r=sha');
+        return;
+      }
 
       final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
+      _log('cloud id=$id hit=${cloudHit.contains(sha)} key=${(CloudAuthService.sessionToken ?? '').isNotEmpty} ms=${sw.elapsedMilliseconds}');
       if (cloudHit.contains(sha)) {
         _seen[path] = mtime;
         unawaited(_saveIndex());
@@ -586,6 +677,7 @@ class RealtimeProtectionService {
       }
 
       final infected = await compute(scanFileIsolate, path);
+      _log('local id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
       if (infected) {
         _seen[path] = mtime;
         unawaited(_saveIndex());
@@ -604,31 +696,54 @@ class RealtimeProtectionService {
       await _recordRealtimeReportEvent(threat: false);
 
       final fileName = p.basename(path);
-      await ForegroundService.toast(text: 'Clean: $fileName');
-    } catch (_) {
+      final ok = await ForegroundService.toast(text: 'Clean: $fileName');
+      _log('toast id=$id ok=$ok ms=${sw.elapsedMilliseconds}');
+    } catch (e) {
+      _log('err id=$id t=${e.runtimeType} ms=${sw.elapsedMilliseconds}');
     } finally {
       _inFlight.remove(path);
     }
   }
 
   static Future<void> _scanInstalledApp(String packageName, String apkPath) async {
-    if (packageName == 'com.colourswift.cssecurity') return;
-    if (_inFlight.contains(apkPath)) return;
+    final id = _rid('app::$packageName::$apkPath');
+    if (packageName == 'com.colourswift.cssecurity') {
+      _log('skip id=$id r=self');
+      return;
+    }
+    if (_inFlight.contains(apkPath)) {
+      _log('skip id=$id r=inflight');
+      return;
+    }
     _inFlight.add(apkPath);
+    final sw = Stopwatch()..start();
 
     try {
       final f = File(apkPath);
-      if (!await f.exists()) return;
-      if (await _isExcluded(apkPath)) return;
+      if (!await f.exists()) {
+        _log('skip id=$id r=missing');
+        return;
+      }
+      if (await _isExcluded(apkPath)) {
+        _log('skip id=$id r=excl');
+        return;
+      }
 
       final size = await f.length();
-      if (size <= 0 || size > _maxSize) return;
+      if (size <= 0 || size > _maxSize) {
+        _log('skip id=$id r=size');
+        return;
+      }
 
       final bytes = await f.readAsBytes();
       final sha = sha256.convert(bytes).toString();
-      if (_exclusions.skipSha(sha)) return;
+      if (_exclusions.skipSha(sha)) {
+        _log('skip id=$id r=sha');
+        return;
+      }
 
       final cloudHit = await (await _cloudScanner()).checkBatch([sha]);
+      _log('cloud id=$id hit=${cloudHit.contains(sha)} key=${(CloudAuthService.sessionToken ?? '').isNotEmpty} ms=${sw.elapsedMilliseconds}');
       if (cloudHit.contains(sha)) {
         await _recordRealtimeReportEvent(threat: true);
         if (!await _isExcluded(apkPath)) {
@@ -638,6 +753,7 @@ class RealtimeProtectionService {
       }
 
       final infected = await compute(scanFileIsolate, apkPath);
+      _log('local id=$id infected=$infected ms=${sw.elapsedMilliseconds}');
       if (infected) {
         await _recordRealtimeReportEvent(threat: true);
         if (!await _isExcluded(apkPath)) {
@@ -647,14 +763,17 @@ class RealtimeProtectionService {
       }
 
       await _recordRealtimeReportEvent(threat: false);
-      await ForegroundService.toast(text: 'Clean: $packageName');
-    } catch (_) {
+      final ok = await ForegroundService.toast(text: 'Clean: $packageName');
+      _log('toast id=$id ok=$ok ms=${sw.elapsedMilliseconds}');
+    } catch (e) {
+      _log('err id=$id t=${e.runtimeType} ms=${sw.elapsedMilliseconds}');
     } finally {
       _inFlight.remove(apkPath);
     }
   }
 
   static Future<void> _handleAppDetection(String packageName, String apkPath) async {
+    final id = _rid('app::$packageName::$apkPath');
     String appName = packageName;
     try {
       const ch = MethodChannel('cs.fastapps');
@@ -666,7 +785,9 @@ class RealtimeProtectionService {
       if (match.isNotEmpty && match['name'] is String) {
         appName = match['name'] as String;
       }
-    } catch (_) {}
+    } catch (e) {
+      _log('appname id=$id t=${e.runtimeType}');
+    }
 
     try {
       await QuarantineService.quarantineApp(
@@ -674,58 +795,67 @@ class RealtimeProtectionService {
         appName: appName,
         apkPath: apkPath,
       );
+      _log('quar id=$id ok=true');
       final prefs = await SharedPreferences.getInstance();
       final autoDismissSeconds =
           prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
 
-      await ForegroundService.notify(
+      final ok = await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'Suspicious app flagged: $appName',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
         openQuarantineOnClick: true,
       );
-    } catch (_) {
+      _log('notify id=$id ok=$ok');
+    } catch (e) {
+      _log('quar id=$id ok=false t=${e.runtimeType}');
       final prefs = await SharedPreferences.getInstance();
       final autoDismissSeconds =
           prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
 
-      await ForegroundService.notify(
+      final ok = await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'Suspicious app detected: $appName',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
         openQuarantineOnClick: true,
       );
+      _log('notify id=$id ok=$ok');
     }
   }
 
   static Future<void> _handleDetection(String path) async {
+    final id = _rid(path);
     try {
       await QuarantineService.quarantineFile(path);
+      _log('quar id=$id ok=true');
       final prefs = await SharedPreferences.getInstance();
       final autoDismissSeconds =
           prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
 
-      await ForegroundService.notify(
+      final ok = await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'A file was quarantined: ${path.split('/').last}',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
         openQuarantineOnClick: true,
       );
-    } catch (_) {
+      _log('notify id=$id ok=$ok');
+    } catch (e) {
+      _log('quar id=$id ok=false t=${e.runtimeType}');
       final prefs = await SharedPreferences.getInstance();
       final autoDismissSeconds =
           prefs.getInt('rtp_notification_auto_dismiss_seconds') ?? 0;
 
-      await ForegroundService.notify(
+      final ok = await ForegroundService.notify(
         title: 'Threat Detected',
         text: 'Failed to quarantine: ${path.split('/').last}',
         autoDismissAfterSeconds:
         autoDismissSeconds > 0 ? autoDismissSeconds : null,
         openQuarantineOnClick: true,
       );
+      _log('notify id=$id ok=$ok');
     }
   }
 
@@ -763,6 +893,8 @@ Future<void> rtpBackgroundMain() async {
 
   final prefs = await SharedPreferences.getInstance();
   final enabled = prefs.getBool('protectionEnabled') ?? false;
+
+  RealtimeProtectionService.markBackground(enabled);
 
   if (!enabled) return;
 

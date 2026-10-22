@@ -55,8 +55,7 @@ bool isMlSignal(List<String> signals) {
 }
 
 String structuredHashLabel(String path) {
-  if (isApkPath(path)) return 'Android.KnownMalware.HashMatch';
-  return 'Generic.KnownMalware.HashMatch';
+  return 'Detected';
 }
 
 String structuredSignatureLabel(String raw) {

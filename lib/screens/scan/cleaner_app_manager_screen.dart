@@ -129,13 +129,6 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
 
     if (mounted) {
       setState(() => _uninstalling = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(failed == 0
-              ? AppLocalizations.of(context)!.cleanerAppManagerAppsUninstalled(pkgs.length - failed)
-              : AppLocalizations.of(context)!.cleanerAppManagerUninstalledFailed(pkgs.length - failed, failed)),
-        ),
-      );
     }
   }
 
@@ -150,11 +143,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
   }
 
   Future<void> _forceStopApp(Application app) async {
-    final ok = await _runShizukuAction('forceStop', app.packageName);
+    await _runShizukuAction('forceStop', app.packageName);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? AppLocalizations.of(context)!.cleanerAppManagerStopped(app.appName) : AppLocalizations.of(context)!.cleanerAppManagerForceStopFailed)),
-    );
   }
 
   Future<void> _clearAppData(Application app) async {
@@ -178,11 +168,8 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
 
     if (ok != true) return;
 
-    final success = await _runShizukuAction('clearData', app.packageName);
+    await _runShizukuAction('clearData', app.packageName);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? AppLocalizations.of(context)!.cleanerAppManagerReset(app.appName) : AppLocalizations.of(context)!.cleanerAppManagerClearDataFailed)),
-    );
   }
 
   void _showAppActions(BuildContext context, Application app) {

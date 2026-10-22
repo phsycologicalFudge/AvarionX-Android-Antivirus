@@ -99,23 +99,6 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
       _concurrentController.text = mc.toString();
       _threadsController.text = mt.toString();
     });
-
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(
-        content:  Text(
-          AppLocalizations.of(context)!.scanLimitsSettingsUpdated,
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-    );
   }
 
   Widget _cardRow({

@@ -800,8 +800,8 @@ Future<HeadlessScanResult> runHeadlessScan({
             onEvent?.call(HeadlessScanEvent('unclean', mode: mode, path: path, name: name));
 
             final isHash = cloudLabel == 'Cloud.Hash';
-            final hitLabel = isHash ? structuredHashLabel(path) : cloudLabel;
-            final hitConfidence = isHash ? 1.0 : 0.80;
+            final hitLabel = 'Detected';
+            final hitConfidence = 1.0;
             final hitSignals = isHash ? const ['HashMatch'] : const ['CloudMolecule'];
             detections.add(HeadlessDetection(path: path, name: name, label: hitLabel, confidence: hitConfidence, signals: hitSignals));
             final prepared = await _prepareDetectedFile(path);

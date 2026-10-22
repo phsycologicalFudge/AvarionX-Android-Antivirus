@@ -248,9 +248,6 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         _viewUnlocked = false;
         _revealPage = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.linkCheckerEngineNotReadySnack)),
-      );
       return;
     }
 
@@ -439,12 +436,8 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
   }
 
   Future<void> _copy(String v) async {
-    final l10n = AppLocalizations.of(context)!;
     await Clipboard.setData(ClipboardData(text: v));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.linkCheckerCopied)),
-    );
   }
 
   Widget _analyseTab(BuildContext context) {

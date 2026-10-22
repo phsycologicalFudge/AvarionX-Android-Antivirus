@@ -104,20 +104,13 @@ class _CleanerProPaneState extends State<CleanerProPane> {
 
     setState(() => _cacheBusy = true);
 
-    bool success = false;
     try {
-      success = await _shizukuChannel.invokeMethod<bool>('clearAllCaches') ?? false;
+      await _shizukuChannel.invokeMethod<bool>('clearAllCaches');
     } catch (_) {}
 
     if (!mounted) return;
 
     setState(() => _cacheBusy = false);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(success ? AppLocalizations.of(context)!.cleanerProCacheTrimRequested : AppLocalizations.of(context)!.cleanerProCacheCleanerFailed),
-      ),
-    );
   }
 
   Future<void> _scanLogs() async {

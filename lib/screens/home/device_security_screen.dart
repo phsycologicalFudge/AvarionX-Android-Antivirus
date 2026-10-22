@@ -228,17 +228,9 @@ class _DeviceSecurityDetailScreenState
   }
 
   Future<void> _checkSetting() async {
-    final opened = await DeviceSecuritySignalLoader.openSetting(_signal.id);
+    await DeviceSecuritySignalLoader.openSetting(_signal.id);
 
     if (!mounted) return;
-
-    if (!opened) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_signal.manualHelp),
-        ),
-      );
-    }
   }
 
   @override

@@ -167,11 +167,6 @@ class _FullVpnModeScreenState extends State<FullVpnModeScreen>
       await c.setTokenFromLogin(token);
 
       if (_closing || !mounted) return;
-
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.fullVpnSignedIn)),
-      );
     }
 
     try {

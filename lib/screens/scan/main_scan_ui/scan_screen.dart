@@ -883,8 +883,8 @@ class _ScanScreenState extends State<ScanScreen>
         infected.add(
           DetectionResult(
             name: file.name,
-            label: cloudLabel == 'Cloud.Hash' ? structuredHashLabel(effectivePath) : cloudLabel,
-            confidence: cloudLabel == 'Cloud.Hash' ? 1.0 : 0.80,
+            label: 'Detected',
+            confidence: 1.0,
             signals: cloudLabel == 'Cloud.Hash' ? const ['HashMatch'] : const ['CloudMolecule'],
             path: effectivePath,
           ),
@@ -1111,8 +1111,8 @@ class _ScanScreenState extends State<ScanScreen>
         infected.add(
           DetectionResult(
             name: app.name,
-            label: cloudLabel == 'Cloud.Hash' ? structuredHashLabel(app.path) : cloudLabel,
-            confidence: cloudLabel == 'Cloud.Hash' ? 1.0 : 0.80,
+            label: 'Detected',
+            confidence: 1.0,
             signals: cloudLabel == 'Cloud.Hash' ? const ['HashMatch'] : const ['CloudMolecule'],
             path: app.path,
           ),

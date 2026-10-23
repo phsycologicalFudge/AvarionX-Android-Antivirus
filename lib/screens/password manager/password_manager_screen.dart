@@ -159,10 +159,13 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
       return null;
     }
 
-    _metaPassword = meta;
+    final trimmed = meta.trim();
+    if (trimmed.isEmpty) return null;
+
+    _metaPassword = trimmed;
 
     if (remember) {
-      await MetaPasswordService.setMeta(meta);
+      await MetaPasswordService.setMeta(trimmed);
     }
 
     return _metaPassword;
@@ -312,10 +315,6 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
       );
     } catch (e) {
       if (mounted) Navigator.pop(context);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.passwordManagerFailedToLoadApps(e))),
-      );
     }
   }
 
@@ -508,6 +507,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     );
 
     await _loadVault();
+    await _loadMetaFromKeystore();
   }
 
   void _upsertEntry({
@@ -519,6 +519,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
   }) {
     final normLabel = label.trim();
     if (normLabel.isEmpty) return;
+    version = version.clamp(1, 9999).toInt();
+    length = length.clamp(1, 256).toInt();
 
     final existingIndex = _entries.indexWhere(
           (e) => (e['label'] as String).toLowerCase() == normLabel.toLowerCase(),
@@ -617,18 +619,7 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
     try {
       final pw = _bridge.generatePassword(meta, label, v, length);
       await Clipboard.setData(ClipboardData(text: pw));
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.metaPassPasswordCopied(label, v, length)),
-        ),
-      );
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.passwordManagerFailedToGeneratePassword(e))),
-      );
     }
   }
 

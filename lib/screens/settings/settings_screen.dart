@@ -6,7 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -66,7 +65,6 @@ class SettingsScreenState extends State<SettingsScreen>
 
   final _shizukuChannel = const MethodChannel('cs.shizuku');
   final _managerChannel = const MethodChannel('cs.manager');
-  final _secure = const FlutterSecureStorage();
 
   String _language = 'system';
   String? _metaPassword;
@@ -372,8 +370,6 @@ class SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _restorePurchasesNow() async {
-    final l10n = AppLocalizations.of(context)!;
-
     await PurchaseService.ensureReady();
     await PurchaseService.restore();
 
@@ -385,10 +381,6 @@ class SettingsScreenState extends State<SettingsScreen>
     setState(() {
       isPro = effective;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.ok)),
-    );
   }
 
   Future<void> _showUpgradeDialog() async {
@@ -399,15 +391,9 @@ class SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _unlockProLocally() async {
-    final l10n = AppLocalizations.of(context)!;
     await ProGate.setLocalUnlocked(true);
     await ProGate.clearTrial();
     await _loadPro();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.settingsProUnlocked)),
-    );
   }
 
   Future<void> _showSupportUnlockDialog() async {
@@ -483,19 +469,11 @@ class SettingsScreenState extends State<SettingsScreen>
     if (confirmed != true) return;
 
     if (expected == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.settingsSupportFileMissing)),
-      );
       return;
     }
 
     final code = controller.text.trim();
     if (code != expected) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(AppLocalizations.of(context)!.settingsInvalidSupportCode)),
-      );
       return;
     }
 
@@ -503,7 +481,6 @@ class SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _resetProForDebug() async {
-    final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
 
     await ProGate.setDebugIgnorePaid(true);
@@ -521,14 +498,9 @@ class SettingsScreenState extends State<SettingsScreen>
     setState(() {
       isPro = false;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.settingsProReset)),
-    );
   }
 
   Future<void> _enableProForDebug() async {
-    final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
 
     await ProGate.setDebugIgnorePaid(false);
@@ -537,11 +509,6 @@ class SettingsScreenState extends State<SettingsScreen>
     await prefs.setBool('isPro', true);
 
     await _loadPro();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.settingsProUnlocked)),
-    );
   }
 
   void _showShizukuInfo() {
@@ -770,7 +737,7 @@ class SettingsScreenState extends State<SettingsScreen>
   Future<void> _showMetaPasswordDialog() async {
     final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(
-      text: await _secure.read(key: 'meta_password') ?? '',
+      text: await MetaPasswordService.getMeta() ?? '',
     );
 
     if (!mounted) return;
@@ -817,10 +784,7 @@ class SettingsScreenState extends State<SettingsScreen>
                   onPressed: () async {
                     final value = controller.text.trim();
                     if (value.isEmpty) return;
-                    await _secure.write(
-                      key: 'meta_password',
-                      value: value,
-                    );
+                    await MetaPasswordService.setMeta(value);
                     if (!mounted) return;
                     setState(() => _metaPassword = value);
                     Navigator.pop(context);
@@ -1111,11 +1075,6 @@ class SettingsScreenState extends State<SettingsScreen>
                               final uri = Uri.parse('https://discord.gg/VYubQJfcYM');
                               if (await canLaunchUrl(uri)) {
                                 await launchUrl(uri, mode: LaunchMode.externalApplication);
-                              } else {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.settingsDiscordOpenFail)),
-                                );
                               }
                             },
                           ),
@@ -1361,10 +1320,6 @@ class SettingsScreenState extends State<SettingsScreen>
                                     final ex = ExclusionService();
                                     await ex.load();
                                     await ex.addFolder(result);
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.settingsFolderExcluded)),
-                                    );
                                   }
                                 },
                                 onExcludeFile: () async {
@@ -1379,11 +1334,6 @@ class SettingsScreenState extends State<SettingsScreen>
                                     final ex = ExclusionService();
                                     await ex.load();
                                     await ex.addSha(sha);
-
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.settingsFileExcluded)),
-                                    );
                                   }
                                 },
                                 onManage: () {
@@ -1407,13 +1357,6 @@ class SettingsScreenState extends State<SettingsScreen>
                               );
                               if (await canLaunchUrl(uri)) {
                                 await launchUrl(uri, mode: LaunchMode.externalApplication);
-                              } else {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.settingsPrivacyPolicyOpenFail),
-                                  ),
-                                );
                               }
                             },
                           ),

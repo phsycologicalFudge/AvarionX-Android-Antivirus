@@ -32,6 +32,7 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
 
   Future<void> _load() async {
     final meta = await MetaPasswordService.getMeta();
+    if (!mounted) return;
     setState(() {
       _meta = meta;
       _loading = false;
@@ -85,10 +86,6 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
   Future<void> _copyRestoreCode() async {
     if (_restoreCode == null) return;
     await Clipboard.setData(ClipboardData(text: _restoreCode!));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Text(AppLocalizations.of(context)!.passwordSettingsRestoreCodeCopied)),
-    );
   }
 
   Future<void> _restoreFromCode(String code) async {
@@ -139,10 +136,6 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_vaultKey, normalized);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Text(AppLocalizations.of(context)!.passwordSettingsVaultRestored)),
-    );
 
     Navigator.pop(context);
   }

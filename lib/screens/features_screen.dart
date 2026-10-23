@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class FeaturesScreen extends StatefulWidget {
   const FeaturesScreen({super.key});
 
@@ -157,11 +159,8 @@ class _FeaturesScreenState extends State<FeaturesScreen>
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.featuresDrawerTitle),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: theme.appBarTheme.backgroundColor,
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.featuresDrawerTitle,
       ),
       body: ListView.builder(
         physics: const BouncingScrollPhysics(),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../translations/app_localizations.dart';
 import 'network_protection_models.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class NetworkLiveLogsScreen extends StatefulWidget {
   const NetworkLiveLogsScreen({super.key});
@@ -52,7 +53,9 @@ class _NetworkLiveLogsScreenState extends State<NetworkLiveLogsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.networkLiveLogsTitle)),
+      appBar: AvHeader(
+        title: l10n.networkLiveLogsTitle,
+      ),
       body: SafeArea(
         child: _dnsEvents.isEmpty
             ? Center(child: Text(l10n.networkLiveLogsEmpty, style: text.bodyMedium))

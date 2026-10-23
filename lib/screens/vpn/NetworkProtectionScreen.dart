@@ -12,6 +12,7 @@ import '../../services/service_manager.dart';
 import '../../translations/app_localizations.dart';
 import 'Network_app_control_screen.dart';
 import 'Network_speed_test_screen.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class NetworkProtectionScreen extends StatefulWidget {
   const NetworkProtectionScreen({super.key});
@@ -923,7 +924,9 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => Scaffold(
-          appBar: AppBar(title: Text(title)),
+          appBar: AvHeader(
+            title: title,
+          ),
           body: ValueListenableBuilder<int>(
             valueListenable: _uiTick,
             builder: (context, _, __) => SafeArea(child: builder()),
@@ -1155,8 +1158,8 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
     final aboutStatus = l10n.networkCardStatusOpen;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.networkProtectionTitle),
+      appBar: AvHeader(
+        title: l10n.networkProtectionTitle,
         actions: [
           if (kDebugMode)
             IconButton(
@@ -1297,7 +1300,9 @@ class _NetworkLiveLogsScreenState extends State<NetworkLiveLogsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.networkLiveLogsTitle)),
+      appBar: AvHeader(
+        title: l10n.networkLiveLogsTitle,
+      ),
       body: SafeArea(
         child: _dnsEvents.isEmpty
             ? Center(child: Text(l10n.networkLiveLogsEmpty, style: text.bodyMedium))

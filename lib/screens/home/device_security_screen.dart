@@ -8,6 +8,8 @@ import '../../widgets/mesh_background.dart';
 import '../settings/widgets/settings_section_header.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 enum DeviceSecurityCategory {
   health,
   recommendations,
@@ -111,19 +113,9 @@ class _DeviceSecurityScreenState extends State<DeviceSecurityScreen> {
 
     return Scaffold(
       backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.deviceSecurityDeviceSecurity,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
+      extendBodyBehindAppBar: true,
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.deviceSecurityDeviceSecurity,
       ),
       body: MeshBackground(
         blobs: themeManager.meshBlobs,
@@ -243,19 +235,9 @@ class _DeviceSecurityDetailScreenState
 
     return Scaffold(
       backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          _signal.displayTitle,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
+      extendBodyBehindAppBar: true,
+      appBar: AvHeader(
+        title: _signal.displayTitle,
       ),
       body: MeshBackground(
         blobs: themeManager.meshBlobs,

@@ -5,6 +5,7 @@ import 'dart:async';
 
 import '../../services/purchase_service.dart';
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class FullVpnSettingsScreen extends StatefulWidget {
   const FullVpnSettingsScreen({super.key});
@@ -767,19 +768,8 @@ class _FullVpnSettingsScreenState extends State<FullVpnSettingsScreen>
       builder: (context, _) {
         return Scaffold(
           backgroundColor: scheme.surface,
-          appBar: AppBar(
-            title: Text(
-              l10n.vpnAccountScreenTitle,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: scheme.onSurface,
-              ),
-            ),
-            centerTitle: true,
-            backgroundColor: scheme.surface,
-            surfaceTintColor: scheme.surfaceTint,
-            scrolledUnderElevation: 0,
-            elevation: 0,
+          appBar: AvHeader(
+            title: l10n.vpnAccountScreenTitle,
           ),
           body: SafeArea(
             child: RefreshIndicator(

@@ -7,6 +7,8 @@ import 'package:video_player/video_player.dart';
 import 'package:open_filex/open_filex.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 enum CleanerSort { newest, oldest, largest, smallest }
 
 class CleanerDetailScreen extends StatefulWidget {
@@ -208,8 +210,8 @@ class _CleanerDetailScreenState extends State<CleanerDetailScreen> {
     final inSelectMode = _selected.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(inSelectMode ? AppLocalizations.of(context)!.scanDetailSelected(_selected.length) : widget.title),
+      appBar: AvHeader(
+        title: inSelectMode ? AppLocalizations.of(context)!.scanDetailSelected(_selected.length) : widget.title,
         actions: [
           if (_deleting)
             const Padding(

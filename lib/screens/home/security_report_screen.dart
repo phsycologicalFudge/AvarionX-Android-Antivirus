@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class SecurityReportScreen extends StatefulWidget {
   const SecurityReportScreen({super.key});
 
@@ -140,14 +142,8 @@ class _SecurityReportScreenState extends State<SecurityReportScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title:  Text(
-          AppLocalizations.of(context)!.securityReportSecurityReport,
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.securityReportSecurityReport,
       ),
       body: FutureBuilder<_SecurityReportSnapshot>(
         future: _future,

@@ -8,6 +8,7 @@ import 'dns/NetworkProtectionScreen.dart';
 import 'full_vpn_footer_nav.dart';
 import 'services/full_vpn_location_map.dart';
 import 'dart:async';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class FullVpnModeScreen extends StatefulWidget {
   const FullVpnModeScreen({super.key});
@@ -961,8 +962,8 @@ class _LoginWebViewState extends State<_LoginWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.vpnSignIn),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.vpnSignIn,
       ),
       body: Stack(
         children: [

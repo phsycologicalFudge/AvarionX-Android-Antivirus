@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/pro_temp_service.dart';
 import '../../services/scan_scheduler.dart';
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class ScheduledScansScreen extends StatefulWidget {
   const ScheduledScansScreen({super.key});
@@ -203,14 +204,8 @@ class _ScheduledScansScreenState extends State<ScheduledScansScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        title: Text(
-          l10n.scheduledScansTitle,
-          style: text.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+      appBar: AvHeader(
+        title: l10n.scheduledScansTitle,
         actions: [
           IconButton(
             onPressed: _showInfo,

@@ -4,6 +4,8 @@ import 'apk_analyser_controller.dart';
 import 'apk_export_service.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class ApkReportScreen extends StatefulWidget {
   final ApkReport report;
 
@@ -190,13 +192,8 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
       length: currentTabs.length,
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBar(
-          backgroundColor: theme.colorScheme.surface,
-          scrolledUnderElevation: 0,
-          title: Text(
-            AppLocalizations.of(context)!.apkReportAnalysisReport,
-            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
+        appBar: AvHeader(
+          title: AppLocalizations.of(context)!.apkReportAnalysisReport,
           actions: [
             IconButton(
               icon: const Icon(Icons.ios_share_rounded),

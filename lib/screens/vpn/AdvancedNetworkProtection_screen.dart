@@ -8,6 +8,7 @@ import '../../services/service_manager.dart';
 import '../../translations/app_localizations.dart';
 import 'Network_app_control_screen.dart';
 import 'Network_speed_test_screen.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class NetworkAdvancedScreen extends StatefulWidget {
   const NetworkAdvancedScreen({super.key});
@@ -784,7 +785,9 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => Scaffold(
-          appBar: AppBar(title: Text(title)),
+          appBar: AvHeader(
+            title: title,
+          ),
           body: ValueListenableBuilder<int>(
             valueListenable: _uiTick,
             builder: (context, _, __) => SafeArea(child: builder()),
@@ -856,8 +859,8 @@ class _NetworkAdvancedScreenState extends State<NetworkAdvancedScreen> with Widg
     final speedStatus = l10n.networkCardStatusReady;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.networkProtectionTitle),
+      appBar: AvHeader(
+        title: l10n.networkProtectionTitle,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -979,7 +982,9 @@ class _NetworkLiveLogsScreenState extends State<NetworkLiveLogsScreen> {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title:  Text(AppLocalizations.of(context)!.networkLiveLogsTitle)),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.networkLiveLogsTitle,
+      ),
       body: SafeArea(
         child: _dnsEvents.isEmpty
             ? Center(child: Text(AppLocalizations.of(context)!.networkLiveLogsEmpty, style: text.bodyMedium))

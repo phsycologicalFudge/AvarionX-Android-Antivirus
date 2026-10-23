@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class UnusedAppsScreen extends AppManagerScreen {
   const UnusedAppsScreen({super.key, required super.apps});
@@ -298,10 +299,10 @@ class _AppManagerScreenState extends State<AppManagerScreen> {
     final inSelectMode = _selected.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(inSelectMode
+      appBar: AvHeader(
+        title: inSelectMode
             ? AppLocalizations.of(context)!.cleanerAppManagerSelected(_selected.length)
-            : AppLocalizations.of(context)!.cleanerAppManagerAppManager),
+            : AppLocalizations.of(context)!.cleanerAppManagerAppManager,
         actions: [
           if (inSelectMode)
             TextButton(

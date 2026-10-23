@@ -47,6 +47,8 @@ import '../settings/settings_screen.dart';
 import '../vpn/lite_vpn_controller.dart';
 import '../../constants/build_flags.dart';
 import '../../terminal/terminal_screen.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+import 'package:colourswift_av/widgets/av_footer.dart';
 
 class AvHomeScreen extends StatefulWidget {
   const AvHomeScreen({super.key});
@@ -99,54 +101,71 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  Future<T?> _pushFromDrawer<T>(Widget page) {
+    final route = animatedRoute<T>(page);
+    final result = Navigator.push<T>(context, route);
+    late final AnimationStatusListener listener;
+    listener = (status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        route.animation?.removeStatusListener(listener);
+        _scaffoldKey.currentState?.closeDrawer();
+      }
+    };
+    route.animation?.addStatusListener(listener);
+    return result;
+  }
+
   void _handleDrawerItem(String tag) {
     switch (tag) {
-      case 'scan':
-        _handleScanButton();
-        break;
       case 'apk_analyser':
-        Navigator.push(context, animatedRoute(const ApkAnalyserScreen()));
+        _pushFromDrawer(const ApkAnalyserScreen());
         break;
       case 'link_check':
-        Navigator.push(context, animatedRoute(const LinkCheckScreen()));
+        _pushFromDrawer(const LinkCheckScreen());
         break;
       case 'password_manager':
-        Navigator.push(context, animatedRoute(const PasswordTestScreen()));
+        _pushFromDrawer(const PasswordTestScreen());
         break;
       case 'scheduled_scan':
-        Navigator.push(context, animatedRoute(const ScheduledScansScreen()));
+        _pushFromDrawer(const ScheduledScansScreen());
         break;
       case 'cleaner':
-        Navigator.push(context, animatedRoute(const CleanerScreen()));
+        _pushFromDrawer(const CleanerScreen());
         break;
       case 'terminal':
-        Navigator.push(context, animatedRoute(const ConsoleScreen(isActive: true)));
+        _pushFromDrawer(const ConsoleScreen(isActive: true));
         break;
       case 'scan_limits':
-        Navigator.push(context, animatedRoute(const ScanLimitsScreen()));
+        _pushFromDrawer(const ScanLimitsScreen());
         break;
       case 'settings':
-        Navigator.push(context, animatedRoute(const SettingsScreen()));
+        _pushFromDrawer(const SettingsScreen());
         break;
       case 'quarantine':
-        Navigator.push(context, animatedRoute(const QuarantineScreen()));
+        _pushFromDrawer(const QuarantineScreen());
         break;
       case 'upgrade_pro':
-        Navigator.push(context, animatedRoute(const ProScreen())).then((res) {
+        _pushFromDrawer(const ProScreen()).then((res) {
           if (res == true) _loadProStatus();
         });
         break;
       case 'security_report':
-        Navigator.push(context, animatedRoute(const SecurityReportScreen()));
+        _pushFromDrawer(const SecurityReportScreen());
+        break;
+      case 'scan':
+        _scaffoldKey.currentState?.closeDrawer();
+        _handleScanButton();
         break;
       case 'protection':
+        _scaffoldKey.currentState?.closeDrawer();
         _showRtpInfo();
         break;
       case 'vpn_upsell':
+        _scaffoldKey.currentState?.closeDrawer();
         _openVpnAppStoreListing();
         break;
       default:
-        break;
+        _scaffoldKey.currentState?.closeDrawer();
     }
   }
 
@@ -1450,10 +1469,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(14, 12, 14, 20),
-                  child: _AvarionXSecurityFooter(),
-                ),
+                const AvFooter(),
               ],
             ),
           ],
@@ -1520,12 +1536,8 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              AppBar(
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: Text(l10n.homeScanModes),
+              AvHeader(
+                title: l10n.homeScanModes,
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -1729,41 +1741,6 @@ class _ScanModeBlock extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _AvarionXSecurityFooter extends StatelessWidget {
-  const _AvarionXSecurityFooter();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-    final scheme = theme.colorScheme;
-
-    return Opacity(
-      opacity: theme.brightness == Brightness.dark ? 0.58 : 0.72,
-      child: Column(
-        children: [
-          Text(
-            'AvarionX',
-            style: text.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.4,
-              color: scheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            AppLocalizations.of(context)!.homeProtectedByVXTITANIUM,
-            style: text.labelSmall?.copyWith(
-              letterSpacing: 0.2,
-              color: scheme.onSurface.withOpacity(0.62),
-            ),
-          ),
-        ],
       ),
     );
   }

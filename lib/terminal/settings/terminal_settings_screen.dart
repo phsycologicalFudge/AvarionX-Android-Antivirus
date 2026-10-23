@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../screens/settings/widgets/settings_section_header.dart';
 import '../../screens/settings/widgets/settings_setting_tile.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class TerminalSettingsScreen extends StatelessWidget {
   const TerminalSettingsScreen({super.key});
@@ -9,9 +10,8 @@ class TerminalSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Terminal Settings'),
-        centerTitle: false,
+      appBar: AvHeader(
+        title: 'Terminal Settings',
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),

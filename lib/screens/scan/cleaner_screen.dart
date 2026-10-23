@@ -4,6 +4,8 @@ import 'cleaner_lite_screen.dart';
 import 'cleaner_pro_screen.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class CleanerScreen extends StatelessWidget {
   const CleanerScreen({super.key});
 
@@ -15,13 +17,8 @@ class CleanerScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBar(
-          title:  Text(AppLocalizations.of(context)!.cleanerScreenCleaner),
-          centerTitle: true,
-          backgroundColor: theme.colorScheme.surface,
-          surfaceTintColor: theme.colorScheme.surfaceTint,
-          scrolledUnderElevation: 0,
-          elevation: 0,
+        appBar: AvHeader(
+          title: AppLocalizations.of(context)!.cleanerScreenCleaner,
         ),
         body: SafeArea(
           child: Column(

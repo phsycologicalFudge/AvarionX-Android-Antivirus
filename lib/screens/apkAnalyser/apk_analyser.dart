@@ -7,6 +7,8 @@ import 'apk_report_screen.dart';
 import 'apk_export_service.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class ApkAnalyserScreen extends StatefulWidget {
   const ApkAnalyserScreen({super.key});
 
@@ -502,14 +504,6 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
         border: Border.all(
           color: theme.colorScheme.onSurface.withOpacity(0.08),
         ),
-        gradient: RadialGradient(
-          colors: [
-            theme.colorScheme.onSurface.withOpacity(0.12),
-            theme.colorScheme.onSurface.withOpacity(0.02),
-          ],
-          center: Alignment.center,
-          radius: 1.0,
-        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -666,13 +660,8 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
       builder: (context, _) {
         return Scaffold(
           backgroundColor: theme.colorScheme.surface,
-          appBar: AppBar(
-            backgroundColor: theme.colorScheme.surface,
-            scrolledUnderElevation: 0,
-            title: Text(
-              AppLocalizations.of(context)!.apkAnalyserApkAnalyser,
-              style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
+          appBar: AvHeader(
+            title: AppLocalizations.of(context)!.apkAnalyserApkAnalyser,
             actions: [
               IconButton(
                 icon: const Icon(Icons.history_rounded),

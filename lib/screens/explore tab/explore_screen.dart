@@ -7,6 +7,7 @@ import '../link checker/link_check_screen.dart';
 import '../scan/scan_limits_screen.dart';
 import '../scan/scheduled_scan_screen.dart';
 import '../../terminal/terminal_screen.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -114,19 +115,8 @@ class ExploreScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          l10n.footerExplore,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: scheme.surfaceTint,
-        scrolledUnderElevation: 0,
-        elevation: 0,
+      appBar: AvHeader(
+        title: l10n.footerExplore,
       ),
       body: Column(
         children: [

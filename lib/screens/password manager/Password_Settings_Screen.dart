@@ -7,6 +7,8 @@ import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class PasswordSettingsScreen extends StatefulWidget {
   const PasswordSettingsScreen({super.key});
 
@@ -217,7 +219,9 @@ class _PasswordSettingsScreenState extends State<PasswordSettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title:  Text(AppLocalizations.of(context)!.passwordSettingsTitle)),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.passwordSettingsTitle,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

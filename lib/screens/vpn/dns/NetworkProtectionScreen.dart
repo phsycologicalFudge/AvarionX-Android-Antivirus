@@ -13,6 +13,7 @@ import '../../../translations/app_localizations.dart';
 import '../Network_speed_test_screen.dart';
 import 'network_live_logs_screen.dart';
 import 'network_protection_models.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class NetworkProtectionScreen extends StatefulWidget {
   const NetworkProtectionScreen({super.key});
@@ -918,7 +919,9 @@ class _NetworkAdvancedScreenState extends State<NetworkProtectionScreen> with Wi
         builder: (_) => Theme(
           data: t,
           child: Scaffold(
-            appBar: AppBar(title: Text(title)),
+            appBar: AvHeader(
+              title: title,
+            ),
             body: ValueListenableBuilder<int>(
               valueListenable: _uiTick,
               builder: (context, _, __) => SafeArea(child: builder()),

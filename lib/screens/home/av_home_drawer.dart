@@ -11,10 +11,7 @@ class AvHomeDrawer extends StatelessWidget {
     required this.onItemTap,
   });
 
-  void _navigate(BuildContext context, String tag) {
-    Navigator.of(context).pop();
-    onItemTap(tag);
-  }
+  void _navigate(BuildContext context, String tag) => onItemTap(tag);
 
   @override
   Widget build(BuildContext context) {

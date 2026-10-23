@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class NetworkSpeedTestScreen extends StatefulWidget {
   const NetworkSpeedTestScreen({super.key});
 
@@ -276,8 +278,8 @@ class _NetworkSpeedTestScreenState extends State<NetworkSpeedTestScreen> {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.networkSpeedTestTitle),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.networkSpeedTestTitle,
       ),
       body: SafeArea(
         child: Padding(

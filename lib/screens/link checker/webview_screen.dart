@@ -4,6 +4,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../widgets/antivirus_bridge.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 enum _SafeViewBlockReason {
   navigation,
   invalidDestination,
@@ -143,9 +145,8 @@ class _SafeWebViewScreenState extends State<SafeWebViewScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        title:  Text(AppLocalizations.of(context)!.safeViewSafeView),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.safeViewSafeView,
       ),
       body: Stack(
         children: [

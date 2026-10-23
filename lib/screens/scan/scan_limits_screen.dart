@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/antivirus_bridge.dart';
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class ScanLimitsScreen extends StatefulWidget {
   const ScanLimitsScreen({super.key});
@@ -207,13 +208,8 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        title: Text(
-          AppLocalizations.of(context)!.scanLimitsScanLimits,
-          style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.scanLimitsScanLimits,
       ),
       body: SafeArea(
         child: _loading

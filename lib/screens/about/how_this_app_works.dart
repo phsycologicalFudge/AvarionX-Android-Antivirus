@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class HowThisAppWorksScreen extends StatelessWidget {
   const HowThisAppWorksScreen({super.key});
 
@@ -11,16 +13,8 @@ class HowThisAppWorksScreen extends StatelessWidget {
     final text = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.settingsHowThisAppWorks,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: text.bodyLarge?.color,
-          ),
-        ),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        centerTitle: true,
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.settingsHowThisAppWorks,
       ),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Padding(

@@ -31,6 +31,7 @@ import 'widgets/settings_account_card.dart';
 import 'widgets/settings_pro_card.dart';
 import 'widgets/settings_section_header.dart';
 import 'widgets/settings_setting_tile.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -961,7 +962,6 @@ class SettingsScreenState extends State<SettingsScreen>
     final l10n = AppLocalizations.of(context)!;
     final themeManager = Provider.of<ThemeManager>(context);
     final theme = Theme.of(context);
-    final text = theme.textTheme;
     final scheme = theme.colorScheme;
 
     final themeName = themeManager.themeName;
@@ -979,34 +979,10 @@ class SettingsScreenState extends State<SettingsScreen>
         child: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.cardTheme.color,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        color: scheme.onSurface.withOpacity(0.78),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Expanded(
-                        child: Text(
-                          l10n.footerSettings,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: scheme.onSurface.withOpacity(0.92),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              AvHeader(
+                title: l10n.footerSettings,
+                showBack: true,
+                onBack: () => Navigator.pop(context),
               ),
               Expanded(
                 child: Stack(
@@ -1452,19 +1428,9 @@ class _AccountSettingsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: scheme.surface,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.settingsAccountTitle,
-          style: text.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: scheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
+      extendBodyBehindAppBar: true,
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.settingsAccountTitle,
       ),
       body: MeshBackground(
         blobs: themeManager.meshBlobs,

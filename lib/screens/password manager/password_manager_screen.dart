@@ -9,6 +9,9 @@ import '../../services/meta_password_service.dart';
 import '../../widgets/antivirus_bridge.dart';
 import 'Password_Settings_Screen.dart';
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+import 'package:colourswift_av/widgets/av_footer.dart';
+
 class PasswordTestScreen extends StatefulWidget {
   const PasswordTestScreen({super.key});
 
@@ -725,8 +728,8 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.passwordSettingsSectionMetaPass),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.passwordSettingsSectionMetaPass,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_rounded),
@@ -741,129 +744,113 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
           child: const Icon(Icons.add_rounded),
         ),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _entries.isEmpty
-          ? _buildEmptyState(theme, text, isDark)
-          : Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: _entries.length + 1, // +1 for footer
-          itemBuilder: (context, index) {
-            // Footer section
-            if (index == _entries.length) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.metaPassPoweredBy,
-                    style: text.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: text.bodySmall?.color?.withOpacity(0.4),
-                    ),
-                  ),
-                ),
-              );
-            }
+      body: Column(
+        children: [
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _entries.isEmpty
+                ? _buildEmptyState(theme, text, isDark)
+                : Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _entries.length,
+                    itemBuilder: (context, index) {
+                      final entry = _entries[index];
+                      final label = (entry['label'] as String?) ?? '';
+                      if (label.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      final versions = (entry['versions'] as List)
+                          .map<Map<String, dynamic>>(
+                              (v) => Map<String, dynamic>.from(v))
+                          .toList();
+                      versions.sort((a, b) =>
+                          (a['version'] as int).compareTo(b['version'] as int));
+                      final selected = entry['selectedVersion'] is int
+                          ? entry['selectedVersion'] as int
+                          : versions.isNotEmpty
+                          ? versions.last['version'] as int
+                          : 1;
+                      final length = (versions.firstWhere(
+                            (v) => v['version'] == selected,
+                        orElse: () => versions.last,
+                      )['length']) as int? ??
+                          24;
 
-            // Normal list items
-            final entry = _entries[index];
-            final label = (entry['label'] as String?) ?? '';
-            if (label.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            final versions = (entry['versions'] as List)
-                .map<Map<String, dynamic>>(
-                    (v) => Map<String, dynamic>.from(v))
-                .toList();
-            versions.sort((a, b) =>
-                (a['version'] as int).compareTo(b['version'] as int));
-            final selected = entry['selectedVersion'] is int
-                ? entry['selectedVersion'] as int
-                : versions.isNotEmpty
-                ? versions.last['version'] as int
-                : 1;
-            final length = (versions.firstWhere(
-                  (v) => v['version'] == selected,
-              orElse: () => versions.last,
-            )['length']) as int? ??
-                24;
-
-            return GestureDetector(
-              onTap: () => _copyPasswordForEntry(entry),
-              onLongPress: () => _deleteEntry(index),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? theme.cardColor
-                      : theme.colorScheme.surfaceVariant.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildIcon(entry),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            label,
-                            style: text.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: text.bodyLarge?.color,
+                      return GestureDetector(
+                        onTap: () => _copyPasswordForEntry(entry),
+                        onLongPress: () => _deleteEntry(index),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: theme.colorScheme.onSurface.withOpacity(0.08),
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              _buildVersionDropdown(entry, index),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!.metaPassChars(length),
-                                style: text.bodySmall?.copyWith(
-                                  color: text.bodySmall?.color
-                                      ?.withOpacity(0.7),
+                              _buildIcon(entry),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      label,
+                                      style: text.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: text.bodyLarge?.color,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        _buildVersionDropdown(entry, index),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          AppLocalizations.of(context)!.metaPassChars(length),
+                                          style: text.bodySmall?.copyWith(
+                                            color: text.bodySmall?.color
+                                                ?.withOpacity(0.7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      AppLocalizations.of(context)!.metaPassTapToCopyHint,
+                                      style: text.bodySmall?.copyWith(
+                                        fontSize: 10,
+                                        color: text.bodySmall?.color
+                                            ?.withOpacity(0.55),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.copy_rounded, size: 20),
+                                onPressed: () => _copyPasswordForEntry(entry),
+                                tooltip: AppLocalizations.of(context)!.metaPassCopyTooltip,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            AppLocalizations.of(context)!.metaPassTapToCopyHint,
-                            style: text.bodySmall?.copyWith(
-                              fontSize: 10,
-                              color: text.bodySmall?.color
-                                  ?.withOpacity(0.55),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.copy_rounded, size: 20),
-                      onPressed: () => _copyPasswordForEntry(entry),
-                      tooltip: AppLocalizations.of(context)!.metaPassCopyTooltip,
-                    ),
-                  ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+          ),
+          const AvFooter(showTitle: false),
+        ],
       ),
     );
   }

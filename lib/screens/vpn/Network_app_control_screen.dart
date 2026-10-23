@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class NetworkAppControlScreen extends StatefulWidget {
   const NetworkAppControlScreen({super.key});
 
@@ -281,8 +283,8 @@ class _NetworkAppControlScreenState extends State<NetworkAppControlScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.networkAppControlAppControl),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.networkAppControlAppControl,
         actions: [
           IconButton(
             onPressed: _loading

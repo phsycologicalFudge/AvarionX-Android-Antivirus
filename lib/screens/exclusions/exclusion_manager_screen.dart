@@ -4,6 +4,8 @@ import 'package:colourswift_av/services/exclusion_service.dart';
 
 
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
+
 class ExclusionManagerScreen extends StatefulWidget {
   ExclusionManagerScreen({super.key});
   @override
@@ -53,8 +55,8 @@ class _ExclusionManagerScreenState extends State<ExclusionManagerScreen> {
     final text = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(AppLocalizations.of(context)!.settingsExclusions),
+      appBar: AvHeader(
+        title: AppLocalizations.of(context)!.settingsExclusions,
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())

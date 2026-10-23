@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../../services/av_engine.dart';
 import '../../widgets/antivirus_bridge.dart';
 import '../../translations/app_localizations.dart';
+import 'package:colourswift_av/widgets/av_header.dart';
 
 class LinkCheckScreen extends StatefulWidget {
   const LinkCheckScreen({super.key});
@@ -489,22 +490,6 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.linkCheckerTabAnalyse,
-                  style: text.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.onSurface.withOpacity(0.9),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l10n.linkCheckerAnalyseSubtitle,
-                  style: text.bodySmall?.copyWith(
-                    height: 1.35,
-                    color: text.bodySmall?.color?.withOpacity(0.75),
-                  ),
-                ),
-                const SizedBox(height: 14),
                 TextField(
                   controller: _controller,
                   keyboardType: TextInputType.url,
@@ -524,17 +509,19 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: AvEngine.isInitialized && !_checking ? _checkLink : null,
                     icon: Icon(
                       _checking ? Icons.hourglass_top_rounded : Icons.search_rounded,
                       size: 18,
                     ),
                     label: Text(_checking ? l10n.linkCheckerButtonChecking : l10n.linkCheckerButtonAnalyse),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       textStyle: const TextStyle(
                         fontSize: 14,
@@ -626,14 +613,6 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.linkCheckerTabView,
-              style: text.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.onSurface.withOpacity(0.9),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
               l10n.linkCheckerViewLockedBody,
               style: text.bodySmall?.copyWith(
                 height: 1.35,
@@ -650,22 +629,6 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.linkCheckerTabView,
-            style: text.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: theme.colorScheme.onSurface.withOpacity(0.9),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.linkCheckerViewSubtitle,
-            style: text.bodySmall?.copyWith(
-              height: 1.35,
-              color: text.bodySmall?.color?.withOpacity(0.75),
-            ),
-          ),
-          const SizedBox(height: 14),
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
@@ -812,22 +775,6 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.linkCheckerTabHistory,
-            style: text.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: theme.colorScheme.onSurface.withOpacity(0.9),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.linkCheckerHistorySubtitle,
-            style: text.bodySmall?.copyWith(
-              height: 1.35,
-              color: text.bodySmall?.color?.withOpacity(0.75),
-            ),
-          ),
-          const SizedBox(height: 14),
           if (_history.isEmpty)
             Card(
               color: theme.colorScheme.surfaceContainerHigh,
@@ -939,21 +886,31 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        title: Text(l10n.linkCheckerTitle),
+      appBar: AvHeader(
+        title: l10n.linkCheckerTitle,
         bottom: TabBar(
           controller: _tabs,
           onTap: _tryOpenViewTab,
+          dividerColor: Colors.transparent,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          labelColor: theme.colorScheme.onPrimary,
+          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.65),
+          labelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+          unselectedLabelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
           tabs: [
-            Tab(text: l10n.linkCheckerTabAnalyse),
+            Tab(height: 36, text: l10n.linkCheckerTabAnalyse),
             Tab(
+              height: 36,
               child: Opacity(
                 opacity: viewTabOpacity,
                 child: Text(l10n.linkCheckerTabView),
               ),
             ),
-            Tab(text: l10n.linkCheckerTabHistory),
+            Tab(height: 36, text: l10n.linkCheckerTabHistory),
           ],
         ),
       ),

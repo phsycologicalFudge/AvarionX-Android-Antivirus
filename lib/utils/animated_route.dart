@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:colourswift_av/services/theme/theme_manager.dart';
+import 'package:colourswift_av/widgets/mesh_background.dart';
 
 PageRouteBuilder<T> animatedRoute<T>(Widget page, {bool reverse = false}) {
   return PageRouteBuilder<T>(
     transitionDuration: const Duration(milliseconds: 250),
     reverseTransitionDuration: const Duration(milliseconds: 200),
-    pageBuilder: (_, __, ___) => page,
+    pageBuilder: (context, __, ___) => MeshBackground(
+      blobs: Provider.of<ThemeManager>(context).meshBlobs,
+      base: Theme.of(context).colorScheme.surface,
+      child: page,
+    ),
     transitionsBuilder: (_, animation, __, child) {
       final fade = CurvedAnimation(
         parent: animation,

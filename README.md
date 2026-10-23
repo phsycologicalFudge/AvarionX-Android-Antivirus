@@ -27,7 +27,7 @@ AvarionX Security is an Android antivirus built around user privacy.
 
 It can scan files and APKs directly on your device, monitor new downloads, check known malicious domains, and use optional cloud intelligence for hash lookups. The app does not use ads, analytics, or paid protection tiers.
 
-Cloud checks are optional. When enabled, AvarionX sends file hashes for lookup, not the file contents.
+Cloud checks are optional. When enabled, AvarionX sends file hashes for regular lookups, and may send code related content inside an APK.
 
 ## Protection layers
 

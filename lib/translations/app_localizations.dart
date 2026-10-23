@@ -1251,7 +1251,7 @@ abstract class AppLocalizations {
   /// No description provided for @metaPassPoweredBy.
   ///
   /// In en, this message translates to:
-  /// **'powered by VX-TITANIUM'**
+  /// **'Powered by X-SERIES'**
   String get metaPassPoweredBy;
 
   /// No description provided for @metaPassLoading.
@@ -3713,6 +3713,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Requires Pro to unlock deeper analysis'**
   String get apkAnalyserRequiresProToUnlockDeeperAnalysis;
+
+  /// No description provided for @apkAnalyserRequiresPro.
+  ///
+  /// In en, this message translates to:
+  /// **'APK Analyser is a Pro feature. Tap to upgrade.'**
+  String get apkAnalyserRequiresPro;
 
   /// No description provided for @apkAnalyserApkAnalyser.
   ///

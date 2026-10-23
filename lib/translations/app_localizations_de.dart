@@ -642,7 +642,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get metaPassSettings => 'Einstellungen';
 
   @override
-  String get metaPassPoweredBy => 'unterstützt von VX-TITANIUM';
+  String get metaPassPoweredBy => 'Unterstützt von X-SERIES';
 
   @override
   String get metaPassLoading => 'Lädt…';
@@ -2061,6 +2061,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Pro ist erforderlich, um die tiefere Analyse freizuschalten';
 
   @override
+  String get apkAnalyserRequiresPro =>
+      'APK-Analyse ist eine Pro-Funktion. Zum Upgraden tippen.';
+
+  @override
   String get apkAnalyserApkAnalyser => 'APK-Analyse';
 
   @override
@@ -2334,7 +2338,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeLocalScanEngineOnly => 'Nur lokale Scan-Engine';
 
   @override
-  String get homeProtectedByVXTITANIUM => 'Geschützt durch VX-TITANIUM';
+  String get homeProtectedByVXTITANIUM => 'Geschützt durch X-SERIES';
 
   @override
   String get homeSecurityOverview => 'Sicherheitsübersicht';

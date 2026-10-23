@@ -636,7 +636,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metaPassSettings => 'Settings';
 
   @override
-  String get metaPassPoweredBy => 'powered by VX-TITANIUM';
+  String get metaPassPoweredBy => 'Powered by X-SERIES';
 
   @override
   String get metaPassLoading => 'Loading…';
@@ -2014,6 +2014,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get apkAnalyserRequiresProToUnlockDeeperAnalysis =>
       'Requires Pro to unlock deeper analysis';
+
+  @override
+  String get apkAnalyserRequiresPro =>
+      'APK Analyser is a Pro feature. Tap to upgrade.';
 
   @override
   String get apkAnalyserApkAnalyser => 'APK Analyser';

@@ -638,7 +638,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get metaPassSettings => 'الإعدادات';
 
   @override
-  String get metaPassPoweredBy => 'powered by VX-TITANIUM';
+  String get metaPassPoweredBy => 'Powered by X-SERIES';
 
   @override
   String get metaPassLoading => 'جارٍ التحميل…';
@@ -2020,6 +2020,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'يتطلب Pro لفتح التحليل الأعمق';
 
   @override
+  String get apkAnalyserRequiresPro => 'محلل APK ميزة Pro. اضغط للترقية.';
+
+  @override
   String get apkAnalyserApkAnalyser => 'محلل APK';
 
   @override
@@ -2290,7 +2293,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeLocalScanEngineOnly => 'محرك الفحص المحلي فقط';
 
   @override
-  String get homeProtectedByVXTITANIUM => 'محمي بواسطة VX-TITANIUM';
+  String get homeProtectedByVXTITANIUM => 'محمي بواسطة X-SERIES';
 
   @override
   String get homeSecurityOverview => 'نظرة عامة على الأمان';

@@ -56,6 +56,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
 
   @override
   void dispose() {
+    _wipeWebData();
     _historySaveDebounce?.cancel();
     _controller.dispose();
     _tabs.dispose();
@@ -302,6 +303,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
       if (safe != null) {
         _addHistory(u, safe);
         await _ensureWebViewController();
+        await _wipeWebData();
         await _verifyAndLoad(u.toString());
       } else {
         setState(() {
@@ -373,6 +375,14 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
     _web = w;
   }
 
+  Future<void> _wipeWebData() async {
+    try {
+      await WebViewCookieManager().clearCookies();
+      await _web?.clearCache();
+      await _web?.clearLocalStorage();
+    } catch (_) {}
+  }
+
   Future<void> _verifyAndLoad(String url) async {
     if (_web == null) return;
     if (!AvEngine.isInitialized) return;
@@ -421,6 +431,7 @@ class _LinkCheckScreenState extends State<LinkCheckScreen> with SingleTickerProv
         _webBlockedReason = '';
       });
 
+      await _web!.setJavaScriptMode(safe ? JavaScriptMode.unrestricted : JavaScriptMode.disabled);
       await _web!.loadRequest(u);
     } catch (_) {
       if (!mounted) return;

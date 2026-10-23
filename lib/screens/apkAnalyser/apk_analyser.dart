@@ -76,7 +76,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
   }
 
   void _triggerAnalysis() {
-    final canAnalyse = _controller.isLoggedIn &&
+    final canAnalyse = _controller.hasAccess &&
         _controller.selectedApkPath.isNotEmpty &&
         !_controller.analysing &&
         !(_controller.usageFetched &&
@@ -495,7 +495,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
   Widget _buildTargetArea(ThemeData theme) {
     final text = theme.textTheme;
     final hasTarget = _controller.selectedApkPath.isNotEmpty;
-    final isLoggedIn = _controller.isLoggedIn;
+    final enabled = _controller.hasAccess;
 
     return Container(
       width: double.infinity,
@@ -509,7 +509,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: (isLoggedIn && !hasTarget) ? _showTargetPickerDialog : null,
+          onTap: enabled ? (hasTarget ? null : _showTargetPickerDialog) : (_controller.isLoggedIn ? _openPro : null),
           child: Stack(
             children: [
               Padding(
@@ -521,7 +521,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                       Icon(
                         hasTarget ? Icons.android_rounded : Icons.add_circle_outline_rounded,
                         size: 36,
-                        color: isLoggedIn
+                        color: enabled
                             ? theme.colorScheme.onSurface.withOpacity(0.6)
                             : theme.colorScheme.onSurface.withOpacity(0.25),
                       ),
@@ -533,7 +533,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                         overflow: TextOverflow.ellipsis,
                         style: text.titleSmall?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: isLoggedIn
+                          color: enabled
                               ? theme.colorScheme.onSurface.withOpacity(0.85)
                               : theme.colorScheme.onSurface.withOpacity(0.3),
                         ),
@@ -548,7 +548,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                           fontWeight: hasTarget ? FontWeight.w700 : FontWeight.normal,
                           color: hasTarget
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurface.withOpacity(isLoggedIn ? 0.5 : 0.25),
+                              : theme.colorScheme.onSurface.withOpacity(enabled ? 0.5 : 0.25),
                         ),
                       ),
                     ],
@@ -572,6 +572,13 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
     );
   }
 
+  void _openPro() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProScreen()),
+    ).then((_) => _controller.checkAuthAndPro());
+  }
+
   Widget _buildAdvancedOptions(ThemeData theme) {
     final text = theme.textTheme;
     final isAdvanced = _controller.isPro && _controller.advancedModeEnabled;
@@ -586,10 +593,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
       child: InkWell(
         onTap: () {
           if (!_controller.isPro) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProScreen()),
-            ).then((_) => _controller.checkAuthAndPro());
+            _openPro();
           } else if (_controller.authResolved) {
             _controller.setAdvancedMode(!_controller.advancedModeEnabled);
           }
@@ -694,6 +698,23 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                                   ),
                                 ),
                               ),
+                            )
+                          else if (!_controller.isPro)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14),
+                              child: Center(
+                                child: GestureDetector(
+                                  onTap: _openPro,
+                                  child: Text(
+                                    AppLocalizations.of(context)!.apkAnalyserRequiresPro,
+                                    textAlign: TextAlign.center,
+                                    style: text.bodySmall?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           const SizedBox(height: 24),
                           Padding(
@@ -716,7 +737,7 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Column(
                       children: [
-                        if (_controller.isLoggedIn && _controller.usageFetched)
+                        if (_controller.hasAccess && _controller.usageFetched)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8.0),
                             child: Text(

@@ -849,7 +849,10 @@ class _PasswordManagerScreenState extends State<PasswordTestScreen> {
                   ),
                 ),
           ),
-          const AvFooter(showTitle: false),
+          AvFooter(
+            showTitle: false,
+            subtitle: AppLocalizations.of(context)!.metaPassPoweredBy,
+          ),
         ],
       ),
     );

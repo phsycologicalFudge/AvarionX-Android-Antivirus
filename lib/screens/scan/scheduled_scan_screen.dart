@@ -4,6 +4,7 @@ import '../../services/pro_temp_service.dart';
 import '../../services/scan_scheduler.dart';
 import '../../translations/app_localizations.dart';
 import 'package:colourswift_av/widgets/av_header.dart';
+import 'package:colourswift_av/widgets/av_footer.dart';
 
 class ScheduledScansScreen extends StatefulWidget {
   const ScheduledScansScreen({super.key});
@@ -591,18 +592,9 @@ class _ScheduledScansScreenState extends State<ScheduledScansScreen> {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Text(
-            l10n.metaPassPoweredBy,
-            textAlign: TextAlign.center,
-            style: text.bodySmall?.copyWith(
-              fontSize: 11,
-              letterSpacing: 0.6,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface.withOpacity(0.32),
-            ),
-          ),
+        child: AvFooter(
+          showTitle: false,
+          subtitle: l10n.metaPassPoweredBy,
         ),
       ),
     );

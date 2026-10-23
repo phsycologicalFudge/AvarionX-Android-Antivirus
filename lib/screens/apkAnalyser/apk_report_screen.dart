@@ -38,14 +38,6 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
       ));
     }
 
-    final hasMalware = report.riskScore != null || report.riskLabel != null;
-    if (hasMalware && (report.contributingSignals.isNotEmpty || report.dampeningFactors.isNotEmpty)) {
-      tabs.add(_ReportTab(
-        title: AppLocalizations.of(context)!.apkReportRiskSignals,
-        content: _buildSignalsContent(context),
-      ));
-    }
-
     if (report.sources.isNotEmpty || report.sourceNotes.isNotEmpty) {
       tabs.add(_ReportTab(
         title: AppLocalizations.of(context)!.apkReportSources,
@@ -502,80 +494,6 @@ class _ApkReportScreenState extends State<ApkReportScreen> {
           Expanded(child: Text(text, style: style)),
         ],
       ),
-    );
-  }
-
-  Widget _buildSignalsContent(BuildContext context) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.report.contributingSignals.isNotEmpty) ...[
-          Text(
-            AppLocalizations.of(context)!.apkReportContributing,
-            style: text.labelMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.0,
-              color: theme.colorScheme.onSurface.withOpacity(0.45),
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...widget.report.contributingSignals.map((s) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.arrow_upward_rounded, size: 22, color: const Color(0xFFF4511E)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    s,
-                    style: text.bodyMedium?.copyWith(
-                      height: 1.4,
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface.withOpacity(0.8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
-        ],
-        if (widget.report.dampeningFactors.isNotEmpty) ...[
-          if (widget.report.contributingSignals.isNotEmpty) const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context)!.apkReportDampening,
-            style: text.labelMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.0,
-              color: theme.colorScheme.onSurface.withOpacity(0.45),
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...widget.report.dampeningFactors.map((s) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.arrow_downward_rounded, size: 22, color: const Color(0xFF43A047)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    s,
-                    style: text.bodyMedium?.copyWith(
-                      height: 1.4,
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface.withOpacity(0.8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
-        ],
-      ],
     );
   }
 

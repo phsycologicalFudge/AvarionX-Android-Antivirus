@@ -29,12 +29,6 @@ class ApkExportService {
       [l10n.apkExportHashVerdict, report.hashVerdict ?? 'N/A'],
       [l10n.apkExportScoreRationale, report.scoreRationale ?? ''],
       [],
-      [l10n.apkExportContributingSignals],
-      ...report.contributingSignals.map((s) => [s]),
-      [],
-      [l10n.apkExportDampeningFactors],
-      ...report.dampeningFactors.map((s) => [s]),
-      [],
       [l10n.apkReportSummary],
       [report.summary],
       [],
@@ -98,46 +92,6 @@ class ApkExportService {
               _buildPdfRow(l10n.apkExportHashVerdict, report.hashVerdict ?? 'N/A'),
               if (report.scoreRationale != null && report.scoreRationale!.isNotEmpty)
                 _buildPdfRow(l10n.apkExportRationale, report.scoreRationale!),
-              pw.SizedBox(height: 10),
-              if (report.contributingSignals.isNotEmpty) ...[
-                pw.Text(
-                  l10n.apkExportContributingSignals,
-                  style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(height: 4),
-                ...report.contributingSignals.map(
-                      (s) => pw.Padding(
-                    padding: const pw.EdgeInsets.only(bottom: 3),
-                    child: pw.Row(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('+ ', style: const pw.TextStyle(fontSize: 11)),
-                        pw.Expanded(child: pw.Text(s, style: const pw.TextStyle(fontSize: 11))),
-                      ],
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 8),
-              ],
-              if (report.dampeningFactors.isNotEmpty) ...[
-                pw.Text(
-                  l10n.apkExportDampeningFactors,
-                  style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(height: 4),
-                ...report.dampeningFactors.map(
-                      (s) => pw.Padding(
-                    padding: const pw.EdgeInsets.only(bottom: 3),
-                    child: pw.Row(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('- ', style: const pw.TextStyle(fontSize: 11)),
-                        pw.Expanded(child: pw.Text(s, style: const pw.TextStyle(fontSize: 11))),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
               pw.SizedBox(height: 20),
             ],
 

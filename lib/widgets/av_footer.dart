@@ -3,8 +3,9 @@ import 'package:colourswift_av/translations/app_localizations.dart';
 
 class AvFooter extends StatelessWidget {
   final bool showTitle;
+  final String? subtitle;
 
-  const AvFooter({super.key, this.showTitle = true});
+  const AvFooter({super.key, this.showTitle = true, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class AvFooter extends StatelessWidget {
               const SizedBox(height: 3),
             ],
             Text(
-              AppLocalizations.of(context)!.homeProtectedByVXTITANIUM,
+              subtitle ?? AppLocalizations.of(context)!.homeProtectedByVXTITANIUM,
               style: text.labelSmall?.copyWith(
                 letterSpacing: 0.2,
                 color: scheme.onSurface.withOpacity(0.62),

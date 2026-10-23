@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../services/av_engine.dart';
 import '../../services/pro_temp_service.dart';
+import '../../widgets/antivirus_bridge.dart';
 import '../../services/purchase_service.dart';
 import '../../translations/app_localizations.dart';
 
@@ -140,6 +143,8 @@ class ApkAnalyserController extends ChangeNotifier {
 
   bool isLoggedIn = false;
   bool isPro = false;
+
+  bool get hasAccess => isLoggedIn && isPro;
   bool advancedModeEnabled = false;
   bool authResolved = false;
   bool analysing = false;
@@ -376,11 +381,11 @@ class ApkAnalyserController extends ChangeNotifier {
 
       loadingStage = l10n.apkAnalyserStageAnalysing;
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 1500));
+      final localEngine = await _scanWithLocalEngine(selectedApkPath);
       if (!analysing) return;
 
       await checkAuthAndPro();
-      final normalizedPayload = _normalizePayload(payload);
+      final normalizedPayload = _normalizePayload(payload, localEngine);
 
       final prefs = await SharedPreferences.getInstance();
       final userToken = (prefs.getString('cs_auth_token') ?? '').trim();
@@ -451,6 +456,13 @@ class ApkAnalyserController extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> _scanWithLocalEngine(String path) async {
+    if (!AvEngine.isInitialized && await AvEngine.ensureInitialized() != 0) {
+      return {'error': 'engine_not_initialized'};
+    }
+    return compute(_localEngineScan, path);
+  }
+
   List<String> _extractHashes(Map<dynamic, dynamic> evidenceRaw) {
     final hashes = <String>{};
 
@@ -482,7 +494,7 @@ class ApkAnalyserController extends ChangeNotifier {
     return hashes.toList();
   }
 
-  Map<String, dynamic> _normalizePayload(dynamic payload) {
+  Map<String, dynamic> _normalizePayload(dynamic payload, Map<String, dynamic> localEngine) {
     final root = payload is Map ? payload.cast<dynamic, dynamic>() : <dynamic, dynamic>{};
     final appRaw = root['app'] is Map ? (root['app'] as Map).cast<dynamic, dynamic>() : <dynamic, dynamic>{};
     final evidenceRaw = root['evidence'] is Map ? (root['evidence'] as Map).cast<dynamic, dynamic>() : <dynamic, dynamic>{};
@@ -498,9 +510,10 @@ class ApkAnalyserController extends ChangeNotifier {
         'version_name': (appRaw['version_name'] ?? '').toString(),
         'version_code': (appRaw['version_code'] ?? '').toString(),
       },
-      'evidence': Map<String, dynamic>.from(
-        evidenceRaw.map((key, value) => MapEntry(key.toString(), value)),
-      ),
+      'evidence': {
+        ...evidenceRaw.map((key, value) => MapEntry(key.toString(), value)),
+        'local_engine': localEngine,
+      },
       if (hashes.isNotEmpty) 'hashes': hashes,
     };
   }
@@ -599,5 +612,14 @@ class ApkAnalyserController extends ChangeNotifier {
       unitIndex++;
     }
     return '${size.toStringAsFixed(size >= 100 || unitIndex == 0 ? 0 : 1)} ${units[unitIndex]}';
+  }
+}
+
+Map<String, dynamic> _localEngineScan(String path) {
+  try {
+    final decoded = jsonDecode(AntivirusBridge().scanFile(path));
+    return decoded is Map ? Map<String, dynamic>.from(decoded) : {'error': 'unexpected_result'};
+  } catch (e) {
+    return {'error': e.toString()};
   }
 }

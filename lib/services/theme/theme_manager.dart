@@ -84,6 +84,8 @@ class ThemeManager extends ChangeNotifier {
       onBackground: brightness == Brightness.dark ? Colors.white : Colors.black,
       error: Colors.redAccent,
       onError: Colors.white,
+      outline: (brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.14),
+      outlineVariant: (brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.07),
     );
 
     return ThemeData(

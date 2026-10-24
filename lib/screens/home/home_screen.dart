@@ -392,13 +392,6 @@ class AvHomeScreenState extends State<AvHomeScreen>
     await AuthLinkService.start();
   }
 
-  Future<void> _startAvLogin() async {
-    await launchUrl(
-      Uri.parse('https://api.colourswift.com/login?app=av'),
-      mode: LaunchMode.externalApplication,
-    );
-  }
-
   void _onVpnChanged() {
     if (!mounted) return;
     final nowConnected = _vpn.connected;
@@ -638,7 +631,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
               child: ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(sheetContext);
-                  await _startAvLogin();
+                  await AuthLinkService.startLogin();
                 },
                 style: ElevatedButton.styleFrom(
                   elevation: 0,

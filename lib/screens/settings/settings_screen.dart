@@ -355,11 +355,6 @@ class SettingsScreenState extends State<SettingsScreen>
     await AuthLinkService.start();
   }
 
-  Future<void> _startAvLoginInBrowser() async {
-    final uri = Uri.parse('https://api.colourswift.com/login?app=av');
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
   Future<void> _loadPro() async {
     final billingPro = await PurchaseService.cachedHasPro();
     final gatePro = await ProGate.sync();
@@ -948,7 +943,7 @@ class SettingsScreenState extends State<SettingsScreen>
           isPro: isPro,
           onSignIn: () async {
             Navigator.pop(routeContext);
-            await _startAvLoginInBrowser();
+            await AuthLinkService.startLogin();
           },
           onDashboard: _openAccountDashboard,
           onSignOut: _signOutAccount,

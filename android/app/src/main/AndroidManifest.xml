@@ -39,8 +39,23 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
 
-            <intent-filter android:autoVerify="false">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="account.colourswift.com"
+                    android:path="/app/auth/av" />
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -178,6 +193,11 @@
             android:stopWithTask="false"
             android:foregroundServiceType="specialUse"
             tools:ignore="Instantiatable" />
+
+        <service
+            android:name=".rtp.RtpWakeJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
             android:name=".vpn.wireguard.CSWireGuardService"

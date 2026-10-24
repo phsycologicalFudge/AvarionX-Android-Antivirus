@@ -55,6 +55,7 @@ AvarionX Security includes a dual ML system named ML+
 
 * Legacy MUniverse Tag: Suspicious applications that meet the scoring system's requirements are dubbed with a MUniverse (Malware Universe) tag in app versions 4.0.8x and below
 * Current versions use an upgraded heuristics model, with the tag: Andr/VXgen2
+* While the mobile client uses the compact next-gen model, VTTI uses our most advanced Molecule™ algorithm to detect both known and zero-day malware.
 
 ## Guardian Mode
 

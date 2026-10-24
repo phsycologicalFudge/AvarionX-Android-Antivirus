@@ -62,6 +62,23 @@ class AuthLinkService {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  static Future<void> openAccountDashboard(String token) async {
+    var target = Uri.parse('$_apiBase/account');
+    try {
+      final res = await http
+          .post(
+        Uri.parse('$_apiBase/auth/web-handoff'),
+        headers: {'authorization': 'Bearer $token'},
+      )
+          .timeout(const Duration(seconds: 15));
+      if (res.statusCode == 200) {
+        final code = ((jsonDecode(res.body) as Map)['code'] ?? '').toString().trim();
+        if (code.isNotEmpty) target = target.replace(queryParameters: {'handoff': code});
+      }
+    } catch (_) {}
+    await launchUrl(target, mode: LaunchMode.externalApplication);
+  }
+
   static Future<void> _handle(Uri? uri) async {
     if (uri == null) return;
     final isAppLink = uri.scheme == 'https' && uri.host == _appLinkHost && uri.path == _appLinkPath;

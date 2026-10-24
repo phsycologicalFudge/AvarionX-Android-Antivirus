@@ -695,8 +695,7 @@ class SettingsScreenState extends State<SettingsScreen>
     final token = _authToken.trim();
     if (token.isEmpty) return;
 
-    final uri = Uri.parse('https://api.colourswift.com/account?token=$token');
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    await AuthLinkService.openAccountDashboard(token);
   }
 
   Future<void> _signOutAccount() async {

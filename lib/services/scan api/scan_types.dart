@@ -1,4 +1,4 @@
-enum ScanMode { none, smart, single, rapid, installed, full }
+enum ScanMode { none, smart, single, rapid, installed, full, custom }
 
 enum ScanState { idle, scanning, result, empty }
 

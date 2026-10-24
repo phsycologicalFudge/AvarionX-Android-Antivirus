@@ -110,6 +110,35 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wybierz plik lub aplikację do skanowania.';
 
   @override
+  String get scanModeCustomTitle => 'Skanowanie niestandardowe';
+
+  @override
+  String get scanModeCustomSubtitle =>
+      'Wybierz folder, plik lub zainstalowaną aplikację.';
+
+  @override
+  String get customScanChooseSubtitle => 'Wybierz, co chcesz przeskanować.';
+
+  @override
+  String get customChoiceFolder => 'Skanuj folder';
+
+  @override
+  String get customChoiceFolderSubtitle => 'Skanuje całą zawartość folderu.';
+
+  @override
+  String get customChoiceSdCard => 'Karta SD';
+
+  @override
+  String get customChoiceSdCardSubtitle => 'Skanuje całą zawartość tej karty.';
+
+  @override
+  String get customChoiceFileSubtitle => 'Wybierz pojedynczy plik z pamięci.';
+
+  @override
+  String get customChoiceExclusionsSubtitle =>
+      'Foldery i pliki pomijane podczas skanowania.';
+
+  @override
   String get useCloudAssistedScan => 'Używaj skanowania wspomaganego chmurą';
 
   @override
@@ -174,6 +203,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get scanTitleSingle => 'Pojedynczy skan';
+
+  @override
+  String get scanTitleCustom => 'Skanowanie niestandardowe';
 
   @override
   String get cancellingScan => 'Anulowanie skanowania…';
@@ -2502,6 +2534,22 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get quarantineScreenUninstall2 => 'Odinstaluj';
+
+  @override
+  String get quarantineIgnoreTitle => 'Nie chcesz odinstalować?';
+
+  @override
+  String get quarantineIgnoreBody =>
+      'Naciśnij OK, aby zignorować to ostrzeżenie';
+
+  @override
+  String get folderPickerTitle => 'Wybierz folder';
+
+  @override
+  String get folderPickerSelect => 'Użyj tego folderu';
+
+  @override
+  String get folderPickerEmpty => 'Brak podfolderów';
 
   @override
   String get quarantineScreenFailedToLaunchUninstall =>

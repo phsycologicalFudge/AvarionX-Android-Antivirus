@@ -288,6 +288,60 @@ abstract class AppLocalizations {
   /// **'Pick a file or app to scan.'**
   String get scanModeSingleSubtitle;
 
+  /// No description provided for @scanModeCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Scan'**
+  String get scanModeCustomTitle;
+
+  /// No description provided for @scanModeCustomSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a folder, file or installed app.'**
+  String get scanModeCustomSubtitle;
+
+  /// No description provided for @customScanChooseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to scan.'**
+  String get customScanChooseSubtitle;
+
+  /// No description provided for @customChoiceFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a folder'**
+  String get customChoiceFolder;
+
+  /// No description provided for @customChoiceFolderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan everything inside a folder.'**
+  String get customChoiceFolderSubtitle;
+
+  /// No description provided for @customChoiceSdCard.
+  ///
+  /// In en, this message translates to:
+  /// **'SD card'**
+  String get customChoiceSdCard;
+
+  /// No description provided for @customChoiceSdCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan everything on this card.'**
+  String get customChoiceSdCardSubtitle;
+
+  /// No description provided for @customChoiceFileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a single file from storage.'**
+  String get customChoiceFileSubtitle;
+
+  /// No description provided for @customChoiceExclusionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders and files that scans skip.'**
+  String get customChoiceExclusionsSubtitle;
+
   /// No description provided for @useCloudAssistedScan.
   ///
   /// In en, this message translates to:
@@ -413,6 +467,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Single Scan'**
   String get scanTitleSingle;
+
+  /// No description provided for @scanTitleCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Scan'**
+  String get scanTitleCustom;
 
   /// No description provided for @cancellingScan.
   ///
@@ -4499,6 +4559,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uninstall'**
   String get quarantineScreenUninstall2;
+
+  /// No description provided for @quarantineIgnoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t want to uninstall?'**
+  String get quarantineIgnoreTitle;
+
+  /// No description provided for @quarantineIgnoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Press OK to ignore this warning'**
+  String get quarantineIgnoreBody;
+
+  /// No description provided for @folderPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder'**
+  String get folderPickerTitle;
+
+  /// No description provided for @folderPickerSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this folder'**
+  String get folderPickerSelect;
+
+  /// No description provided for @folderPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No subfolders'**
+  String get folderPickerEmpty;
 
   /// No description provided for @quarantineScreenFailedToLaunchUninstall.
   ///

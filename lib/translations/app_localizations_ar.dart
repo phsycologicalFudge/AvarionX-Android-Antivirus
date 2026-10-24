@@ -105,6 +105,35 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scanModeSingleSubtitle => 'اختر ملفًا أو تطبيقًا لفحصه.';
 
   @override
+  String get scanModeCustomTitle => 'فحص مخصص';
+
+  @override
+  String get scanModeCustomSubtitle =>
+      'اختر مجلدًا أو ملفًا أو تطبيقًا مثبتًا.';
+
+  @override
+  String get customScanChooseSubtitle => 'اختر ما تريد فحصه.';
+
+  @override
+  String get customChoiceFolder => 'فحص مجلد';
+
+  @override
+  String get customChoiceFolderSubtitle => 'يفحص كل ما بداخل المجلد.';
+
+  @override
+  String get customChoiceSdCard => 'بطاقة SD';
+
+  @override
+  String get customChoiceSdCardSubtitle => 'يفحص كل ما على هذه البطاقة.';
+
+  @override
+  String get customChoiceFileSubtitle => 'اختر ملفًا واحدًا من التخزين.';
+
+  @override
+  String get customChoiceExclusionsSubtitle =>
+      'المجلدات والملفات التي تتخطاها عمليات الفحص.';
+
+  @override
   String get useCloudAssistedScan => 'استخدام فحص بمساعدة السحابة';
 
   @override
@@ -169,6 +198,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scanTitleSingle => 'فحص واحد';
+
+  @override
+  String get scanTitleCustom => 'فحص مخصص';
 
   @override
   String get cancellingScan => 'جارٍ إلغاء الفحص…';
@@ -2462,6 +2494,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quarantineScreenUninstall2 => 'إلغاء التثبيت';
+
+  @override
+  String get quarantineIgnoreTitle => 'لا تريد إلغاء التثبيت؟';
+
+  @override
+  String get quarantineIgnoreBody => 'اضغط على حسنًا لتجاهل هذا التحذير';
+
+  @override
+  String get folderPickerTitle => 'اختر مجلدًا';
+
+  @override
+  String get folderPickerSelect => 'استخدم هذا المجلد';
+
+  @override
+  String get folderPickerEmpty => 'لا توجد مجلدات فرعية';
 
   @override
   String get quarantineScreenFailedToLaunchUninstall => 'فشل بدء إلغاء التثبيت';

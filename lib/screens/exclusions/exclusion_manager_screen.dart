@@ -80,9 +80,21 @@ class _ExclusionManagerScreenState extends State<ExclusionManagerScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        name,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.titleSmall,
+                          ),
+                          Text(
+                            f,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.bodySmall,
+                          ),
+                        ],
                       ),
                     ),
                     IconButton(

@@ -154,6 +154,41 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
     }
   }
 
+  Future<void> _removeEntry(Map<String, dynamic> m) async {
+    final id = m['id'] as String;
+    setState(() => _apps.removeWhere((e) => e['id'] == id));
+    try {
+      await QuarantineService.deleteAppEntry(id);
+    } catch (_) {}
+  }
+
+  Future<void> _confirmIgnore(Map<String, dynamic> m) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.quarantineIgnoreTitle),
+          content: Text(l10n.quarantineIgnoreBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.ok),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (ok != true || !mounted) return;
+    await _removeEntry(m);
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeManager = Provider.of<ThemeManager>(context);
@@ -207,10 +242,25 @@ class _QuarantineScreenState extends State<QuarantineScreen> {
       if (_apps.isNotEmpty) {
         items.add(_sectionHeader(AppLocalizations.of(context)!.networkCardAppsTitle, scheme, text));
         for (final m in _apps) {
-          items.add(_AppCard(
-            meta: m,
-            theme: theme,
-            onUninstall: () => _uninstallApp(m),
+          items.add(Dismissible(
+            key: ValueKey('quarantine_app_${m['id']}'),
+            direction: DismissDirection.endToStart,
+            onDismissed: (_) => _removeEntry(m),
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(
+                color: scheme.error.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.delete_rounded, color: scheme.onError),
+            ),
+            child: _AppCard(
+              meta: m,
+              theme: theme,
+              onUninstall: () => _uninstallApp(m),
+              onLongPress: () => _confirmIgnore(m),
+            ),
           ));
           items.add(const SizedBox(height: 8));
         }
@@ -371,11 +421,13 @@ class _AppCard extends StatefulWidget {
   final Map<String, dynamic> meta;
   final ThemeData theme;
   final VoidCallback onUninstall;
+  final VoidCallback onLongPress;
 
   const _AppCard({
     required this.meta,
     required this.theme,
     required this.onUninstall,
+    required this.onLongPress,
   });
 
   @override
@@ -417,7 +469,9 @@ class _AppCardState extends State<_AppCard> {
       elevation: 0,
       color: theme.cardTheme.color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
+      child: InkWell(
+        onLongPress: widget.onLongPress,
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
         child: Row(
           children: [
@@ -488,6 +542,7 @@ class _AppCardState extends State<_AppCard> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'apk_export_service.dart';
 
 import '../../translations/app_localizations.dart';
 import 'package:colourswift_av/widgets/av_header.dart';
+import 'package:colourswift_av/widgets/av_option_dialog.dart';
 
 class ApkAnalyserScreen extends StatefulWidget {
   const ApkAnalyserScreen({super.key});
@@ -320,104 +321,19 @@ class _ApkAnalyserScreenState extends State<ApkAnalyserScreen> with SingleTicker
     return buffer.toString().trim();
   }
 
-  void _showTargetPickerDialog() {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 22, 20, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.apkAnalyserChooseTarget,
-                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                AppLocalizations.of(context)!.apkAnalyserSelectASourceToAnalyseWithVTTI,
-                style: text.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.55),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _dialogOption(
-                ctx,
-                icon: Icons.folder_open_rounded,
-                label: AppLocalizations.of(context)!.apkAnalyserApkFile,
-                subtitle: AppLocalizations.of(context)!.apkAnalyserPickAnApkFromStorage,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _controller.pickApk();
-                },
-              ),
-              const SizedBox(height: 8),
-              _dialogOption(
-                ctx,
-                icon: Icons.apps_rounded,
-                label: AppLocalizations.of(context)!.apkAnalyserInstalledApp,
-                subtitle: AppLocalizations.of(context)!.apkAnalyserChooseFromAppsOnThisDevice,
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showInstalledAppSheet();
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
+  void _showTargetPickerDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final choice = await showAvOptionDialog<String>(
+      context,
+      title: l10n.apkAnalyserChooseTarget,
+      subtitle: l10n.apkAnalyserSelectASourceToAnalyseWithVTTI,
+      options: [
+        AvOption(value: 'file', icon: Icons.folder_open_rounded, label: l10n.apkAnalyserApkFile, subtitle: l10n.apkAnalyserPickAnApkFromStorage),
+        AvOption(value: 'app', icon: Icons.apps_rounded, label: l10n.apkAnalyserInstalledApp, subtitle: l10n.apkAnalyserChooseFromAppsOnThisDevice),
+      ],
     );
-  }
-
-  Widget _dialogOption(
-      BuildContext ctx, {
-        required IconData icon,
-        required String label,
-        required String subtitle,
-        required VoidCallback onTap,
-      }) {
-    final theme = Theme.of(context);
-    final text = theme.textTheme;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 22, color: theme.colorScheme.primary),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w800)),
-                  Text(
-                    subtitle,
-                    style: text.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.55),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withOpacity(0.35)),
-          ],
-        ),
-      ),
-    );
+    if (choice == 'file') _controller.pickApk();
+    if (choice == 'app') _showInstalledAppSheet();
   }
 
   void _showInstalledAppSheet() {

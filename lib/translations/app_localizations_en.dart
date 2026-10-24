@@ -103,6 +103,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanModeSingleSubtitle => 'Pick a file or app to scan.';
 
   @override
+  String get scanModeCustomTitle => 'Custom Scan';
+
+  @override
+  String get scanModeCustomSubtitle => 'Pick a folder, file or installed app.';
+
+  @override
+  String get customScanChooseSubtitle => 'Choose what to scan.';
+
+  @override
+  String get customChoiceFolder => 'Scan a folder';
+
+  @override
+  String get customChoiceFolderSubtitle => 'Scan everything inside a folder.';
+
+  @override
+  String get customChoiceSdCard => 'SD card';
+
+  @override
+  String get customChoiceSdCardSubtitle => 'Scan everything on this card.';
+
+  @override
+  String get customChoiceFileSubtitle => 'Pick a single file from storage.';
+
+  @override
+  String get customChoiceExclusionsSubtitle =>
+      'Folders and files that scans skip.';
+
+  @override
   String get useCloudAssistedScan => 'Use cloud-assisted scan';
 
   @override
@@ -167,6 +195,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanTitleSingle => 'Single Scan';
+
+  @override
+  String get scanTitleCustom => 'Custom Scan';
 
   @override
   String get cancellingScan => 'Cancelling scan…';
@@ -2458,6 +2489,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quarantineScreenUninstall2 => 'Uninstall';
+
+  @override
+  String get quarantineIgnoreTitle => 'Don\'t want to uninstall?';
+
+  @override
+  String get quarantineIgnoreBody => 'Press OK to ignore this warning';
+
+  @override
+  String get folderPickerTitle => 'Choose a folder';
+
+  @override
+  String get folderPickerSelect => 'Use this folder';
+
+  @override
+  String get folderPickerEmpty => 'No subfolders';
 
   @override
   String get quarantineScreenFailedToLaunchUninstall =>

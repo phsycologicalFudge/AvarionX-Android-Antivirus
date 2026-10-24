@@ -101,6 +101,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scanModeSingleSubtitle => 'スキャンするファイルまたはアプリを選択します。';
 
   @override
+  String get scanModeCustomTitle => 'カスタム スキャン';
+
+  @override
+  String get scanModeCustomSubtitle => 'フォルダ、ファイル、またはインストール済みアプリを選択します。';
+
+  @override
+  String get customScanChooseSubtitle => 'スキャンする対象を選択します。';
+
+  @override
+  String get customChoiceFolder => 'フォルダをスキャン';
+
+  @override
+  String get customChoiceFolderSubtitle => 'フォルダ内のすべてをスキャンします。';
+
+  @override
+  String get customChoiceSdCard => 'SD カード';
+
+  @override
+  String get customChoiceSdCardSubtitle => 'このカード内のすべてをスキャンします。';
+
+  @override
+  String get customChoiceFileSubtitle => 'ストレージからファイルを 1 つ選択します。';
+
+  @override
+  String get customChoiceExclusionsSubtitle => 'スキャンで除外するフォルダとファイル。';
+
+  @override
   String get useCloudAssistedScan => 'クラウド支援スキャンを使用';
 
   @override
@@ -165,6 +192,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get scanTitleSingle => '単体スキャン';
+
+  @override
+  String get scanTitleCustom => 'カスタム スキャン';
 
   @override
   String get cancellingScan => 'スキャンをキャンセル中…';
@@ -2404,6 +2434,21 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get quarantineScreenUninstall2 => 'アンインストール';
+
+  @override
+  String get quarantineIgnoreTitle => 'アンインストールしませんか？';
+
+  @override
+  String get quarantineIgnoreBody => 'OK を押すと、この警告を無視します';
+
+  @override
+  String get folderPickerTitle => 'フォルダを選択';
+
+  @override
+  String get folderPickerSelect => 'このフォルダを使用';
+
+  @override
+  String get folderPickerEmpty => 'サブフォルダはありません';
 
   @override
   String get quarantineScreenFailedToLaunchUninstall => 'アンインストールを開始できませんでした';

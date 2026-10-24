@@ -13,6 +13,7 @@ import '../cloud_helper_service.dart';
 import '../exclusion_service.dart';
 import '../quarantine_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto/crypto.dart' as crypto;
 
 class HeadlessScanResult {
   final ScanMode mode;
@@ -212,6 +213,7 @@ const int _cloudFinishTimeoutMs = 25000;
 
 Future<HeadlessScanResult> runHeadlessScan({
   required ScanMode mode,
+  String? customRoot,
   bool useCloud = false,
   bool quarantine = true,
   bool recordReport = true,
@@ -311,6 +313,18 @@ Future<HeadlessScanResult> runHeadlessScan({
     return (quarantinePath, apkSize);
   }
 
+  Future<bool> _isShaExcluded(String path) async {
+    if (ex.shas.isEmpty) return false;
+    try {
+      final worker = hashWorker;
+      var sha = worker == null ? '' : ((await worker.hashBatch([path]))[path]?['sha'] ?? '');
+      if (sha.isEmpty) sha = (await crypto.sha256.bind(File(path).openRead()).first).toString();
+      return ex.skipSha(sha);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _scanResolvedTarget({
     required String path,
     required String displayName,
@@ -388,6 +402,14 @@ Future<HeadlessScanResult> runHeadlessScan({
             label = 'Suspicious.Item';
             confidence = 0.70;
           }
+        }
+
+        if (respectShaExclusions && await _isShaExcluded(path)) {
+          cleanCount++;
+          onEvent?.call(
+            HeadlessScanEvent('clean', mode: mode, path: path, name: displayName, scanned: scanned, total: total > 0 ? total : null),
+          );
+          return;
         }
 
         infected = true;
@@ -495,6 +517,12 @@ Future<HeadlessScanResult> runHeadlessScan({
           }
         }
 
+        if (await _isShaExcluded(target.path)) {
+          cleanCount++;
+          onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total > 0 ? total : null));
+          return;
+        }
+
         infected = true;
       } catch (e) {
         if (e is CancelledScan) rethrow;
@@ -522,92 +550,100 @@ Future<HeadlessScanResult> runHeadlessScan({
   }
 
   Future<void> _runFullFolderDrivenScan() async {
-    final root = Directory('/storage/emulated/0');
-
     onEvent?.call(HeadlessScanEvent('start', mode: mode, scanned: 0, total: null));
     onEvent?.call(HeadlessScanEvent('enumerated', mode: mode, scanned: 0, total: null));
 
-    if (!await root.exists()) return;
+    for (final storage in await listStorageRoots()) {
+      final root = Directory(storage.path);
+      if (!await root.exists()) continue;
 
-    await for (final e in root.list(recursive: true, followLinks: false).handleError((error) {
-      if (error is PathAccessException) return;
-      if (error is FileSystemException) return;
-      throw error;
-    })) {
-      _throwIfCancelled();
-      if (e is! File) continue;
-
-      final path = e.path;
-      final name = path.split('/').last;
-      nameByPath[path] = name;
-
-      onEvent?.call(HeadlessScanEvent('current', mode: mode, path: path, name: name, scanned: scanned, total: null));
-
-      scanned++;
-      _emitProgress(path: path, name: name);
-
-      if (worker == null) continue;
-
-      try {
-        final raw = await worker!.scanRaw(path);
+      await for (final e in root.list(recursive: true, followLinks: false).handleError((error) {
+        if (error is PathAccessException) return;
+        if (error is FileSystemException) return;
+        throw error;
+      })) {
         _throwIfCancelled();
+        if (e is! File) continue;
 
-        if (raw == null || raw.isEmpty) {
-          cleanCount++;
-          onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: path, name: name, scanned: scanned, total: null));
-          continue;
-        }
+        final path = e.path;
+        if (ex.skipFolder(path)) continue;
+        final name = path.split('/').last;
+        nameByPath[path] = name;
 
-        final decoded = jsonDecode(raw);
-        final hits = decoded['hits'] as Map?;
-        if (hits == null || hits.isEmpty) {
-          cleanCount++;
-          onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: path, name: name, scanned: scanned, total: null));
-          continue;
-        }
+        onEvent?.call(HeadlessScanEvent('current', mode: mode, path: path, name: name, scanned: scanned, total: null));
 
-        final signals = <String>[];
-        for (final v in hits.values) {
-          if (v is List) {
-            for (final s in v) {
-              if (s is String) signals.add(s);
+        scanned++;
+        _emitProgress(path: path, name: name);
+
+        if (worker == null) continue;
+
+        try {
+          final raw = await worker!.scanRaw(path);
+          _throwIfCancelled();
+
+          if (raw == null || raw.isEmpty) {
+            cleanCount++;
+            onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: path, name: name, scanned: scanned, total: null));
+            continue;
+          }
+
+          final decoded = jsonDecode(raw);
+          final hits = decoded['hits'] as Map?;
+          if (hits == null || hits.isEmpty) {
+            cleanCount++;
+            onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: path, name: name, scanned: scanned, total: null));
+            continue;
+          }
+
+          final signals = <String>[];
+          for (final v in hits.values) {
+            if (v is List) {
+              for (final s in v) {
+                if (s is String) signals.add(s);
+              }
             }
           }
-        }
 
-        String label = 'Suspicious.Item';
-        double confidence = 0.0;
+          String label = 'Suspicious.Item';
+          double confidence = 0.0;
 
-        if (isHashSignal(signals)) {
-          label = structuredHashLabel(path);
-          confidence = 1.0;
-        } else {
-          final signature = signals.firstWhere(
-                (s) => !s.startsWith('ML_Detection(') && s != 'HashMatch' && !s.startsWith('SignerMatch('),
-            orElse: () => '',
-          );
-
-          if (signature.isNotEmpty) {
-            confidence = 0.95;
-            label = structuredSignatureLabel(signature);
-          } else if (isMlSignal(signals)) {
-            label = 'Andr/VXgen2';
-            confidence = 0.80;
+          if (isHashSignal(signals)) {
+            label = structuredHashLabel(path);
+            confidence = 1.0;
           } else {
-            label = 'Suspicious.Item';
-            confidence = 0.70;
+            final signature = signals.firstWhere(
+                  (s) => !s.startsWith('ML_Detection(') && s != 'HashMatch' && !s.startsWith('SignerMatch('),
+              orElse: () => '',
+            );
+
+            if (signature.isNotEmpty) {
+              confidence = 0.95;
+              label = structuredSignatureLabel(signature);
+            } else if (isMlSignal(signals)) {
+              label = 'Andr/VXgen2';
+              confidence = 0.80;
+            } else {
+              label = 'Suspicious.Item';
+              confidence = 0.70;
+            }
           }
+
+          if (await _isShaExcluded(path)) {
+            cleanCount++;
+            onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: path, name: name, scanned: scanned, total: null));
+            continue;
+          }
+
+          final detection = HeadlessDetection(path: path, name: name, label: label, confidence: confidence, signals: signals);
+          detections.add(detection);
+
+          final prepared = await _prepareDetectedFile(path);
+
+          onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: path, name: name, scanned: scanned, total: null, label: label, confidence: confidence, signals: signals, quarantinePath: prepared.$1, apkSize: prepared.$2));
+        } catch (e) {
+          if (e is CancelledScan) rethrow;
+          onEvent?.call(HeadlessScanEvent('err', mode: mode, path: path, name: name, message: 'Local scan failed: $e'));
         }
-
-        final detection = HeadlessDetection(path: path, name: name, label: label, confidence: confidence, signals: signals);
-        detections.add(detection);
-
-        final prepared = await _prepareDetectedFile(path);
-
-        onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: path, name: name, scanned: scanned, total: null, label: label, confidence: confidence, signals: signals, quarantinePath: prepared.$1, apkSize: prepared.$2));
-      } catch (e) {
-        if (e is CancelledScan) rethrow;
-        onEvent?.call(HeadlessScanEvent('err', mode: mode, path: path, name: name, message: 'Local scan failed: $e'));
       }
     }
   }
@@ -628,9 +664,10 @@ Future<HeadlessScanResult> runHeadlessScan({
       }
     } else if (mode == ScanMode.rapid) {
       final files = <_HeadlessTarget>[];
-      final dir = Directory('/storage/emulated/0/Download');
 
-      if (await dir.exists()) {
+      for (final storage in await listStorageRoots()) {
+        final dir = Directory('${storage.path}/Download');
+        if (!await dir.exists()) continue;
         await for (final e in _safeList(dir, recursive: true)) {
           _throwIfCancelled();
           if (e is! File) continue;
@@ -667,10 +704,11 @@ Future<HeadlessScanResult> runHeadlessScan({
         }
       }
     } else if (mode == ScanMode.smart) {
-      final root = Directory('/storage/emulated/0/');
       final folders = <String>[];
 
-      if (await root.exists()) {
+      for (final storage in await listStorageRoots()) {
+        final root = Directory(storage.path);
+        if (!await root.exists()) continue;
         await for (final e in _safeList(root)) {
           _throwIfCancelled();
           if (e is Directory) {
@@ -739,6 +777,35 @@ Future<HeadlessScanResult> runHeadlessScan({
       }
     } else if (mode == ScanMode.full) {
       await _runFullFolderDrivenScan();
+    } else if (mode == ScanMode.custom) {
+      final files = <_HeadlessTarget>[];
+      final dir = Directory(customRoot ?? '');
+
+      if (customRoot != null && await dir.exists()) {
+        await for (final e in _safeList(dir, recursive: true)) {
+          _throwIfCancelled();
+          if (e is! File) continue;
+          if (ex.skipFolder(e.path)) continue;
+          files.add(_HeadlessTarget(path: e.path, name: e.path.split('/').last));
+        }
+      }
+
+      final ordered = [
+        ...files.where((f) => _ext(f.path) != 'apk'),
+        ...files.where((f) => _ext(f.path) == 'apk'),
+      ];
+
+      total = ordered.length;
+      onEvent?.call(HeadlessScanEvent(ordered.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
+
+      if (ordered.isNotEmpty && cloudActive) {
+        onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
+      }
+
+      for (final target in ordered) {
+        _throwIfCancelled();
+        await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
+      }
     } else {
       final root = Directory('/storage/emulated/0');
 
@@ -836,6 +903,35 @@ Future<HeadlessScanResult> runHeadlessScan({
   onEvent?.call(HeadlessScanEvent('done', mode: mode, scanned: scanned, total: total > 0 ? total : null, message: cancelled ? 'cancelled' : null));
 
   return HeadlessScanResult(mode: mode, scanned: scanned, threats: detections.length, clean: cleanCount, total: total, cancelled: cancelled, duration: sw.elapsed, detections: detections);
+}
+
+class StorageRoot {
+  final String path;
+  final bool removable;
+  final String label;
+
+  const StorageRoot(this.path, this.removable, this.label);
+}
+
+final RegExp _volumeDirName = RegExp(r'^([0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$');
+
+Future<List<StorageRoot>> listStorageRoots() async {
+  try {
+    final raw = await const MethodChannel('colourswift/storage_permission').invokeMethod<List<dynamic>>('listStorageRoots');
+    final roots = [
+      for (final r in raw ?? const [])
+        if (r is Map && r['path'] is String) StorageRoot(r['path'] as String, r['removable'] == true, (r['label'] ?? '').toString()),
+    ];
+    if (roots.isNotEmpty) return roots;
+  } catch (_) {}
+  final roots = [const StorageRoot('/storage/emulated/0', false, '')];
+  try {
+    await for (final e in Directory('/storage').list(followLinks: false)) {
+      final name = e.path.split('/').last;
+      if (e is Directory && _volumeDirName.hasMatch(name)) roots.add(StorageRoot(e.path, true, ''));
+    }
+  } catch (_) {}
+  return roots;
 }
 
 Future<List<_HeadlessTarget>> _listInstalledAppTargets({

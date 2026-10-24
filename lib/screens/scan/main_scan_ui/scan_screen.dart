@@ -24,6 +24,7 @@ import '../../../services/scan api/scan_types.dart';
 import '../../../services/scan_session_service.dart';
 import '../../../widgets/antivirus_bridge.dart';
 import '../../../widgets/mesh_background.dart';
+import '../../../widgets/av_option_dialog.dart';
 import '../../../services/theme/theme_manager.dart';
 import '../../exclusions/exclusion_manager_screen.dart';
 import '../../main_shell.dart';
@@ -34,10 +35,35 @@ import 'scan_isolate_worker.dart';
 import '../../../widgets/scan_log_listener.dart';
 
 import '../../../translations/app_localizations.dart';
+import '../../../widgets/av_folder_picker.dart';
 class ScanScreen extends StatefulWidget {
   final ScanMode? startMode;
+  final String? customChoice;
 
-  const ScanScreen({super.key, this.startMode});
+  const ScanScreen({super.key, this.startMode, this.customChoice});
+
+  static Future<String?> pickCustomChoice(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final cards = (await listStorageRoots()).where((r) => r.removable).toList();
+    if (!context.mounted) return null;
+    return showAvOptionDialog<String>(
+      context,
+      title: l10n.scanModeCustomTitle,
+      subtitle: l10n.customScanChooseSubtitle,
+      options: [
+        AvOption(value: 'folder', icon: Icons.folder_rounded, label: l10n.customChoiceFolder, subtitle: l10n.customChoiceFolderSubtitle),
+        for (final card in cards)
+          AvOption(
+            value: 'root:${card.path}',
+            icon: Icons.sd_card_rounded,
+            label: card.label.isNotEmpty ? card.label : '${l10n.customChoiceSdCard} (${card.path.split('/').last})',
+            subtitle: l10n.customChoiceSdCardSubtitle,
+          ),
+        AvOption(value: 'file', icon: Icons.insert_drive_file_rounded, label: l10n.singleChoiceScanFile, subtitle: l10n.customChoiceFileSubtitle),
+        AvOption(value: 'app', icon: Icons.apps_rounded, label: l10n.singleChoiceScanInstalledApp, subtitle: l10n.apkAnalyserChooseFromAppsOnThisDevice),
+      ],
+    );
+  }
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -151,7 +177,8 @@ class _ScanScreenState extends State<ScanScreen>
     return m == ScanMode.smart ||
         m == ScanMode.rapid ||
         m == ScanMode.installed ||
-        m == ScanMode.full;
+        m == ScanMode.full ||
+        m == ScanMode.custom;
   }
 
   String _notificationText() {
@@ -351,7 +378,7 @@ class _ScanScreenState extends State<ScanScreen>
     }
   }
 
-  Future<void> _runHeadlessMultiScan(ScanMode m) async {
+  Future<void> _runHeadlessMultiScan(ScanMode m, {String? customRoot}) async {
     _headlessCancelRequested = false;
     _headlessDetached = false;
 
@@ -400,6 +427,7 @@ class _ScanScreenState extends State<ScanScreen>
 
     final future = runHeadlessScan(
       mode: m,
+      customRoot: customRoot,
       useCloud: useCloudScan,
       quarantine: true,
       token: ServicesBinding.rootIsolateToken,
@@ -544,6 +572,8 @@ class _ScanScreenState extends State<ScanScreen>
         return 'installed';
       case ScanMode.full:
         return 'full';
+      case ScanMode.custom:
+        return 'custom';
       case ScanMode.none:
         return 'none';
     }
@@ -574,6 +604,8 @@ class _ScanScreenState extends State<ScanScreen>
         return ScanMode.installed;
       case 'full':
         return ScanMode.full;
+      case 'custom':
+        return ScanMode.custom;
       default:
         return ScanMode.none;
     }
@@ -729,40 +761,33 @@ class _ScanScreenState extends State<ScanScreen>
     _navigateHome();
   }
 
-  Future<void> _checkAndStart(ScanMode m) async {
-    if (m == ScanMode.single || m == ScanMode.installed) {
-      await _startScan(m);
-      return;
-    }
-    bool granted = false;
-    if (Platform.isAndroid) {
-      final info = await DeviceInfoPlugin().androidInfo;
-      final sdk = info.version.sdkInt;
-      if (sdk >= 30) {
-        try {
-          var status = await Permission.manageExternalStorage.status;
-          if (!status.isGranted) {
-            const platform = MethodChannel('colourswift/storage_permission');
-            await platform.invokeMethod('openManageStorage');
-            await Future.delayed(const Duration(seconds: 2));
-            status = await Permission.manageExternalStorage.status;
-          }
-          granted = status.isGranted;
-        } catch (_) {
-          await openAppSettings();
+  Future<bool> _ensureStorageAccess() async {
+    if (!Platform.isAndroid) return true;
+    final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+    if (sdk >= 30) {
+      try {
+        var status = await Permission.manageExternalStorage.status;
+        if (!status.isGranted) {
+          const platform = MethodChannel('colourswift/storage_permission');
+          await platform.invokeMethod('openManageStorage');
+          await Future.delayed(const Duration(seconds: 2));
+          status = await Permission.manageExternalStorage.status;
         }
-      } else {
-        final status = await Permission.storage.status;
-        granted =
-            status.isGranted || await Permission.storage.request().isGranted;
+        return status.isGranted;
+      } catch (_) {
+        await openAppSettings();
+        return false;
       }
-    } else {
-      granted = true;
     }
-    if (granted) {
+    final status = await Permission.storage.status;
+    return status.isGranted || await Permission.storage.request().isGranted;
+  }
+
+  Future<void> _checkAndStart(ScanMode m) async {
+    if (m == ScanMode.single || m == ScanMode.installed || await _ensureStorageAccess()) {
       await _startScan(m);
-    } else {
-      if (mounted) Navigator.pop(context);
+    } else if (mounted) {
+      Navigator.pop(context);
     }
   }
 
@@ -780,6 +805,11 @@ class _ScanScreenState extends State<ScanScreen>
       await _runHeadlessMultiScan(m);
       return;
     }
+  }
+
+  Future<String?> _pickCustomFolder() async {
+    final path = await showAvFolderPicker(context);
+    return path == null || path.isEmpty ? null : path;
   }
 
   String _ext(String path) {
@@ -952,75 +982,22 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   Future<void> _runSingleScan() async {
-    final choice = await showModalBottomSheet<String>(
-      context: context,
-      barrierColor: Colors.black,
-      isScrollControlled: true,
-      builder: (_) {
-        final theme = Theme.of(context);
-        return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.insert_drive_file_rounded,
-                  color: theme.colorScheme.primary,
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.singleChoiceScanFile,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface.withOpacity(0.88),
-                  ),
-                ),
-                onTap: () => Navigator.pop(context, 'file'),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.apps_rounded,
-                  color: theme.colorScheme.secondary,
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.singleChoiceScanInstalledApp,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface.withOpacity(0.88),
-                  ),
-                ),
-                onTap: () => Navigator.pop(context, 'app'),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.rule_folder_rounded,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.singleChoiceManageExclusions,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface.withOpacity(0.88),
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ExclusionManagerScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-    if (choice == null) {
-      _finishToHome();
-      return;
-    }
-    if (choice == 'file') {
+    final choice = widget.customChoice ?? await ScanScreen.pickCustomChoice(context);
+    if (!mounted) return;
+    if (choice != null && choice.startsWith('root:')) {
+      if (await _ensureStorageAccess()) {
+        await _runHeadlessMultiScan(ScanMode.custom, customRoot: choice.substring(5));
+      } else {
+        _finishToHome();
+      }
+    } else if (choice == 'folder') {
+      final root = await _ensureStorageAccess() ? await _pickCustomFolder() : null;
+      if (root == null) {
+        _finishToHome();
+        return;
+      }
+      await _runHeadlessMultiScan(ScanMode.custom, customRoot: root);
+    } else if (choice == 'file') {
       await _runSingleFileScan();
     } else if (choice == 'app') {
       await _runSingleAppScan();
@@ -1156,6 +1133,7 @@ class _ScanScreenState extends State<ScanScreen>
       ScanMode.installed => scheme.primary,
       ScanMode.full => scheme.error,
       ScanMode.single => scheme.primary,
+      ScanMode.custom => scheme.primary,
       _ => scheme.primary,
     };
   }
@@ -1167,6 +1145,7 @@ class _ScanScreenState extends State<ScanScreen>
       ScanMode.installed => Icons.apps_rounded,
       ScanMode.full => Icons.storage_rounded,
       ScanMode.single => Icons.insert_drive_file_rounded,
+      ScanMode.custom => Icons.folder_rounded,
       _ => Icons.shield_rounded,
     };
   }
@@ -1178,7 +1157,8 @@ class _ScanScreenState extends State<ScanScreen>
       ScanMode.rapid => l10n.scanTitleRapid,
       ScanMode.installed => l10n.scanTitleInstalled,
       ScanMode.full => l10n.scanTitleFull,
-      ScanMode.single => l10n.scanTitleSingle,
+      ScanMode.single => l10n.scanTitleCustom,
+      ScanMode.custom => l10n.scanTitleCustom,
       _ => l10n.scanTitleDefault,
     };
   }

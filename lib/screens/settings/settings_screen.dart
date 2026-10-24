@@ -23,6 +23,7 @@ import '../about/how_this_app_works.dart';
 import '../exclusions/exclusion_manager_screen.dart';
 import '../pro/pro_screen.dart';
 import 'sheets/settings_exclusions_sheet.dart';
+import '../../widgets/av_folder_picker.dart';
 import 'sheets/settings_language_sheet.dart';
 import 'sheets/settings_pro_options_sheet.dart';
 import 'sheets/settings_rtp_notification_sheet.dart';
@@ -1290,8 +1291,7 @@ class SettingsScreenState extends State<SettingsScreen>
                               showSettingsExclusionsSheet(
                                 context: context,
                                 onExcludeFolder: () async {
-                                  final result =
-                                  await FilePicker.platform.getDirectoryPath();
+                                  final result = await showAvFolderPicker(context);
                                   if (result != null) {
                                     final ex = ExclusionService();
                                     await ex.load();
@@ -1304,8 +1304,7 @@ class SettingsScreenState extends State<SettingsScreen>
                                     final path = r.files.single.path;
                                     if (path == null) return;
 
-                                    final bytes = File(path).readAsBytesSync();
-                                    final sha = sha256.convert(bytes).toString();
+                                    final sha = (await sha256.bind(File(path).openRead()).first).toString();
 
                                     final ex = ExclusionService();
                                     await ex.load();

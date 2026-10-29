@@ -5,3 +5,4 @@ This is an index on all public detection tests for AvarionX, that have been perf
 
 ### October 2026
 - [11-10-2026](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/blob/main/av-tests/tests/11-10-2026.md)
+- [29-10-2026](https://github.com/phsycologicalFudge/AvarionX-Android-Antivirus/blob/main/av-tests/tests/29-10-2026.md)

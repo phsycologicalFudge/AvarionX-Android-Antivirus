@@ -66,33 +66,23 @@ Guardian Mode is currently focused on ransomware-style behaviour. More behaviour
 <table>
   <tr>
     <td width="20%" align="center">
-      <img src="assets/gitImages/1.jpg" width="190" alt="AvarionX protection menu"><br>
+      <img src="assets/gitImages/1.jpg" width="190" alt="AvarionX home screen"><br>
       <sub><strong>Home screen</strong></sub>
     </td>
     <td width="20%" align="center">
-      <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX home screen"><br>
+      <img src="assets/gitImages/2.jpg" width="190" alt="AvarionX features list"><br>
       <sub><strong>Features list</strong></sub>
     </td>
     <td width="20%" align="center">
-      <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
+      <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX scanning mode"><br>
       <sub><strong>Scanning mode</strong></sub>
     </td>
     <td width="20%" align="center">
-      <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
+      <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX APK analyser"><br>
       <sub><strong>APK Analyser</strong></sub>
     </td>
     <td width="20%" align="center">
-    </td>
-    <td width="20%" align="center">
-      <img src="assets/gitImages/3.jpg" width="190" alt="AvarionX Cleaner Pro"><br>
-      <sub><strong>Scanning mode</strong></sub>
-    </td>
-    <td width="20%" align="center">
-      <img src="assets/gitImages/4.jpg" width="190" alt="AvarionX Smart Scan"><br>
-      <sub><strong>APK Analyser</strong></sub>
-    </td>
-    <td width="20%" align="center">
-      <img src="assets/gitImages/5.jpg" width="190" alt="AvarionX dark mode"><br>
+      <img src="assets/gitImages/5.jpg" width="190" alt="AvarionX settings screen"><br>
       <sub><strong>Settings Screen</strong></sub>
     </td>
   </tr>

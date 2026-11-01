@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/theme/theme_manager.dart';
+import '../widgets/engine_setup.dart';
 import '../widgets/mesh_background.dart';
 import 'main_shell.dart';
 
@@ -24,6 +25,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
   bool storageGranted = false;
   bool notifGranted = false;
   bool vpnGranted = false;
+  bool engineReady = false;
 
   Future<void> _requestStorage() async {
     bool granted = false;
@@ -141,7 +143,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Row(
-                  children: List.generate(3, (i) {
+                  children: List.generate(4, (i) {
                     final active = i == _page;
                     return Expanded(
                       child: AnimatedContainer(
@@ -161,6 +163,7 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
               Expanded(
                 child: PageView(
                   controller: _controller,
+                  physics: _page == 2 && !engineReady ? const NeverScrollableScrollPhysics() : null,
                   onPageChanged: (i) => setState(() => _page = i),
                   children: [
                     _slide(
@@ -183,6 +186,16 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                       onPrimary: notifGranted ? null : _requestNotifications,
                       footnote: AppLocalizations.of(context)!.onboardingNotificationsFootnote,
                     ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(22, 10, 22, 10),
+                      child: Center(
+                        child: EngineSetupPanel(
+                          onReady: () {
+                            if (mounted) setState(() => engineReady = true);
+                          },
+                        ),
+                      ),
+                    ),
                     _finishSlide(context),
                   ],
                 ),
@@ -204,9 +217,9 @@ class _PermissionsIntroScreenState extends State<PermissionsIntroScreen> {
                     else
                       const SizedBox(width: 72),
                     const Spacer(),
-                    if (_page < 2)
+                    if (_page < 3)
                       FilledButton(
-                        onPressed: _next,
+                        onPressed: _page == 2 && !engineReady ? null : _next,
                         style: FilledButton.styleFrom(
                           elevation: 0,
                           backgroundColor: scheme.primary,

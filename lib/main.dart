@@ -119,16 +119,16 @@ class MyApp extends StatelessWidget {
       themeMode: themeManager.themeMode,
       locale: languageManager.locale,
       supportedLocales: AppLocalizations.supportedLocales,
-      localeResolutionCallback: (deviceLocale, supportedLocales) {
-        if (deviceLocale == null) return supportedLocales.first;
-
-        for (final locale in supportedLocales) {
-          if (locale.languageCode == deviceLocale.languageCode) {
-            return locale;
+      localeListResolutionCallback: (deviceLocales, supportedLocales) {
+        for (final device in deviceLocales ?? const <Locale>[]) {
+          for (final locale in supportedLocales) {
+            if (locale.languageCode == device.languageCode) {
+              return locale;
+            }
           }
         }
 
-        return supportedLocales.first;
+        return const Locale('en');
       },
       localizationsDelegates: const [
         AppLocalizations.delegate,

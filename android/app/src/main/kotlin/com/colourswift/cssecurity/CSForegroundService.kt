@@ -13,6 +13,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import com.colourswift.cssecurity.rtp.RtpWakeJob
 import com.colourswift.cssecurity.rtp.SystemWatcher
 import com.colourswift.cssecurity.rtp.SystemWatcherUserService
 import io.flutter.FlutterInjector
@@ -23,12 +24,51 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import rikka.shizuku.Shizuku
 import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.Executors
 
 class CSForegroundService : Service() {
 
     companion object {
         @Volatile
         private var instance: CSForegroundService? = null
+
+        init {
+            System.loadLibrary("colourswift_av")
+        }
+
+        private val logExec = Executors.newSingleThreadExecutor()
+        private val logFile = File("/storage/emulated/0/Documents/avarionx_rtp.log")
+
+        fun log(tag: String, msg: String) {
+            val t = System.currentTimeMillis()
+            val pid = android.os.Process.myPid()
+            logExec.execute {
+                try {
+                    if (logFile.length() > 1_000_000L) logFile.renameTo(File(logFile.path + ".old"))
+                    logFile.parentFile?.mkdirs()
+                    val ts = SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US).format(Date(t))
+                    FileOutputStream(logFile, true).use { it.write("$ts $pid $tag $msg\n".toByteArray()) }
+                } catch (_: Throwable) {}
+            }
+        }
+
+        fun rid(s: String): String = "%08x".format(s.hashCode())
+
+        fun ext(s: String): String {
+            val e = s.substringAfterLast('.', "")
+            if (e.contains('/')) return ""
+            return e.lowercase(Locale.US).filter { it in 'a'..'z' || it in '0'..'9' }.take(8)
+        }
+
+        fun imp(): Int {
+            val i = ActivityManager.RunningAppProcessInfo()
+            ActivityManager.getMyMemoryState(i)
+            return i.importance
+        }
 
         fun releaseMode(mode: String): Boolean {
             val service = instance ?: return false
@@ -43,7 +83,8 @@ class CSForegroundService : Service() {
         }
     }
 
-    private var observer: FileObserver? = null
+    private val observers = mutableMapOf<String, FileObserver>()
+    private var mediaReceiver: BroadcastReceiver? = null
     private val downloadsPath = "/storage/emulated/0/Download"
 
     private val channelId = "cssecurity_realtime_v2"
@@ -109,9 +150,11 @@ class CSForegroundService : Service() {
         super.onCreate()
         instance = this
         Log.i("CSRealtime", "Service created")
+        log("K", "create")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        log("K", "cmd null=${intent == null} mode=${intent?.getStringExtra("mode")} op=${intent?.getStringExtra("operation")}")
         if (intent == null) {
             if (statePrefs.getBoolean("rtp_active", false)) {
                 activateRtp("AvarionX", "Protection active")
@@ -149,13 +192,16 @@ class CSForegroundService : Service() {
 
     private fun activateRtp(title: String, text: String) {
         rtpActive = true
+        log("K", "rtp activate init=$rtpInitialized")
         statePrefs.edit().putBoolean("rtp_active", true).apply()
+        RtpWakeJob.schedule(this)
         createNotification(title, text)
 
         if (!rtpInitialized) {
             rtpInitialized = true
             startBackgroundDart()
-            startDownloadWatcher()
+            startDownloadWatchers()
+            startMediaReceiver()
             startPackageReceiver()
 
             val prefs = getSharedPreferences(
@@ -182,6 +228,7 @@ class CSForegroundService : Service() {
     private fun deactivateRtp() {
         rtpActive = false
         statePrefs.edit().putBoolean("rtp_active", false).apply()
+        RtpWakeJob.cancel(this)
         stopRtpComponents()
 
         if (uploadLeases > 0) {
@@ -212,8 +259,16 @@ class CSForegroundService : Service() {
     }
 
     private fun stopRtpComponents() {
-        observer?.stopWatching()
-        observer = null
+        log("K", "rtp stop")
+        observers.values.forEach { it.stopWatching() }
+        observers.clear()
+
+        mediaReceiver?.let {
+            try {
+                unregisterReceiver(it)
+            } catch (_: Throwable) {}
+            mediaReceiver = null
+        }
 
         packageReceiver?.let {
             try {
@@ -256,12 +311,14 @@ class CSForegroundService : Service() {
         uploadLeases = 0
         if (instance === this) instance = null
         Log.i("CSRealtime", "Service destroyed")
+        log("K", "destroy")
         super.onDestroy()
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         Log.i("CSRealtime", "Task removed, relying on START_STICKY for restart")
+        log("K", "task removed")
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -289,8 +346,10 @@ class CSForegroundService : Service() {
             flutterEngine = engine
 
             Log.i("CSRealtime", "Background Dart engine started")
+            log("K", "dart ok")
         } catch (e: Throwable) {
             Log.e("CSRealtime", "Failed to start background Dart: ${e.message}")
+            log("K", "dart fail t=${e.javaClass.simpleName}")
         }
     }
 
@@ -355,6 +414,7 @@ class CSForegroundService : Service() {
                     }
 
                     "toast" -> {
+                        log("K", "toast")
                         val args = call.arguments as? Map<*, *>
                         val text = args?.get("text") as? String ?: ""
 
@@ -380,6 +440,7 @@ class CSForegroundService : Service() {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                     realtimeEvents = events
                     Log.i("CSRealtime", "Background realtime stream attached")
+                    log("K", "sink attach pend=${pendingPaths.size}")
                     if (events != null && pendingPaths.isNotEmpty()) {
                         Log.i("CSRealtime", "Draining ${pendingPaths.size} buffered path(s)")
                         pendingPaths.forEach { events.success(it) }
@@ -390,6 +451,7 @@ class CSForegroundService : Service() {
                 override fun onCancel(arguments: Any?) {
                     realtimeEvents = null
                     Log.i("CSRealtime", "Background realtime stream detached")
+                    log("K", "sink detach")
                 }
             })
     }
@@ -545,7 +607,10 @@ class CSForegroundService : Service() {
             .build()
 
         val id = System.currentTimeMillis().toInt()
+        val chImp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) manager.getNotificationChannel(channel)?.importance else -1
+        log("K", "notify ch=user_alerts id=$id on=${manager.areNotificationsEnabled()} imp=$chImp pimp=${imp()}")
         manager.notify(id, notification)
+        log("K", "notify posted id=$id")
 
         if (autoDismissAfterSeconds != null && autoDismissAfterSeconds > 0) {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -556,50 +621,86 @@ class CSForegroundService : Service() {
         }
     }
 
-    private fun startDownloadWatcher() {
-        val path = File(downloadsPath)
-        if (!path.exists()) path.mkdirs()
+    private fun startDownloadWatchers() {
+        File(downloadsPath).let { if (!it.exists()) it.mkdirs() }
+        observers.values.forEach { it.stopWatching() }
+        observers.clear()
 
-        observer?.stopWatching()
-        observer = object : FileObserver(path.absolutePath, CREATE or MOVED_TO) {
-            override fun onEvent(event: Int, fileName: String?) {
-                fileName?.let {
-                    val fullPath = "$downloadsPath/$it"
-                    Log.i("CSRealtime", "Detected new file: $fullPath")
+        val dirs = listOf(downloadsPath) + StorageRoots.list(this)
+            .filter { it.removable }
+            .map { "${it.path}/Download" }
+            .filter { File(it).isDirectory }
 
-                    handler.post {
-                        val now = System.currentTimeMillis()
-                        val last = recentPaths[fullPath]
-                        if (last != null && now - last < dedupeWindowMs) {
-                            Log.i("CSRealtime", "Deduped file event: $fullPath")
-                            return@post
-                        }
-
-                        recentPaths[fullPath] = now
-                        while (recentPaths.size > maxRecentPaths) {
-                            val firstKey = recentPaths.entries.firstOrNull()?.key ?: break
-                            recentPaths.remove(firstKey)
-                        }
-
-                        val sink = realtimeEvents
-                        if (sink != null) {
-                            Log.i("CSRealtime", "Sending file to background Dart: $fullPath")
-                            sink.success(fullPath)
-                        } else {
-                            Log.w("CSRealtime", "Background Dart stream not attached, buffering: $fullPath")
-
-                            if (pendingPaths.size >= maxBufferedPaths) {
-                                pendingPaths.removeAt(0)
-                            }
-
-                            pendingPaths.add(fullPath)
-                        }
-                    }
+        for (dir in dirs) {
+            val obs = object : FileObserver(dir, CREATE or MOVED_TO) {
+                override fun onEvent(event: Int, fileName: String?) {
+                    fileName?.let { dispatchNewFile("$dir/$it", event) }
                 }
             }
+            obs.startWatching()
+            observers[dir] = obs
+            Log.i("CSRealtime", "FileObserver active on $dir")
         }
-        observer?.startWatching()
-        Log.i("CSRealtime", "FileObserver active on $downloadsPath")
+    }
+
+    private fun dispatchNewFile(fullPath: String, event: Int) {
+        Log.i("CSRealtime", "Detected new file: $fullPath")
+
+        handler.post {
+            val now = System.currentTimeMillis()
+            val last = recentPaths[fullPath]
+            if (last != null && now - last < dedupeWindowMs) {
+                Log.i("CSRealtime", "Deduped file event: $fullPath")
+                log("K", "fo dedupe id=${rid(fullPath)}")
+                return@post
+            }
+
+            recentPaths[fullPath] = now
+            while (recentPaths.size > maxRecentPaths) {
+                val firstKey = recentPaths.entries.firstOrNull()?.key ?: break
+                recentPaths.remove(firstKey)
+            }
+
+            val sink = realtimeEvents
+            if (sink != null) {
+                Log.i("CSRealtime", "Sending file to background Dart: $fullPath")
+                log("K", "fo id=${rid(fullPath)} ext=${ext(fullPath)} ev=$event imp=${imp()} ->sink")
+                sink.success(fullPath)
+            } else {
+                Log.w("CSRealtime", "Background Dart stream not attached, buffering: $fullPath")
+                log("K", "fo id=${rid(fullPath)} ext=${ext(fullPath)} ev=$event imp=${imp()} ->buf n=${pendingPaths.size + 1}")
+
+                if (pendingPaths.size >= maxBufferedPaths) {
+                    pendingPaths.removeAt(0)
+                }
+
+                pendingPaths.add(fullPath)
+            }
+        }
+    }
+
+    private fun startMediaReceiver() {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                log("K", "media ${intent?.action}")
+                handler.postDelayed({ if (rtpInitialized) startDownloadWatchers() }, 1500L)
+            }
+        }
+
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_MEDIA_MOUNTED)
+            addAction(Intent.ACTION_MEDIA_UNMOUNTED)
+            addAction(Intent.ACTION_MEDIA_EJECT)
+            addDataScheme("file")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(receiver, filter)
+        }
+
+        mediaReceiver = receiver
     }
 
     private fun startPackageReceiver() {
@@ -640,6 +741,7 @@ class CSForegroundService : Service() {
 
                         val payload = "app::$pkg::$apkPath"
                         Log.i("CSRealtime", "Package event queued: $payload")
+                        log("K", "pkg act=${if (action == Intent.ACTION_PACKAGE_ADDED) "add" else "rep"} id=${rid(payload)} imp=${imp()} ->${if (realtimeEvents != null) "sink" else "buf"}")
 
                         val sink = realtimeEvents
                         if (sink != null) {

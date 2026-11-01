@@ -116,6 +116,45 @@ String engineCloudFinish(int timeoutMs) {
 
 Future<String> engineCloudFinishAsync(int timeoutMs) => Isolate.run(() => engineCloudFinish(timeoutMs));
 
+const int engineStateNeedsSetup = 0;
+const int engineStateSettingUp = 1;
+const int engineStateReady = 2;
+const int engineStateFailed = 3;
+
+const int engineSetupOk = 0;
+const int engineSetupOffline = 1;
+const int engineSetupFailed = 2;
+
+typedef _I32PtrNative = Int32 Function(Pointer<Utf8>);
+typedef _I32PtrDart = int Function(Pointer<Utf8>);
+
+int engineState() {
+  if (!Platform.isAndroid) return engineStateReady;
+  final lib = _openEngineLib();
+  if (lib == null) return engineStateFailed;
+  try {
+    return lib.lookupFunction<_I32VoidNative, _I32VoidDart>('av_ready')();
+  } catch (_) {
+    return engineStateFailed;
+  }
+}
+
+int engineSetup(String defsPath) {
+  if (!Platform.isAndroid) return engineSetupOk;
+  final lib = _openEngineLib();
+  if (lib == null) return engineSetupFailed;
+  final p = defsPath.toNativeUtf8();
+  try {
+    return lib.lookupFunction<_I32PtrNative, _I32PtrDart>('av_prep')(p);
+  } catch (_) {
+    return engineSetupFailed;
+  } finally {
+    malloc.free(p);
+  }
+}
+
+Future<int> engineSetupAsync(String defsPath) => Isolate.run(() => engineSetup(defsPath));
+
 typedef AvInitNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
 typedef AvScanNative = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef AvFreeNative = Int32 Function();

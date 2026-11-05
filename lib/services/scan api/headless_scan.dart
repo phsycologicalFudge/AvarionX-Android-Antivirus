@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'scan_types.dart';
 import '../../utils/hash_cache_worker.dart';
@@ -245,15 +246,19 @@ Future<HeadlessScanResult> runHeadlessScan({
   int total = 0;
   bool cancelled = false;
 
-  HeadlessScanWorker? worker;
-  try {
-    worker = await HeadlessScanWorker.spawn(token);
-  } catch (e) {
-    onEvent?.call(
-      HeadlessScanEvent('err', mode: mode, message: 'Scan worker init failed: $e'),
-    );
-    worker = null;
-  }
+  final laneCount = await _scanLaneCount();
+  final spawned = await Future.wait(List.generate(
+    laneCount,
+    (_) => HeadlessScanWorker.spawn(token).then<HeadlessScanWorker?>((w) => w, onError: (Object e) {
+      onEvent?.call(
+        HeadlessScanEvent('err', mode: mode, message: 'Scan worker init failed: $e'),
+      );
+      return null;
+    }),
+  ));
+  final workers = spawned.whereType<HeadlessScanWorker>().toList();
+  final HeadlessScanWorker? worker = workers.isEmpty ? null : workers.first;
+  _InstalledVerdictCache? verdictCache;
 
   HashCacheWorker? hashWorker;
   bool cloudActive = false;
@@ -330,6 +335,7 @@ Future<HeadlessScanResult> runHeadlessScan({
     required String displayName,
     required bool respectFolderExclusions,
     required bool respectShaExclusions,
+    required HeadlessScanWorker? w,
   }) async {
     if (respectFolderExclusions && ex.skipFolder(path)) return;
     _throwIfCancelled();
@@ -349,9 +355,9 @@ Future<HeadlessScanResult> runHeadlessScan({
 
     _throwIfCancelled();
 
-    if (!infected && worker != null) {
+    if (!infected && w != null) {
       try {
-        final raw = await worker!.scanRaw(path);
+        final raw = await w.scanRaw(path);
         _throwIfCancelled();
 
         if (raw == null || raw.isEmpty) {
@@ -446,7 +452,7 @@ Future<HeadlessScanResult> runHeadlessScan({
     );
   }
 
-  Future<void> _scanInstalledTarget(_HeadlessTarget target) async {
+  Future<void> _scanInstalledTarget(_HeadlessTarget target, HeadlessScanWorker? w) async {
     _throwIfCancelled();
     nameByPath[target.path] = target.name;
 
@@ -459,6 +465,15 @@ Future<HeadlessScanResult> runHeadlessScan({
 
     if (ex.skipFolder(target.path)) return;
 
+    final stat = verdictCache == null ? null : await _InstalledVerdictCache.statOf(target.path);
+    final cachedSha = verdictCache?.cleanSha(target.path, stat);
+    if (cachedSha != null) {
+      if (cloudActive && cachedSha.isNotEmpty) engineCloudEnqueue(target.path, cachedSha);
+      cleanCount++;
+      onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total > 0 ? total : null));
+      return;
+    }
+
     bool infected = false;
     String label = 'Suspicious.Item';
     double confidence = 0.0;
@@ -466,9 +481,9 @@ Future<HeadlessScanResult> runHeadlessScan({
 
     _throwIfCancelled();
 
-    if (!infected && worker != null) {
+    if (!infected && w != null) {
       try {
-        final raw = await worker!.scanRaw(target.path);
+        final raw = await w.scanRaw(target.path);
         _throwIfCancelled();
 
         if (raw == null || raw.isEmpty) {
@@ -480,6 +495,9 @@ Future<HeadlessScanResult> runHeadlessScan({
         final decoded = jsonDecode(raw);
         final hits = decoded['hits'] as Map?;
         if (hits == null || hits.isEmpty) {
+          if (decoded is Map && decoded.containsKey('scanned')) {
+            verdictCache?.putClean(target.path, stat, (decoded['sha256'] ?? '').toString());
+          }
           cleanCount++;
           onEvent?.call(HeadlessScanEvent('clean', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total > 0 ? total : null));
           return;
@@ -547,6 +565,19 @@ Future<HeadlessScanResult> runHeadlessScan({
     final prepared = await _prepareDetectedFile(target.path);
 
     onEvent?.call(HeadlessScanEvent('hit', mode: mode, path: target.path, name: target.name, scanned: scanned, total: total > 0 ? total : null, label: label, confidence: confidence, signals: signals, quarantinePath: prepared.$1, apkSize: prepared.$2));
+  }
+
+  Future<void> _runPool<T>(List<T> items, Future<void> Function(T item, HeadlessScanWorker? w) scanOne) async {
+    var next = 0;
+    Future<void> lane(HeadlessScanWorker? w) async {
+      while (next < items.length) {
+        _throwIfCancelled();
+        final item = items[next++];
+        await scanOne(item, w);
+      }
+    }
+
+    await Future.wait(workers.isEmpty ? [lane(null)] : [for (final w in workers) lane(w)]);
   }
 
   Future<void> _runFullFolderDrivenScan() async {
@@ -658,10 +689,8 @@ Future<HeadlessScanResult> runHeadlessScan({
 
       onEvent?.call(HeadlessScanEvent(apps.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
 
-      for (final target in apps) {
-        _throwIfCancelled();
-        await _scanInstalledTarget(target);
-      }
+      verdictCache = await _InstalledVerdictCache.open();
+      await _runPool(apps, _scanInstalledTarget);
     } else if (mode == ScanMode.rapid) {
       final files = <_HeadlessTarget>[];
 
@@ -693,15 +722,13 @@ Future<HeadlessScanResult> runHeadlessScan({
           onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
         }
 
-        for (final target in files) {
-          _throwIfCancelled();
-          await _scanResolvedTarget(
-            path: target.path,
-            displayName: target.name,
-            respectFolderExclusions: true,
-            respectShaExclusions: true,
-          );
-        }
+        await _runPool(files, (target, w) => _scanResolvedTarget(
+              path: target.path,
+              displayName: target.name,
+              respectFolderExclusions: true,
+              respectShaExclusions: true,
+              w: w,
+            ));
       }
     } else if (mode == ScanMode.smart) {
       final folders = <String>[];
@@ -765,15 +792,8 @@ Future<HeadlessScanResult> runHeadlessScan({
           onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
         }
 
-        for (final target in nonApkFiles) {
-          _throwIfCancelled();
-          await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
-        }
-
-        for (final target in apkFiles) {
-          _throwIfCancelled();
-          await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
-        }
+        await _runPool(nonApkFiles, (target, w) => _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true, w: w));
+        await _runPool(apkFiles, (target, w) => _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true, w: w));
       }
     } else if (mode == ScanMode.full) {
       await _runFullFolderDrivenScan();
@@ -802,10 +822,7 @@ Future<HeadlessScanResult> runHeadlessScan({
         onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
       }
 
-      for (final target in ordered) {
-        _throwIfCancelled();
-        await _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true);
-      }
+      await _runPool(ordered, (target, w) => _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true, w: w));
     } else {
       final root = Directory('/storage/emulated/0');
 
@@ -819,7 +836,7 @@ Future<HeadlessScanResult> runHeadlessScan({
         })) {
           _throwIfCancelled();
           if (e is! File) continue;
-          await _scanResolvedTarget(path: e.path, displayName: e.path.split('/').last, respectFolderExclusions: false, respectShaExclusions: false);
+          await _scanResolvedTarget(path: e.path, displayName: e.path.split('/').last, respectFolderExclusions: false, respectShaExclusions: false, w: worker);
         }
       }
     }
@@ -828,9 +845,12 @@ Future<HeadlessScanResult> runHeadlessScan({
       onEvent?.call(HeadlessScanEvent('err', mode: mode, message: 'Enumeration failed: $e'));
     }
   } finally {
-    try {
-      worker?.requestClose();
-    } catch (_) {}
+    for (final w in workers) {
+      try {
+        w.requestClose();
+      } catch (_) {}
+    }
+    await verdictCache?.save(prune: !cancelled);
   }
 
   if (cloudActive) {
@@ -892,6 +912,8 @@ Future<HeadlessScanResult> runHeadlessScan({
   try {
     await CacheManager.clearAll();
   } catch (_) {}
+
+  enginePurge();
 
   sw.stop();
   ScanLogListener.setHandler(null);
@@ -956,6 +978,92 @@ Future<List<_HeadlessTarget>> _listInstalledAppTargets({
       ),
     );
     return [];
+  }
+}
+
+Future<int> _scanLaneCount() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getInt('scan_limits_max_concurrent') ?? 2;
+    return v < 1 ? 1 : (v > 4 ? 4 : v);
+  } catch (_) {
+    return 1;
+  }
+}
+
+class _InstalledVerdictCache {
+  final File _file;
+  final String _stamp;
+  final Map<String, dynamic> _apps;
+  final Set<String> _seen = {};
+  bool _dirty = false;
+
+  _InstalledVerdictCache._(this._file, this._stamp, this._apps);
+
+  static Future<_InstalledVerdictCache?> open() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final defs = await File('${dir.path}/defs.cs').stat();
+      final info = await PackageInfo.fromPlatform();
+      final stamp = '${info.version}+${info.buildNumber}|${defs.size}|${defs.modified.millisecondsSinceEpoch}';
+      final file = File('${dir.path}/installed_verdicts.json');
+      var apps = <String, dynamic>{};
+      if (await file.exists()) {
+        final decoded = jsonDecode(await file.readAsString());
+        if (decoded is Map && decoded['stamp'] == stamp && decoded['apps'] is Map) {
+          apps = Map<String, dynamic>.from(decoded['apps'] as Map);
+        }
+      }
+      return _InstalledVerdictCache._(file, stamp, apps);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<FileStat?> statOf(String path) async {
+    try {
+      final s = await File(path).stat();
+      return s.type == FileSystemEntityType.notFound ? null : s;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? cleanSha(String path, FileStat? stat) {
+    _seen.add(path);
+    if (stat == null) return null;
+    final e = _apps[path];
+    if (e is! Map) return null;
+    if (e['s'] != stat.size || e['m'] != stat.modified.millisecondsSinceEpoch || e['c'] != stat.changed.millisecondsSinceEpoch) {
+      return null;
+    }
+    return (e['h'] ?? '').toString();
+  }
+
+  void putClean(String path, FileStat? stat, String sha) {
+    if (stat == null) return;
+    _apps[path] = {
+      's': stat.size,
+      'm': stat.modified.millisecondsSinceEpoch,
+      'c': stat.changed.millisecondsSinceEpoch,
+      'h': sha,
+    };
+    _dirty = true;
+  }
+
+  Future<void> save({required bool prune}) async {
+    if (prune) {
+      final before = _apps.length;
+      _apps.removeWhere((k, _) => !_seen.contains(k));
+      if (_apps.length != before) _dirty = true;
+    }
+    if (!_dirty) return;
+    try {
+      final tmp = File('${_file.path}.tmp');
+      await tmp.writeAsString(jsonEncode({'stamp': _stamp, 'apps': _apps}), flush: true);
+      await tmp.rename(_file.path);
+      _dirty = false;
+    } catch (_) {}
   }
 }
 

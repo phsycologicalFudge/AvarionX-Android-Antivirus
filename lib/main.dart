@@ -58,7 +58,7 @@ int _clampInt(int v, int min, int max) {
 
 Future<void> applyScanLimitsFromPrefs() async {
   final prefs = await SharedPreferences.getInstance();
-  final mc = _clampInt(prefs.getInt(_kMaxConcurrentKey) ?? 1, 1, 4);
+  final mc = _clampInt(prefs.getInt(_kMaxConcurrentKey) ?? 2, 1, 4);
   final mt = _clampInt(prefs.getInt(_kMaxThreadsKey) ?? 0, 0, 16);
   try {
     AntivirusBridge().setScanLimits(mc, mt);

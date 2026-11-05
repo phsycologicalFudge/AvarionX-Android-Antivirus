@@ -47,10 +47,16 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _initEngine() async {
-    await DefsUpdateScheduler.init();
-    await PurchaseService.init();
-    await applyScanLimitsFromPrefs();
+    final engineReady = AvEngine.ensureInitialized();
+    final purchaseCached = PurchaseService.loadCached();
+    unawaited(purchaseCached.then((_) => PurchaseService.connectBilling()).catchError((_) {}));
     unawaited(CloudAuthService.ensureRegistered());
+
+    await Future.wait([
+      DefsUpdateScheduler.init(),
+      purchaseCached,
+      applyScanLimitsFromPrefs(),
+    ]);
 
     final info = await PackageInfo.fromPlatform();
     final currentVersion = '${info.version}+${info.buildNumber}';
@@ -73,7 +79,7 @@ class _BootScreenState extends State<BootScreen> with TickerProviderStateMixin {
       openQuarantine = result?['open_quarantine'] == true;
     } catch (_) {}
 
-    await AvEngine.ensureInitialized();
+    await engineReady;
 
     if (!mounted) return;
     await _fadeOutController.forward();

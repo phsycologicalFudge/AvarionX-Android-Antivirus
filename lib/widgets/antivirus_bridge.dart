@@ -116,6 +116,34 @@ String engineCloudFinish(int timeoutMs) {
 
 Future<String> engineCloudFinishAsync(int timeoutMs) => Isolate.run(() => engineCloudFinish(timeoutMs));
 
+typedef _I32PtrPtrNative = Int32 Function(Pointer<Utf8>, Pointer<Utf8>);
+typedef _I32PtrPtrDart = int Function(Pointer<Utf8>, Pointer<Utf8>);
+typedef _VoidVoidNative = Void Function();
+typedef _VoidVoidDart = void Function();
+
+int engineCloudEnqueue(String path, String sha256) {
+  final lib = _openEngineLib();
+  if (lib == null) return -1;
+  final p = path.toNativeUtf8();
+  final s = sha256.toNativeUtf8();
+  try {
+    return lib.lookupFunction<_I32PtrPtrNative, _I32PtrPtrDart>('av_cloud_enqueue')(p, s);
+  } catch (_) {
+    return -1;
+  } finally {
+    malloc.free(p);
+    malloc.free(s);
+  }
+}
+
+void enginePurge() {
+  final lib = _openEngineLib();
+  if (lib == null) return;
+  try {
+    lib.lookupFunction<_VoidVoidNative, _VoidVoidDart>('av_purge')();
+  } catch (_) {}
+}
+
 const int engineStateNeedsSetup = 0;
 const int engineStateSettingUp = 1;
 const int engineStateReady = 2;

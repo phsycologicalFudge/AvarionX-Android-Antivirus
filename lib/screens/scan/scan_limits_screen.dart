@@ -19,7 +19,7 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
 
   bool _loading = true;
 
-  int _maxConcurrent = 1;
+  int _maxConcurrent = 2;
   int _maxThreads = 0;
 
   late final int _coreCount;
@@ -45,7 +45,7 @@ class _ScanLimitsScreenState extends State<ScanLimitsScreen> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    final mc = prefs.getInt(_kMaxConcurrentKey) ?? 1;
+    final mc = prefs.getInt(_kMaxConcurrentKey) ?? 2;
     final mt = prefs.getInt(_kMaxThreadsKey) ?? 0;
 
     _maxConcurrent = _clampMaxConcurrent(mc);

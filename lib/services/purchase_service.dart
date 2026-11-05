@@ -59,6 +59,11 @@ class PurchaseService {
   }
 
   static Future<void> init() async {
+    await loadCached();
+    await connectBilling();
+  }
+
+  static Future<void> loadCached() async {
     final prefs = await SharedPreferences.getInstance();
     _isPro = prefs.getBool(_kIsPro) ?? false;
     _permanentPro = prefs.getBool(_kPermanentPro) ?? false;
@@ -74,7 +79,9 @@ class PurchaseService {
     if (await _debugIgnorePaid()) {
       _isPro = false;
     }
+  }
 
+  static Future<void> connectBilling() async {
     _available = await _iap.isAvailable();
     if (!_available) return;
 

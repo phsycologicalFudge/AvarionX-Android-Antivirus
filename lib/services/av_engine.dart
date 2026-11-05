@@ -33,7 +33,7 @@ class AvEngine {
       final defsPath = await DefsManager.ensureLiteDefinitions();
 
       final prefs = await SharedPreferences.getInstance();
-      final maxConcurrent = prefs.getInt(_kMaxConcurrentKey) ?? 1;
+      final maxConcurrent = prefs.getInt(_kMaxConcurrentKey) ?? 2;
       final maxThreads = prefs.getInt(_kMaxThreadsKey) ?? 0;
 
       final result = await _runRustInit(

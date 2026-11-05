@@ -30,6 +30,7 @@ import '../../services/update_service.dart';
 import '../../translations/app_localizations.dart';
 import '../../utils/animated_route.dart';
 import '../../widgets/antivirus_bridge.dart';
+import '../../widgets/engine_setup.dart';
 import '../../widgets/mesh_background.dart';
 import '../link checker/link_check_screen.dart';
 import '../pro/pro_screen.dart';
@@ -285,6 +286,11 @@ class AvHomeScreenState extends State<AvHomeScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      await EngineSetup.ensureReady(context);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
 
       final flags = Provider.of<LaunchFlags>(context, listen: false);
       if (flags.showUpdateLog != true) return;
@@ -367,6 +373,7 @@ class AvHomeScreenState extends State<AvHomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      EngineSetup.ensureReady(context);
       unawaited(_vpn.onResumed());
       _loadProtectionState();
       _loadProStatus();

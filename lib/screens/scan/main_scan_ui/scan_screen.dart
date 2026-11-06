@@ -33,14 +33,58 @@ import 'log_buffer.dart';
 import 'scan_installed_app_sheet.dart';
 import 'scan_isolate_worker.dart';
 import '../../../widgets/scan_log_listener.dart';
-
 import '../../../translations/app_localizations.dart';
-import '../../../widgets/av_folder_picker.dart';
+
 class ScanScreen extends StatefulWidget {
   final ScanMode? startMode;
   final String? customChoice;
+  final AppTarget? customApp;
 
-  const ScanScreen({super.key, this.startMode, this.customChoice});
+  const ScanScreen({super.key, this.startMode, this.customChoice, this.customApp});
+
+  static Future<AppTarget?> pickInstalledApp(BuildContext context) async {
+    List<AppTarget> apps = [];
+    try {
+      final List<dynamic> raw = await const MethodChannel("cs.fastapps").invokeMethod("listUserApps");
+      apps = raw.map((item) {
+        final m = Map<String, dynamic>.from(item);
+        return AppTarget(
+          name: m["name"] ?? "Unknown",
+          package: m["package"] ?? "",
+          path: m["path"] ?? "",
+        );
+      }).toList();
+    } catch (_) {}
+    if (apps.isEmpty || !context.mounted) return null;
+    return showModalBottomSheet<AppTarget>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (_) => ScanInstalledAppSheet(apps: apps),
+    );
+  }
+
+  static Future<bool> ensureStorageAccess() async {
+    if (!Platform.isAndroid) return true;
+    final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+    if (sdk >= 30) {
+      try {
+        var status = await Permission.manageExternalStorage.status;
+        if (!status.isGranted) {
+          const platform = MethodChannel('colourswift/storage_permission');
+          await platform.invokeMethod('openManageStorage');
+          await Future.delayed(const Duration(seconds: 2));
+          status = await Permission.manageExternalStorage.status;
+        }
+        return status.isGranted;
+      } catch (_) {
+        await openAppSettings();
+        return false;
+      }
+    }
+    final status = await Permission.storage.status;
+    return status.isGranted || await Permission.storage.request().isGranted;
+  }
 
   static Future<String?> pickCustomChoice(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
@@ -117,7 +161,6 @@ class _ScanScreenState extends State<ScanScreen>
   final Stopwatch _notifProgressThrottle = Stopwatch();
 
   static const MethodChannel _apkFast = MethodChannel("apk_fast");
-  static const MethodChannel _fastApps = MethodChannel("cs.fastapps");
 
   Future<ScanWorker> _ensureWorker() async {
     final existing = _scanWorker;
@@ -761,30 +804,8 @@ class _ScanScreenState extends State<ScanScreen>
     _navigateHome();
   }
 
-  Future<bool> _ensureStorageAccess() async {
-    if (!Platform.isAndroid) return true;
-    final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
-    if (sdk >= 30) {
-      try {
-        var status = await Permission.manageExternalStorage.status;
-        if (!status.isGranted) {
-          const platform = MethodChannel('colourswift/storage_permission');
-          await platform.invokeMethod('openManageStorage');
-          await Future.delayed(const Duration(seconds: 2));
-          status = await Permission.manageExternalStorage.status;
-        }
-        return status.isGranted;
-      } catch (_) {
-        await openAppSettings();
-        return false;
-      }
-    }
-    final status = await Permission.storage.status;
-    return status.isGranted || await Permission.storage.request().isGranted;
-  }
-
   Future<void> _checkAndStart(ScanMode m) async {
-    if (m == ScanMode.single || m == ScanMode.installed || await _ensureStorageAccess()) {
+    if (m == ScanMode.single || m == ScanMode.installed || await ScanScreen.ensureStorageAccess()) {
       await _startScan(m);
     } else if (mounted) {
       Navigator.pop(context);
@@ -807,32 +828,11 @@ class _ScanScreenState extends State<ScanScreen>
     }
   }
 
-  Future<String?> _pickCustomFolder() async {
-    final path = await showAvFolderPicker(context);
-    return path == null || path.isEmpty ? null : path;
-  }
-
   String _ext(String path) {
     final name = path.split('/').last;
     final dot = name.lastIndexOf('.');
     if (dot <= 0) return '';
     return name.substring(dot + 1).toLowerCase();
-  }
-
-  Future<List<AppTarget>> _getUserInstalledApps() async {
-    try {
-      final List<dynamic> raw = await _fastApps.invokeMethod("listUserApps");
-      return raw.map((item) {
-        final m = Map<String, dynamic>.from(item);
-        return AppTarget(
-          name: m["name"] ?? "Unknown",
-          package: m["package"] ?? "",
-          path: m["path"] ?? "",
-        );
-      }).toList();
-    } catch (_) {
-      return [];
-    }
   }
 
   Future<void> _runSingleFileScan() async {
@@ -982,21 +982,14 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   Future<void> _runSingleScan() async {
-    final choice = widget.customChoice ?? await ScanScreen.pickCustomChoice(context);
+    final choice = widget.customChoice;
     if (!mounted) return;
-    if (choice != null && choice.startsWith('root:')) {
-      if (await _ensureStorageAccess()) {
-        await _runHeadlessMultiScan(ScanMode.custom, customRoot: choice.substring(5));
+    if (choice != null && (choice.startsWith('root:') || choice.startsWith('dir:'))) {
+      if (await ScanScreen.ensureStorageAccess()) {
+        await _runHeadlessMultiScan(ScanMode.custom, customRoot: choice.substring(choice.indexOf(':') + 1));
       } else {
         _finishToHome();
       }
-    } else if (choice == 'folder') {
-      final root = await _ensureStorageAccess() ? await _pickCustomFolder() : null;
-      if (root == null) {
-        _finishToHome();
-        return;
-      }
-      await _runHeadlessMultiScan(ScanMode.custom, customRoot: root);
     } else if (choice == 'file') {
       await _runSingleFileScan();
     } else if (choice == 'app') {
@@ -1007,34 +1000,7 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   Future<void> _runSingleAppScan() async {
-    if (mounted) {
-      setState(() {
-        openingPicker = true;
-      });
-    }
-    final apps = await _getUserInstalledApps();
-    if (apps.isEmpty) {
-      if (mounted) {
-        setState(() {
-          openingPicker = false;
-        });
-      }
-      LogBuffer.add('[ENGINE] No installed apps available.');
-      _finishToHome();
-      return;
-    }
-    if (mounted) {
-      setState(() {
-        openingPicker = false;
-      });
-    }
-    final app = await showModalBottomSheet<AppTarget>(
-      context: context,
-      barrierColor: Colors.black,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (_) => ScanInstalledAppSheet(apps: apps),
-    );
+    final app = widget.customApp;
     if (app == null) {
       _finishToHome();
       return;

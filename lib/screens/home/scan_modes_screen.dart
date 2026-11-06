@@ -5,8 +5,10 @@ import '../../services/scan api/scan_types.dart';
 import '../../services/theme/theme_manager.dart';
 import '../../translations/app_localizations.dart';
 import '../../utils/animated_route.dart';
+import '../../widgets/av_folder_picker.dart';
 import '../../widgets/av_header.dart';
 import '../../widgets/mesh_background.dart';
+import '../scan/main_scan_ui/app_target.dart';
 import '../scan/main_scan_ui/scan_screen.dart';
 
 class ScanModesScreen extends StatefulWidget {
@@ -44,14 +46,24 @@ class _ScanModesScreenState extends State<ScanModesScreen> {
 
   Future<void> _startMode(ScanMode mode) async {
     String? choice;
+    AppTarget? app;
     if (mode == ScanMode.single) {
       choice = await ScanScreen.pickCustomChoice(context);
       if (choice == null || !mounted) return;
+      if (choice == 'folder') {
+        if (!await ScanScreen.ensureStorageAccess() || !mounted) return;
+        final path = await showAvFolderPicker(context);
+        if (path == null || path.isEmpty || !mounted) return;
+        choice = 'dir:$path';
+      } else if (choice == 'app') {
+        app = await ScanScreen.pickInstalledApp(context);
+        if (app == null || !mounted) return;
+      }
     }
     if (!mounted) return;
     Navigator.push(
       context,
-      animatedRoute(ScanScreen(startMode: mode, customChoice: choice)),
+      animatedRoute(ScanScreen(startMode: mode, customChoice: choice, customApp: app)),
     );
   }
 

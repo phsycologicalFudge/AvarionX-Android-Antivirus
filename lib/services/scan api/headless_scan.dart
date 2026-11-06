@@ -90,11 +90,13 @@ class _HeadlessTarget {
   final String path;
   final String name;
   final String pkg;
+  final int size;
 
   _HeadlessTarget({
     required this.path,
     required this.name,
     this.pkg = '',
+    this.size = 0,
   });
 }
 
@@ -731,67 +733,26 @@ Future<HeadlessScanResult> runHeadlessScan({
             ));
       }
     } else if (mode == ScanMode.smart) {
-      final folders = <String>[];
+      final filesFuture = _enumerateSmartFiles(ex, _cancelled);
 
-      for (final storage in await listStorageRoots()) {
-        final root = Directory(storage.path);
-        if (!await root.exists()) continue;
-        await for (final e in _safeList(root)) {
-          _throwIfCancelled();
-          if (e is Directory) {
-            final name = e.path.split('/').last.toLowerCase();
-            if (name == 'android' || name == 'music' || name == 'movies' || name == 'podcasts' || name == 'ringtones' || name == 'alarms' || name == 'notifications') continue;
-            folders.add(e.path);
-          }
-        }
+      onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Installed Apps'));
+      final apps = await _listInstalledAppTargets(onEvent: onEvent);
+      total = apps.length;
+      if (apps.isNotEmpty) {
+        onEvent?.call(HeadlessScanEvent('enumerated', mode: mode, scanned: scanned, total: total));
       }
+      verdictCache = await _InstalledVerdictCache.open();
+      await _runPool(apps, _scanInstalledTarget);
 
-      final allFiles = <_HeadlessTarget>[];
+      final files = await filesFuture;
+      _throwIfCancelled();
+      total = apps.length + files.length;
+      onEvent?.call(HeadlessScanEvent(total == 0 ? 'empty' : 'enumerated', mode: mode, scanned: scanned, total: total));
 
-      for (final dirPath in folders) {
-        _throwIfCancelled();
-        final dir = Directory(dirPath);
-        if (!await dir.exists()) continue;
-
-        await for (final entity in _safeList(dir, recursive: true)) {
-          _throwIfCancelled();
-          if (entity is! File) continue;
-
-          final path = entity.path;
-          if (ex.skipFolder(path)) continue;
-
-          final ext = _ext(path);
-          final size = await _safeLength(entity);
-          if (size < 0) continue;
-          if (!isAllowedScanFile(ext, size)) continue;
-
-          allFiles.add(_HeadlessTarget(path: path, name: path.split('/').last));
-        }
-      }
-
-      allFiles.sort((a, b) {
-        final aIsApk = _ext(a.path) == 'apk';
-        final bIsApk = _ext(b.path) == 'apk';
-        if (aIsApk && !bIsApk) return 1;
-        if (!aIsApk && bIsApk) return -1;
-        try {
-          return File(a.path).lengthSync().compareTo(File(b.path).lengthSync());
-        } catch (_) {
-          return 0;
-        }
-      });
-
-      final nonApkFiles = allFiles.where((f) => _ext(f.path) != 'apk').toList();
-      final apkFiles    = allFiles.where((f) => _ext(f.path) == 'apk').toList();
-
-      total = allFiles.length;
-      onEvent?.call(HeadlessScanEvent(allFiles.isEmpty ? 'empty' : 'enumerated', mode: mode, scanned: 0, total: total));
-
-      if (allFiles.isNotEmpty) {
-        if (cloudActive) {
-          onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 1: Local Scan'));
-        }
-
+      if (files.isNotEmpty) {
+        onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 2: Files'));
+        final nonApkFiles = files.where((f) => _ext(f.path) != 'apk').toList();
+        final apkFiles = files.where((f) => _ext(f.path) == 'apk').toList();
         await _runPool(nonApkFiles, (target, w) => _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true, w: w));
         await _runPool(apkFiles, (target, w) => _scanResolvedTarget(path: target.path, displayName: target.name, respectFolderExclusions: true, respectShaExclusions: true, w: w));
       }
@@ -859,7 +820,7 @@ Future<HeadlessScanResult> runHeadlessScan({
         await engineCloudFinishAsync(0);
       } catch (_) {}
     } else {
-      onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: 'Stage 2: Cloud Verification'));
+      onEvent?.call(HeadlessScanEvent('stage_change', mode: mode, message: mode == ScanMode.smart ? 'Stage 3: Cloud Verification' : 'Stage 2: Cloud Verification'));
       try {
         final raw = await engineCloudFinishAsync(_cloudFinishTimeoutMs);
         final decoded = jsonDecode(raw);
@@ -954,6 +915,35 @@ Future<List<StorageRoot>> listStorageRoots() async {
     }
   } catch (_) {}
   return roots;
+}
+
+Future<List<_HeadlessTarget>> _enumerateSmartFiles(ExclusionService ex, bool Function() cancelled) async {
+  const skipDirs = {'android', 'music', 'movies', 'podcasts', 'ringtones', 'alarms', 'notifications'};
+  final out = <_HeadlessTarget>[];
+  try {
+    for (final storage in await listStorageRoots()) {
+      final root = Directory(storage.path);
+      if (!await root.exists()) continue;
+      final folders = <String>[];
+      await for (final e in _safeList(root)) {
+        if (cancelled()) return out;
+        if (e is Directory && !skipDirs.contains(e.path.split('/').last.toLowerCase())) folders.add(e.path);
+      }
+      for (final dirPath in folders) {
+        await for (final entity in _safeList(Directory(dirPath), recursive: true)) {
+          if (cancelled()) return out;
+          if (entity is! File) continue;
+          final path = entity.path;
+          if (ex.skipFolder(path)) continue;
+          final size = await _safeLength(entity);
+          if (size < 0 || !isAllowedScanFile(_ext(path), size)) continue;
+          out.add(_HeadlessTarget(path: path, name: path.split('/').last, size: size));
+        }
+      }
+    }
+  } catch (_) {}
+  out.sort((a, b) => a.size.compareTo(b.size));
+  return out;
 }
 
 Future<List<_HeadlessTarget>> _listInstalledAppTargets({

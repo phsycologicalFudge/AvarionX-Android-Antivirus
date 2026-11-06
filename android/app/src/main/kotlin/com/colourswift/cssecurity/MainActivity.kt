@@ -52,8 +52,13 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
                 io.execute {
                     try {
                         val pm = context.packageManager
+                        val systemFlags = ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
+                        val systemRoots = listOf("/system/", "/system_ext/", "/product/", "/vendor/", "/odm/", "/oem/", "/apex/")
                         val apps = pm.getInstalledApplications(0)
-                            .filter { (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 }
+                            .filter { info ->
+                                val dir = info.sourceDir ?: ""
+                                (info.flags and systemFlags) == 0 && dir.isNotEmpty() && systemRoots.none { dir.startsWith(it) }
+                            }
                             .map {
                                 val label = pm.getApplicationLabel(it).toString()
                                 mapOf(
@@ -195,6 +200,12 @@ class FastAppsPlugin(private val context: Context, messenger: BinaryMessenger) :
 }
 
 class MainActivity : FlutterActivity() {
+    companion object {
+        init {
+            System.loadLibrary("colourswift_av")
+        }
+    }
+
     private val CHANNEL = "colourswift/foreground_service"
     private val EVENT_CHANNEL = "colourswift/realtime_stream"
     private var receiver: RealtimeReceiver? = null
@@ -229,6 +240,16 @@ class MainActivity : FlutterActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntent(intent)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        CSForegroundService.log("U", "ui start")
+    }
+
+    override fun onStop() {
+        CSForegroundService.log("U", "ui stop")
+        super.onStop()
     }
 
     private val ROUTING_CHANNEL = "colourswift/routing"
@@ -367,6 +388,8 @@ class MainActivity : FlutterActivity() {
                         Log.e("CSMain", "Error launching settings: ${e.message}")
                         result.error("ERROR", e.message, null)
                     }
+                } else if (call.method == "listStorageRoots") {
+                    result.success(StorageRoots.list(this).map { mapOf("path" to it.path, "removable" to it.removable, "label" to it.label) })
                 } else result.notImplemented()
             }
 
@@ -679,6 +702,7 @@ class MainActivity : FlutterActivity() {
             else -> System.currentTimeMillis().toInt()
         }
 
+        CSForegroundService.log("U", "notify ch=realtime_notify id=$id on=${manager.areNotificationsEnabled()}")
         manager.notify(id, notification)
 
         if (autoDismissAfterSeconds != null && autoDismissAfterSeconds > 0) {
@@ -860,6 +884,7 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onDestroy() {
+        CSForegroundService.log("U", "ui destroy")
         shizukuBridge?.destroy()
         shizukuBridge = null
         receiver?.let {
@@ -871,4 +896,4 @@ class MainActivity : FlutterActivity() {
         }
         super.onDestroy()
     }
-}
+}

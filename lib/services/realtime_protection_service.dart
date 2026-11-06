@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/scan/main_scan_ui/scan_screen.dart';
 import 'exclusion_service.dart';
 import '../widgets/antivirus_bridge.dart';
+import '../widgets/engine_setup.dart';
 import 'av_engine.dart';
 import 'update_service.dart';
 import 'foreground_service.dart';
@@ -203,6 +204,10 @@ class RealtimeProtectionService {
     await _loadIndex();
     await _exclusions.load();
     await AvEngine.ensureInitialized();
+    if (engineState() != engineStateReady) {
+      final phase = await EngineSetup.run().catchError((_) => EngineSetupPhase.offline);
+      _log('start setup phase=${phase.name}');
+    }
     _log('start engine ms=${sw.elapsedMilliseconds}');
     await ForegroundService.start(title: 'AvarionX', text: 'Protection active');
     _log('start fg ms=${sw.elapsedMilliseconds}');

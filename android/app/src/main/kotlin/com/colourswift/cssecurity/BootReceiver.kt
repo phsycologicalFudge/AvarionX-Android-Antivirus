@@ -4,35 +4,34 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
+        val action = intent.action ?: return
+        if (action != Intent.ACTION_BOOT_COMPLETED && action != Intent.ACTION_MY_PACKAGE_REPLACED) return
 
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences",
-            Context.MODE_PRIVATE
-        )
+        val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        val statePrefs = context.getSharedPreferences("cs_foreground_state", Context.MODE_PRIVATE)
+        val enabled = flutterPrefs.getBoolean("flutter.protectionEnabled", false) ||
+            statePrefs.getBoolean("rtp_active", false)
+        if (!enabled) return
 
-        val protectionEnabled = prefs.getBoolean(
-            "flutter.protectionEnabled",
-            false
-        )
+        val realtime = Intent(context, CSForegroundService::class.java)
+            .putExtra("mode", "rtp")
+            .putExtra("operation", "start")
+            .putExtra("title", "AvarionX")
+            .putExtra("text", "Protection active")
 
-        if (!protectionEnabled) return
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                val realtime = Intent(context, CSForegroundService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(realtime)
-                } else {
-                    context.startService(realtime)
-                }
-            } catch (_: Exception) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(realtime)
+            } else {
+                context.startService(realtime)
             }
-        }, 7000)
+            Log.i("CSRealtime", "RTP started from $action")
+        } catch (e: Exception) {
+            Log.e("CSRealtime", "RTP start from $action failed: ${e.javaClass.simpleName} ${e.message}")
+        }
     }
 }

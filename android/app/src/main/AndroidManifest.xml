@@ -70,7 +70,11 @@
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
         </receiver>
 
         <receiver
@@ -192,7 +196,12 @@
             android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="specialUse"
-            tools:ignore="Instantiatable" />
+            tools:ignore="Instantiatable">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="realtime_malware_protection"
+                tools:targetApi="34" />
+        </service>
 
         <service
             android:name=".rtp.RtpWakeJob"
